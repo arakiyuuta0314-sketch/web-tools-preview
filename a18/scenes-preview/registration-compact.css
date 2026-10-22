@@ -10,7 +10,11 @@
 .registration-compact .registration-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;min-width:0}
 .registration-compact .registration-fields>*{min-width:0;max-width:100%}
 .registration-compact .registration-fields input,.registration-compact .registration-fields textarea{box-sizing:border-box;min-width:0;max-width:100%}
-.registration-compact #date{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;-webkit-appearance:auto;appearance:auto}
+.overlay .dialog.registration-compact{box-sizing:border-box;overflow-x:hidden!important}
+.dialog.registration-compact .registration-fields label{min-width:0!important;max-width:100%;overflow:hidden}
+.dialog.registration-compact .registration-fields input#date[type=date]{display:block!important;inline-size:100%!important;width:100%!important;min-inline-size:0!important;min-width:0!important;max-inline-size:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden!important;font-size:16px!important;text-align:left!important;padding:7px 10px!important;-webkit-appearance:none!important;appearance:none!important}
+.dialog.registration-compact .registration-fields input#date::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
+.dialog.registration-compact .registration-fields input#date::-webkit-calendar-picker-indicator{margin-left:auto;flex-shrink:0}
 .registration-compact .registration-fields label{display:block;margin:0;font-size:14px;font-weight:700;line-height:1.3}
 .registration-compact .registration-fields input:not([type=file]),.registration-compact .registration-fields textarea{width:100%;font-size:16px;min-height:38px;padding:7px 10px;margin-top:3px;border-radius:8px}
 .registration-compact .registration-fields textarea{min-height:54px;max-height:110px;resize:vertical}
