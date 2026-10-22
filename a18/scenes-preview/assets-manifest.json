@@ -1,5 +1,5 @@
 {
-  "version": "v1.6-six-area-map-and-rpg-dialogue",
+  "version": "v1.7-ui-memo-room-layouts",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -110,7 +110,10 @@
     "v15_photo": "Chromium approved automatic tone/crop preview -> receive -> hang -> compare original 1536 px, JS errors none",
     "v15_limits": "50 real-life photos and iPhone Safari performance not yet verified",
     "v16_map": "Chromium iPhone portrait390x844 and landscape844x390: 14 directed door traversals, six rooms, 3+5x5 active frames, initial zero",
-    "v16_rpg": "Chromium: RPG staff greeting, choice menu, entrance registration and gallery registration, handover, carry between rooms, swap occupied entrance frame, exhibit displaced artwork in empty frame and list check"
+    "v16_rpg": "Chromium: RPG staff greeting, choice menu, entrance registration and gallery registration, handover, carry between rooms, swap occupied entrance frame, exhibit displaced artwork in empty frame and list check",
+    "v17_registration": "Chromium 390x844 DPR3 and 844x390 DPR2: single tap greeting, todays date default, explicit unknown clear, 3000-char memo, automatic finishing offer+compare with separate cards, notes persisted and edited and shown in viewer; zero page errors",
+    "v17_navigation": "Chromium 14/14 directional room transitions accessible with grid navigation",
+    "v17_frames": "Chromium 28/28 exhibition frames approached via collision-aware walk; six distinct layouts"
   },
   "viewer": {
     "module": [
@@ -262,5 +265,14 @@
     "sequence": "approach staff -> welcome -> continue/skip -> choose register/list/sort/leave -> form -> handover dialogue",
     "gallery_and_entrance_staff": "both accept registration",
     "form": "direct native form fields; do not turn text fields into typewriter dialog"
+  },
+  "v17_updates": {
+    "rpg_staff_greeting": "tap dialogue pane once; small ▼ タップでつづく, then show choices; remove redundant next/choose buttons",
+    "rpg_photo_review": "offer and compare use separate floating media sheet and bottom RPG-style staff dialogue",
+    "completed_date": "today selected as the default in registration; explicit option to record unknown or reset to today; one date field",
+    "notes": "optional up to 3000 chars; available in registration, original collection object, thumbnail-list preview, inspect, edit, and photo viewer",
+    "room_layouts": "six unique room frame arrangements; floor stands affect collision; all 28 frames accessible",
+    "entrance": "reception desk/staff moved to lower portion, upper gallery line cleared; entrance north doorway repositioned between gold frames",
+    "growth": "still not implemented, 6 rooms open, 28 available frames out of future 30"
   }
 }

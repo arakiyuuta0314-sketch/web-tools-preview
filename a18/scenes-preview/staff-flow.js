@@ -32,6 +32,17 @@ function pick(tag,arr){
  if(i===previous&&arr.length>1)i=(i+1+Math.floor(Math.random()*(arr.length-1)))%arr.length;
  last.set(tag,i);return arr[i];
 }
+function staffPortrait(message,person='館スタッフ'){
+ return '<div class="rpg-chat"><div class="rpg-portrait"><img src="assets/staff-front.png" alt="スタッフ"></div>'+
+ '<div class="rpg-words"><span class="rpg-name">'+esc(person)+'</span>'+
+ '<p class="rpg-message">'+esc(message)+'</p></div></div>';
+}
+function reviewLayout(message,media,choices){
+ return '<div class="rpg-review">'+
+ '<section class="rpg-attachment" aria-label="写真と展示前の確認">'+media+'</section>'+
+ '<section class="rpg-review-dialogue">'+staffPortrait(message)+
+ '<div class="rpg-choices">'+choices+'</div></section></div>';
+}
 function staffDialog({open,close,list,sortDialog,form,scene,carrying}){
  const gallery=scene==='gallery';
  const title=gallery?'展示室スタッフ':'エントランススタッフ';
@@ -59,25 +70,31 @@ function staffDialog({open,close,list,sortDialog,form,scene,carrying}){
   };
   $('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
  }
- open(title,speaker(pick('hello',hellos),
-  '<div class="rpg-choices"><button id="rpgNext">つづける ▼</button>'+
-  '<button id="rpgSkip" class="light">用件を選ぶ</button></div>'),'rpg');
- $('rpgNext').onclick=menu;
- $('rpgSkip').onclick=menu;
+ open(title,'<button type="button" id="rpgAdvance" class="rpg-dialogue-advance" aria-label="次の会話へ進む">'+
+   speaker(pick('hello',hellos))+
+   '<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
+ $('rpgAdvance').onclick=menu;
 }
 function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50}){
  const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
  if(works.length>=maxWorks){open('作品の登録上限','<p>'+maxWorks+'作品に達しました。別フロアへの増築は今後のアップデートで検討します。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
  open('スタッフ｜作品のお預かり',
- '<p class="staff-quote">'+esc(pick('hello',hellos))+'</p>'+
- '<label>作品名<input id="name" maxlength="80" placeholder="例：完成したパズル"></label>'+
- '<label>完成日（任意）<input id="date" type="date" value=""></label>'+
- '<div class="date-actions"><button type="button" id="dateToday" class="light">今日を設定</button><button type="button" id="dateClear" class="light">クリア（不明）</button></div>'+
+ staffPortrait(pick('hello',hellos))+
+ '<div class="registration-fields">'+
+ '<label>作品名<input id="name" maxlength="80" placeholder="例：お気に入りの風景"></label>'+
+ '<label>完成日（任意：不明なら今日を選択）<input id="date" type="date"></label>'+
+ '<div class="date-actions"><button type="button" id="dateClear" class="light">不明として記録</button><button type="button" id="dateToday" class="light">今日に戻す</button></div>'+
  '<label>ピース数（任意）<input id="pieces" type="number" min="1" max="999999"></label>'+
- '<label>写真<input id="photo" type="file" accept="image/*"></label>'+
+ '<label>備考・思い出（任意）<textarea id="notes" maxlength="3000" rows="4" placeholder="作品にまつわる出来事や思い出を自由に残せます"></textarea></label>'+
+ '<label>写真<input id="photo" type="file" accept="image/*"></label></div>'+
  '<p class="prep-warn">元の写真はそのまま端末内で保持します。現在は試作版のため、再読み込みで作品が消えます。</p>'+
  '<p id="err" class="error"></p><div class="row"><button id="save">作品を預ける</button><button id="close" class="light">キャンセル</button></div>');
- $('dateToday').onclick=()=>{$('date').value=new Date().toLocaleDateString('sv-SE');};
+ const today=()=>{
+   const d=new Date();
+   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ };
+ $('date').value=today();
+ $('dateToday').onclick=()=>{$('date').value=today();};
  $('dateClear').onclick=()=>{$('date').value='';};
  $('close').onclick=close;
  $('save').onclick=()=>{
@@ -88,7 +105,7 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
   if(file.size>30*1024*1024){$('err').textContent='30MB以下の画像を選んでください';return}
   const originalURL=URL.createObjectURL(file),image=new Image();
   const entry={title:name,pieces:Number($('pieces').value)||null,complete,
-   registered:new Date().toLocaleDateString('sv-SE'),spot:null,image,originalURL};
+   notes:$('notes').value.trim(),registered:today(),spot:null,image,originalURL};
   image.onload=()=>offer(ctx,entry);
   image.onerror=()=>{URL.revokeObjectURL(originalURL);$('err').textContent='写真を読み込めませんでした'};
   image.src=originalURL;
@@ -96,12 +113,13 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
 }
 function offer(ctx,entry){
  const {open,close}=ctx;
+ const attachments=
+  '<div class="prep-pair"><div class="prep-preview" style="grid-column:1/-1"><strong>お預かりした写真</strong><img id="offerOriginal" alt="元の写真" src="'+esc(entry.originalURL)+'"></div></div>'+
+  '<p class="prep-warn">必要な範囲だけ調整をご提案します。元の写真はそのまま残し、仕上がりを確認してから選べます。</p>';
  open('館スタッフ｜展示前のご相談',
- '<p class="staff-quote">'+esc(pick('praise',compliments))+'<br>私の方で、周囲の余白を整え、明るさ・色味・コントラスト・細部の見え方を調整してもよろしいですか？</p>'+
- '<p>写真を綺麗に飾るための<strong>自動仕上げ</strong>をご提案します。仕上がりを確認してから決められます。原本には一切手を加えません。</p>'+
- '<div class="prep-pair"><div class="prep-preview" style="grid-column:1/-1"><strong>お預かりした写真</strong><img id="offerOriginal" alt="元の写真" src="'+esc(entry.originalURL)+'"></div></div>'+
- '<div class="prep-choices"><button id="offerYes">はい、仕上がりを見たい</button><button id="offerNo" class="light">元のまま展示する</button></div>'+
- '<p class="prep-warn">光の反射や遠近の歪みを完全に消す処理ではありません。誤った切り抜きや強い補正は避けられるよう、必ず選択できます。</p>');
+  reviewLayout(pick('praise',compliments)+' 私の方で、余白や明るさ、色味を整えてもよろしいですか？',
+   attachments,
+   '<button id="offerYes">仕上がりを見たい</button><button id="offerNo" class="light">元の写真を使う</button>'),'rpg');
  $('offerYes').onclick=()=>compare(ctx,entry);
  $('offerNo').onclick=()=>commit(ctx,entry,null);
 }
@@ -118,7 +136,7 @@ function commit(ctx,entry,canvas){
  }
  const thumbnail=previewThumb();
  const id='local-'+Date.now()+'-'+Math.floor(Math.random()*100000);
- works.push({id,title:entry.title,pieces:entry.pieces,complete:entry.complete,
+ works.push({id,title:entry.title,pieces:entry.pieces,complete:entry.complete,notes:entry.notes,
   registered:entry.registered,originalURL:entry.originalURL,
   displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
   thumbnail,spot:null,source:null});
@@ -149,18 +167,18 @@ function compare(ctx,entry){
  const suggested=confidence==='medium'&&retained>=86&&retained<99;
  const tone=window.A18PhotoFinish.profile(entry.image);
  const cropIsUseful=candidate!==full;
- ctx.open('館スタッフ｜自動仕上げの確認',
-  '<p class="staff-quote">こちらが仕上がりのご提案です。実際の作品と見比べて、お好みの方をお選びください。</p>'+
+ const attachment=
   '<div class="prep-pair"><div class="prep-preview"><strong>元の写真</strong><img id="previewBefore" alt="補正前" src="'+esc(entry.originalURL)+'"></div>'+
   '<div class="prep-preview"><strong>展示用の仕上がり</strong><img id="previewAfter" alt="自動補正後のプレビュー"></div></div>'+
   '<label class="prep-check"><input type="checkbox" id="autoCrop" '+(suggested?'checked':'')+' '+(!cropIsUseful?'disabled':'')+'>周囲の余白をトリム'+(!cropIsUseful?'（候補なし）':'')+'</label>'+
   '<label class="prep-check"><input type="checkbox" id="autoTone" checked>明るさ・色味・コントラストを調整</label>'+
   '<label class="prep-check"><input type="checkbox" id="autoDetail" checked>細部を自然にくっきり見せる</label>'+
-  '<p class="prep-warn">トリム候補は画像の縁から自動推定します。'+(cropIsUseful?'候補を使う場合は約'+retained+'%の面積を残します。':'')+
-  ' 意図しない切り取りや色の変化がないか、必ず左右を見比べてください。光の反射や遠近のゆがみを完全に除去する機能ではありません。</p>'+
-  '<p id="prepError" class="error"></p>'+
-  '<div class="prep-choices"><button id="acceptFinish">この仕上がりで展示</button>'+
-  '<button id="acceptOriginal" class="light">元の写真で展示</button></div>');
+  '<p class="prep-warn">トリムの目安：'+(cropIsUseful?'約'+retained+'%の面積を維持':'候補なし')+
+  '。大切な部分が切れたり、色が不自然でないか見比べてください。反射・遠近の歪みを完全に除去するものではありません。</p>'+
+  '<p id="prepError" class="error" role="status"></p>';
+ ctx.open('館スタッフ｜自動仕上げの確認',
+  reviewLayout('こちらが仕上がりのご提案です。元のお写真と比べて、お好きな方をお選びください。',
+   attachment,'<button id="acceptFinish">この仕上がりで展示</button><button id="acceptOriginal" class="light">元の写真で展示</button>'),'rpg');
  let result=null,previewVersion=0;
  const refresh=()=>{
   const version=++previewVersion;

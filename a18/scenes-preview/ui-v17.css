@@ -1,0 +1,65 @@
+/* v1.7: tappable dialogue, separate photo review card, and memory notes. */
+.rpg-dialogue-advance{
+ display:block;width:100%;padding:0 0 5px!important;margin:0!important;
+ background:transparent!important;color:inherit!important;text-align:left;
+ box-shadow:none!important;border:0!important;min-height:0!important;
+ cursor:pointer;
+}
+.rpg-dialogue-advance .rpg-chat{pointer-events:none}
+.rpg-tap-next{display:block;text-align:right;font-size:12px;letter-spacing:.02em;color:#607568;font-weight:700;margin-top:5px;padding-right:4px}
+.rpg-dialogue-advance:focus-visible{outline:3px solid #538d66;outline-offset:4px}
+.overlay.rpg-mode:has(.rpg-review){place-items:center}
+.overlay.rpg-mode .dialog:has(.rpg-review){
+ width:min(720px,100%);max-height:calc(100dvh - 34px);
+ padding:0;background:transparent;border:0;border-radius:0;
+ box-shadow:none;overflow-y:auto;overflow-x:hidden;
+ scrollbar-width:thin;
+}
+.rpg-review{display:flex;flex-direction:column;gap:11px;padding:7px 5px 10px}
+.rpg-attachment{
+ background:#fffaf0;color:#283f34;
+ border:3px solid #c4a06c;border-radius:15px;
+ padding:12px 14px;box-shadow:0 9px 0 #1a372fc2;
+ min-height:0;
+}
+.rpg-attachment .prep-pair{margin:3px 0 9px}
+.rpg-attachment .prep-preview img{height:min(27dvh,235px)}
+.rpg-attachment .prep-preview{background:#f2e9d5}
+.rpg-attachment .prep-check{font-size:14px;margin:4px 0}
+.rpg-attachment .prep-warn{font-size:12px;line-height:1.4;color:#59695d}
+.rpg-attachment .error{margin:2px 0;min-height:0}
+.rpg-review-dialogue{
+ background:#fff8e9;border:4px solid #b89453;border-radius:14px;
+ box-shadow:0 8px 0 #253b32,0 12px 25px #0004;
+ padding:12px 14px;position:sticky;bottom:5px;z-index:2;
+}
+.rpg-review-dialogue .rpg-chat{align-items:flex-start}
+.rpg-review-dialogue .rpg-message{font-size:16px}
+.dialog textarea{
+ display:block;width:100%;padding:10px;resize:vertical;min-height:92px;
+ border:2px solid #b9b3a5;border-radius:9px;background:#fff;color:#1f2e29;
+ font:inherit;font-size:17px;line-height:1.55;overflow-wrap:anywhere;
+}
+.dialog .registration-fields{display:block}
+.dialog .art-note{margin-top:12px;background:#f3ecd9;padding:10px 12px;border-radius:10px}
+.dialog .art-note b{font-size:15px}
+.dialog .art-note p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;font-size:15px}
+.dialog .art-memory{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.a18-viewer-bottom:has(.a18-viewer-details.has-memory){min-height:56px;max-height:28dvh}
+.a18-viewer-details.has-memory{
+ white-space:pre-wrap;overflow-wrap:anywhere;overflow-y:auto;max-height:23dvh;
+ text-overflow:clip;line-height:1.45;min-width:0
+}
+@media(orientation:portrait) and (max-width:850px){
+ .overlay.rpg-mode .dialog:has(.rpg-review){width:100%;max-height:calc(100dvh - 34px)}
+ .rpg-review{gap:9px;padding:5px 2px 9px}
+ .rpg-attachment{padding:10px 12px}
+ .rpg-attachment .prep-preview img{height:min(21dvh,165px)}
+ .rpg-attachment .prep-pair{gap:6px}
+ .rpg-attachment .prep-preview{padding:5px}
+ .rpg-attachment .prep-check{font-size:13px}
+ .rpg-review-dialogue{padding:10px 12px;bottom:3px}
+ .rpg-review-dialogue .rpg-message{font-size:15px}
+ .dialog textarea{min-height:90px}
+ .a18-viewer-details.has-memory{max-height:19dvh;text-align:left}
+}
