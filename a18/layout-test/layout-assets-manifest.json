@@ -1,9 +1,9 @@
 {
-  "version": "A18-integration-candidate-v1.1",
-  "comment": "正式素材の画像パスが確定次第pathを登録。nullはコード描画の仮素材。原本PNGはこのブランチで編集しない。",
+  "version": "A18-approved-characters-v1",
+  "comment": "正式採用キャラクター48点はscenes-preview/assets/official/charactersが正本。額縁・家具の旧候補PNGは非採用・構造検証用に据え置き（表示を変更しない）。",
   "avatars": {
     "male": {
-      "pattern": "assets/curator-{direction}-{frame}.png",
+      "pattern": "../scenes-preview/assets/official/characters/curator-{direction}-{frame}.png",
       "anchor": {
         "x": 0.5,
         "y": 1
@@ -14,182 +14,48 @@
       }
     },
     "female": {
-      "pattern": "assets/candidate-v1.1/curator_female/{direction}_{frame}.png",
+      "pattern": "../scenes-preview/assets/official/characters/female-{direction}-{frame}.png",
       "placeholder": null,
       "anchor": {
         "x": 0.5,
         "y": 1
       },
       "size": {
-        "width": 50,
-        "height": 54
+        "width": 35,
+        "height": 46
       },
-      "footBaselinePx": 73,
+      "footBaselinePx": 72,
       "sourceSize": [
         60,
         77
-      ],
-      "boundsByFrame": {
-        "back_00": [
-          9,
-          5,
-          51,
-          73
-        ],
-        "back_01": [
-          9,
-          5,
-          51,
-          73
-        ],
-        "back_02": [
-          9,
-          5,
-          50,
-          72
-        ],
-        "back_03": [
-          8,
-          5,
-          51,
-          73
-        ],
-        "back_04": [
-          9,
-          5,
-          51,
-          73
-        ],
-        "front_00": [
-          7,
-          5,
-          52,
-          73
-        ],
-        "front_01": [
-          6,
-          5,
-          53,
-          73
-        ],
-        "front_02": [
-          6,
-          5,
-          54,
-          72
-        ],
-        "front_03": [
-          6,
-          6,
-          54,
-          73
-        ],
-        "front_04": [
-          6,
-          5,
-          54,
-          73
-        ],
-        "left_00": [
-          8,
-          5,
-          52,
-          72
-        ],
-        "left_01": [
-          7,
-          5,
-          52,
-          72
-        ],
-        "left_02": [
-          7,
-          5,
-          52,
-          72
-        ],
-        "left_03": [
-          7,
-          5,
-          52,
-          73
-        ],
-        "left_04": [
-          8,
-          5,
-          51,
-          72
-        ],
-        "right_00": [
-          8,
-          5,
-          52,
-          72
-        ],
-        "right_01": [
-          7,
-          5,
-          52,
-          72
-        ],
-        "right_02": [
-          7,
-          5,
-          52,
-          72
-        ],
-        "right_03": [
-          6,
-          7,
-          54,
-          73
-        ],
-        "right_04": [
-          7,
-          5,
-          52,
-          72
-        ]
-      }
+      ]
     }
   },
   "staff": {
-    "path": "assets/candidate-v1.1/staff_female/stand.png",
-    "portraitPath": "assets/candidate-v1.1/staff_female/portrait.png",
+    "path": "../scenes-preview/assets/official/characters/staff-front-00.png",
+    "portraitPath": "../scenes-preview/assets/official/characters/staff-front-00.png",
     "sourceSize": [
       60,
       77
     ],
-    "footBaselinePx": 73,
+    "footBaselinePx": 72,
     "size": {
-      "width": 50,
-      "height": 54
-    },
-    "alphaBBox": [
-      13,
-      4,
-      47,
-      73
-    ]
+      "width": 43,
+      "height": 55
+    }
   },
   "butler": {
-    "path": "assets/candidate-v1.1/butler/stand.png",
-    "portraitPath": "assets/candidate-v1.1/butler/portrait.png",
+    "path": "../scenes-preview/assets/official/characters/butler-front-00.png",
+    "portraitPath": "../scenes-preview/assets/official/characters/butler-front-00.png",
     "sourceSize": [
       60,
       77
     ],
-    "footBaselinePx": 73,
+    "footBaselinePx": 72,
     "size": {
-      "width": 50,
-      "height": 54
-    },
-    "alphaBBox": [
-      14,
-      4,
-      45,
-      73
-    ]
+      "width": 43,
+      "height": 55
+    }
   },
   "decor": {
     "sofa": {
@@ -642,96 +508,8 @@
       "standAsset": "assets/candidate-v1.1/props/easel_wood.png"
     }
   },
-  "candidateSource": "A18_assets_candidate_v1.1_20261023; 48 files SHA256-checked against asset_manifest.json",
+  "candidateSource": "unapproved prop and frame images only; character candidates are NOT used",
   "allCandidateFiles": [
-    {
-      "path": "assets/candidate-v1.1/butler/portrait.png",
-      "sha256": "b9ed143578c9adb972cf5c99de0fcee57a9a308b036230225a27451979865025"
-    },
-    {
-      "path": "assets/candidate-v1.1/butler/stand.png",
-      "sha256": "72c792a1cb7c4a418c6974fe22441243c342df5186216dead8df294e7f73c67a"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/back_00.png",
-      "sha256": "fcb33c16aa7c3ee61043ea63adaa3f18394bcf9c5f0864b95a39c5acd057d404"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/back_01.png",
-      "sha256": "c915f465b62ff309813a59a645c1c3d6bb2f209baaf603a087a57d9d3d445e57"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/back_02.png",
-      "sha256": "c7dfadf94c342e9eca38a6af261ff2ef0781b98ec90c7c9537b8ccd1f8c900cb"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/back_03.png",
-      "sha256": "2f039cadaeadb5979f6cef687f122b5b1d203e9061ff837399c10df70eee6400"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/back_04.png",
-      "sha256": "e4de88287ac02d1a0da17443a9740d94361ebe0a85d6ffcdaadb20db0446fa80"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/front_00.png",
-      "sha256": "9cf2cd588b6f781f6d9d5b4f5bcbec6ef2707d3f8322880ca49efb5643e426ed"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/front_01.png",
-      "sha256": "3a19c1cab0fb4f7ae2d9e0c1bea11af3edf21b3e8c4e6aa28b6125e0fa44dee6"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/front_02.png",
-      "sha256": "ee30f52b7d4d9cb9d7a48257c795970ea72ea8b719ac420d5aff429adf577497"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/front_03.png",
-      "sha256": "fc3bd5ac3878c4a7094f0c763f1c891044faee5b1dd8cdb2608f06b7ede4b7ff"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/front_04.png",
-      "sha256": "3a14b385c5384dc252624c9f44dd4ae9865e7344f159330811eea83ffce41cb4"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/left_00.png",
-      "sha256": "11173b2d805242121552540c61d5e94dbcfe0c95b91576bdfaa8b7269c73e3cd"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/left_01.png",
-      "sha256": "648ebb7a8fddbee97cd73c2ee95445cca9a8d81badf3ff22a6633db9c87bd39c"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/left_02.png",
-      "sha256": "3dfaea618c4b345db2d9f3d7483348d6eed3a1ccb518905f1b4b02bdab43b09b"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/left_03.png",
-      "sha256": "e3a899e8bc8a0ac2e43e41ae570a9cf8389ba6d6fd8e33ad256792ae778267c9"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/left_04.png",
-      "sha256": "deb2a82c63d1aabf42e58d59626852d7e477e3bb99f191137f4db8c310132060"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/right_00.png",
-      "sha256": "eac98f94e4d4c2fccca2af34d7da670994a0e46d23d654f9e883ffa269afda98"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/right_01.png",
-      "sha256": "63830ec5a042d85236190471e8204d68b250027120e2c0f99dc4be39ce59bc30"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/right_02.png",
-      "sha256": "1f5b9964790e31a15b0e876fb115fd04c8f35a0ae6d003df898118ca81d15f40"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/right_03.png",
-      "sha256": "dbe6da80c7fc395e091d91daa8bec511e5c80c0b953eeeb4c7ab78b685330053"
-    },
-    {
-      "path": "assets/candidate-v1.1/curator_female/right_04.png",
-      "sha256": "0b73a9309d921f7f7a06c2eb03546586b3fe524278e277d1b388b4b459b38e74"
-    },
     {
       "path": "assets/candidate-v1.1/props/bench.png",
       "sha256": "f5bb7f45b6073c690857975247891571fdb48029584d52204ed8dec02afddfef"
@@ -827,14 +605,201 @@
     {
       "path": "assets/candidate-v1.1/props/wood_cabinet.png",
       "sha256": "f1afdec324594f98a4af2bc92a2943379082880619d78e8d4eee149e31b1763b"
-    },
-    {
-      "path": "assets/candidate-v1.1/staff_female/portrait.png",
-      "sha256": "3448c13159668b630ee2e4a08b027fc3ad7decffc0765c5f9ec07aef7515f00a"
-    },
-    {
-      "path": "assets/candidate-v1.1/staff_female/stand.png",
-      "sha256": "bd2efd751a3c6154115b8db4b59aaec53bdd41ef05a7d7671542643ea6523101"
     }
-  ]
+  ],
+  "officialCharacterFiles": [
+    {
+      "path": "../scenes-preview/assets/official/characters/butler-back-00.png",
+      "sha256": "6c5d63280964e098ef847f4101a776674be8de3547b71a8e4e0854911bcb0f4a"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/butler-front-00.png",
+      "sha256": "e3d1f41184ccab4535f0fe05a19bef59024a3665a76e75b43b8991668372213c"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/butler-left-00.png",
+      "sha256": "4b9d3a9d71de89fc103e71e5920dd88438b0102a4e400cf72451d6b69ac798d9"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/butler-right-00.png",
+      "sha256": "a32c74906bbd26b8593739b2350768e94370c25b8a802d805d4ada68105f9e0b"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-back-00.png",
+      "sha256": "6c0d367afc683251214634a6f346093c42b8f693b5dc4cb5445b027894cc4893"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-back-01.png",
+      "sha256": "46bbc498026b1f6be4ea6e5db0775d4ede166db5582c6d12cb7f54b1878f6547"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-back-02.png",
+      "sha256": "b1a44dd74c2bb2cc555ba749a335901d726ab928f2064d1235fcb4992d761575"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-back-03.png",
+      "sha256": "5c9233f8e2e2ad110f3c0e90712a5e957e084651c83bf30cadb060fe882b6ea5"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-back-04.png",
+      "sha256": "23579121ded23ef5635f2f552636cac4fa2cd9e2a2f04e8fe6d319f011307155"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-front-00.png",
+      "sha256": "8431fd181e70bc8f417840770c94238e664a1d2c9113777c333c926f0062cb43"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-front-01.png",
+      "sha256": "15175a92abe4c3dc2726eb89e693111c4d965903f2ebdd3657a08d7a88ed1443"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-front-02.png",
+      "sha256": "a2843bc220ada803b4fbd40f0d5de90dbdac639d0df03142a5352f13be875012"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-front-03.png",
+      "sha256": "24234da0523ab5d2e2da0bd9c35df0309c181ab3862a5105a588f9e47d61e220"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-front-04.png",
+      "sha256": "d23ee33197bf77640852e58bffc3b9aa2b78b2fde241620d1d19ad2103b4743f"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-left-00.png",
+      "sha256": "64e23ec4463281efa6f6f3d3064d95ccdf2e007e1bd8211d1d2ee5d7d410389e"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-left-01.png",
+      "sha256": "488d6690d882f373d11d39d2d9345db839dc0c850a8a2bd16589483e6f501816"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-left-02.png",
+      "sha256": "4d77351577c166aa87cf67dd10a20ca51c3c3f1915b2fce12de589edce126dbc"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-left-03.png",
+      "sha256": "9f9c3e38be6f27656a80b64bf955d1cac087d29e86eee9e184c1b96708ffe49d"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-left-04.png",
+      "sha256": "93cc2e0d277ef64517606e047c2556af39c1479e5c4eaaf3bae24b4e6f3a2541"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-right-00.png",
+      "sha256": "a65e4017a21c1f7000753c440ae98d6437d0293e02693382db7c8db37f1730b8"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-right-01.png",
+      "sha256": "8234698130b48e914cb1cbec7a873641a4bc3d708fd6470dd6e530057e4007da"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-right-02.png",
+      "sha256": "c4fb82027bb60d7f883a17f5501c6058b9dc405f1b85c6938f6bdd360944f6ce"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-right-03.png",
+      "sha256": "43f64bbf1b55640f1f1791cab7f9020c36120a6e1bd0dd5f87b257c4a809377a"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/curator-right-04.png",
+      "sha256": "6e7542248d508a71feaf52cc259f9918dbefb4193e4643d3f3c92224ca6c460c"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-back-00.png",
+      "sha256": "c0f7e00df3052b346329746cad80aeda3c213c7c8311dcb59fe5f5e0592a572b"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-back-01.png",
+      "sha256": "a873a394ccb347aee2b72df062d242bef995730a0ddbd7abb5e6616adcf1f118"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-back-02.png",
+      "sha256": "d206ee34051625f6ca2c83c12f908ff9d893cca889c6e09f113c9d6c795f218d"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-back-03.png",
+      "sha256": "531fda9ca6518318045f7e3cee8c0511648296ecd664e70be902574c016840b3"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-back-04.png",
+      "sha256": "8ce6aef82473d0e4a881f1a8ea3b69a06ec83f40f285c4a59a4410b7298de8ba"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-front-00.png",
+      "sha256": "961bc6fd26848121b19c9938aff7e30492bf964ee75b56f2b301d8c40777cb22"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-front-01.png",
+      "sha256": "4eb90200fcc719206b490127c57d151166d917d5736a1002d1473a6bcc20c3a3"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-front-02.png",
+      "sha256": "a79e2d3b61827ae3cd58f465b27117843541a4100316f6635b022e43c5c173ec"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-front-03.png",
+      "sha256": "89750fbd856baab3cd010ddcbca75241a763fc06a2a0505858bc400e86ee5c5e"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-front-04.png",
+      "sha256": "6427c4cd58086e9f777481028444ca6676658ba8f15ebcb978368bc1d44878f8"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-left-00.png",
+      "sha256": "f1ef1bd540bd9690fcbf3e9e45270f0d429da30a920ff3745c2daa0f97896acc"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-left-01.png",
+      "sha256": "3c82df37d940071aa6c8e2fdc10d2ab4027547dc89c7cc72e356933d7c1251e4"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-left-02.png",
+      "sha256": "10e32e5f205e489b0acd2e606f5f15e807a73eacdacd451b8946c4b35b76bd16"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-left-03.png",
+      "sha256": "784e9e62deec0789861b3233c5640c13b043079bf39da7e6d10de0515bc6ddee"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-left-04.png",
+      "sha256": "4ac15ae2ba8b69b450fba7cbe6a6ff4a8dc195c416f9c32e9565a34ae50c2127"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-right-00.png",
+      "sha256": "9805c223f03516ed8135c5b920e3e6e0db3666aa7244fb1f3d41fe50108ecc67"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-right-01.png",
+      "sha256": "92529c553042eb06848c32bcdf208ff773f80899221a52aae9c66c8e03787ade"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-right-02.png",
+      "sha256": "5d9d35f7302b8a4664c6dd1549270b1c2aac4c56fe46ea43db119d7e7b6dac43"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-right-03.png",
+      "sha256": "f7f849dfefb2e04ae176585deba617ce69ac94deb3e8505eba9334042142aee4"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/female-right-04.png",
+      "sha256": "7a02100f23704b54427484c703f66e54638ec0204fb44c2d68a5f217d4a14a9c"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/staff-back-00.png",
+      "sha256": "d4377ee8ca4d42c885db2190d36d4861bc62e7e8369516c10539f5259fe5b16c"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/staff-front-00.png",
+      "sha256": "47fc46c0eb6d2980a7c4c339b7776a11c885b228e5b00be8afb6c6f3ae877cd3"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/staff-left-00.png",
+      "sha256": "8de58d097284da645efb3d6e46af5980736dab38695b08cd23442ceae49b843d"
+    },
+    {
+      "path": "../scenes-preview/assets/official/characters/staff-right-00.png",
+      "sha256": "9063154e08382d7418ea25679ae94b771c780d6f4bab9ea2b8c5a763098a5ddc"
+    }
+  ],
+  "charactersCanonicalPath": "a18/scenes-preview/assets/official/characters/"
 }

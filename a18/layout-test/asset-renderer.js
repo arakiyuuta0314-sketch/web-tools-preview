@@ -1,4 +1,4 @@
-/* A18 actual PNG renderer: visible alpha bounds and feet anchors derive from candidate manifest. */
+/* A18: canonical 48 characters and preserved experimental fixture art. No approved asset is modified. */
 (()=>{'use strict';
 const cache=new Map();
 let manifest=null;
@@ -15,8 +15,11 @@ function fetchImage(path){
  });
 }
 async function init(candidate){
- if(!candidate?.allCandidateFiles||candidate.allCandidateFiles.length!==48)throw Error('A18素材manifestに48点が定義されていません');
- const files=candidate.allCandidateFiles;
+ if(!candidate?.officialCharacterFiles||candidate.officialCharacterFiles.length!==48)
+  throw Error('正式採用48キャラクターの定義が欠損しています');
+ if(!candidate?.allCandidateFiles||candidate.allCandidateFiles.length!==24)
+  throw Error('既存の仮展示設備24素材が不足しています');
+ const files=[...candidate.officialCharacterFiles,...candidate.allCandidateFiles];
  const ids=new Set(files.map(f=>f.path));
  if(ids.size!==files.length)throw Error('素材manifestに重複パスがあります');
  // Avoid dozens of simultaneous decodes on mobile Safari and local preview servers.

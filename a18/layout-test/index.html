@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="layout-editor.css?v=2.2"><script src="layout-system.js?v=2.2"></script><script src="asset-renderer.js?v=2.2"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
+<link rel="stylesheet" href="layout-editor.css?v=2.2"><script src="layout-system.js?v=2.2"></script><script src="asset-renderer.js?v=official1"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -158,7 +158,7 @@ function requestSave(){
  },120);
 }
 function chooseAvatar(){
- open('館長の姿を選ぶ','<p>男性館長と女性館長で歩く速さ・操作方法は同じです。女性の正式画像は完成後に差し替えます。</p>'+
+ open('館長の姿を選ぶ','<p>男性館長と女性館長で歩く速さ・操作方法は同じです。男女とも正式採用されたキャラクター画像を使用しています。</p>'+
  '<div class="row"><button id="a18Male">男性館長'+(avatarGender==='male'?' ✓':'')+'</button><button id="a18Female">女性館長'+(avatarGender==='female'?' ✓':'')+'</button></div><div class="row"><button id="close" class="light">戻る</button></div>');
  for(const [id,gender] of [['a18Male','male'],['a18Female','female']]){
   $(id).onclick=()=>{avatarGender=gender;requestSave();close();};
@@ -202,6 +202,21 @@ function trimImageCache(){
 function image(name,url){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{images.set(name,im);res()};im.onerror=()=>rej(new Error('画像の読込に失敗: '+url));im.src=url;});}
 function get(name){return images.get(name);}
 const SPRITE_BOUNDS={"front0":{"x":10,"y":4,"w":42,"h":68},"front1":{"x":8,"y":3,"w":42,"h":69},"front2":{"x":6,"y":4,"w":43,"h":68},"front3":{"x":7,"y":4,"w":43,"h":68},"front4":{"x":9,"y":4,"w":42,"h":68},"back0":{"x":7,"y":3,"w":41,"h":63},"back1":{"x":6,"y":3,"w":42,"h":63},"back2":{"x":6,"y":3,"w":40,"h":63},"back3":{"x":7,"y":3,"w":40,"h":63},"back4":{"x":8,"y":3,"w":41,"h":63},"left0":{"x":13,"y":8,"w":40,"h":59},"left1":{"x":14,"y":8,"w":39,"h":59},"left2":{"x":15,"y":8,"w":38,"h":59},"left3":{"x":13,"y":8,"w":40,"h":60},"left4":{"x":11,"y":8,"w":41,"h":59},"right0":{"x":6,"y":2,"w":40,"h":56},"right1":{"x":6,"y":2,"w":39,"h":57},"right2":{"x":6,"y":2,"w":39,"h":57},"right3":{"x":6,"y":2,"w":40,"h":56},"right4":{"x":8,"y":2,"w":41,"h":57}};
+async function getAlphaBounds(img){
+ const canvas=document.createElement('canvas');
+ canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+ const cx=canvas.getContext('2d',{willReadFrequently:true});
+ cx.drawImage(img,0,0);
+ const pix=cx.getImageData(0,0,canvas.width,canvas.height).data;
+ let x0=canvas.width,y0=canvas.height,x1=0,y1=0;
+ for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++){
+  if(pix[(y*canvas.width+x)*4+3]>20){
+   x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1);
+  }
+ }
+ if(x1<=x0||y1<=y0)throw Error('正式館長の透過範囲が空です');
+ return {x:x0,y:y0,w:x1-x0,h:y1-y0};
+}
 async function boot(){
  // Defer scripts (staff/photo modules) must finish before registration becomes playable.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
@@ -225,30 +240,23 @@ async function boot(){
   carrying=state.carrying||null;
   restored=true;
  }
- const response=await fetch('layout-assets-manifest.json');
+ const response=await fetch('layout-assets-manifest.json?v=official1');
  if(!response.ok)throw Error('正式候補素材のmanifestを取得できません');
  assetManifest=await response.json();
  await window.A18Art.init(assetManifest);
- for(const dir of ['front','back','left','right']){
-  // Limit simultaneous requests: heavy candidate PNG decoding must not starve legacy male frames.
-  const batch=[];
-  for(let i=0;i<5;i++){
-   const id=dir+i;
-   batch.push(image(id,'assets/curator-'+dir+'-'+String(i).padStart(2,'0')+'.png'));
-  }
-  await Promise.all(batch);
- }
- for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++)spriteBounds.set(dir+i,SPRITE_BOUNDS[dir+i]);
- const femalePattern=assetManifest?.avatars?.female?.pattern;
- if(femalePattern){
-  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
-   const id=dir+i,assetName='female-'+id;
-   const url=femalePattern.replace('{direction}',dir).replace('{frame}',String(i).padStart(2,'0'));
-   const sprite=window.A18Art.get(url);
-   if(!sprite)throw Error('女性館長の歩行素材がありません：'+url);
-   images.set(assetName,sprite);
-   spriteBounds.set(assetName,{x:0,y:0,w:sprite.naturalWidth,h:sprite.naturalHeight});
-  }
+ // Reuse only the canonical approved 48 PNGs already decoded by A18Art.
+ // Male retains the existing walking-frame crop; female follows the adopted main-preview crop.
+ for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
+  const suffix=dir+'-'+String(i).padStart(2,'0');
+  const maleUrl=assetManifest.avatars.male.pattern.replace('{direction}',dir).replace('{frame}',String(i).padStart(2,'0'));
+  const femaleUrl=assetManifest.avatars.female.pattern.replace('{direction}',dir).replace('{frame}',String(i).padStart(2,'0'));
+  const male=window.A18Art.get(maleUrl),female=window.A18Art.get(femaleUrl);
+  if(!male||!female)throw Error('正式館長画像の欠損：'+suffix);
+  const id=dir+i,femaleId='female-'+id;
+  images.set(id,male);
+  spriteBounds.set(id,SPRITE_BOUNDS[id]);
+  images.set(femaleId,female);
+  spriteBounds.set(femaleId,await getAlphaBounds(female));
  }
  loaded=true;resize();update();requestAnimationFrame(draw);
  $('museumName').textContent=museumTitle;
@@ -414,7 +422,7 @@ function avatar(){
  ctx.fillStyle='#1b292147';ctx.beginPath();ctx.ellipse(pos.x,pos.y+1,13,3.2,0,0,Math.PI*2);ctx.fill();
  ctx.save();
  if(avatarGender==='female'&&!formalFemale)ctx.filter='hue-rotate(165deg) saturate(.85)';
- const y=formalFemale?pos.y-h*(assetManifest.avatars.female.footBaselinePx/assetManifest.avatars.female.sourceSize[1]):pos.y-h;
+ const y=pos.y-h;
  ctx.drawImage(image,crop.x,crop.y,crop.w,crop.h,pos.x-w/2,y,w,h);
  ctx.restore();
  if(avatarGender==='female'&&!formalFemale){ctx.fillStyle='#573851';ctx.beginPath();ctx.arc(pos.x+13,pos.y-h+11,6,0,Math.PI*2);ctx.fill();}
