@@ -12,7 +12,7 @@
 <section class="viewport" aria-label="2D美術館" id="viewport"><canvas id="world" width="1060" height="590" aria-label="館長が歩く見下ろし型2D美術館"></canvas><div class="vignette"></div><div class="topnote" id="stageNote">館長を動かして、額縁に近づいてみよう</div><div class="roomLabel"><span id="sceneIcon">✦</span><span id="sceneLabel">木漏れ日の展示室</span></div><div id="toast" role="status" aria-live="polite"></div><div id="fade"></div>
 <div class="gamepad" aria-label="移動操作"><button class="move up" data-dir="up" aria-label="上へ移動">▲</button><button class="move left" data-dir="left" aria-label="左へ移動">◀</button><span class="padcenter">歩く</span><button class="move right" data-dir="right" aria-label="右へ移動">▶</button><button class="move down" data-dir="down" aria-label="下へ移動">▼</button></div>
 <div class="actions"><button id="action" class="primary">調べる</button><button id="carryCancel" class="subaction" hidden>もどす</button></div></section>
-<footer><div><span class="dot"></span> <b>試作版</b>　館長の移動・持ち上げ・入れ替え・受付スタッフの操作を確認できます</div><div><span class="keycap">矢印キー / WASD</span> 移動　<span class="keycap">Enter</span> 調べる</div></footer></main>
+<footer><div><span class="dot"></span> <b>試作 v0.3</b>　館長の移動・持ち上げ・入れ替え・受付スタッフの操作を確認できます</div><div><span class="keycap">矢印キー / WASD</span> 移動　<span class="keycap">Enter</span> 調べる</div></footer></main>
 <div class="overlay" id="overlay" hidden><div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"></div></div><input id="photoFile" type="file" accept="image/*" hidden>
 <script>
 /* A18 original pixel-illustration renderer v0.2: no external assets */
@@ -65,7 +65,35 @@ function drawGallery(g,room,slots,unlocked,level,atSpot,carry,faceArt,nearId){co
 }
 const pal={o:'#312e32',h:'#50423b',hh:'#775748',skin:'#f4c7a0',shadow:'#d69b78',coat:'#49796b',coatHi:'#78a38a',coatD:'#28564e',pants:'#42494a',shoe:'#372f30',gold:'#f8d38a',white:'#faf4db'};
 function pixel(g,x,y,u,v,w,h,c,S=3){rect(g,x+u*S,y+v*S,w*S,h*S,pal[c]||c);}
-function drawPlayer(g,x,y,pos,carry,art,faceArt,staff=false){const S=3;const px=(u,v,w,h,c)=>pixel(g,x-29,y-59,u,v,w,h,c,S);
+function drawSidePlayer(g,x,y,pos,carry,art,faceArt,staff=false){
+ const walk=pos.stride%2 ? 1 : 0;
+ g.save();g.translate(x,y);if(pos.dir==='left')g.scale(-1,1);
+ const px=(u,v,w,h,c)=>pixel(g,-29,-59,u,v,w,h,c,3);
+ g.fillStyle='#192f2a55';g.beginPath();g.ellipse(0,28,24,8,0,0,Math.PI*2);g.fill();
+ px(8,22,4,5,'pants');px(12,23,4,4,'pants');
+ px(7+walk,25,5,3,'shoe');px(12-walk,25,5,3,'shoe');
+ px(6,12,10,12,'o');px(7,13,9,10,staff?'#5b8595':'coatD');
+ px(9,13,7,9,staff?'#779fb0':'coat');
+ px(14,14,2,8,staff?'#a3b8c0':'coatHi');
+ px(7,13,3,8,staff?'#4a7888':'coatD');
+ px(11,12,4,2,'white');px(14,15,1,2,'gold');
+ px(6,0,9,3,'o');px(5,2,12,4,'h');px(5,5,11,5,'hh');
+ px(8,4,8,7,'skin');px(15,5,3,4,'skin');px(17,7,2,2,'skin');
+ px(14,6,2,1,'o');px(8,8,2,2,'shadow');
+ px(5,3,4,6,'h');px(6,0,10,2,'o');px(11,11,4,2,'skin');
+ if(carry){
+   px(5,8,3,6,'coatHi');px(5,4,3,6,'skin');
+   px(15,8,3,6,'coatD');px(15,4,3,6,'skin');
+   frame(g,-33,-137,66,49,'#d7b57a');
+   if(art)faceArt(art,-27,-131,54,37);else rect(g,-27,-131,54,37,C.cream);
+ }else{
+   px(12,14+walk,3,7,staff?'#779fb0':'coatHi');
+   px(12,21+walk,3,2,'skin');
+ }
+ g.restore();
+}
+function drawPlayer(g,x,y,pos,carry,art,faceArt,staff=false){if(pos.dir==='left'||pos.dir==='right'){drawSidePlayer(g,x,y,pos,carry,art,faceArt,staff);return;}
+ const S=3;const px=(u,v,w,h,c)=>pixel(g,x-29,y-59,u,v,w,h,c,S);
  g.fillStyle='#192f2a55';g.beginPath();g.ellipse(x,y+28,26,9,0,0,Math.PI*2);g.fill();const walk=pos.stride%2?1:0,dir=pos.dir||'down',side=(dir==='left'||dir==='right'),back=dir==='up';
  // pixels are carefully aligned to a shared 19x29 grid. feet y+28.
  px(5,24+walk,4,5,'shoe');px(11,24+(1-walk),4,5,'shoe');px(5,21,4,5,'pants');px(11,21,4,5,'pants');
@@ -98,7 +126,7 @@ const initial=[
 ];
 let arts=initial.map(a=>({...a})),serial=10,scene='entrance',pos={x:525,y:430,dir:'up',stride:0},carry=null,sortUndo=null,modal=null,photoDraft=null;
 let pointerLoop=null,heldKeys=new Set(),noticeTimer=0,transitioning=false;
-const imageCache=new Map();const entrance={staff:{x:348,y:277},stone:{x:690,y:268},door:{x:525,y:125}};
+const imageCache=new Map();const entrance={staff:{x:348,y:277},stone:{x:690,y:268},door:{x:525,y:230}};
 function level(){const n=arts.length;return Math.min(9,1+Math.floor(n/6));}
 function unlocked(){return Math.min(50,6*level());}
 function today(){return new Date().toLocaleDateString('sv-SE');}
@@ -112,16 +140,57 @@ function say(msg){const el=$('toast');el.textContent=msg;el.classList.add('show'
 function writeModal(title,kicker,inner){$('dialog').innerHTML=`<div class="modalbar"><div><small>${esc(kicker)}</small><h2 id="modalTitle">${esc(title)}</h2></div><button class="x" type="button" id="dismiss" aria-label="閉じる">×</button></div>${inner}`;$('overlay').hidden=false;modal=title;$('dismiss').onclick=closeModal;}
 function closeModal(){$('overlay').hidden=true;modal=null;photoDraft=null;}
 $('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal()});
-function sceneTo(next){if(transitioning)return;transitioning=true;const fade=$('fade');fade.classList.add('show');setTimeout(()=>{scene=next;pos=next==='gallery'?{x:525,y:393,dir:'up',stride:0}:{x:525,y:430,dir:'up',stride:0};carry=null;titleBar();$('stageNote').textContent=next==='gallery'?'作品の近くで「調べる」を押す':'スタッフか石碑に近づこう';setTimeout(()=>{fade.classList.remove('show');transitioning=false;},200)},240)}
+function sceneTo(next){if(transitioning)return;transitioning=true;const fade=$('fade');fade.classList.add('show');setTimeout(()=>{scene=next;pos=next==='gallery'?{x:525,y:277,dir:'up',stride:0}:{x:525,y:430,dir:'up',stride:0};carry=null;titleBar();$('stageNote').textContent=next==='gallery'?'作品の近くで「調べる」を押す':'スタッフか石碑に近づこう';setTimeout(()=>{fade.classList.remove('show');transitioning=false;},200)},240)}
 function screenCam(){return scene==='entrance'?{x:0,y:0}: {x:Math.max(0,Math.min(room.w-W,pos.x-W/2)),y:Math.max(0,Math.min(room.h-H,pos.y-H/2))};}
-function resizeCanvas(){const box=$('viewport').getBoundingClientRect();if(box.width<1||box.height<1)return;W=Math.max(280,Math.min(1850,Math.round(H*box.width/box.height)));canvas.width=W;canvas.height=H;ctx.imageSmoothingEnabled=false;}
+function resizeCanvas(){const view=$('viewport'),box=view.getBoundingClientRect(),style=getComputedStyle(view);const bw=parseFloat(style.borderLeftWidth)+parseFloat(style.borderRightWidth),bh=parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth),cw=box.width-bw,ch=box.height-bh;if(cw<1||ch<1)return;W=Math.max(280,Math.min(1850,Math.round(H*cw/ch)));canvas.width=W;canvas.height=H;ctx.imageSmoothingEnabled=false;}
 function isNear(x,y,r=118){return Math.hypot(pos.x-x,pos.y-y)<r;}
 function closest(){if(scene==='entrance'){for(const [name,p] of Object.entries(entrance))if(isNear(p.x,p.y,name==='door'?138:124))return{kind:name};return null;}
  const available=slots.slice(0,unlocked());let best=null,bestDistance=150;for(const s of available){const distance=Math.hypot(pos.x-s.x,pos.y-(s.y+63));if(distance<bestDistance){best={kind:'spot',slot:s};bestDistance=distance;}}return best;}
 function act(){if(modal||transitioning)return;const thing=closest();if(carry){if(!thing||thing.kind!=='spot'){say('展示スポットの近くで「置く」を押してね');return;}return place(thing.slot.id);}if(!thing){say('受付・石碑・展示品に近づいてみよう');return;}if(thing.kind==='door')return sceneTo('gallery');if(thing.kind==='staff')return staff();if(thing.kind==='stone')return stone();if(thing.kind==='spot')return spotAction(thing.slot.id);}
 function updateAct(){const thing=closest();$('carryCancel').hidden=!carry;const label=carry?(thing?.kind==='spot'?'ここに置く':'展示場所を探す'):(thing?.kind==='door'?'展示室へ':thing?.kind==='staff'?'スタッフと話す':thing?.kind==='stone'?'石碑を読む':thing?.kind==='spot'?'作品を調べる':'調べる');$('action').textContent=label;}
-function walk(direction){if(modal||transitioning)return;const delta=20;let x=pos.x,y=pos.y;pos.dir=direction;pos.stride=(pos.stride+1)%4;if(direction==='up')y-=delta;if(direction==='down')y+=delta;if(direction==='left')x-=delta;if(direction==='right')x+=delta;
- if(scene==='gallery'){pos.x=Math.max(65,Math.min(room.w-65,x));pos.y=Math.max(90,Math.min(room.h-68,y));}else{pos.x=Math.max(90,Math.min(970,x));pos.y=Math.max(154,Math.min(505,y));}updateAct();}
+const FOOT_OFFSET=17, BODY_RADIUS=12;
+function solidFurniture(){
+ if(scene==='entrance')return [
+  {x:215,y:227,w:255,h:117},
+  {x:631,y:207,w:140,h:140},
+  {x:395,y:83,w:260,h:194},
+  {x:92,y:100,w:52,h:458}, {x:919,y:100,w:52,h:458},
+  {x:136,y:271,w:50,h:88},{x:813,y:271,w:50,h:88},
+  {x:125,y:427,w:64,h:80},{x:915,y:427,w:64,h:80}
+ ];
+ const obstacles=slots.slice(0,unlocked()).map(s=>({x:s.x-62,y:s.y-58,w:124,h:138}));
+ for(let row=0;row<5;row++){
+  if(row*10>=unlocked())continue;
+  const y=124+row*185;
+  for(const x of [110,1653])obstacles.push({x,y:y-29,w:38,h:144});
+ }
+ obstacles.push({x:129,y:room.h-192,w:44,h:95},{x:1593,y:room.h-193,w:44,h:95});
+ return obstacles;
+}
+function canStand(x,y){
+ const bound=scene==='gallery'
+  ? {left:69,right:room.w-69,top:88,bottom:room.h-89}
+  : {left:90,right:970,top:154,bottom:517};
+ if(x<bound.left||x>bound.right||y<bound.top||y>bound.bottom)return false;
+ const fy=y+FOOT_OFFSET;
+ for(const r of solidFurniture()){
+  const dx=x-Math.max(r.x,Math.min(x,r.x+r.w));
+  const dy=fy-Math.max(r.y,Math.min(fy,r.y+r.h));
+  if(dx*dx+dy*dy<BODY_RADIUS*BODY_RADIUS)return false;
+ }
+ return true;
+}
+function walk(direction){
+ if(modal||transitioning)return;
+ const delta=20;let nx=pos.x,ny=pos.y;pos.dir=direction;
+ if(direction==='up')ny-=delta;
+ if(direction==='down')ny+=delta;
+ if(direction==='left')nx-=delta;
+ if(direction==='right')nx+=delta;
+ if(canStand(nx,ny)){pos.x=nx;pos.y=ny;pos.stride=(pos.stride+1)%4;}
+ else pos.stride=0;
+ updateAct();
+}
 function photoImg(data){if(!data)return null;if(!imageCache.has(data)){const im=new Image();im.src=data;imageCache.set(data,im)}return imageCache.get(data);}
 function box(x,y,w,h,fill,stroke){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);if(stroke){ctx.lineWidth=2;ctx.strokeStyle=stroke;ctx.strokeRect(x,y,w,h);}}
 function round(x,y,w,h,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
@@ -146,7 +215,7 @@ function staff(){writeModal('館スタッフ','MUSEUM RECEPTION',`<p>「こん�
 function stone(){const known=arts.filter(a=>a.completed),pieces=arts.reduce((s,a)=>s+(Number.isFinite(a.pieces)?a.pieces:0),0);writeModal('美術館の記録','MEMORIAL STONE',`<div class="metrics"><div class="metric"><small>登録作品</small><b>${arts.length}</b></div><div class="metric"><small>合計ピース数</small><b>${pieces.toLocaleString('ja-JP')}</b></div><div class="metric"><small>館レベル</small><b>Lv.${level()}</b></div></div><p>称号：${level()>=7?'大パズルマニア':level()>=4?'コレクター':level()>=2?'作品収集家':'新米館長'}</p><p class="tip">完成日が「不明」の作品は、完成年の記録には含めません。完成日が分かる作品：${known.length}点</p>`)}
 function galleryList(){const items=arts.map(a=>`<div class="artitem"><div class="thumb" style="display:grid;place-items:center;color:#586c5d">${a.image?`<img class="thumb" src="${a.image}" alt="">`:'🖼️'}</div><div class="meta"><b>${esc(a.title)}</b><small>完成日：${esc(displayDate(a))} ／ ${esc(a.pieces||'不明')}ピース ／ ${a.spot?'展示中':'未展示'}</small></div><button data-look="${esc(a.id)}">見る</button></div>`).join('');writeModal('作品一覧','YOUR COLLECTION',`<div class="artlist">${items||'<div class="empty">まだ作品がありません</div>'}</div><div class="rowbtn"><button class="btn" id="listSort">並べ替え</button><button class="btn primary2" id="listAdd">＋ 作品を登録</button></div>`);$('dialog').querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>detail(b.dataset.look));$('listSort').onclick=sortDialog;$('listAdd').onclick=()=>registerForm();}
 function sortDialog(){writeModal('展示品を並べ替える','MUSEUM STAFF',`<p>「どの順番で並べましょうか？」</p><div class="field">並べ替える基準<div class="choiceGrid"><label><input type="radio" name="sortKey" value="completed" checked>完成日順</label><label><input type="radio" name="sortKey" value="registered">登録順</label></div></div><div class="field">並び順<div class="choiceGrid"><label><input type="radio" name="sortDir" value="desc" checked>新しい順</label><label><input type="radio" name="sortDir" value="asc">古い順</label></div></div><p class="tip">完成日が「不明」の作品は、登録日を代わりに使います。写真や作品情報そのものは変わりません。</p><div class="rowbtn">${sortUndo?'<button class="btn" id="undoSort">前の並びに戻す</button>':''}<button class="btn primary2" id="sortGo">暗転して整列する</button></div>`);$('sortGo').onclick=()=>{const key=document.querySelector('input[name=sortKey]:checked').value,dir=document.querySelector('input[name=sortDir]:checked').value;closeModal();arrange(key,dir)};if(sortUndo)$('undoSort').onclick=()=>{restoreSort();closeModal()};}
-function arrange(key,dir){if(carry){say('先に持ち上げ中の作品を戻してね');return;}const ids=arts.filter(a=>a.spot).map(a=>({id:a.id,spot:a.spot}));const saved=ids.map(v=>({...v}));const ordered=ids.map(o=>getArt(o.id)).sort((a,b)=>{const av=key==='completed'?(a.completed||a.registered):a.registered,bv=key==='completed'?(b.completed||b.registered):b.registered;const c=av.localeCompare(bv);return c===0?a.id.localeCompare(b.id):(dir==='asc'?c:-c)});sortUndo=saved;const fade=$('fade');fade.classList.add('show');setTimeout(()=>{ordered.forEach((a,i)=>{a.spot=slots[i].id;});scene='gallery';pos={x:525,y:393,dir:'up',stride:0};titleBar();setTimeout(()=>{fade.classList.remove('show');say('展示品を並べ替えました');},140)},350);}
+function arrange(key,dir){if(carry){say('先に持ち上げ中の作品を戻してね');return;}const ids=arts.filter(a=>a.spot).map(a=>({id:a.id,spot:a.spot}));const saved=ids.map(v=>({...v}));const ordered=ids.map(o=>getArt(o.id)).sort((a,b)=>{const av=key==='completed'?(a.completed||a.registered):a.registered,bv=key==='completed'?(b.completed||b.registered):b.registered;const c=av.localeCompare(bv);return c===0?a.id.localeCompare(b.id):(dir==='asc'?c:-c)});sortUndo=saved;const fade=$('fade');fade.classList.add('show');setTimeout(()=>{ordered.forEach((a,i)=>{a.spot=slots[i].id;});scene='gallery';pos={x:525,y:277,dir:'up',stride:0};titleBar();setTimeout(()=>{fade.classList.remove('show');say('展示品を並べ替えました');},140)},350);}
 function restoreSort(){if(!sortUndo)return;sortUndo.forEach(s=>{const a=getArt(s.id);if(a)a.spot=s.spot});sortUndo=null;say('以前の展示位置に戻しました');}
 function detail(id){const a=getArt(id);if(!a)return;writeModal(a.title,'EXHIBITION DETAILS',`${a.image?`<img class="photoLarge" src="${a.image}" alt="${esc(a.title)}">`:`<div class="empty">🖼️ これはサンプル展示です。写真を登録するとここに大きく表示されます。</div>`}<p><strong>${a.pieces??'不明'}ピース</strong>　完成日：${esc(displayDate(a))}</p><p class="tip">登録日：${esc(a.registered)}　${esc(a.memo||'')}</p><div class="rowbtn"><button class="btn" id="editItem">写真や内容を編集</button><button class="btn primary2" id="backList">作品一覧</button></div>`);$('editItem').onclick=()=>registerForm(a.spot,a.id);$('backList').onclick=galleryList;}
 function registerForm(spot=null,editingId=null){photoDraft=null;if(!editingId&&arts.length>=50){say('この展示室の登録上限は50作品です');return;}const old=getArt(editingId),available=slots.slice(0,unlocked()).find(s=>!atSpot(s.id));const target=spot||old?.spot||available?.id||null;
@@ -156,7 +225,7 @@ function registerForm(spot=null,editingId=null){photoDraft=null;if(!editingId&&a
  $('saveArt').onclick=()=>{const name=$('artTitle').value.trim(),piecesText=$('artPieces').value.trim(),pieces=piecesText?Number(piecesText):null,known=$('dateMode').value==='known',date=known?$('completeDate').value:null,memo=$('memo').value.trim(),img=photoDraft||old?.image||null;if(!name){$('formError').textContent='作品名を入力してください';return;}if(piecesText&&(!Number.isSafeInteger(pieces)||pieces<=0)){$('formError').textContent='ピース数は正の整数で入力してください';return;}if(known&&!date){$('formError').textContent='完成日を入力してください';return;}if(!img&&!old){$('formError').textContent='写真を選んでください';return;}if(old){Object.assign(old,{title:name,pieces,completed:date,memo,image:img,sample:undefined});}else{const a={id:`art-${serial++}`,title:name,pieces,completed:date,registered:today(),memo,image:img,spot:null};const occupied=atSpot(target);if(target&&!occupied)a.spot=target;else{const free=slots.slice(0,Math.min(50,6*(1+Math.floor((arts.length+1)/6)))).find(s=>!atSpot(s.id));if(free)a.spot=free.id;}arts.push(a);}imageCache.clear();closeModal();titleBar();say('作品を登録しました！');};}
 async function resizeImage(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url;});const max=1100,scale=Math.min(1,max/Math.max(img.width,img.height)),w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return c.toDataURL('image/jpeg',.85);}finally{URL.revokeObjectURL(url)}}
 function bind(){const pad=document.querySelector('.gamepad');for(const event of ['contextmenu','selectstart','dragstart'])pad.addEventListener(event,e=>e.preventDefault());pad.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});document.querySelectorAll('[data-dir]').forEach(b=>{b.onpointerdown=e=>{e.preventDefault();walk(b.dataset.dir);clearInterval(pointerLoop);pointerLoop=setInterval(()=>walk(b.dataset.dir),110);b.setPointerCapture(e.pointerId);};for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,()=>{clearInterval(pointerLoop);pointerLoop=null});});window.addEventListener('blur',()=>{clearInterval(pointerLoop);pointerLoop=null;heldKeys.clear()});window.addEventListener('keydown',e=>{const d={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',a:'left',s:'down',d:'right'}[e.key];if(d&&!(e.target instanceof HTMLInputElement)&&!(e.target instanceof HTMLTextAreaElement)){e.preventDefault();heldKeys.add(d);}if(e.key==='Escape'){if(modal)closeModal();else cancelCarry();}if(e.key==='Enter'&&!modal&&document.activeElement===document.body){e.preventDefault();act();}});window.addEventListener('keyup',e=>{const d={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',a:'left',s:'down',d:'right'}[e.key];if(d)heldKeys.delete(d)});let lastMove=0;setInterval(()=>{if(heldKeys.size&&performance.now()-lastMove>90){walk([...heldKeys][0]);lastMove=performance.now();}},36);$('action').onclick=act;$('carryCancel').onclick=cancelCarry;$('newArtwork').onclick=()=>registerForm();$('openGallery').onclick=galleryList;$('goEntrance').onclick=()=>sceneTo('entrance');canvas.addEventListener('click',inspectTap);}
-window.__A18_DEBUG__={state:()=>({scene,pos:{...pos},canvas:{w:W,h:H},count:arts.length,unlocked:unlocked(),level:level(),carry:carry?.id||null,artworks:arts.map(a=>({...a,image:a.image?'[image]':null}))}),walk,entrance:()=>sceneTo('entrance'),gallery:()=>sceneTo('gallery'),sort:arrange,restore:restoreSort,lift:(id)=>{const a=getArt(id);if(a){carry={id:a.id,origin:a.spot};return true}return false},place,nearest:closest};
+window.__A18_DEBUG__={state:()=>({scene,pos:{...pos},canvas:{w:W,h:H},count:arts.length,unlocked:unlocked(),level:level(),carry:carry?.id||null,artworks:arts.map(a=>({...a,image:a.image?'[image]':null}))}),walk,entrance:()=>sceneTo('entrance'),gallery:()=>sceneTo('gallery'),sort:arrange,restore:restoreSort,lift:(id)=>{const a=getArt(id);if(a){carry={id:a.id,origin:a.spot};return true}return false},place,nearest:closest,collision:canStand,solidFurniture:()=>solidFurniture().map(r=>({...r})),teleport:(x,y,where=scene)=>{scene=where;pos={x,y,dir:'down',stride:0};titleBar();}};
 resizeCanvas();new ResizeObserver(resizeCanvas).observe($('viewport'));window.addEventListener('orientationchange',resizeCanvas);bind();titleBar();render();say('まずは受付と展示室を見てみよう！');
 })();
 
