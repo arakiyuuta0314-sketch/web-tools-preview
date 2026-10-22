@@ -1,0 +1,11 @@
+/* Full-screen, photograph-only viewing mode. */
+#photoViewer.a18-viewer:not([hidden]){position:fixed!important;inset:0!important;z-index:80!important;display:flex!important;flex-direction:column!important;background:#000!important;padding:0!important;margin:0!important}
+#photoViewer .a18-viewer-bar,#photoViewer .a18-viewer-bottom,#photoViewer #photoOrientationNotice,#photoViewer #photoEmpty{display:none!important}
+#photoViewer .a18-viewer-image-zone{position:relative!important;inset:auto!important;flex:1!important;min-height:0!important;width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#000!important;overflow:hidden!important;touch-action:none!important}
+#photoViewer .a18-art-frame{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;max-width:none!important;max-height:none!important}
+#photoViewer .a18-viewer-image{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;box-shadow:none!important;border:0!important}
+.overlay.art-inspect-mode{background:#000!important}
+.overlay.art-inspect-mode .dialog{height:100dvh!important;max-height:100dvh!important}
+.overlay.art-inspect-mode .inspect-shell{background:#000!important}
+.overlay.art-inspect-mode .inspect-photo{background:#000!important}
+.overlay.art-inspect-mode .inspect-memory{margin:0 16px 12px!important;position:static!important;transform:none!important}

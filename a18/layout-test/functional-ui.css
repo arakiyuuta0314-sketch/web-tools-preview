@@ -1,0 +1,44 @@
+/* v1.5: Only museum title and directional pad outside the play surface. */
+.app header{height:53px;flex:none;justify-content:flex-start}
+.app header .brand{min-width:0}
+.stage>.status{
+ position:absolute;left:12px;top:10px;right:12px;z-index:3;
+ flex:none;text-align:left;color:#fff0cd;font-size:13px;font-weight:750;
+ background:#193a31d4;border:1px solid #bb9b66a3;border-radius:10px;
+ padding:7px 11px;pointer-events:none;width:fit-content;max-width:calc(100% - 24px);
+ white-space:normal;
+}
+.stage>.hint{top:52px}
+.dialog .date-actions{display:flex;gap:8px;margin-top:7px}
+.dialog .date-actions button{flex:1;font-size:13px;min-height:40px;padding:6px 10px}
+.dialog .artlist{gap:9px}
+.dialog .artitem{
+ display:grid;grid-template-columns:76px minmax(0,1fr) auto;
+ gap:10px;align-items:center;padding:8px;border-radius:12px;
+}
+.dialog .art-thumb{width:76px;height:64px;object-fit:contain;background:#e7dec9;border-radius:6px;border:1px solid #c9b595}
+.dialog .blank-thumb{display:grid;place-items:center;color:#927f5d}
+.dialog .artitem-copy{min-width:0;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+.dialog .artitem-copy b{font-size:15px;line-height:1.35}
+.dialog .artitem-copy small{display:block;font-size:12px;color:#5e6c5f;line-height:1.35}
+.dialog .artitem button{padding:7px 10px;white-space:nowrap;font-size:14px}
+.dialog .empty-collection{text-align:center;background:#f1ead8;padding:18px 10px;border-radius:12px;line-height:1.8}
+@media (orientation:portrait) and (max-width:850px){
+ .app header{height:51px!important;display:flex!important;align-items:center;padding:6px 13px!important}
+ .app .brand{display:flex!important}
+ .app .brand small{display:none}
+ .app .brand #museumName{font-size:19px;max-width:min(82vw,330px)}
+ .stage>.status{top:9px;left:9px;right:9px;max-width:calc(100% - 18px);font-size:12px;padding:6px 9px}
+ .stage>.hint{top:49px!important}
+ .stage .act{
+  right:11px;bottom:174px!important;
+  max-width:calc(100% - 22px);align-items:flex-end
+ }
+ .stage .act button{min-width:156px;max-width:230px;font-size:16px;min-height:47px;padding:7px 10px}
+ .stage .act button.secondary{font-size:13px;min-height:37px}
+ .dialog .artitem{grid-template-columns:68px minmax(0,1fr) auto;gap:8px;padding:8px 7px}
+ .dialog .art-thumb{width:68px;height:57px}
+ .dialog .artitem button{font-size:13px;min-height:39px;padding:7px 8px}
+ .dialog .artitem-copy b{font-size:14px}
+ .dialog .artitem-copy small{font-size:11px}
+}

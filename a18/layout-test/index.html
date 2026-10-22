@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="パズル美術館">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="viewer.css">
+<link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
+<link rel="stylesheet" href="layout-editor.css?v=2.0"><script src="layout-system.js?v=2.0"></script><script src="asset-renderer.js?v=2.1"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.0"></script>
+<script src="photo-prep.js" defer></script>
+<script src="smart-frame.js" defer></script>
+<script src="photo-tone.js" defer></script>
+<script src="staff-flow.js?v=1.17" defer></script>
+<title>パズル美術館｜正式候補素材テスト v2.1</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
+*{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
+button{cursor:pointer;border:0;border-radius:12px;touch-action:manipulation}
+button:focus-visible{outline:3px solid #ffe3a2;outline-offset:2px}
+.app{display:flex;flex-direction:column;height:100dvh;min-height:0}
+header{height:57px;flex:none;display:flex;align-items:center;gap:12px;padding:6px max(11px,env(safe-area-inset-right)) 6px max(11px,env(safe-area-inset-left));background:#17362f;border-bottom:3px solid #c8a76b}
+.brand{display:flex;flex-direction:column;min-width:155px}.brand small{font-size:11px;letter-spacing:.2em;color:#dbbc80}.brand #museumName{background:none;color:#f8f2e6;font-size:20px;font-weight:800;text-align:left;padding:0;border-radius:2px;white-space:nowrap;max-width:210px;overflow:hidden;text-overflow:ellipsis}.brand #museumName:hover{text-decoration:underline}
+.status{flex:1;text-align:center;color:#e9d7ae;font-size:15px;font-weight:750}
+.nav{display:flex;gap:7px}.nav button{background:#2d4a40;color:#fff6e2;padding:10px 14px;border:1px solid #688679;font-size:15px;font-weight:700;white-space:nowrap}
+.nav .gold{background:#f0d18e;color:#223c32}
+.stage{position:relative;min-height:0;flex:1;overflow:hidden;background:#2b3a31;display:flex;align-items:center;justify-content:center}
+canvas{display:block;max-width:100%;max-height:100%;width:auto;height:auto;image-rendering:auto;touch-action:none;background:#1d332c;box-shadow:0 0 0 3px #b39462,0 0 0 10px #162c26}
+.stage:before{position:absolute;inset:0;border:5px solid #bb9964;content:"";pointer-events:none;z-index:1}
+.stage .hint{position:absolute;top:9px;left:50%;transform:translateX(-50%);max-width:calc(100% - 40px);z-index:3;background:#fff4dbed;color:#2c473b;padding:9px 18px;border-radius:25px;box-shadow:0 2px 12px #0004;font-size:15px;font-weight:750;text-align:center;pointer-events:none}
+.dpad{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:12px;width:165px;height:165px;z-index:4;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:3px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.dpad button{background:#f2f0dded;border:2px solid #fff9e9;color:#315c4b;box-shadow:0 3px 0 #5d7766b8;font-size:24px;font-weight:900;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.dpad [data-d="up"]{grid-area:1/2}.dpad [data-d="down"]{grid-area:3/2}.dpad [data-d="left"]{grid-area:2/1}.dpad [data-d="right"]{grid-area:2/3}
+.dpad .label{grid-area:2/2;display:grid;place-items:center;background:#dddcc7df;color:#51665c;font-size:15px;font-weight:750;border-radius:10px}
+.dpad button:active{background:#e3c689}.act{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:17px;z-index:4;display:flex;flex-direction:column;gap:8px}
+.act button{background:#f0d18e;color:#203a31;border:3px solid #fff0cf;min-width:160px;min-height:65px;font-size:21px;font-weight:800;box-shadow:0 4px 0 #536653}
+.act button.secondary{background:#fcf6e3;font-size:15px;min-height:42px}.act button[hidden]{display:none!important}
+.tag{position:absolute;top:10px;left:15px;z-index:2;background:#20352ecf;border:1px solid #ac9266;color:#ffedcd;border-radius:9px;padding:5px 10px;font-weight:750;font-size:13px}
+.tag strong{color:#f2cf81}
+footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:none;height:27px;display:flex;align-items:center;justify-content:space-between;white-space:nowrap}
+.overlay[hidden]{display:none}.overlay{position:fixed;z-index:20;inset:0;display:grid;place-items:center;background:#081713b9;padding:18px}
+.dialog{background:#fffaf0;color:#253c33;border:4px solid #c49c5c;border-radius:19px;box-shadow:0 10px 45px #0008;width:min(520px,100%);max-height:calc(100dvh - 40px);overflow:auto;padding:18px 20px;font-size:17px;line-height:1.55}
+.dialog h2{font-size:24px;margin:0 0 8px}.dialog p{margin:6px 0 12px}.dialog .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.dialog button{background:#326958;color:white;padding:12px 18px;font-size:17px;font-weight:800;min-height:48px}
+.dialog button.light{background:#e8dcc4;color:#30463a}.dialog .row button{flex:1}
+.dialog label{display:block;font-weight:700;margin-top:10px}.dialog input,.dialog select{width:100%;border-radius:8px;border:2px solid #b9b3a5;padding:9px;font-size:17px;background:white;color:#1f2e29}
+.dialog .small{font-size:14px;color:#5b675e}
+.staff-quote{background:#e7ecdf;border-left:4px solid #60816b;border-radius:9px;padding:10px 12px;margin:8px 0 10px!important;font-weight:750;color:#345345}
+.prep-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:11px 0}
+.prep-preview{min-width:0;padding:7px;background:#eee4d2;border:2px solid #c2a77b;border-radius:10px}
+.prep-preview strong{display:block;font-size:14px;text-align:center;margin-bottom:5px}
+.prep-preview img{width:100%;height:min(24dvh,124px);object-fit:contain;background:#3a342c}
+.dialog label.prep-check{display:flex;align-items:center;gap:9px;margin:5px 0;font-size:15px;font-weight:700}
+.dialog label.prep-check input{width:21px;height:21px;flex:none}
+.dialog .prep-choices{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;position:sticky;bottom:-18px;background:#fffaf0;padding:7px 0 3px;z-index:3}
+.dialog .prep-choices button{flex:1;min-width:145px}
+.dialog .prep-choices button.light{background:#e8dcc4;color:#30463a}
+.dialog .prep-warn{font-size:12px;color:#57645e;line-height:1.45;margin-top:5px}
+.dialog .error{color:#bc332e;font-weight:750;min-height:20px}
+.dialog .artlist{display:grid;gap:8px}.dialog .artitem{display:flex;gap:10px;align-items:center;background:#f3eddc;padding:8px;border-radius:8px}
+.stage.overview .hint{left:auto;right:14px;transform:none;max-width:max(125px,calc(var(--side-width,220px) - 26px));font-size:14px;padding:10px 12px}
+.dialog .artitem span{flex:1}.dialog .artitem button{font-size:15px;min-height:40px}
+.rotate{display:none}
+@media (orientation:portrait) and (max-width:850px){
+.rotate{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;background:#163b31;color:#fff3dc;text-align:center;padding:30px;font-size:22px}.rotate small{font-size:16px}
+}
+@media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
+@media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
+</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"></head>
+<body>
+<div class="app">
+<header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.1 実素材検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
+<div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
+
+</div><div id="overlay" class="overlay" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true"></section></div>
+<section id="photoViewer" class="a18-viewer" hidden role="dialog" aria-modal="true" aria-label="作品を大きく鑑賞する">
+  <div class="a18-viewer-bar">
+    <button type="button" id="photoClose" class="a18-viewer-exit" aria-label="作品詳細に戻る">← 戻る</button>
+    <button type="button" id="photoPrev" aria-label="前の作品">◀</button>
+    <div class="a18-viewer-caption"><strong id="photoTitle"></strong><small id="photoCounter"></small></div>
+    <button type="button" id="photoNext" aria-label="次の作品">▶</button>
+    <button type="button" id="photoMinus" aria-label="縮小">−</button>
+    <span id="photoZoomText" class="zoom-label">100%</span>
+    <button type="button" id="photoPlus" aria-label="拡大">＋</button>
+    <button type="button" id="photoReset" class="a18-viewer-reset">全体</button><button type="button" id="photoCompare" hidden>元写真</button><button type="button" id="photoFocus">集中</button>
+  </div>
+  <div class="a18-viewer-image-zone" id="photoViewport" aria-label="写真をピンチで拡大・移動"><div id="photoOrientationNotice" class="a18-orientation-notice" role="status"></div>
+    <div id="photoFrame" class="a18-art-frame"><img id="photoImage" class="a18-viewer-image" alt="" draggable="false"></div>
+    <div id="photoEmpty" class="a18-viewer-empty" hidden>写真を読み込めませんでした</div>
+  </div>
+  <div class="a18-viewer-bottom"><div id="photoDetails" class="a18-viewer-details"></div>
+    <div class="a18-viewer-tip">ピンチで拡大・ドラッグで移動・ダブルタップで切替</div>
+  </div>
+</section>
+<script src="viewer.js?v=1.15"></script>
+<script>
+(() => {
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('world'),ctx=canvas.getContext('2d'),overlay=$('overlay');
+const src={
+ entrance:{w:546,h:483,spawn:[326,425],name:'エントランス'},
+ gallery:{w:589,h:482,spawn:[295,418],name:'展示室'}
+};
+const works=[]; // Empty collection; source photos stay local during Web tests.
+const MAX_WORKS=30;
+// UI movement is playable across all six areas during the structural test.
+// Gallery-level unlocking and the two final entrance frames come later.
+const ROOM_LINKS={
+ 0:{west:1,east:2,north:5},
+ 1:{east:0,north:3},
+ 2:{west:0,north:4},
+ 3:{south:1,east:5},
+ 4:{south:2,west:5},
+ 5:{south:0,west:3,east:4}
+};
+const ROOM_LABELS=['エントランス','第2展示室','第3展示室','第4展示室','第5展示室','第6展示室'];
+let galleryIndex=0; // 0 = entrance, 1..5 = galleries 2..6.
+// Fixture IDs are stable. The legacy 28 slots have an explicit one-to-one migration.
+const L=window.A18Layout;
+const fixtures=L.defaults();
+const roomRects=()=>L.roomFrames(fixtures,galleryIndex).map(L.r);
+const frameCount=room=>L.roomFrames(fixtures,room).length;
+const roomStart=room=>room===0?0:5+(room-1)*5;
+const roomCapacity=room=>frameCount(room);
+const roomCount=()=>6;
+const unlockedRooms=()=>6;
+const AVAILABLE_SLOTS=L.defaults().filter(f=>f.kind==='frame').map(f=>f.id);
+const slotId=i=>L.legacyId(i);
+const fixtureRank=id=>{
+ const f=fixtures.find(f=>f.id===id);
+ return f?.legacySlot??999;
+};
+const fixtureAt=i=>fixtures.find(f=>f.id===slotId(i));
+function artworkLocation(w){
+ if(w.fixtureId==null)return '保管中';
+ const f=fixtures.find(f=>f.id===w.fixtureId);
+ if(!f)throw Error('作品が存在しない設備を参照: '+w.id);
+ return ROOM_LABELS[f.roomId]+'・枠'+(f.legacySlot-roomStart(f.roomId)+1);
+}
+const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
+try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
+let scene='entrance',pos={x:326,y:425,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraX=0,cameraY=0,logicalW=546,logicalH=483,frame=0,loaded=false,lastArrange=null,tutorialStep=0;
+const MOVE_DISTANCE=12,MOVE_REPEAT_MS=65,MOVE_SUBSTEP=3;
+let activeInteraction=null,avatarGender='male',assetManifest=null,saveTimer=null;
+function snapshot(){
+ L.syncWorks(fixtures,works);
+ return {fixtures,works,avatarGender,museumTitle,galleryIndex,pos,carrying};
+}
+function requestSave(){
+ clearTimeout(saveTimer);
+ saveTimer=setTimeout(()=>{
+  try{window.A18Storage.save(snapshot()).catch(e=>{console.error('A18 persistence',e);$('hint').textContent='保存エラー：'+e.message;$('hint').hidden=false;})}
+  catch(e){console.error('A18 persistence',e);$('hint').textContent='保存エラー：'+e.message;$('hint').hidden=false;}
+ },120);
+}
+function chooseAvatar(){
+ open('館長の姿を選ぶ','<p>男性館長と女性館長で歩く速さ・操作方法は同じです。女性の正式画像は完成後に差し替えます。</p>'+
+ '<div class="row"><button id="a18Male">男性館長'+(avatarGender==='male'?' ✓':'')+'</button><button id="a18Female">女性館長'+(avatarGender==='female'?' ✓':'')+'</button></div><div class="row"><button id="close" class="light">戻る</button></div>');
+ for(const [id,gender] of [['a18Male','male'],['a18Female','female']]){
+  $(id).onclick=()=>{avatarGender=gender;requestSave();close();};
+ }
+ $('close').onclick=close;
+}
+function butlerDialog(){
+ const chat=(body,actions='')=>'<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(assetManifest?.butler?.portraitPath||'')+'" alt="爺やの肖像"></div><div class="rpg-words"><span class="rpg-name">爺や</span><p class="rpg-message">'+body+'</p></div></div>'+actions;
+ open('爺や', '<button id="rpgAdvance" type="button" class="rpg-dialogue-advance">'+chat('館長、お部屋の飾り付けをお手伝いしましょうか？')+'<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
+ $('rpgAdvance').onclick=()=>{
+  open('爺や',chat('どのお手伝いをご希望でしょう？','<div class="rpg-choices"><button id="a18Decorate">模様替え</button><button id="a18SelectAvatar">館長の姿を選ぶ</button><button id="a18No" class="light">またあとで</button></div>'),'rpg');
+  $('a18Decorate').onclick=()=>{close();window.A18LayoutEditor.open({fixtures:()=>fixtures,works:()=>works,onCommit:next=>{fixtures.splice(0,fixtures.length,...next);requestSave();update()},onClose:()=>{update()}});};
+  $('a18SelectAvatar').onclick=chooseAvatar;$('a18No').onclick=close;
+ };
+}
+
+const images=new Map(),spriteBounds=new Map(),movement={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',w:'up',a:'left',s:'down',d:'right'};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slot=i=>works.find(w=>w.fixtureId===slotId(i))||null;
+const workImageCache=new Map();
+function artworkImage(work){
+ if(!work)return null;
+ const source=work.displaySrc||work.originalURL;
+ if(!source)return null;
+ let entry=workImageCache.get(work.id);
+ if(entry?.source!==source){
+   const img=new Image();
+   entry={source,img};
+   workImageCache.set(work.id,entry);
+   img.src=source;
+ }
+ return entry.img.complete&&entry.img.naturalWidth>0?entry.img:null;
+}
+function trimImageCache(){
+ const visible=new Set(works.filter(w=>w.fixtureId!=null&&fixtures.some(f=>f.id===w.fixtureId&&f.roomId===galleryIndex)).map(w=>w.id));
+ if(carrying)visible.add(carrying);
+ for(const id of workImageCache.keys())if(!visible.has(id))workImageCache.delete(id);
+}
+function image(name,url){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{images.set(name,im);res()};im.onerror=()=>rej(new Error('画像の読込に失敗: '+url));im.src=url;});}
+function get(name){return images.get(name);}
+const SPRITE_BOUNDS={"front0":{"x":10,"y":4,"w":42,"h":68},"front1":{"x":8,"y":3,"w":42,"h":69},"front2":{"x":6,"y":4,"w":43,"h":68},"front3":{"x":7,"y":4,"w":43,"h":68},"front4":{"x":9,"y":4,"w":42,"h":68},"back0":{"x":7,"y":3,"w":41,"h":63},"back1":{"x":6,"y":3,"w":42,"h":63},"back2":{"x":6,"y":3,"w":40,"h":63},"back3":{"x":7,"y":3,"w":40,"h":63},"back4":{"x":8,"y":3,"w":41,"h":63},"left0":{"x":13,"y":8,"w":40,"h":59},"left1":{"x":14,"y":8,"w":39,"h":59},"left2":{"x":15,"y":8,"w":38,"h":59},"left3":{"x":13,"y":8,"w":40,"h":60},"left4":{"x":11,"y":8,"w":41,"h":59},"right0":{"x":6,"y":2,"w":40,"h":56},"right1":{"x":6,"y":2,"w":39,"h":57},"right2":{"x":6,"y":2,"w":39,"h":57},"right3":{"x":6,"y":2,"w":40,"h":56},"right4":{"x":8,"y":2,"w":41,"h":57}};
+async function boot(){
+ // Defer scripts (staff/photo modules) must finish before registration becomes playable.
+ if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
+ if(!window.A18LayoutEditor||!window.A18Art||!window.A18Storage||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
+ let restored=false;
+ const state=await window.A18Storage.load();
+ if(state){
+  if(state.schemaVersion!==2)throw Error('保存データの形式が未対応です');
+  const restoredWorks=window.A18Storage.restoreWorks(state.works);
+  L.migrateLegacy(restoredWorks);
+  L.assertData(state.fixtures,restoredWorks);
+  for(let room=0;room<6;room++){const result=L.validatePlacement(state.fixtures,room);if(!result.ok)throw Error('保存した第'+(room+1)+'室の配置が不正：'+result.reason)}
+  fixtures.splice(0,fixtures.length,...state.fixtures);
+  works.splice(0,works.length,...restoredWorks);
+  avatarGender=['male','female'].includes(state.avatarGender)?state.avatarGender:'male';
+  if(state.museumTitle)museumTitle=state.museumTitle;
+  if(Number.isInteger(state.galleryIndex)&&state.galleryIndex>=0&&state.galleryIndex<6)galleryIndex=state.galleryIndex;
+  scene=galleryIndex===0?'entrance':'gallery';
+  if(state.pos&&Number.isFinite(state.pos.x)&&Number.isFinite(state.pos.y))pos=state.pos;
+  carrying=state.carrying||null;
+  restored=true;
+ }
+ const response=await fetch('layout-assets-manifest.json');
+ if(!response.ok)throw Error('正式候補素材のmanifestを取得できません');
+ assetManifest=await response.json();
+ await window.A18Art.init(assetManifest);
+ for(const dir of ['front','back','left','right']){
+  // Limit simultaneous requests: heavy candidate PNG decoding must not starve legacy male frames.
+  const batch=[];
+  for(let i=0;i<5;i++){
+   const id=dir+i;
+   batch.push(image(id,'assets/curator-'+dir+'-'+String(i).padStart(2,'0')+'.png'));
+  }
+  await Promise.all(batch);
+ }
+ for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++)spriteBounds.set(dir+i,SPRITE_BOUNDS[dir+i]);
+ const femalePattern=assetManifest?.avatars?.female?.pattern;
+ if(femalePattern){
+  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
+   const id=dir+i,assetName='female-'+id;
+   const url=femalePattern.replace('{direction}',dir).replace('{frame}',String(i).padStart(2,'0'));
+   const sprite=window.A18Art.get(url);
+   if(!sprite)throw Error('女性館長の歩行素材がありません：'+url);
+   images.set(assetName,sprite);
+   spriteBounds.set(assetName,{x:0,y:0,w:sprite.naturalWidth,h:sprite.naturalHeight});
+  }
+ }
+ loaded=true;resize();update();requestAnimationFrame(draw);
+ $('museumName').textContent=museumTitle;
+ let first=!restored;try{first=first&&!localStorage.getItem(NAME_KEY)}catch(e){}
+ if(first)nameDialog(true);
+}
+function isPortraitGame(){return matchMedia('(orientation:portrait) and (max-width:850px)').matches;}
+function resize(){
+ const b=$('stage').getBoundingClientRect();if(!b.width||!b.height)return;
+ const m=src[scene];
+ if(isPortraitGame()){
+  const availableHeight=Math.max(1,Math.round(b.height-164));
+  const pixelRatio=Math.min(3,Math.max(1,window.devicePixelRatio||1));
+  canvas.width=Math.max(1,Math.round(b.width*pixelRatio));
+  canvas.height=Math.max(1,Math.round(availableHeight*pixelRatio));
+  canvas.style.width=b.width+'px';canvas.style.height=availableHeight+'px';
+  canvas.style.position='absolute';canvas.style.left='0px';canvas.style.top='0px';
+  logicalW=Math.min(m.w,445);
+  logicalH=canvas.height*logicalW/canvas.width;
+  $('stage').classList.remove('overview');
+ }else if(viewMode==='overview'){
+  const scale=Math.min(b.width/m.w,b.height/m.h);
+  const dw=Math.max(1,Math.floor(m.w*scale)),dh=Math.max(1,Math.floor(m.h*scale));
+  const pixelRatio=Math.min(3,Math.max(1,window.devicePixelRatio||1));
+  canvas.width=Math.max(1,Math.round(dw*pixelRatio));canvas.height=Math.max(1,Math.round(dh*pixelRatio));canvas.style.width=dw+'px';canvas.style.height=dh+'px';
+  canvas.style.position='';canvas.style.left='';canvas.style.top='';
+  $('stage').classList.add('overview');$('stage').style.setProperty('--side-width',Math.max(0,(b.width-dw)/2)+'px');
+  logicalW=m.w;logicalH=m.h;cameraX=0;cameraY=0;
+ }else{
+  const pixelRatio=Math.min(3,Math.max(1,window.devicePixelRatio||1));
+  canvas.width=Math.max(1,Math.round(b.width*pixelRatio));canvas.height=Math.max(1,Math.round(b.height*pixelRatio));
+  canvas.style.width='100%';canvas.style.height='100%';
+  canvas.style.position='';canvas.style.left='';canvas.style.top='';
+  $('stage').classList.remove('overview');
+  logicalW=m.w;logicalH=b.height*m.w/b.width;
+ }
+ ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+}
+function worldPoint(e){
+ const b=canvas.getBoundingClientRect();
+ return {x:(e.clientX-b.left)*logicalW/b.width+cameraX,
+         y:(e.clientY-b.top)*logicalH/b.height+cameraY};
+}
+// Collision and interaction are intentionally separate.
+// Staff bodies and exhibition stands are solid; interaction is separate.
+// All interaction anchors are computed from the same room geometry.
+const wallFootLine=()=>scene==='entrance'?202:164;
+const northDoorway=()=>({x1:344,x2:387});
+function roomObstacles(){return L.obstacles(fixtures,galleryIndex);}
+function safeMove(x,y){
+ const m=src[scene];
+ const radius=9,footY=y+5;
+ if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
+ // The wall cannot be walked through. Only the actual north doorway forms a corridor.
+ if(y<wallFootLine()){
+  const door=northDoorway();
+  if(ROOM_LINKS[galleryIndex].north==null||x<door.x1+radius/2||x>door.x2-radius/2)return false;
+ }
+ for(const [left,right,top,bottom] of roomObstacles()){
+  const cx=Math.max(left,Math.min(x,right));
+  const cy=Math.max(top,Math.min(footY,bottom));
+  if(Math.hypot(x-cx,footY-cy)<radius)return false;
+ }
+ return true;
+}
+const PORTAL_EDGES={
+ entrance:{
+  west:{x1:24,x2:44,y1:345,y2:417},east:{x1:501,x2:522,y1:345,y2:417},
+  north:{x1:345,x2:383,y1:101,y2:118}
+ },
+ gallery:{
+  west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},
+  north:{x1:345,x2:385,y1:101,y2:118},
+  south:{x1:265,x2:329,y1:452,y2:471}
+ }
+};
+function checkPortal(){
+ for(const [edge,target] of Object.entries(ROOM_LINKS[galleryIndex])){
+  const rect=PORTAL_EDGES[scene][edge];
+  if(!rect)throw new Error('Door edge definition missing: '+scene+' '+edge);
+  if(pos.x>=rect.x1&&pos.x<=rect.x2&&pos.y>=rect.y1&&pos.y<=rect.y2){
+   const reverse={west:'east',east:'west',north:'south',south:'north'}[edge];
+   changeScene(target,{arrivalFrom:reverse});
+   fade();return true;
+  }
+ }
+ return false;
+}
+function walk(dir){
+ if(modal||window.A18LayoutEditor?.isOpen())return;
+ const dx=dir==='right'?MOVE_DISTANCE:dir==='left'?-MOVE_DISTANCE:0;
+ const dy=dir==='down'?MOVE_DISTANCE:dir==='up'?-MOVE_DISTANCE:0;
+ pos.dir=dir;
+ // Swept motion: use 3px substeps so higher speed cannot skip small obstacles.
+ const ticks=Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/MOVE_SUBSTEP);
+ let moved=false;
+ for(let i=0;i<ticks;i++){
+  const nx=pos.x+dx/ticks,ny=pos.y+dy/ticks;
+  if(!safeMove(nx,ny))break;
+  pos.x=nx;pos.y=ny;moved=true;
+ }
+ if(moved){pos.stride=(pos.stride+1)%5;$('hint').hidden=true;if(checkPortal())return;}
+ update();
+}
+function interactionCandidates(){
+ const artworks=L.roomFrames(fixtures,galleryIndex).map((f,i)=>{
+  const a=L.anchor(f,galleryIndex);
+  return {type:'art',i:L.slotFor(galleryIndex,i),x:a.x,y:a.y,enter:32,leave:38};
+ });
+ const staff=galleryIndex===0?{type:'staff',x:256,y:333,enter:49,leave:55}:{type:'staff',x:297,y:211,enter:48,leave:54};
+ if(galleryIndex===0)artworks.push({type:'butler',x:185,y:335,enter:48,leave:54});
+ return [...artworks,staff];
+}
+function interactionId(hit){return hit.type+':'+(hit.i??'')}
+function nearby(){
+ const items=interactionCandidates();
+ let closest=null,nearest=Infinity;
+ for(const item of items){
+  const distance=Math.hypot(pos.x-item.x,pos.y-item.y);
+  // Short hysteresis only for a candidate already active; no long-range latch.
+  const limit=activeInteraction&&interactionId(item)===interactionId(activeInteraction)
+   ?item.leave:item.enter;
+  if(distance<=limit && distance<nearest){closest=item;nearest=distance;}
+ }
+ return activeInteraction=closest;
+}
+function update(){
+ const displayed=works.filter(w=>w.fixtureId!=null&&fixtures.some(f=>f.id===w.fixtureId&&f.roomId===galleryIndex)).length;
+ $('statusText').textContent=ROOM_LABELS[galleryIndex]+' ／ 展示 '+displayed+'/'+roomCapacity(galleryIndex)+' ／ 所蔵 '+works.length+'/'+MAX_WORKS+'作品　〈全エリア移動テスト〉';
+ const hit=nearby();
+ $('act').hidden=!hit;
+ if(hit)$('act').textContent=hit.type==='staff'||hit.type==='butler'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'空の額縁';
+ $('cancel').hidden=!carrying;
+ $('cancel').textContent='作品をしまう';
+}
+function changeScene(next,options={}){
+ const room=Number.isInteger(next)?next:(next==='entrance'?0:next==='gallery'?1:NaN);
+ if(!Number.isInteger(room)||room<0||room>5)throw new Error('Invalid museum area: '+next);
+ galleryIndex=room;
+ scene=room===0?'entrance':'gallery';
+ activeInteraction=null;
+ const m=src[scene];
+ const location={
+  west:[76,388],east:[m.w-76,388],north:[367,151],south:[296,426]
+ }[options.arrivalFrom]||m.spawn;
+ const direction={west:'right',east:'left',north:'down',south:'up'}[options.arrivalFrom]||'up';
+ pos={x:location[0],y:location[1],dir:direction,stride:0};
+ cameraX=0;cameraY=0;$('hint').hidden=true;trimImageCache();resize();update();requestSave();
+}
+function paintArtwork(a,i){
+ const f=L.roomFrames(fixtures,galleryIndex)[i];
+ window.A18Art.frame(ctx,f,artworkImage(a));
+}
+function avatar(){
+ const dir=pos.dir==='up'?'back':pos.dir==='down'?'front':pos.dir;
+ const id=dir+(pos.stride%5),femaleId='female-'+id;
+ const formalFemale=avatarGender==='female'&&Boolean(get(femaleId));
+ const image=get(formalFemale?femaleId:id),crop=spriteBounds.get(formalFemale?femaleId:id);
+ if(!image||!crop)return;
+ const femaleSize=assetManifest?.avatars?.female?.size;
+ const w=formalFemale?femaleSize.width:35,h=formalFemale?femaleSize.height:46;
+ // Preserve the full 60x77 female sprite canvas so hair, shoes, and stride do not crop.
+ ctx.fillStyle='#1b292147';ctx.beginPath();ctx.ellipse(pos.x,pos.y+1,13,3.2,0,0,Math.PI*2);ctx.fill();
+ ctx.save();
+ if(avatarGender==='female'&&!formalFemale)ctx.filter='hue-rotate(165deg) saturate(.85)';
+ const y=formalFemale?pos.y-h*(assetManifest.avatars.female.footBaselinePx/assetManifest.avatars.female.sourceSize[1]):pos.y-h;
+ ctx.drawImage(image,crop.x,crop.y,crop.w,crop.h,pos.x-w/2,y,w,h);
+ ctx.restore();
+ if(avatarGender==='female'&&!formalFemale){ctx.fillStyle='#573851';ctx.beginPath();ctx.arc(pos.x+13,pos.y-h+11,6,0,Math.PI*2);ctx.fill();}
+ if(carrying){const art=works.find(w=>w.id===carrying),sample=artworkImage(art);
+ ctx.fillStyle='#9a6739';ctx.fillRect(pos.x-20,pos.y-h-34,40,30);ctx.fillStyle='#fff8e8';ctx.fillRect(pos.x-17,pos.y-h-31,34,24);
+ if(sample){const r=Math.min(34/sample.width,24/sample.height);ctx.drawImage(sample,pos.x-sample.width*r/2,pos.y-h-31+(24-sample.height*r)/2,sample.width*r,sample.height*r);}
+ }
+}
+function drawBackground(){
+ const m=src[scene],wallEnd=scene==='entrance'?187:151;
+ // Functional art studio: floor first; final illustration/artwork is a separate phase.
+ ctx.fillStyle='#d6cfbd';ctx.fillRect(0,0,m.w,m.h);
+ ctx.fillStyle='#dfd5c1';ctx.fillRect(20,20,m.w-40,m.h-35);
+ ctx.fillStyle='#bcaa91';ctx.fillRect(20,20,m.w-40,wallEnd-20);
+ ctx.fillStyle='#efe6d4';ctx.fillRect(20,wallEnd,m.w-40,m.h-wallEnd-15);
+ ctx.fillStyle='#a79277';ctx.fillRect(20,wallEnd-8,m.w-40,8);
+ ctx.strokeStyle='#c9bca6';ctx.lineWidth=.6;
+ for(let x=26;x<m.w-21;x+=42){ctx.beginPath();ctx.moveTo(x,wallEnd);ctx.lineTo(x,m.h-16);ctx.stroke()}
+ for(let y=wallEnd;y<m.h-15;y+=42){ctx.beginPath();ctx.moveTo(21,y);ctx.lineTo(m.w-21,y);ctx.stroke()}
+ // Exhibits now have their own movable Fixture sprites, not decorations baked into the floor.
+ if(scene==='entrance')window.A18Art.npc(ctx,'staff',257,353);
+ else window.A18Art.npc(ctx,'staff',297,232);
+ // Draw exactly the edges defined by the 6-area adjacency graph.
+ const doors=ROOM_LINKS[galleryIndex];
+ for(const [edge,target]of Object.entries(doors)){
+  const rect=PORTAL_EDGES[scene][edge];
+  const cx=(rect.x1+rect.x2)/2,cy=(rect.y1+rect.y2)/2;
+  ctx.fillStyle='#345d4a';
+  if(edge==='north'){
+   ctx.fillRect(rect.x1-4,80,rect.x2-rect.x1+8,61);
+  }else if(edge==='south'){
+   ctx.fillRect(rect.x1-3,m.h-30,rect.x2-rect.x1+6,22);
+  }else if(edge==='west'){
+   ctx.fillRect(20,rect.y1-8,28,rect.y2-rect.y1+16);
+  }else{
+   ctx.fillRect(m.w-48,rect.y1-8,28,rect.y2-rect.y1+16);
+  }
+  ctx.font='bold 12px sans-serif';ctx.textAlign=edge==='west'?'left':edge==='east'?'right':'center';
+  ctx.fillStyle='#fff0c6';
+  const text=(edge==='west'?'← ':edge==='east'?'→ ':edge==='north'?'▲ ':'▼ ')+(target+1);
+  const tx=edge==='west'?52:edge==='east'?m.w-52:cx;
+  const ty=edge==='north'?78:edge==='south'?m.h-37:rect.y1-14;
+  ctx.fillText(text,tx,ty);
+ }
+ ctx.textAlign='center';ctx.fillStyle='#3d5445';ctx.font='bold 16px sans-serif';
+ ctx.fillText(ROOM_LABELS[galleryIndex],m.w/2,m.h-49);
+}
+function decorate(){
+ const decor=fixtures.filter(f=>f.roomId===galleryIndex&&f.kind==='decor');
+ for(const f of decor){
+  if(window.A18Art.decoration(ctx,f))continue;
+  const [x,y,r,b]=L.r(f);
+  ctx.fillStyle='#748477';ctx.fillRect(x,y,f.width,f.height);
+  ctx.fillStyle='#fffbe8';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText(L.LABELS[f.type]||f.type,f.x,f.y+4);
+ }
+}
+function drawButler(){
+ if(galleryIndex!==0)return;
+ window.A18Art.npc(ctx,'butler',155,334);
+}
+function draw(){
+ if(!loaded)return;
+ const m=src[scene],maxY=Math.max(0,m.h-logicalH),maxX=Math.max(0,m.w-logicalW);
+ const targetY=logicalH>=m.h?(m.h-logicalH)/2:Math.max(0,Math.min(maxY,pos.y-logicalH*.55));
+ const targetX=logicalW>=m.w?(m.w-logicalW)/2:Math.max(0,Math.min(maxX,pos.x-logicalW*.50));
+ if(!isPortraitGame()&&viewMode==='overview'){cameraX=0;cameraY=0;}
+ else{cameraX+=Math.max(-22,Math.min(22,(targetX-cameraX)*.45));cameraY+=Math.max(-22,Math.min(22,(targetY-cameraY)*.45));}
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.save();const scale=canvas.width/logicalW;
+ ctx.setTransform(scale,0,0,scale,-cameraX*scale,-cameraY*scale);
+ drawBackground();
+ for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
+ decorate();drawButler();
+ const hit=nearby();
+ if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i),[x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}
+ avatar();ctx.restore();requestAnimationFrame(draw);
+}
+function nameDialog(first=false){
+ open(first?'美術館の名前を決めよう':'美術館の名前を変更',
+ '<p>あなたの美術館に名前を付けましょう。あとから変更できます。</p>'+
+ '<label>美術館の名前<input id="newMuseumName" maxlength="24" value="'+esc(museumTitle)+'"></label>'+
+ '<p id="nameError" class="error"></p><div class="row"><button id="confirmName">この名前で始める</button>'+
+ (first?'':'<button id="close" class="light">キャンセル</button>')+'</div>');
+ $('confirmName').onclick=()=>{
+  const next=$('newMuseumName').value.trim();
+  if(!next){$('nameError').textContent='美術館の名前を入力してください';return;}
+  museumTitle=next;requestSave();$('museumName').textContent=next;$('museumName').title=next+'（タップで名前を変更）';
+  try{localStorage.setItem(NAME_KEY,next)}catch(e){}
+  close();
+  if(first)introDialog();
+ };
+ if(!first)$('close').onclick=close;
+}
+function introDialog(){
+ open('小さな美術館のはじまり','<p>今日からあなたが、この美術館の館長です。</p><p>まだ展示品はありません。ひとつずつ、あなたの作品で満たしていきましょう。</p><p class="small">エントランスのスタッフに話しかける → 写真を預ける → 作品を受け取る → お好きな額縁に飾る、の順で操作を試せます。</p><div class="row"><button id="startTour">美術館へ</button><button id="skipTour" class="light">説明を閉じる</button></div>');
+ for(const id of ['startTour','skipTour'])$(id).onclick=()=>{tutorialStep=id==='startTour'?1:0;close();if(tutorialStep){$('hint').textContent='まずは入口のスタッフに話しかけてみよう';$('hint').hidden=false;}};
+}
+
+function open(title,contents,kind='standard'){
+ modal=true;overlay.classList.toggle('rpg-mode',kind==='rpg');overlay.classList.toggle('art-inspect-mode',kind==='art-inspect');
+ $('dialog').classList.remove('registration-compact');
+ $('dialog').innerHTML=(kind==='rpg'||kind==='art-inspect'?'':'<h2>'+esc(title)+'</h2>')+contents;
+ overlay.hidden=false;
+}
+function close(){modal=false;overlay.hidden=true;overlay.classList.remove('rpg-mode','art-inspect-mode');update();}
+function action(){
+ const h=nearby();if(!h)return;
+ if(h.type==='staff'){staffDialog();return}
+ if(h.type==='butler'){butlerDialog();return}
+ if(h.type==='art'){inspect(h.i);return}
+}
+function editMemo(a){
+ open('備考・思い出を編集',
+  '<p class="small">作品「'+esc(a.title)+'」に残しておきたい出来事や思い出を書けます。</p>'+
+  '<label>備考・思い出<textarea id="editMemo" maxlength="3000" rows="6"></textarea></label>'+
+  '<div class="row"><button id="saveMemo">保存する</button><button id="cancelMemo" class="light">戻る</button></div>');
+ $('editMemo').value=a.notes||'';
+ $('saveMemo').onclick=()=>{a.notes=$('editMemo').value.trim();requestSave();if(a.fixtureId!=null)inspect(fixtureRank(a.fixtureId));else list();};
+ $('cancelMemo').onclick=()=>{if(a.fixtureId!=null)inspect(fixtureRank(a.fixtureId));else list();};
+}
+function resetDisplayForWork(slotIndex,work){
+ const f=fixtureAt(slotIndex);
+ if(!f||!work)throw Error('展示設備または作品がありません');
+ f.imageMode=work.preferredShape==='portrait'?'contain':'cover';
+ f.imageScale=1;f.imageX=0;f.imageY=0;
+}
+function inspect(i){
+ if(carrying){
+  const a=works.find(w=>w.id===carrying);
+  if(!a){carrying=null;update();return}
+  const b=slot(i);
+  if(b&&b.id!==a.id){
+    // RPG-style exchange: hang the held item and immediately lift the previous one.
+    // The old work remains in the collection and in the curator's hands.
+    a.fixtureId=slotId(i);b.fixtureId=null;
+    resetDisplayForWork(i,a);
+    carrying=b.id;carryOrigin=i;requestSave();
+    $('hint').hidden=false;
+    $('hint').textContent='「'+b.title+'」を受け取りました。次の額縁へ運べます';
+    update();return;
+  }
+  a.fixtureId=slotId(i);resetDisplayForWork(i,a);carrying=null;carryOrigin=null;update();requestSave();return;
+ }
+ const a=slot(i);
+ if(!a){open('空の額縁','<p>スタッフから新しい作品を受け取り、この額縁まで運んできましょう。</p><div class="row"><button id="close">わかった</button></div>');$('close').onclick=close;return}
+ const img=a.displaySrc||a.originalURL||'';
+ const items=[...works].filter(w=>w.fixtureId!=null).sort((x,y)=>fixtureRank(x.fixtureId)-fixtureRank(y.fixtureId)).map(w=>({id:w.id,title:w.title,pieces:w.pieces,complete:w.complete,registered:w.registered,notes:w.notes||'',src:w.displaySrc||w.originalURL||'',originalSrc:w.originalURL||''}));
+ open(a.title,'<div class="inspect-shell"><div class="inspect-top"><h2>'+esc(a.title)+'</h2><p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered||'不明')+'　ピース：'+esc(a.pieces||'未登録')+'</p></div>'+
+ '<button id="inspectPhoto" class="inspect-photo" type="button" aria-label="写真をフルサイズで鑑賞する">'+(img?'<img src="'+esc(img)+'" alt="'+esc(a.title)+'">':'<span>写真を読み込めませんでした</span>')+'<span class="inspect-tap">タップで大きく鑑賞</span></button>'+
+ '<div class="inspect-memory"><strong>備考・思い出</strong><p>'+esc(a.notes||'まだ記録されていません')+'</p></div>'+
+ '<div class="inspect-bottom"><button id="lift">持ち上げる</button><button id="editNote">備考を編集</button><button id="close">閉じる</button></div></div>','art-inspect');
+ $('editNote').onclick=()=>editMemo(a);
+ $('lift').onclick=()=>{carrying=a.id;carryOrigin=i;a.fixtureId=null;requestSave();close()};
+ let inspectSwipeStart=null,inspectSwiped=false;
+ const inspectPhoto=$('inspectPhoto');
+ inspectPhoto.style.touchAction='none';
+ inspectPhoto.addEventListener('pointerdown',e=>{inspectSwipeStart={x:e.clientX,y:e.clientY};inspectSwiped=false;});
+ inspectPhoto.addEventListener('pointerup',e=>{if(!inspectSwipeStart)return;const dx=e.clientX-inspectSwipeStart.x,dy=e.clientY-inspectSwipeStart.y;inspectSwipeStart=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3){inspectSwiped=true;const next=items.findIndex(w=>w.id===a.id)+(dx<0?1:-1);if(next>=0&&next<items.length){const target=works.find(w=>w.id===items[next].id);if(target?.fixtureId!=null){close();inspect(fixtureRank(target.fixtureId));}}}});
+ $('inspectPhoto').onclick=()=>{if(inspectSwiped){inspectSwiped=false;return;}close();window.A18Viewer.open({items,selectedId:a.id,onClose:(selectedId)=>{modal=false;const selected=works.find(w=>w.id===selectedId);if(selected?.fixtureId!=null)inspect(fixtureRank(selected.fixtureId));}});modal=true;};
+ $('close').onclick=close;
+}
+function list(){
+ const displayed=[...works].sort((a,b)=>fixtureRank(a.fixtureId)-fixtureRank(b.fixtureId));
+ const cards=displayed.map(a=>{
+  const img=a.thumbnail||a.displaySrc||a.originalURL||'';
+  return '<div class="artitem">'+(img?'<img class="art-thumb" src="'+esc(img)+'" alt="">':'<span class="art-thumb blank-thumb" aria-hidden="true">額</span>')+
+   '<span class="artitem-copy"><b>'+esc(a.title)+'</b><small>'+artworkLocation(a)+' ／ 完成日：'+esc(a.complete||'不明')+'</small>'+
+ (a.notes?'<small class="art-memory">思い出：'+esc(a.notes.length>58?a.notes.slice(0,58)+'…':a.notes)+'</small>':'')+'</span>'+
+   '<button data-work="'+esc(a.id)+'">'+(a.fixtureId!=null?'作品を見る':'取り出す')+'</button></div>';
+ });
+ open('作品一覧', '<p class="small">'+works.length+' / '+MAX_WORKS+'作品　写真から探して選べます。</p>'+
+ (cards.length?'<div class="artlist">'+cards.join('')+'</div>':'<p class="empty-collection">登録された作品はまだありません。<br>エントランスのスタッフに写真を預けてみましょう。</p>')+
+ '<div class="row"><button id="close" class="light">閉じる</button></div>');
+ document.querySelectorAll('[data-work]').forEach(button=>button.onclick=()=>{
+  const art=works.find(a=>a.id===button.dataset.work);if(!art)return;
+  if(art.fixtureId!=null){
+   const items=[...works].filter(x=>x.fixtureId!=null).sort((a,b)=>fixtureRank(a.fixtureId)-fixtureRank(b.fixtureId)).map(w=>({
+     id:w.id,title:w.title,pieces:w.pieces,complete:w.complete,registered:w.registered,notes:w.notes||'',
+     src:w.displaySrc||w.originalURL||'',originalSrc:w.originalURL||''
+   }));
+   close();window.A18Viewer.open({items,selectedId:art.id,onClose:()=>{modal=false;list()}});modal=true;
+  }else{
+   if(carrying){open('作品の持ち運び','<p>いま持っている作品をしまってから選んでください。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
+   carrying=art.id;carryOrigin=null;requestSave();close();
+  }
+ });
+ $('close').onclick=close;
+}
+function staffDialog(){
+ window.A18Registration.staffDialog({open,close,list,sortDialog,form,scene,carrying});
+}
+function sortDialog(){
+ open('展示品の並べ替え','<label>並べ替えの基準<select id="sortKind"><option value="complete">完成日順</option><option value="registered">登録順</option></select></label><label>順序<select id="sortOrder"><option value="asc">古い順</option><option value="desc">新しい順</option></select></label><p class="small">完成日が不明な場合だけ、登録日を並べ替えに使用します。</p><div class="row"><button id="apply">並べ替える</button><button id="close" class="light">戻る</button></div>');
+ $('apply').onclick=()=>{
+  const kind=$('sortKind').value,order=$('sortOrder').value;
+  lastArrange=works.map(w=>[w.id,w.fixtureId]);
+  const sorted=[...works].filter(a=>a.fixtureId!=null).sort((a,b)=>{
+   const da=kind==='registered'?a.registered:(a.complete||a.registered),db=kind==='registered'?b.registered:(b.complete||b.registered);
+   return order==='asc'?da.localeCompare(db):db.localeCompare(da);
+  });
+  sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw Error('展示枠不足');const target=AVAILABLE_SLOTS[i];if(a.fixtureId!==target)resetDisplayForWork(fixtures.find(f=>f.id===target).legacySlot,a);a.fixtureId=target});
+  requestSave();close();fade();trimImageCache();update();
+ };
+ $('close').onclick=staffDialog;
+}
+function fade(){const fade=document.createElement('div');fade.style.cssText='position:fixed;z-index:19;inset:0;background:#102d27;opacity:1;transition:opacity .4s;pointer-events:none';document.body.appendChild(fade);requestAnimationFrame(()=>fade.style.opacity='0');setTimeout(()=>fade.remove(),440);}
+function form(spotNo=0,viaStaff=false){
+ window.A18Registration.form({spotNo,viaStaff,open,close,slot,changeScene,works,maxWorks:MAX_WORKS,
+  onRegistered:(id)=>{carrying=id;carryOrigin=null;update();requestSave();}});
+}
+const heldKeys=new Set();let pointerLoop=null;
+$('museumName').onclick=()=>nameDialog(false);
+$('act').onclick=action;
+$('cancel').onclick=()=>{carrying=null;carryOrigin=null;update();requestSave()};
+overlay.onclick=e=>{if(e.target===overlay)close()};
+canvas.onclick=e=>{if(modal)return;const h=nearby();if(h?.type==='art'){const pt=worldPoint(e),[x1,y1,x2,y2]=roomRects()[h.i-roomStart(galleryIndex)];if(pt.x>x1-28&&pt.x<x2+28&&pt.y>y1-31&&pt.y<y2+55)inspect(h.i);}};
+window.addEventListener('keydown',e=>{if(modal||window.A18LayoutEditor?.isOpen())return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
+window.addEventListener('keyup',e=>heldKeys.delete(e.key));
+window.addEventListener('blur',()=>heldKeys.clear());document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();clearInterval(pointerLoop)}});
+setInterval(()=>{if(!modal&&!window.A18LayoutEditor?.isOpen()&&heldKeys.size){const key=[...heldKeys].at(-1);walk(movement[key]);}},MOVE_REPEAT_MS);
+for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),MOVE_REPEAT_MS);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
+for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
+window.__A18_SCENE_STUDY__={
+ state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,avatarGender,assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
+ move:walk,canMove:safeMove,changeScene,inspect,form,
+ openEditor:()=>window.A18LayoutEditor.open({fixtures:()=>fixtures,works:()=>works,onCommit:next=>{fixtures.splice(0,fixtures.length,...next);requestSave();update()},onClose:update}),
+ setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');avatarGender=g;requestSave();},
+ validateLayout:room=>L.validatePlacement(fixtures,room),
+ sort:(kind='complete',order='asc')=>{
+  lastArrange=works.map(a=>[a.id,a.fixtureId]);
+  const sorted=[...works].filter(a=>a.fixtureId!=null).sort((a,b)=>{
+   const aa=kind==='registered'?a.registered:(a.complete||a.registered),bb=kind==='registered'?b.registered:(b.complete||b.registered);
+   return order==='asc'?aa.localeCompare(bb):bb.localeCompare(aa)});
+  sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw Error('展示枠不足');const target=AVAILABLE_SLOTS[i];if(a.fixtureId!==target)resetDisplayForWork(fixtures.find(f=>f.id===target).legacySlot,a);a.fixtureId=target});requestSave();
+ },
+ restore:()=>{if(lastArrange)for(const [id,fixtureId]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.fixtureId=fixtureId;}requestSave()},
+ ready:()=>loaded
+};
+boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
+})();
+</script></body></html>
