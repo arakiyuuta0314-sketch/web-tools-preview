@@ -5,7 +5,7 @@
 <meta name="apple-mobile-web-app-title" content="パズル美術館">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>パズル美術館｜入口と展示室の操作・移動改修 v0.9</title>
+<title>パズル美術館｜入口と展示室の額縁画像と近接操作 v1.0</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -51,7 +51,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body><div class="rotate">📱 <strong>スマホを横向きにしてください</strong><small>館内を広く、絵が歪まないように表示します。</small></div>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div><div class="status" id="statusText">新素材の入口＋第1展示室</div><div class="nav"><button id="viewMode" aria-pressed="true">拡大表示</button><button id="sceneBtn">展示室へ</button><button id="showList">作品を見る</button><button id="addPhoto" class="gold">＋ 写真を飾る</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v0.9 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v1.0 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 <footer><span>背景・館長・写真が独立した素材／データは一時保存</span><span><a href="../index.html?v=562e40d" style="color:#ffe1a6;margin-right:14px">旧50作品版と比較</a>方向キー / WASD　移動</span></footer>
@@ -61,8 +61,8 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 'use strict';
 const $=id=>document.getElementById(id);
 const canvas=$('world'),ctx=canvas.getContext('2d'),overlay=$('overlay');
-const src={entrance:{w:546,h:483,background:'entrance_base.webp',spawn:[195,313],name:'美術館の入口'},gallery:{w:589,h:482,background:'gallery_base.webp',spawn:[316,260],name:'第1展示室'}};
-const ap=[[153,54,208,106],[265,56,318,108],[374,55,426,110]];
+const src={entrance:{w:546,h:483,background:'entrance_base.webp',spawn:[195,313],name:'美術館の入口'},gallery:{w:589,h:482,background:'gallery_clean.png',spawn:[316,260],name:'第1展示室'}};
+const ap=[[148,53,216,109],[258,54,332,110],[365,53,437,110]];
 const works=[{id:'sample-1',title:'湖畔の風景（見本）',pieces:1000,complete:null,registered:'2026-10-22',source:0,spot:0},{id:'sample-2',title:'夕焼けの空（見本）',pieces:500,complete:'2025-05-10',registered:'2026-10-22',source:1,spot:1},{id:'sample-3',title:'花の庭園（見本）',pieces:300,complete:null,registered:'2026-10-22',source:2,spot:2}];
 const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
 try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
@@ -76,7 +76,7 @@ function image(name,url){return new Promise((res,rej)=>{const im=new Image();im.
 function get(name){return images.get(name);}
 const SPRITE_BOUNDS={"front0":{"x":10,"y":4,"w":42,"h":68},"front1":{"x":8,"y":3,"w":42,"h":69},"front2":{"x":6,"y":4,"w":43,"h":68},"front3":{"x":7,"y":4,"w":43,"h":68},"front4":{"x":9,"y":4,"w":42,"h":68},"back0":{"x":7,"y":3,"w":41,"h":63},"back1":{"x":6,"y":3,"w":42,"h":63},"back2":{"x":6,"y":3,"w":40,"h":63},"back3":{"x":7,"y":3,"w":40,"h":63},"back4":{"x":8,"y":3,"w":41,"h":63},"left0":{"x":13,"y":8,"w":40,"h":59},"left1":{"x":14,"y":8,"w":39,"h":59},"left2":{"x":15,"y":8,"w":38,"h":59},"left3":{"x":13,"y":8,"w":40,"h":60},"left4":{"x":11,"y":8,"w":41,"h":59},"right0":{"x":6,"y":2,"w":40,"h":56},"right1":{"x":6,"y":2,"w":39,"h":57},"right2":{"x":6,"y":2,"w":39,"h":57},"right3":{"x":6,"y":2,"w":40,"h":56},"right4":{"x":8,"y":2,"w":41,"h":57}};
 async function boot(){
- const loads=[image('entrance','assets/entrance_base.webp'),image('gallery','assets/gallery_base.webp'),image('staff','assets/staff-front.png')];
+ const loads=[image('entrance','assets/entrance_base.webp'),image('gallery','assets/gallery_clean.png'),image('staff','assets/staff-front.png')];
  for(let i=0;i<3;i++)loads.push(image('sample'+i,'assets/sample'+i+'.png'));
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++)loads.push(image(dir+i,'assets/curator-'+dir+'-'+String(i).padStart(2,'0')+'.png'));
  await Promise.all(loads);
@@ -153,12 +153,12 @@ function walk(dir){
 }
 function interactionCandidates(){
  if(scene==='entrance')return[
-  {type:'staff',x:195,y:224,enter:55,leave:74},
-  {type:'door',x:401,y:197,enter:53,leave:69}
+  {type:'staff',x:195,y:191,enter:43,leave:58},
+  {type:'door',x:401,y:197,enter:43,leave:57}
  ];
  return ap.map((rect,i)=>{
   const x=(rect[0]+rect[2])/2;
-  return {type:'art',i,x,y:185,enter:67,leave:82};
+  return {type:'art',i,x,y:185,enter:38,leave:51};
  });
 }
 function interactionId(hit){return hit.type+':'+(hit.i??'')}
@@ -188,11 +188,25 @@ function update(){
  $('cancel').hidden=!carrying;
 }
 function changeScene(next){if(!src[next])throw new Error('scene missing');scene=next;carrying=null;activeInteraction=null;pos={x:src[next].spawn[0],y:src[next].spawn[1],dir:next==='gallery'?'up':'down',stride:0};cameraY=0;$('hint').hidden=false;resize();update();}
-function paintArtwork(a,i){const [x1,y1,x2,y2]=ap[i],w=x2-x1,h=y2-y1;if(!a)return;
- const img=a.photo || get('sample'+a.source);if(!img)return;
- ctx.fillStyle='#f6f0e1';ctx.fillRect(x1,y1,w,h);
- const ratio=Math.min(w/img.width,h/img.height),iw=img.width*ratio,ih=img.height*ratio;
- ctx.drawImage(img,x1+(w-iw)/2,y1+(h-ih)/2,iw,ih);
+function paintArtwork(a,i){
+ const [x1,y1,x2,y2]=ap[i],w=x2-x1,h=y2-y1;
+ // Each aperture has an independent opaque mount in gallery_clean.png.
+ // Drawing never relies on the demonstration artwork embedded in older backgrounds.
+ const pad=2,ix=x1+pad,iy=y1+pad,iw=w-2*pad,ih=h-2*pad;
+ ctx.save();ctx.beginPath();ctx.rect(ix,iy,iw,ih);ctx.clip();
+ ctx.fillStyle='#e8dfcb';ctx.fillRect(ix,iy,iw,ih);
+ if(a){
+  const img=a.photo || get('sample'+a.source);
+  if(img&&img.width&&img.height){
+   const ratio=Math.min(iw/img.width,ih/img.height);
+   const drawW=img.width*ratio,drawH=img.height*ratio;
+   ctx.drawImage(img,ix+(iw-drawW)/2,iy+(ih-drawH)/2,drawW,drawH);
+  }
+ }else{
+  ctx.fillStyle='#9e8c71';ctx.font='bold 20px serif';ctx.textAlign='center';
+  ctx.fillText('+',(x1+x2)/2,(y1+y2)/2+6);
+ }
+ ctx.restore();
 }
 function avatar(){
  const dir=pos.dir==='up'?'back':pos.dir==='down'?'front':pos.dir;

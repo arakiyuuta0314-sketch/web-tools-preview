@@ -1,5 +1,5 @@
 {
-  "version": "v0.9-speed-collision-and-interaction",
+  "version": "v1.0-clean-frame-photo-compositing",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -21,7 +21,7 @@
       ]
     },
     "gallery": {
-      "asset": "gallery_base.webp",
+      "asset": "gallery_clean.png",
       "size": [
         589,
         482
@@ -32,21 +32,21 @@
       ],
       "apertures": [
         [
-          153,
+          148,
+          53,
+          216,
+          109
+        ],
+        [
+          258,
           54,
-          208,
-          106
+          332,
+          110
         ],
         [
-          265,
-          56,
-          318,
-          108
-        ],
-        [
-          374,
-          55,
-          426,
+          365,
+          53,
+          437,
           110
         ]
       ]
@@ -83,6 +83,8 @@
     "movement_speed": "step12px / repeat65ms; swept in 3px collision substeps",
     "interaction_hysteresis": "enter range and larger leave range per staff, door, and frame",
     "extra_obstacles": "foreground gallery balustrade",
-    "tests": "Chromium landscape 844x390/932x430, portrait 390x844, reachability BFS, hold stop, staff and gallery action, photo upload"
+    "tests": "Chromium landscape844x390/932x430, portrait390x844; inspect/lift/swap/photo upload; screenshot reviewed",
+    "photo_residual": "Original baked-in artwork removed from all three frame wells; current photos drawn independently in clipped apertures",
+    "action_proximity": "Frame enter38/leave51, staff enter43/leave58, door enter43/leave57"
   }
 }
