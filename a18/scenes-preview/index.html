@@ -65,7 +65,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="ui-v17.css?v=1.7"></head>
+</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="ui-v17.css?v=1.7"></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
@@ -198,7 +198,7 @@ function resize(){
   canvas.height=Math.max(1,Math.round(availableHeight*pixelRatio));
   canvas.style.width=b.width+'px';canvas.style.height=availableHeight+'px';
   canvas.style.position='absolute';canvas.style.left='0px';canvas.style.top='0px';
-  logicalW=Math.min(m.w,312);
+  logicalW=Math.min(m.w,350);
   logicalH=canvas.height*logicalW/canvas.width;
   $('stage').classList.remove('overview');
  }else if(viewMode==='overview'){
@@ -490,11 +490,11 @@ function introDialog(){
 }
 
 function open(title,contents,kind='standard'){
- modal=true;overlay.classList.toggle('rpg-mode',kind==='rpg');
- $('dialog').innerHTML=(kind==='rpg'?'':'<h2>'+esc(title)+'</h2>')+contents;
+ modal=true;overlay.classList.toggle('rpg-mode',kind==='rpg');overlay.classList.toggle('art-inspect-mode',kind==='art-inspect');
+ $('dialog').innerHTML=(kind==='rpg'||kind==='art-inspect'?'':'<h2>'+esc(title)+'</h2>')+contents;
  overlay.hidden=false;
 }
-function close(){modal=false;overlay.hidden=true;overlay.classList.remove('rpg-mode');update();}
+function close(){modal=false;overlay.hidden=true;overlay.classList.remove('rpg-mode','art-inspect-mode');update();}
 function action(){
  const h=nearby();if(!h)return;
  if(h.type==='staff'){staffDialog();return}
@@ -527,22 +527,15 @@ function inspect(i){
  }
  const a=slot(i);
  if(!a){open('空の額縁','<p>スタッフから新しい作品を受け取り、この額縁まで運んできましょう。</p><div class="row"><button id="close">わかった</button></div>');$('close').onclick=close;return}
- open(a.title,'<p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered)+'<br>ピース：'+esc(a.pieces||'未登録')+'</p>'+
- '<div class="art-note"><b>備考・思い出</b><p>'+esc(a.notes||'まだ記録されていません')+'</p></div>'+
- '<div class="row"><button id="view">大きく鑑賞する</button><button id="lift" class="light">持ち上げる</button><button id="editNote" class="light">備考を編集</button><button id="close" class="light">閉じる</button></div>');
+ const img=a.displaySrc||a.originalURL||'';
+ const items=[...works].filter(w=>w.spot!=null).sort((x,y)=>x.spot-y.spot).map(w=>({id:w.id,title:w.title,pieces:w.pieces,complete:w.complete,registered:w.registered,notes:w.notes||'',src:w.displaySrc||w.originalURL||'',originalSrc:w.originalURL||''}));
+ open(a.title,'<div class="inspect-shell"><div class="inspect-top"><h2>'+esc(a.title)+'</h2><p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered||'不明')+'　ピース：'+esc(a.pieces||'未登録')+'</p></div>'+
+ '<button id="inspectPhoto" class="inspect-photo" type="button" aria-label="写真をフルサイズで鑑賞する">'+(img?'<img src="'+esc(img)+'" alt="'+esc(a.title)+'">':'<span>写真を読み込めませんでした</span>')+'<span class="inspect-tap">タップで大きく鑑賞</span></button>'+
+ '<div class="inspect-memory"><strong>備考・思い出</strong><p>'+esc(a.notes||'まだ記録されていません')+'</p></div>'+
+ '<div class="inspect-bottom"><button id="lift">持ち上げる</button><button id="editNote">備考を編集</button><button id="close">閉じる</button></div></div>','art-inspect');
  $('editNote').onclick=()=>editMemo(a);
  $('lift').onclick=()=>{carrying=a.id;carryOrigin=i;a.spot=null;close()};
- $('view').onclick=()=>{
-  const items=[...works].filter(w=>w.spot!=null).sort((a,b)=>a.spot-b.spot).map(w=>({
-   id:w.id,title:w.title,pieces:w.pieces,complete:w.complete,registered:w.registered,notes:w.notes||'',
-   src:w.displaySrc||w.originalURL||'',
-   originalSrc:w.originalURL||''
-  }));
-  close();window.A18Viewer.open({items,selectedId:a.id,onClose:()=>{
-   modal=false;
-   const selected=works.find(w=>w.id===a.id);if(selected?.spot!=null)inspect(selected.spot);
-  }});modal=true;
- };
+ $('inspectPhoto').onclick=()=>{close();window.A18Viewer.open({items,selectedId:a.id,onClose:()=>{modal=false;const selected=works.find(w=>w.id===a.id);if(selected?.spot!=null)inspect(selected.spot);}});modal=true;};
  $('close').onclick=close;
 }
 function list(){
