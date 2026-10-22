@@ -415,9 +415,9 @@ function drawBackground(){
   // Staff stays in the lower reception nook; the wall and paintings remain unobstructed.
   ctx.fillStyle='#3a4b40';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
   ctx.fillText('受付・作品登録',240,302);
-  const npc=get('staff');if(npc)ctx.drawImage(npc,236,307,41,51);
+  const npc=get('staff');if(npc)ctx.drawImage(npc,236,307,41,58);
  }else{
-  const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,55);
+  const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,63);
   ctx.fillStyle='#e8d6b0';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
   ctx.fillText('展示スタッフ',300,233);
  }
