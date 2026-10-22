@@ -9,7 +9,7 @@
   const zoomText = $('photoZoomText'), empty = $('photoEmpty');
   let items=[],index=0,onClose=()=>{},scale=1,dx=0,dy=0,showOriginal=false,focus=false;
   const active=new Map();
-  let gesture=null,lastTap=0,lastTapAt=null,isOpen=false,usedMulti=false;
+  let gesture=null,gestureStart=null,lastTap=0,lastTapAt=null,isOpen=false,usedMulti=false;
   const MAX_ZOOM=10,MIN_ZOOM=1;
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const current=()=>items[index];
@@ -19,8 +19,8 @@
     const bounds=area();
     const iw=photo.naturalWidth||1,ih=photo.naturalHeight||1;
     // The entire image is visible at 100%, surrounded by a real gold frame.
-    const fit=Math.min(Math.max(1,bounds.width-42)/iw,Math.max(1,bounds.height-35)/ih);
-    const frameW=iw*fit+18,frameH=ih*fit+18;
+    const fit=Math.min(Math.max(1,bounds.width)/iw,Math.max(1,bounds.height)/ih);
+    const frameW=iw*fit,frameH=ih*fit;
     frame.style.width=frameW+'px';frame.style.height=frameH+'px';
     const maxX=Math.max(0,(frameW*scale-bounds.width)/2);
     const maxY=Math.max(0,(frameH*scale-bounds.height)/2);
@@ -102,6 +102,7 @@
     if(!isOpen||e.pointerType==='mouse'&&e.button!==0)return;
     e.preventDefault();stage.setPointerCapture?.(e.pointerId);
     active.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(active.size===1)gestureStart={x:e.clientX,y:e.clientY};
     if(active.size===2){usedMulti=true;lastTap=0;gesture={...centerOf(active),scale,dx,dy};}
     else if(active.size===1)gesture={x:e.clientX,y:e.clientY,dx,dy};
   });
@@ -136,7 +137,8 @@
         zoomTo(scale<1.3?3:1,pt);lastTap=0;
       }else{lastTap=now;lastTapAt=pt;}
     }
-    if(active.size===0)usedMulti=false;
+    if(active.size===0&&!usedMulti&&e.type==='pointerup'&&scale<=1.01&&gestureStart&&Math.abs(e.clientX-gestureStart.x)>55&&Math.abs(e.clientX-gestureStart.x)>Math.abs(e.clientY-gestureStart.y)*1.35)navigate(e.clientX<gestureStart.x?1:-1);
+    if(active.size===0){usedMulti=false;gestureStart=null;}
   };
   for(const ev of ['pointerup','pointercancel','lostpointercapture'])stage.addEventListener(ev,finish);
   stage.addEventListener('dblclick',e=>{e.preventDefault();zoomTo(scale<1.3?3:1,{x:e.clientX,y:e.clientY});});
