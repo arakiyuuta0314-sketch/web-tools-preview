@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<title>パズル美術館｜新グラフィック操作比較版</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
+*{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
+button{cursor:pointer;border:0;border-radius:12px;touch-action:manipulation}
+button:focus-visible{outline:3px solid #ffe3a2;outline-offset:2px}
+.app{display:flex;flex-direction:column;height:100dvh;min-height:0}
+header{height:57px;flex:none;display:flex;align-items:center;gap:12px;padding:6px max(11px,env(safe-area-inset-right)) 6px max(11px,env(safe-area-inset-left));background:#17362f;border-bottom:3px solid #c8a76b}
+.brand{display:flex;flex-direction:column;min-width:155px}.brand small{font-size:11px;letter-spacing:.2em;color:#dbbc80}.brand strong{font-size:20px}
+.status{flex:1;text-align:center;color:#e9d7ae;font-size:15px;font-weight:750}
+.nav{display:flex;gap:7px}.nav button{background:#2d4a40;color:#fff6e2;padding:10px 14px;border:1px solid #688679;font-size:15px;font-weight:700;white-space:nowrap}
+.nav .gold{background:#f0d18e;color:#223c32}
+.stage{position:relative;min-height:0;flex:1;overflow:hidden;background:#2b3a31}
+canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:none}
+.stage:before{position:absolute;inset:0;border:5px solid #bb9964;content:"";pointer-events:none;z-index:1}
+.stage .hint{position:absolute;top:9px;left:50%;transform:translateX(-50%);max-width:calc(100% - 40px);z-index:3;background:#fff4dbed;color:#2c473b;padding:9px 18px;border-radius:25px;box-shadow:0 2px 12px #0004;font-size:15px;font-weight:750;text-align:center;pointer-events:none}
+.dpad{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:12px;width:165px;height:165px;z-index:4;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:3px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.dpad button{background:#f2f0dded;border:2px solid #fff9e9;color:#315c4b;box-shadow:0 3px 0 #5d7766b8;font-size:24px;font-weight:900;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.dpad [data-d="up"]{grid-area:1/2}.dpad [data-d="down"]{grid-area:3/2}.dpad [data-d="left"]{grid-area:2/1}.dpad [data-d="right"]{grid-area:2/3}
+.dpad .label{grid-area:2/2;display:grid;place-items:center;background:#dddcc7df;color:#51665c;font-size:15px;font-weight:750;border-radius:10px}
+.dpad button:active{background:#e3c689}.act{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:17px;z-index:4;display:flex;flex-direction:column;gap:8px}
+.act button{background:#f0d18e;color:#203a31;border:3px solid #fff0cf;min-width:160px;min-height:65px;font-size:21px;font-weight:800;box-shadow:0 4px 0 #536653}
+.act button.secondary{background:#fcf6e3;font-size:15px;min-height:42px}
+.tag{position:absolute;top:10px;left:15px;z-index:2;background:#20352ecf;border:1px solid #ac9266;color:#ffedcd;border-radius:9px;padding:5px 10px;font-weight:750;font-size:13px}
+.tag strong{color:#f2cf81}
+footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:none;height:27px;display:flex;align-items:center;justify-content:space-between;white-space:nowrap}
+.overlay[hidden]{display:none}.overlay{position:fixed;z-index:20;inset:0;display:grid;place-items:center;background:#081713b9;padding:18px}
+.dialog{background:#fffaf0;color:#253c33;border:4px solid #c49c5c;border-radius:19px;box-shadow:0 10px 45px #0008;width:min(520px,100%);max-height:calc(100dvh - 40px);overflow:auto;padding:18px 20px;font-size:17px;line-height:1.55}
+.dialog h2{font-size:24px;margin:0 0 8px}.dialog p{margin:6px 0 12px}.dialog .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.dialog button{background:#326958;color:white;padding:12px 18px;font-size:17px;font-weight:800;min-height:48px}
+.dialog button.light{background:#e8dcc4;color:#30463a}.dialog .row button{flex:1}
+.dialog label{display:block;font-weight:700;margin-top:10px}.dialog input,.dialog select{width:100%;border-radius:8px;border:2px solid #b9b3a5;padding:9px;font-size:17px;background:white;color:#1f2e29}
+.dialog .small{font-size:14px;color:#5b675e}.dialog .error{color:#bc332e;font-weight:750;min-height:20px}
+.dialog .artlist{display:grid;gap:8px}.dialog .artitem{display:flex;gap:10px;align-items:center;background:#f3eddc;padding:8px;border-radius:8px}
+.dialog .artitem span{flex:1}.dialog .artitem button{font-size:15px;min-height:40px}
+.rotate{display:none}
+@media (orientation:portrait) and (max-width:850px){
+.rotate{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;background:#163b31;color:#fff3dc;text-align:center;padding:30px;font-size:22px}.rotate small{font-size:16px}
+}
+@media(max-height:390px){header{height:47px}.brand strong{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
+@media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand strong{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
+</style></head>
+<body><div class="rotate">📱 <strong>スマホを横向きにしてください</strong><small>館内を広く、絵が歪まないように表示します。</small></div>
+<div class="app">
+<header><div class="brand"><small>PUZZLE MUSEUM</small><strong>パズル美術館</strong></div><div class="status">新グラフィック比較版 ／ 1展示コーナー</div><div class="nav"><button id="showList">作品を見る</button><button id="addPhoto" class="gold">＋ 写真を飾る</button></div></header>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · 画像素材版</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
+<div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act">調べる</button></div></main>
+<footer><span>ビジュアル制作の比較版・データは一時保存</span><span><a href="../index.html?v=562e40d" style="color:#ffe1a6;margin-right:14px">旧50作品版と比較</a>方向キー / WASD　移動</span></footer>
+</div><div id="overlay" class="overlay" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true"></section></div>
+<script>
+"use strict";
+const canvas=document.querySelector("#world"),ctx=canvas.getContext("2d");const $=id=>document.getElementById(id);
+const WORLD={w:800,h:659},paintings=[{x:162,y:142},{x:401,y:142},{x:639,y:142}],inner=[{x:102,y:99,w:120,h:88},{x:347,y:99,w:119,h:88},{x:582,y:99,w:116,h:87}];
+const art=[{id:"a",title:"湖畔の風景（見本）",source:0,spot:0,pieces:1000,complete:null,registered:"2026-10-22"}, {id:"b",title:"夕暮れの空（見本）",source:1,spot:1,pieces:500,complete:"2025-05-10",registered:"2026-10-22"},{id:"c",title:"花の絵（見本）",source:2,spot:2,pieces:300,complete:null,registered:"2026-10-22"}];
+const imgs={};let pos={x:535,y:343,dir:"left",stride:0},carrying=null,modal=false,moves=0,cameraY=0,viewportH=330,loop=null;
+let focus=null;
+function load(name,url){return new Promise((resolve,reject)=>{let i=new Image();i.onload=()=>{imgs[name]=i;resolve()};i.onerror=reject;i.src=url})}
+function content(str){return String(str??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function bySpot(i){return art.find(a=>a.spot===i)||null}
+function btnMessage(){const slot=closest();$("act").textContent=carrying?slot!==null?"ここに飾る":"展示位置へ":slot!==null?"作品を調べる":"調べる";$("cancel").hidden=!carrying}
+function closest(){let nearest=null,dist=198;for(let i=0;i<3;i++){const dx=pos.x-paintings[i].x,dy=pos.y-225,d=Math.hypot(dx,dy);if(d<dist){dist=d;nearest=i}}return nearest}
+function canMove(x,y){if(x<48||x>750||y<310||y>650)return false;
+// bench, left ropes/plants, right ropes/plants, center statue on raised plinth.
+let blockers=[[306,514,259,316],[22,100,225,318],[250,301,218,326],[495,548,213,325],[711,776,214,335],[290,520,430,655],[185,279,401,530],[526,624,401,530],[88,178,502,646],[636,722,502,648]];
+for(const [l,r,t,b] of blockers){let cx=Math.max(l,Math.min(x,r)),cy=Math.max(t,Math.min(y+10,b));if(Math.hypot(x-cx,y+10-cy)<12)return false}return true}
+function walk(dir){if(modal)return;pos.dir=dir;const vx=dir==="right"?12:dir==="left"?-12:0,vy=dir==="down"?12:dir==="up"?-12:0;
+if(canMove(pos.x+vx,pos.y+vy)){pos.x+=vx;pos.y+=vy;pos.stride=(pos.stride+1)%4;if(++moves>=4)$("hint").hidden=true}
+btnMessage()}
+function drawFrameSlot(i,withArt){const at=inner[i],a=bySpot(i);if(!a){ctx.fillStyle="#e4d8bd";ctx.fillRect(at.x,at.y,at.w,at.h);ctx.fillStyle="#b5a284";ctx.font="bold 34px system-ui";ctx.textAlign="center";ctx.fillText("+",at.x+at.w/2,at.y+at.h/2+11);return}
+const image=a.photo;
+if(image&&image.complete&&image.naturalWidth){ctx.fillStyle="#f2eee0";ctx.fillRect(at.x,at.y,at.w,at.h);const scale=Math.min(at.w/image.naturalWidth,at.h/image.naturalHeight);const w=image.naturalWidth*scale,h=image.naturalHeight*scale;ctx.drawImage(image,at.x+(at.w-w)/2,at.y+(at.h-h)/2,w,h)}
+else if(a.source!=null){const src=inner[a.source];ctx.drawImage(imgs.bg,src.x,src.y,src.w,src.h,at.x,at.y,at.w,at.h)}
+}
+function avatar(){const walk=pos.stride%4,bob=walk===1||walk===3?2:0;
+ctx.save();ctx.fillStyle="#14292166";ctx.beginPath();ctx.ellipse(pos.x,pos.y+3,21,6,0,0,Math.PI*2);ctx.fill();
+const front=imgs.front,back=imgs.back;
+if(pos.dir==="up"){ctx.drawImage(back,pos.x-27,pos.y-103-bob,54,111)}
+else {if(pos.dir==="left"){ctx.translate(pos.x,0);ctx.scale(-1,1);ctx.translate(-pos.x,0)}
+ctx.drawImage(front,pos.x-28,pos.y-94-bob,56,94)}
+ctx.restore();
+if(carrying){ctx.save();ctx.translate(pos.x,pos.y-124-bob);ctx.fillStyle="#63422c";ctx.fillRect(-24,-28,48,42);ctx.fillStyle="#edc88d";ctx.fillRect(-20,-24,40,33);ctx.fillStyle="#fff8e6";ctx.fillRect(-16,-21,32,27);
+const a=art.find(a=>a.id===carrying.id);if(a){if(a.photo){ctx.drawImage(a.photo,-15,-20,30,25)}else{const src=inner[a.source];ctx.drawImage(imgs.bg,src.x,src.y,src.w,src.h,-15,-20,30,25)}}
+ctx.restore()}}
+function resize(){const stage=$("stage").getBoundingClientRect();if(!stage.width||!stage.height)return;const view=stage.width/stage.height;const idealHeight=WORLD.w/view;viewportH=Math.max(135,Math.min(659,idealHeight));canvas.width=800;canvas.height=Math.round(viewportH);ctx.imageSmoothingEnabled=true}
+function draw(){if(!imgs.bg)return;const target=Math.max(0,Math.min(WORLD.h-viewportH,pos.y-viewportH*.90));cameraY+=Math.max(-14,Math.min(14,(target-cameraY)*.2));
+ctx.clearRect(0,0,800,canvas.height);ctx.save();ctx.translate(0,-cameraY);
+ctx.drawImage(imgs.bg,0,0);for(let i=0;i<3;i++)drawFrameSlot(i);avatar();
+if(carrying&&closest()!==null){let i=closest();ctx.strokeStyle="#bde6bd";ctx.lineWidth=5;ctx.strokeRect(inner[i].x-7,inner[i].y-7,inner[i].w+14,inner[i].h+14)}
+ctx.restore();requestAnimationFrame(draw)}
+function openDialog(title,html){modal=true;$("dialog").innerHTML='<h2>'+content(title)+'</h2>'+html;$("overlay").hidden=false;}
+function close(){modal=false;$("overlay").hidden=true;btnMessage()}
+$("overlay").onclick=e=>{if(e.target===$("overlay"))close()};
+function previewCanvas(a){return a.photo?"写真を登録した作品":a.source!=null?"見本作品":"未登録"}
+function inspect(i){const a=bySpot(i);if(carrying){const source=art.find(x=>x.id===carrying.id);const target=bySpot(i);if(target&&source!==target)target.spot=source.spot;source.spot=i;carrying=null;btnMessage();return;}
+if(!a){openForm(i);return}
+openDialog(a.title,'<p>'+previewCanvas(a)+'　／　'+content(a.pieces||"不明")+'ピース<br>完成日：'+content(a.complete||"不明")+'</p><div class="row"><button id="lift">頭上に持ち上げる</button><button class="light" id="detail">作品を見る</button><button class="light" id="close">閉じる</button></div>');
+$("lift").onclick=()=>{carrying={id:a.id};close()};
+$("detail").onclick=()=>{openDialog(a.title,'<p>完成日：'+content(a.complete||"不明")+'　登録日：'+content(a.registered)+'</p><p class="small">展示位置：'+(i+1)+'　ピース：'+content(a.pieces||"不明")+'</p><div class="row"><button id="back">戻る</button></div>');$("back").onclick=()=>inspect(i)};
+$("close").onclick=close}
+function openForm(spot=0){openDialog("写真を展示する",'<p class="small">この比較版では3枚の額縁を使用します。写真はサーバーへ送信せず、再読み込みで消えます。</p><label>展示位置<select id="spot"><option value="0">左の額縁</option><option value="1">中央の額縁</option><option value="2">右の額縁</option></select></label><label>作品名<input id="name" placeholder="例：お気に入りの風景" maxlength="60"></label><label>完成日<select id="dateMode"><option value="unknown">不明</option><option value="known">分かる</option></select></label><label id="dateBox" hidden>完成した日<input type="date" id="date"></label><label>ピース数（任意）<input type="number" id="pieces" min="1"></label><label>写真<input id="photo" type="file" accept="image/*"></label><p class="error" id="err"></p><div class="row"><button id="save">この額縁に飾る</button><button id="close" class="light">キャンセル</button></div>');
+$("spot").value=String(spot);$("dateMode").onchange=()=>$("dateBox").hidden=$("dateMode").value!=="known";$("close").onclick=close;
+$("save").onclick=async()=>{const f=$("photo").files?.[0],name=$("name").value.trim();if(!name||!f){$("err").textContent="作品名と写真を選んでください";return}if(!f.type.startsWith("image/")){$("err").textContent="画像を選んでください";return}
+const chosen=Number($("spot").value),day=$("dateMode").value==="known"?$("date").value:null;if($("dateMode").value==="known"&&!day){$("err").textContent="完成日を入力してください";return}
+const img=new Image(),blob=URL.createObjectURL(f);
+img.onload=()=>{URL.revokeObjectURL(blob);const old=bySpot(chosen),next={id:"local-"+Date.now(),title:name,spot:chosen,source:null,pieces:Number($("pieces").value)||null,complete:day,registered:new Date().toLocaleDateString("sv-SE"),photo:img};if(old)art.splice(art.indexOf(old),1);art.push(next);close()};
+img.onerror=()=>{URL.revokeObjectURL(blob);$("err").textContent="写真を読み込めませんでした"};img.src=blob}}
+function list(){openDialog("展示作品一覧",'<p class="small">この版はグラフィック確認用の3展示枠です。既存の50作品版は別URLで保持しています。</p><div class="artlist">'+[0,1,2].map(i=>{const a=bySpot(i);return '<div class="artitem"><span><b>'+(i+1)+'. '+content(a?.title||"空き展示")+'</b><br><small>完成日：'+content(a?.complete||"不明")+'</small></span><button data-show="'+i+'">開く</button></div>'}).join("")+'</div><div class="row"><button id="close">戻る</button></div>');document.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>inspect(Number(b.dataset.show)));$("close").onclick=close}
+function act(){const i=closest();if(i!==null)inspect(i);else $("hint").hidden=false}
+$("act").onclick=act;$("cancel").onclick=()=>{carrying=null;btnMessage()};$("showList").onclick=list;$("addPhoto").onclick=()=>openForm(0);
+canvas.onclick=e=>{const rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)*800/rect.width,y=(e.clientY-rect.top)*viewportH/rect.height+cameraY;for(let i=0;i<3;i++){const a=inner[i];if(x>a.x-25&&x<a.x+a.w+25&&y>a.y-33&&y<a.y+a.h+42){inspect(i);break}}};
+const keys=new Set();const mapping={ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down",a:"left",d:"right",w:"up",s:"down"};
+window.addEventListener("keydown",e=>{if(modal)return;if(mapping[e.key]){e.preventDefault();if(!e.repeat)walk(mapping[e.key]);keys.add(e.key)}else if(e.key==="Enter"){e.preventDefault();act()}else if(e.key==="Escape")close()});
+window.addEventListener("keyup",e=>keys.delete(e.key));setInterval(()=>{if(!modal&&keys.size){const k=[...keys][keys.size-1];if(mapping[k])walk(mapping[k])}},95);
+for(const b of document.querySelectorAll("[data-d]")){let interval=null;const stop=()=>{clearInterval(interval);interval=null};b.addEventListener("pointerdown",e=>{e.preventDefault();stop();walk(b.dataset.d);interval=setInterval(()=>walk(b.dataset.d),95);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)});for(const ev of ["pointerup","pointercancel","lostpointercapture"])b.addEventListener(ev,stop)}
+for(const ev of ["contextmenu","dragstart","selectstart"])$("dpad").addEventListener(ev,e=>e.preventDefault());$("dpad").addEventListener("touchstart",e=>e.preventDefault(),{passive:false});
+window.addEventListener("blur",()=>keys.clear());
+window.addEventListener("resize",resize);
+window.__A18_ART_STUDY__={state:()=>({pos:{...pos},cameraY,carrying,artworks:art.map(a=>({id:a.id,title:a.title,spot:a.spot,source:a.source})),rendered:!!imgs.bg}),move:walk,inspect,canMove};
+Promise.all([load("bg","assets/gallery-backdrop.webp"),load("front","assets/curator-front.png"),load("back","assets/curator-back.png")]).then(()=>{resize();draw();btnMessage()}).catch(err=>{console.error(err);$("hint").textContent="画像素材の読込に失敗しました"});
+</script></body></html>
