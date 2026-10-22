@@ -86,7 +86,7 @@
     isOpen=false;root.hidden=true;document.body.classList.remove('a18-photo-open');
     active.clear();gesture=null;photo.onload=null;photo.onerror=null;
     photo.removeAttribute('src');frame.style.transform='';
-    const done=onClose;onClose=()=>{};done();
+    const selectedId=current()?.id;const done=onClose;onClose=()=>{};done(selectedId);
   }
   function navigate(step){
     if(!isOpen)return;
