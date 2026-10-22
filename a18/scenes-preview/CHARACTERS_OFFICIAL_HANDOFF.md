@@ -1,0 +1,11 @@
+# A18 キャラクター正式版 引き継ぎ
+- 正式素材: assets/official/characters/ （48枚）
+- 男性館長: curator-{front,back,left,right}-{00..04}.png（20枚）
+- 女性館長: female-{front,back,left,right}-{00..04}.png（20枚）
+- 女性スタッフ: staff-{front,back,left,right}-00.png（4枚）
+- 爺や: butler-{front,back,left,right}-00.png（4枚）
+- 男性・女性館長の切替: index.html の avatar=male / avatar=female
+- スタッフ・爺やは固定NPC。会話画像や歩行コマの追加制作はこの引き継ぎの範囲外。
+- 画風・キャラ素材はユーザー正式承認済み。再生成・変更しない。
+- 額縁・扉・イーゼル・家具は今回採用しない。画像生成シートは未実装・未承認。
+- 旧素材パスは他のプレビューの参照が残るため無断削除しない。正式素材と混同しない。
