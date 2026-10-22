@@ -167,11 +167,13 @@ function chooseAvatar(){
 }
 function butlerDialog(){
  const chat=(body,actions='')=>'<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(assetManifest?.butler?.portraitPath||'')+'" alt="爺やの肖像"></div><div class="rpg-words"><span class="rpg-name">爺や</span><p class="rpg-message">'+body+'</p></div></div>'+actions;
- open('爺や', '<button id="rpgAdvance" type="button" class="rpg-dialogue-advance">'+chat('館長、お部屋の飾り付けをお手伝いしましょうか？')+'<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
+ open('爺や','<button id="rpgAdvance" type="button" class="rpg-dialogue-advance">'+chat('館長、お呼びでしょうか？')+'<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
  $('rpgAdvance').onclick=()=>{
-  open('爺や',chat('どのお手伝いをご希望でしょう？','<div class="rpg-choices"><button id="a18Decorate">模様替え</button><button id="a18SelectAvatar">館長の姿を選ぶ</button><button id="a18No" class="light">またあとで</button></div>'),'rpg');
-  $('a18Decorate').onclick=()=>{close();window.A18LayoutEditor.open({fixtures:()=>fixtures,works:()=>works,onCommit:next=>{fixtures.splice(0,fixtures.length,...next);requestSave();update()},onClose:()=>{update()}});};
-  $('a18SelectAvatar').onclick=chooseAvatar;$('a18No').onclick=close;
+  // Furniture / free layout editing is intentionally on hold.
+  // Do not delete layout fixtures or original pictures from stored museum data.
+  open('爺や',chat('館長のお姿でしたら、こちらで変更できますよ。','<div class="rpg-choices"><button id="a18SelectAvatar">館長の姿を選ぶ</button><button id="a18No" class="light">またあとで</button></div>'),'rpg');
+  $('a18SelectAvatar').onclick=chooseAvatar;
+  $('a18No').onclick=close;
  };
 }
 
