@@ -1,5 +1,5 @@
 {
-  "version": "v0.7-work-in-progress",
+  "version": "v0.8-operation-and-accessibility-preview",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -74,6 +74,11 @@
       "390x844"
     ],
     "manual_status": "iPhone Safari not yet checked",
-    "preserved": "prior v0.6 and 50-work prototype untouched"
+    "preserved": "prior v0.6 and 50-work prototype untouched",
+    "collision_reachability": "All three frames, staff and entry door reachable in Chromium-grid BFS",
+    "browser_view": "Default full-scene aspect-locked fit; switchable zoom",
+    "floating_player": "Cropped precomputed alpha bounding boxes and small foot shadow",
+    "first_run_title": "Defaults to パズル美術館, localStorage only for museum title",
+    "standalone_web_app": "Manifest and Apple meta tags added; iPhone installed mode not verified"
   }
 }

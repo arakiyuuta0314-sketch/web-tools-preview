@@ -1,0 +1,11 @@
+{
+  "name": "パズル美術館｜操作検証版",
+  "short_name": "パズル美術館",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#17362f",
+  "theme_color": "#17362f",
+  "description": "A18 パズル美術館の開発用プレビュー。"
+}

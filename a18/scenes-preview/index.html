@@ -1,7 +1,11 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>パズル美術館｜入口と展示室の独立素材試作 v0.7</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="パズル美術館">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<title>パズル美術館｜入口と展示室の操作・当たり判定試作 v0.8</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -9,12 +13,12 @@ button{cursor:pointer;border:0;border-radius:12px;touch-action:manipulation}
 button:focus-visible{outline:3px solid #ffe3a2;outline-offset:2px}
 .app{display:flex;flex-direction:column;height:100dvh;min-height:0}
 header{height:57px;flex:none;display:flex;align-items:center;gap:12px;padding:6px max(11px,env(safe-area-inset-right)) 6px max(11px,env(safe-area-inset-left));background:#17362f;border-bottom:3px solid #c8a76b}
-.brand{display:flex;flex-direction:column;min-width:155px}.brand small{font-size:11px;letter-spacing:.2em;color:#dbbc80}.brand strong{font-size:20px}
+.brand{display:flex;flex-direction:column;min-width:155px}.brand small{font-size:11px;letter-spacing:.2em;color:#dbbc80}.brand #museumName{background:none;color:#f8f2e6;font-size:20px;font-weight:800;text-align:left;padding:0;border-radius:2px;white-space:nowrap;max-width:210px;overflow:hidden;text-overflow:ellipsis}.brand #museumName:hover{text-decoration:underline}
 .status{flex:1;text-align:center;color:#e9d7ae;font-size:15px;font-weight:750}
 .nav{display:flex;gap:7px}.nav button{background:#2d4a40;color:#fff6e2;padding:10px 14px;border:1px solid #688679;font-size:15px;font-weight:700;white-space:nowrap}
 .nav .gold{background:#f0d18e;color:#223c32}
-.stage{position:relative;min-height:0;flex:1;overflow:hidden;background:#2b3a31}
-canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:none}
+.stage{position:relative;min-height:0;flex:1;overflow:hidden;background:#2b3a31;display:flex;align-items:center;justify-content:center}
+canvas{display:block;max-width:100%;max-height:100%;width:auto;height:auto;image-rendering:auto;touch-action:none;background:#1d332c;box-shadow:0 0 0 3px #b39462,0 0 0 10px #162c26}
 .stage:before{position:absolute;inset:0;border:5px solid #bb9964;content:"";pointer-events:none;z-index:1}
 .stage .hint{position:absolute;top:9px;left:50%;transform:translateX(-50%);max-width:calc(100% - 40px);z-index:3;background:#fff4dbed;color:#2c473b;padding:9px 18px;border-radius:25px;box-shadow:0 2px 12px #0004;font-size:15px;font-weight:750;text-align:center;pointer-events:none}
 .dpad{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:12px;width:165px;height:165px;z-index:4;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:3px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
@@ -23,7 +27,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:no
 .dpad .label{grid-area:2/2;display:grid;place-items:center;background:#dddcc7df;color:#51665c;font-size:15px;font-weight:750;border-radius:10px}
 .dpad button:active{background:#e3c689}.act{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:17px;z-index:4;display:flex;flex-direction:column;gap:8px}
 .act button{background:#f0d18e;color:#203a31;border:3px solid #fff0cf;min-width:160px;min-height:65px;font-size:21px;font-weight:800;box-shadow:0 4px 0 #536653}
-.act button.secondary{background:#fcf6e3;font-size:15px;min-height:42px}
+.act button.secondary{background:#fcf6e3;font-size:15px;min-height:42px}.act button[hidden]{display:none!important}
 .tag{position:absolute;top:10px;left:15px;z-index:2;background:#20352ecf;border:1px solid #ac9266;color:#ffedcd;border-radius:9px;padding:5px 10px;font-weight:750;font-size:13px}
 .tag strong{color:#f2cf81}
 footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:none;height:27px;display:flex;align-items:center;justify-content:space-between;white-space:nowrap}
@@ -35,20 +39,21 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 .dialog label{display:block;font-weight:700;margin-top:10px}.dialog input,.dialog select{width:100%;border-radius:8px;border:2px solid #b9b3a5;padding:9px;font-size:17px;background:white;color:#1f2e29}
 .dialog .small{font-size:14px;color:#5b675e}.dialog .error{color:#bc332e;font-weight:750;min-height:20px}
 .dialog .artlist{display:grid;gap:8px}.dialog .artitem{display:flex;gap:10px;align-items:center;background:#f3eddc;padding:8px;border-radius:8px}
+.stage.overview .hint{left:auto;right:14px;transform:none;max-width:max(125px,calc(var(--side-width,220px) - 26px));font-size:14px;padding:10px 12px}
 .dialog .artitem span{flex:1}.dialog .artitem button{font-size:15px;min-height:40px}
 .rotate{display:none}
 @media (orientation:portrait) and (max-width:850px){
 .rotate{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;background:#163b31;color:#fff3dc;text-align:center;padding:30px;font-size:22px}.rotate small{font-size:16px}
 }
-@media(max-height:390px){header{height:47px}.brand strong{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
-@media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand strong{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
+@media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
+@media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
 </style></head>
 <body><div class="rotate">📱 <strong>スマホを横向きにしてください</strong><small>館内を広く、絵が歪まないように表示します。</small></div>
 <div class="app">
-<header><div class="brand"><small>PUZZLE MUSEUM</small><strong>パズル美術館</strong></div><div class="status" id="statusText">新素材の入口＋第1展示室</div><div class="nav"><button id="sceneBtn">展示室へ</button><button id="showList">作品を見る</button><button id="addPhoto" class="gold">＋ 写真を飾る</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · 画像素材版</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div><div class="status" id="statusText">新素材の入口＋第1展示室</div><div class="nav"><button id="viewMode" aria-pressed="true">拡大表示</button><button id="sceneBtn">展示室へ</button><button id="showList">作品を見る</button><button id="addPhoto" class="gold">＋ 写真を飾る</button></div></header>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v0.8 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
-<div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act">調べる</button></div></main>
+<div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 <footer><span>背景・館長・写真が独立した素材／データは一時保存</span><span><a href="../index.html?v=562e40d" style="color:#ffe1a6;margin-right:14px">旧50作品版と比較</a>方向キー / WASD　移動</span></footer>
 </div><div id="overlay" class="overlay" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true"></section></div>
 <script>
@@ -56,48 +61,99 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 'use strict';
 const $=id=>document.getElementById(id);
 const canvas=$('world'),ctx=canvas.getContext('2d'),overlay=$('overlay');
-const src={entrance:{w:546,h:483,background:'entrance_base.webp',spawn:[195,215],name:'美術館の入口'},gallery:{w:589,h:482,background:'gallery_base.webp',spawn:[305,213],name:'第1展示室'}};
+const src={entrance:{w:546,h:483,background:'entrance_base.webp',spawn:[195,313],name:'美術館の入口'},gallery:{w:589,h:482,background:'gallery_base.webp',spawn:[316,235],name:'第1展示室'}};
 const ap=[[153,54,208,106],[265,56,318,108],[374,55,426,110]];
 const works=[{id:'sample-1',title:'湖畔の風景（見本）',pieces:1000,complete:null,registered:'2026-10-22',source:0,spot:0},{id:'sample-2',title:'夕焼けの空（見本）',pieces:500,complete:'2025-05-10',registered:'2026-10-22',source:1,spot:1},{id:'sample-3',title:'花の庭園（見本）',pieces:300,complete:null,registered:'2026-10-22',source:2,spot:2}];
-let scene='entrance',pos={x:195,y:215,dir:'up',stride:0},carrying=null,modal=false,cameraY=0,logicalH=290,frame=0,loaded=false,lastArrange=null;
-const images=new Map(),movement={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',w:'up',a:'left',s:'down',d:'right'};
+const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
+try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
+let scene='entrance',pos={x:195,y:313,dir:'up',stride:0},carrying=null,modal=false,cameraY=0,logicalH=290,frame=0,loaded=false,lastArrange=null;
+const images=new Map(),spriteBounds=new Map(),movement={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',w:'up',a:'left',s:'down',d:'right'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slot=i=>works.find(w=>w.spot===i)||null,makeUrl=f=>URL.createObjectURL(f);
 function image(name,url){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{images.set(name,im);res()};im.onerror=()=>rej(new Error('画像の読込に失敗: '+url));im.src=url;});}
 function get(name){return images.get(name);}
+const SPRITE_BOUNDS={"front0":{"x":10,"y":4,"w":42,"h":68},"front1":{"x":8,"y":3,"w":42,"h":69},"front2":{"x":6,"y":4,"w":43,"h":68},"front3":{"x":7,"y":4,"w":43,"h":68},"front4":{"x":9,"y":4,"w":42,"h":68},"back0":{"x":7,"y":3,"w":41,"h":63},"back1":{"x":6,"y":3,"w":42,"h":63},"back2":{"x":6,"y":3,"w":40,"h":63},"back3":{"x":7,"y":3,"w":40,"h":63},"back4":{"x":8,"y":3,"w":41,"h":63},"left0":{"x":13,"y":8,"w":40,"h":59},"left1":{"x":14,"y":8,"w":39,"h":59},"left2":{"x":15,"y":8,"w":38,"h":59},"left3":{"x":13,"y":8,"w":40,"h":60},"left4":{"x":11,"y":8,"w":41,"h":59},"right0":{"x":6,"y":2,"w":40,"h":56},"right1":{"x":6,"y":2,"w":39,"h":57},"right2":{"x":6,"y":2,"w":39,"h":57},"right3":{"x":6,"y":2,"w":40,"h":56},"right4":{"x":8,"y":2,"w":41,"h":57}};
 async function boot(){
  const loads=[image('entrance','assets/entrance_base.webp'),image('gallery','assets/gallery_base.webp'),image('staff','assets/staff-front.png')];
  for(let i=0;i<3;i++)loads.push(image('sample'+i,'assets/sample'+i+'.png'));
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++)loads.push(image(dir+i,'assets/curator-'+dir+'-'+String(i).padStart(2,'0')+'.png'));
- await Promise.all(loads);loaded=true;resize();update();requestAnimationFrame(draw);
+ await Promise.all(loads);
+ for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
+  const id=dir+i;spriteBounds.set(id,SPRITE_BOUNDS[id]);
+ }
+ loaded=true;resize();update();requestAnimationFrame(draw);
+ $('museumName').textContent=museumTitle;
+ let first=true;try{first=!localStorage.getItem(NAME_KEY)}catch(e){}
+ if(first)nameDialog(true);
 }
-function resize(){const b=$('stage').getBoundingClientRect();if(!b.width||!b.height)return;canvas.width=800;canvas.height=Math.max(1,Math.round(800*b.height/b.width));logicalH=canvas.height*src[scene].w/800;ctx.imageSmoothingEnabled=true;}
-function worldPoint(e){const b=canvas.getBoundingClientRect(),m=src[scene],k=m.w/b.width;return {x:(e.clientX-b.left)*k,y:(e.clientY-b.top)*k+cameraY};}
-function safeMove(x,y){const rad=9,m=src[scene];if(x<26||x>m.w-24||y<60||y>m.h-18)return false;
- const blockers=scene==='entrance'?[
- [56,312,109,187], [320,443,259,424], [0,72,135,304], [0,63,305,440], [491,546,111,443]
- ]:[
- [233,340,269,390],[112,214,144,185],[385,484,144,185],
- [110,161,281,368],[430,483,280,371],[0,70,0,190],[516,589,0,190]
- ];
- for(const [x1,x2,y1,y2] of blockers){const nx=Math.max(x1,Math.min(x,x2)),ny=Math.max(y1,Math.min(y+9,y2));if(Math.hypot(x-nx,y+9-ny)<rad)return false;}
+function resize(){
+ const b=$('stage').getBoundingClientRect();if(!b.width||!b.height)return;
+ const m=src[scene];
+ if(viewMode==='overview'){
+  const scale=Math.min(b.width/m.w,b.height/m.h);
+  const dw=Math.max(1,Math.floor(m.w*scale)),dh=Math.max(1,Math.floor(m.h*scale));
+  canvas.width=m.w;canvas.height=m.h;canvas.style.width=dw+'px';canvas.style.height=dh+'px';
+  $('stage').classList.add('overview');$('stage').style.setProperty('--side-width',Math.max(0,(b.width-dw)/2)+'px');
+  logicalH=m.h;cameraY=0;
+ }else{
+  canvas.width=800;canvas.height=Math.max(1,Math.round(800*b.height/b.width));
+  canvas.style.width='100%';canvas.style.height='100%';$('stage').classList.remove('overview');
+  logicalH=canvas.height*m.w/800;
+ }
+ ctx.imageSmoothingEnabled=true;
+}
+function worldPoint(e){const b=canvas.getBoundingClientRect(),m=src[scene],k=m.w/b.width;return {x:(e.clientX-b.left)*k,y:(e.clientY-b.top)*k+(viewMode==='overview'?0:cameraY)};}
+// Collision and interaction are intentionally separate.
+const obstacles={
+ entrance:[
+  [54,312,81,184], // Reception desk and back wall
+  [0,72,135,309],[0,73,310,441], // Planters/left balustrade
+  [338,474,202,430], // Right banister and staircase
+  [484,546,110,450], // East wall
+  [0,546,0,62]
+ ],
+ gallery:[
+  [0,589,0,139], // Wall and picture frames
+  [112,225,144,195],[365,479,144,195], // Sofas
+  [216,266,118,196],[327,380,118,197],[246,361,149,182], // Plants and the central display rope
+  [238,345,274,389], // Angel statue and railing
+  [110,164,279,374],[420,483,278,371], // Armchairs
+  [163,219,266,349],[367,424,265,349], // Front marble pedestals
+  [0,69,0,215],[520,589,0,210] // Side walls and lamps
+ ]
+};
+function safeMove(x,y){
+ const radius=8,m=src[scene];
+ if(x<22||x>m.w-22||y<75||y>m.h-17)return false;
+ for(const [left,right,top,bottom] of obstacles[scene]){
+  const closestX=Math.max(left,Math.min(x,right)),closestY=Math.max(top,Math.min(y+5,bottom));
+  if(Math.hypot(x-closestX,y+5-closestY)<radius)return false;
+ }
  return true;
 }
+function inZone(x1,x2,y1,y2){return pos.x>=x1&&pos.x<=x2&&pos.y>=y1&&pos.y<=y2;}
 function walk(dir){if(modal)return;const step=9,dx=dir==='right'?step:dir==='left'?-step:0,dy=dir==='down'?step:dir==='up'?-step:0;pos.dir=dir;
  if(safeMove(pos.x+dx,pos.y+dy)){pos.x+=dx;pos.y+=dy;pos.stride=(pos.stride+1)%5;$('hint').hidden=true}update();}
-function nearby(){if(scene==='entrance'){
- if(Math.hypot(pos.x-192,pos.y-211)<95)return {type:'staff'};
- if(Math.hypot(pos.x-413,pos.y-197)<120)return {type:'door'};
- return null;
+function nearby(){
+ if(scene==='entrance'){
+  if(inZone(111,278,192,229))return {type:'staff'};
+  if(inZone(353,440,149,208))return {type:'door'};
+  return null;
  }
- let nearest=null,best=115;for(let i=0;i<3;i++){const [a,b,c,d]=ap[i],dis=Math.hypot(pos.x-(a+c)/2,pos.y-217);if(dis<best){best=dis;nearest={type:'art',i}}}return nearest;
+ if(!inZone(100,487,197,233))return null;
+ for(let i=0;i<3;i++){
+  const [left,,right]=ap[i],center=(left+right)/2;
+  if(Math.abs(pos.x-center)<=40)return {type:'art',i};
+ }
+ return null;
 }
 function update(){
  $('sceneBtn').textContent=scene==='entrance'?'展示室へ':'入口へ';
  $('sceneBtn').setAttribute('aria-label',scene==='entrance'?'展示室へ移動':'美術館の入口へ移動');
  $('statusText').textContent=src[scene].name+' ／ 3展示枠 ／ 館 Lv.1';
  const hit=nearby();
- $('act').textContent=scene==='entrance' ? hit?.type==='staff'?'スタッフと話す':hit?.type==='door'?'展示室へ':'調べる':carrying?(hit?.type==='art'?'ここに飾る':'額縁へ移動'):hit?.type==='art'?'作品を調べる':'調べる';
+ $('act').hidden=!hit;
+ if(hit)$('act').textContent=hit.type==='staff'?'話しかける':hit.type==='door'?'展示室へ':carrying?'ここに飾る':'作品を調べる';
  $('cancel').hidden=!carrying;
 }
 function changeScene(next){if(!src[next])throw new Error('scene missing');scene=next;carrying=null;pos={x:src[next].spawn[0],y:src[next].spawn[1],dir:next==='gallery'?'up':'down',stride:0};cameraY=0;$('hint').hidden=false;resize();update();}
@@ -109,11 +165,12 @@ function paintArtwork(a,i){const [x1,y1,x2,y2]=ap[i],w=x2-x1,h=y2-y1;if(!a)retur
 }
 function avatar(){
  const dir=pos.dir==='up'?'back':pos.dir==='down'?'front':pos.dir;
- const image=get(dir+(pos.stride%5));
- if(!image)return;
- const w=39,h=51;
- ctx.fillStyle='#1c261c75';ctx.beginPath();ctx.ellipse(pos.x,pos.y+1,17,6,0,0,Math.PI*2);ctx.fill();
- ctx.drawImage(image,pos.x-w/2,pos.y-h,w,h);
+ const id=dir+(pos.stride%5),image=get(id),crop=spriteBounds.get(id);
+ if(!image||!crop)return;
+ const w=35,h=46;
+ // Feet touch the ground baseline; remove transparent margins from original sheets.
+ ctx.fillStyle='#1b292147';ctx.beginPath();ctx.ellipse(pos.x,pos.y+1,13,3.2,0,0,Math.PI*2);ctx.fill();
+ ctx.drawImage(image,crop.x,crop.y,crop.w,crop.h,pos.x-w/2,pos.y-h,w,h);
  if(carrying){const art=works.find(w=>w.id===carrying),sample=art?.photo||get('sample'+art?.source);
  ctx.fillStyle='#9a6739';ctx.fillRect(pos.x-20,pos.y-h-34,40,30);ctx.fillStyle='#fff8e8';ctx.fillRect(pos.x-17,pos.y-h-31,34,24);
  if(sample){const r=Math.min(34/sample.width,24/sample.height);ctx.drawImage(sample,pos.x-sample.width*r/2,pos.y-h-31+(24-sample.height*r)/2,sample.width*r,sample.height*r);}
@@ -121,7 +178,8 @@ function avatar(){
 }
 function draw(){
  if(!loaded)return;
- const m=src[scene],maxY=Math.max(0,m.h-logicalH),desired=Math.max(0,Math.min(maxY,pos.y-logicalH*.88));cameraY+=Math.max(-14,Math.min(14,(desired-cameraY)*.25));
+ const m=src[scene],maxY=Math.max(0,m.h-logicalH),desired=Math.max(0,Math.min(maxY,pos.y-logicalH*.70));
+ if(viewMode==='overview')cameraY=0;else cameraY+=Math.max(-14,Math.min(14,(desired-cameraY)*.25));
  ctx.clearRect(0,0,canvas.width,canvas.height);ctx.save();const scale=canvas.width/m.w;ctx.setTransform(scale,0,0,scale,0,-cameraY*scale);
  ctx.drawImage(get(scene),0,0,m.w,m.h);
  if(scene==='entrance'){const staff=get('staff');if(staff){ctx.drawImage(staff,174,65,36,54);}}
@@ -129,9 +187,24 @@ function draw(){
  const hit=nearby();if(scene==='gallery'&&hit?.type==='art'&&carrying){const [x1,y1,x2,y2]=ap[hit.i];ctx.strokeStyle='#b9ebca';ctx.lineWidth=3;ctx.strokeRect(x1-6,y1-6,x2-x1+12,y2-y1+12);}
  avatar();ctx.restore();requestAnimationFrame(draw);
 }
+function nameDialog(first=false){
+ open(first?'美術館の名前を決めよう':'美術館の名前を変更',
+ '<p>あなたの美術館に名前を付けましょう。あとから変更できます。</p>'+
+ '<label>美術館の名前<input id="newMuseumName" maxlength="24" value="'+esc(museumTitle)+'"></label>'+
+ '<p id="nameError" class="error"></p><div class="row"><button id="confirmName">この名前で始める</button>'+
+ (first?'':'<button id="close" class="light">キャンセル</button>')+'</div>');
+ $('confirmName').onclick=()=>{
+  const next=$('newMuseumName').value.trim();
+  if(!next){$('nameError').textContent='美術館の名前を入力してください';return;}
+  museumTitle=next;$('museumName').textContent=next;$('museumName').title=next+'（タップで名前を変更）';
+  try{localStorage.setItem(NAME_KEY,next)}catch(e){}
+  close();
+ };
+ if(!first)$('close').onclick=close;
+}
 function open(title,contents){modal=true;$('dialog').innerHTML='<h2>'+esc(title)+'</h2>'+contents;overlay.hidden=false;}
 function close(){modal=false;overlay.hidden=true;update();}
-function action(){const h=nearby();if(scene==='entrance'){
+function action(){const h=nearby();if(!h)return;if(scene==='entrance'){
  if(h?.type==='staff')staffDialog();else if(h?.type==='door')changeScene('gallery');else open('美術館の入口','<p>展示室へ進むか、受付スタッフに話しかけてください。</p><div class="row"><button id="enter">展示室へ</button><button id="close" class="light">閉じる</button></div>');
  if($('enter'))$('enter').onclick=()=>{close();changeScene('gallery')};if($('close'))$('close').onclick=close;return;
  }
@@ -160,9 +233,11 @@ function form(spotNo=0){open('作品を登録して飾る','<p class="small">好
  works.push({id:'local-'+Date.now(),title:name,pieces:Number($('pieces').value)||null,complete:completed,registered:new Date().toLocaleDateString('sv-SE'),photo:img,spot:index,source:null});close();changeScene('gallery');};img.onerror=()=>{$('err').textContent='写真を読めませんでした';URL.revokeObjectURL(url)};img.src=url;};
 }
 const heldKeys=new Set();let pointerLoop=null;
+$('museumName').onclick=()=>nameDialog(false);
+$('viewMode').onclick=()=>{viewMode=viewMode==='overview'?'zoom':'overview';$('viewMode').textContent=viewMode==='overview'?'拡大表示':'全体表示';$('viewMode').setAttribute('aria-pressed',viewMode==='overview'?'true':'false');resize();};
 $('act').onclick=action;$('sceneBtn').onclick=()=>changeScene(scene==='entrance'?'gallery':'entrance');$('showList').onclick=list;$('addPhoto').onclick=()=>form(0);$('cancel').onclick=()=>{carrying=null;update()};
 overlay.onclick=e=>{if(e.target===overlay)close()};
-canvas.onclick=e=>{if(scene!=='gallery')return;const pt=worldPoint(e);for(let i=0;i<3;i++){const [x1,y1,x2,y2]=ap[i];if(pt.x>x1-20&&pt.x<x2+20&&pt.y>y1-24&&pt.y<y2+50){inspect(i);break}}};
+canvas.onclick=e=>{if(modal||scene!=='gallery')return;const h=nearby();if(h?.type==='art'){const pt=worldPoint(e),[x1,y1,x2,y2]=ap[h.i];if(pt.x>x1-28&&pt.x<x2+28&&pt.y>y1-31&&pt.y<y2+55)inspect(h.i);}};
 window.addEventListener('keydown',e=>{if(modal)return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
 window.addEventListener('keyup',e=>heldKeys.delete(e.key));
 window.addEventListener('blur',()=>heldKeys.clear());document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();clearInterval(pointerLoop)}});
@@ -170,7 +245,7 @@ setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(m
 for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),95);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);
-window.__A18_SCENE_STUDY__={state:()=>({scene,pos:{...pos},carrying,works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
+window.__A18_SCENE_STUDY__={state:()=>({scene,pos:{...pos},carrying,museumTitle,viewMode,interaction:nearby(),works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
 boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
 })();
 </script></body></html>
