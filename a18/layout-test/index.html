@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
-<meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="パズル美術館">
@@ -8,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="layout-editor.css?v=2.0"><script src="layout-system.js?v=2.0"></script><script src="asset-renderer.js?v=2.1"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.0"></script>
+<link rel="stylesheet" href="layout-editor.css?v=2.2"><script src="layout-system.js?v=2.2"></script><script src="asset-renderer.js?v=2.2"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -122,6 +121,7 @@ let galleryIndex=0; // 0 = entrance, 1..5 = galleries 2..6.
 // Fixture IDs are stable. The legacy 28 slots have an explicit one-to-one migration.
 const L=window.A18Layout;
 const fixtures=L.defaults();
+L.enlargeForReadability(fixtures);
 const roomRects=()=>L.roomFrames(fixtures,galleryIndex).map(L.r);
 const frameCount=room=>L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
@@ -211,6 +211,7 @@ async function boot(){
   const restoredWorks=window.A18Storage.restoreWorks(state.works);
   L.migrateLegacy(restoredWorks);
   L.assertData(state.fixtures,restoredWorks);
+  L.enlargeForReadability(state.fixtures);
   for(let room=0;room<6;room++){const result=L.validatePlacement(state.fixtures,room);if(!result.ok)throw Error('保存した第'+(room+1)+'室の配置が不正：'+result.reason)}
   fixtures.splice(0,fixtures.length,...state.fixtures);
   works.splice(0,works.length,...restoredWorks);

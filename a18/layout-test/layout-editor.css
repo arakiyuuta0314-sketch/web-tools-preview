@@ -1,41 +1,59 @@
-/* A18 independent decoration layer; compact, portrait-friendly interaction. */
-.a18-edit-shell{position:fixed;inset:0;z-index:55;background:#19372e;color:#fff6e4;display:flex;flex-direction:column;overflow:auto;min-height:0;font-family:system-ui,-apple-system,sans-serif}
-.a18-edit-shell header{height:auto;min-height:60px;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px max(14px,env(safe-area-inset-left));background:#11291f;border-bottom:2px solid #b59760}
-.a18-edit-shell header strong{font-size:19px}
-.a18-edit-shell button{border-radius:10px;min-height:42px;padding:9px 12px;background:#e1d3b6;color:#173a2e;font-weight:800}
-.a18-edit-shell button.primary{background:#f2ce78}
-.a18-edit-shell button:disabled{opacity:.42;cursor:default}
-.a18-edit-shell .a18-map-help{color:#f6e2bb;margin:18px auto 8px;text-align:center;padding:0 12px;line-height:1.5}
-.a18-room-map{width:min(650px,90vw);margin:18px auto 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,108px);gap:13px}
+/* v2.2 Simple decoration interaction. The room is the main canvas, options appear only when needed. */
+.a18-edit-shell{position:fixed;inset:0;z-index:55;background:#18362d;color:#fcf3df;display:flex;flex-direction:column;min-height:0;height:100dvh;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}
+.a18-edit-shell [hidden]{display:none!important}
+.a18-edit-shell header{flex:none;min-height:56px;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px max(10px,env(safe-area-inset-left));background:#102820;border-bottom:2px solid #b99a66}
+.a18-edit-shell header strong{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a18-edit-shell button{border:0;border-radius:10px;min-height:42px;padding:8px 12px;background:#e4d6b9;color:#1c4133;font-weight:750;cursor:pointer;font-size:14px}
+.a18-edit-shell button.primary{background:#efc975;color:#213b2c}
+.a18-edit-shell button:disabled{opacity:.38}
+.a18-edit-shell .a18-map-help{color:#f1ddb9;margin:20px auto 10px;text-align:center;padding:0 12px;line-height:1.6}
+.a18-room-map{width:min(650px,91vw);margin:18px auto 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,108px);gap:10px}
 .a18-room-map-item{display:flex;flex-direction:column;justify-content:center;align-items:center;border:3px solid #b89b64!important;background:#e5d6b8!important}
 .a18-room-map-item.r1{grid-area:2/2}.a18-room-map-item.r2{grid-area:2/1}.a18-room-map-item.r3{grid-area:2/3}
 .a18-room-map-item.r4{grid-area:1/1}.a18-room-map-item.r5{grid-area:1/3}.a18-room-map-item.r6{grid-area:1/2}
-.a18-room-map-item span{font-size:16px}.a18-room-map-item small{font-size:12px;color:#496653}
-.a18-edit-main{display:flex;gap:12px;padding:10px;flex:1;min-height:0;overflow:hidden}
-.a18-edit-stage{flex:1;min-height:210px;min-width:0;position:relative;border:2px solid #ad9264;border-radius:10px;background:#244539;overflow:hidden}
-.a18-edit-stage canvas{width:100%;height:100%;max-width:none;max-height:none;box-shadow:none;display:block;touch-action:none;cursor:grab}
-.a18-edit-stage .a18-edit-tip{position:absolute;left:5px;right:5px;bottom:3px;text-align:center;background:#244536e8;color:#fff9e9;padding:4px;font-size:12px;border-radius:4px;pointer-events:none}
-.a18-edit-panel{width:242px;flex:none;overflow-y:auto;padding:10px;background:#f6edda;color:#233f33;border-radius:10px;display:flex;flex-direction:column;gap:9px;font-size:14px}
-.a18-edit-panel label{display:flex;flex-direction:column;font-weight:700;gap:4px}
-.a18-edit-panel label strong{font-size:12px;word-break:break-all;color:#416454}
-.a18-edit-panel select,.a18-edit-panel input{width:100%;accent-color:#315d49;background:#fff;color:#18362c;border:1px solid #c4b594;border-radius:6px;min-height:32px;padding:2px}
-.a18-edit-panel [hidden]{display:none!important}
-.a18-edit-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.a18-edit-actions button{font-size:13px;padding:7px 5px;min-height:38px}
-#a18PhotoSettings{display:grid;gap:6px}
-#a18ShapeRecommendation{display:grid;gap:4px;font-size:12px;color:#45624d}
-#a18ShapeRecommendation button{min-height:32px;font-size:12px;padding:5px}
-.a18-decor-add{border-top:1px solid #b1a890;padding-top:7px;display:grid;gap:6px}
-#a18EditMessage{margin:0;min-height:24px;color:#306649;font-size:12px;line-height:1.4}
-#a18EditMessage.error{color:#aa332c}
+.a18-room-map-item span{font-size:15px}.a18-room-map-item small{font-size:11px;color:#496653}
+.a18-edit-main{flex:1;display:flex;flex-direction:column;gap:0;min-height:0;padding:8px}
+.a18-edit-stage{flex:1;min-height:170px;min-width:0;position:relative;border:2px solid #aa9264;border-radius:12px;background:#244539;overflow:hidden}
+.a18-edit-stage canvas{display:block;width:100%;height:100%;max-width:none;max-height:none;touch-action:none;cursor:grab}
+.a18-edit-tip{position:absolute;pointer-events:none;left:4px;right:4px;bottom:3px;background:#173b31ee;color:#f9ead0;text-align:center;padding:4px 2px;font-size:11px;border-radius:6px;margin:0}
+.a18-edit-panel{flex:none;background:#f7eedc;color:#254637;border-radius:12px;margin-top:8px;padding:10px 10px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;min-height:110px}
+.a18-selection-bar{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.a18-selection-bar strong{flex:1;font-size:12px;line-height:1.4;font-weight:650;min-width:0}
+.a18-selection-bar button{min-height:32px;font-size:12px;padding:5px 10px;white-space:nowrap}
+.a18-edit-actions{display:grid;grid-template-columns:minmax(125px,1.5fr) repeat(3,minmax(0,1fr));gap:6px}
+.a18-edit-actions button{font-size:12px;padding:8px 4px;min-height:43px;white-space:nowrap}
+#a18OpenCatalog{background:#335c48;color:#fff9e7;font-size:13px}
+#a18EditMessage{margin:0;min-height:0;color:#386f4f;font-size:12px;line-height:1.4}
+#a18EditMessage:empty{display:none}
+#a18EditMessage.error{color:#bd352b}
+.a18-editor-sheet{position:absolute;z-index:3;right:12px;bottom:max(10px,env(safe-area-inset-bottom));width:min(390px,calc(100vw - 24px));max-height:min(70dvh,590px);overflow:auto;background:#f9f0df;color:#274936;border:2px solid #c5ac77;border-radius:16px;padding:14px;box-shadow:0 12px 40px #0c211cab}
+.a18-sheet-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.a18-sheet-title strong{font-size:19px}.a18-sheet-title button{background:#e7ddc9;font-size:13px;min-height:34px}
+.a18-frame-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.a18-editor-sheet label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:750}
+.a18-editor-sheet select{width:100%;border:1px solid #b4a58d;background:white;color:#254637;min-height:40px;border-radius:8px;padding:4px;font-size:14px}
+#a18ShapeRecommendation{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;margin-bottom:8px}
+#a18ShapeRecommendation button{min-height:35px;font-size:12px}
+#a18PhotoSection{border-top:1px solid #bdb49e;padding-top:12px;margin-top:8px}
+#a18PhotoSection summary{cursor:pointer;font-weight:750;padding:8px 0;font-size:14px}
+.a18-photo-body{display:grid;gap:12px;padding:12px 0}
+#a18PhotoSettings{display:grid;gap:8px}
+#a18PhotoSettings input{accent-color:#345b49;width:100%}
+.a18-catalog-tabs{display:flex;gap:8px;margin-bottom:10px}
+.a18-catalog-tabs button{flex:1;background:#e8dec9;min-height:36px}
+.a18-catalog-tabs button.active{background:#365b48;color:#fff}
+.a18-catalog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.a18-catalog-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:105px;gap:3px;padding:8px 4px!important;background:#fff8ec!important;border:1px solid #decba9!important}
+.a18-catalog-item img{display:block;width:68px;height:68px;object-fit:contain}
+.a18-catalog-item span{display:block;font-size:11px;line-height:1.3;text-align:center}
 @media(max-width:700px){
- .a18-edit-shell header{min-height:47px;padding:5px 9px}.a18-edit-shell header strong{font-size:15px}.a18-edit-shell header button{font-size:12px;min-height:35px}
- .a18-edit-main{flex-direction:column;padding:5px;gap:5px;overflow:auto}
- .a18-edit-stage{height:46dvh;min-height:200px;flex:none}
- .a18-edit-panel{width:100%;flex:0 0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;font-size:12px}
- .a18-edit-panel label{min-width:0}
- .a18-edit-panel #a18PhotoSettings,.a18-edit-panel .a18-decor-add,.a18-edit-panel .a18-edit-actions,.a18-edit-panel #a18EditMessage{grid-column:1/-1}
- .a18-decor-add{grid-template-columns:1fr 1fr}.a18-decor-add label{grid-column:1/-1}
- .a18-edit-panel #a18PhotoSettings{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
- .a18-edit-stage .a18-edit-tip{font-size:11px}
+ .a18-edit-shell header{min-height:54px}
+ .a18-edit-shell header strong{font-size:16px}
+ .a18-edit-shell header button{font-size:13px;min-height:38px;padding:7px 9px}
+ .a18-edit-main{padding:5px}
+ .a18-edit-panel{padding:8px 8px max(9px,env(safe-area-inset-bottom));min-height:110px;margin-top:5px}
+ .a18-selection-bar strong{font-size:12px}
+ .a18-editor-sheet{bottom:max(6px,env(safe-area-inset-bottom));left:5px;right:5px;width:auto;max-height:65dvh}
+ .a18-catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .a18-edit-actions button{font-size:11px}
 }

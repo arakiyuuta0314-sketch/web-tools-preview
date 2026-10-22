@@ -23,7 +23,7 @@ function close(force=false){
  if(resizeObserver)resizeObserver.disconnect();resizeObserver=null;
  root.remove();root=null;room=null;pointers.clear();api?.onClose?.();api=null;
 }
-const controls='<div class="a18-edit-actions"><button id="a18Undo">元に戻す</button><button id="a18Redo">やり直す</button><button id="a18Save" class="primary">保存する</button><button id="a18Discard">変更を破棄</button><button id="a18Back">全館マップへ</button></div>';
+const controls='<div class="a18-edit-actions"><button id="a18OpenCatalog">＋ 家具を置く</button><button id="a18Undo">↶ 戻す</button><button id="a18Redo">↷ やり直す</button><button id="a18Discard">破棄</button><button id="a18Back" hidden>全館マップへ</button></div>';
 function renderMap(){
  if(resizeObserver)resizeObserver.disconnect();resizeObserver=null;room=null;selected=null;
  const cards=[3,5,4,1,0,2].map(index=>'<button class="a18-room-map-item r'+(index+1)+'" data-room="'+index+'"><span>'+ROOM_NAMES[index]+'</span><small>額縁 '+L().roomFrames(draft,index).length+'枠</small></button>').join('');
@@ -35,23 +35,31 @@ function renderMap(){
 }
 function renderRoom(target){
  room=target;selected=null;history=[];future=[];pointers.clear();
- root.innerHTML='<header><strong>'+ROOM_NAMES[room]+'｜模様替え</strong><button id="a18MapHeader">全館マップ</button></header>'+
+ root.innerHTML='<header><button id="a18MapHeader" class="a18-nav-back">‹ 部屋一覧</button><strong>'+ROOM_NAMES[room]+'</strong><button id="a18Save" class="primary">保存</button></header>'+
  '<div class="a18-edit-main"><div class="a18-edit-stage"><canvas id="a18EditCanvas" aria-label="額縁や家具をドラッグして配置"></canvas>'+
- '<p class="a18-edit-tip">タップで選択・1本指で移動・2本指でズーム／画面移動</p></div>'+
+ '<p class="a18-edit-tip">指でつかんで動かす　・　2本指で拡大</p></div>'+
  '<div class="a18-edit-panel">'+
- '<label>選択中の設備<strong id="a18Selected">設備をタップしてください</strong></label>'+
- '<label>額縁の形<select id="a18Shape"><option value="landscape">横型</option><option value="portrait">縦型</option><option value="square">正方形</option></select></label>'+
- '<label>額縁のデザイン<select id="a18Design"><option value="gold">金色</option><option value="wood">木製</option></select></label>'+
- '<div id="a18ShapeRecommendation"><span id="a18ShapeHint"></span><button id="a18SuggestShape">おすすめ形状にする</button></div>'+
- '<label>設置方法<select id="a18Installation"><option value="wall">壁掛け</option><option value="floor">床置き・イーゼル</option></select></label>'+
- '<label>写真表示<select id="a18ImageMode"><option value="contain">写真全体</option><option value="cover">枠いっぱい</option><option value="custom">自由調整</option></select></label>'+
- '<div id="a18PhotoSettings">'+
- '<label>拡大率 <output id="a18ZoomText"></output><input id="a18PhotoZoom" type="range" min="1" max="3" step=".05"></label>'+
- '<label>左右位置 <input id="a18PhotoX" type="range" min="-1" max="1" step=".05"></label>'+
- '<label>上下位置 <input id="a18PhotoY" type="range" min="-1" max="1" step=".05"></label></div>'+
- '<div class="a18-decor-add"><label>家具・装飾を追加<select id="a18NewType">'+Object.keys(L().TYPES).map(k=>'<option value="'+k+'">'+L().LABELS[k]+'</option>').join('')+'</select></label>'+
- '<button id="a18AddDecor">この部屋へ追加</button><button id="a18RemoveDecor">選択した装飾を撤去</button></div>'+
- '<p id="a18EditMessage" role="status" aria-live="polite"></p>'+controls+'</div></div>';
+ '<div class="a18-selection-bar"><strong id="a18Selected">家具や額縁をタップして動かせます</strong><button id="a18Details" hidden>見た目を変える</button><button id="a18RemoveDecor" hidden>片付ける</button></div>'+
+ '<p id="a18EditMessage" role="status" aria-live="polite"></p>'+controls+'</div></div>'+
+ '<section id="a18FramePanel" class="a18-editor-sheet" hidden aria-label="選んだ額縁の設定">'+
+ '<div class="a18-sheet-title"><strong>額縁の見た目</strong><button id="a18CloseDetails">閉じる ×</button></div>'+
+ '<div class="a18-frame-options">'+
+ '<label>かたち<select id="a18Shape"><option value="landscape">横型</option><option value="portrait">縦型</option><option value="square">正方形</option></select></label>'+
+ '<label>いろ<select id="a18Design"><option value="gold">金色</option><option value="wood">木製</option></select></label>'+
+ '<label>置き方<select id="a18Installation"><option value="wall">壁掛け</option><option value="floor">床置き</option></select></label></div>'+
+ '<div id="a18ShapeRecommendation"><span id="a18ShapeHint"></span><button id="a18SuggestShape">おすすめの形に</button></div>'+
+ '<details id="a18PhotoSection"><summary>写真の表示を調整</summary><div class="a18-photo-body">'+
+ '<label>表示方法<select id="a18ImageMode"><option value="contain">写真全体</option><option value="cover">枠いっぱい</option><option value="custom">自由調整</option></select></label>'+
+ '<div id="a18PhotoSettings"><label>拡大 <output id="a18ZoomText"></output><input id="a18PhotoZoom" type="range" min="1" max="3" step=".05"></label>'+
+ '<label>左右 <input id="a18PhotoX" type="range" min="-1" max="1" step=".05"></label>'+
+ '<label>上下 <input id="a18PhotoY" type="range" min="-1" max="1" step=".05"></label></div></div></details>'+
+ '</section>'+
+ '<section id="a18Catalog" class="a18-editor-sheet" hidden aria-label="家具・装飾を選択">'+
+ '<div class="a18-sheet-title"><strong>何を置く？</strong><button id="a18CloseCatalog">閉じる ×</button></div>'+
+ '<div class="a18-catalog-tabs" id="a18CatalogTabs">'+
+ '<button data-category="furniture" class="active">家具</button><button data-category="decor">飾り</button><button data-category="display">展示</button></div>'+
+ '<div id="a18CatalogItems" class="a18-catalog-grid"></div>'+
+ '<div class="a18-legacy-add" hidden><select id="a18NewType">'+Object.keys(L().TYPES).map(k=>'<option value="'+k+'">'+L().LABELS[k]+'</option>').join('')+'</select><button id="a18AddDecor">追加</button></div></section>';
  canvas=$('a18EditCanvas');context=canvas.getContext('2d');
  const stage=canvas.parentElement;resizeObserver=new ResizeObserver(()=>resetViewport());resizeObserver.observe(stage);
  resetViewport();
@@ -61,6 +69,11 @@ function renderRoom(target){
  $('a18Discard').onclick=()=>{if(confirm('この部屋の未保存変更を破棄しますか？')){draft=L().clone(origin);renderMap()}};
  $('a18Undo').onclick=undo;$('a18Redo').onclick=redo;
  $('a18AddDecor').onclick=addDecor;
+ $('a18OpenCatalog').onclick=()=>{closeSheets();$('a18Catalog').hidden=false;renderCatalog('furniture')};
+ $('a18CloseCatalog').onclick=()=>{$('a18Catalog').hidden=true;};
+ $('a18Details').onclick=()=>{closeSheets();$('a18FramePanel').hidden=false;};
+ $('a18CloseDetails').onclick=()=>{$('a18FramePanel').hidden=true;};
+ root.querySelectorAll('[data-category]').forEach(button=>button.onclick=()=>renderCatalog(button.dataset.category));
  $('a18RemoveDecor').onclick=removeDecor;
  $('a18SuggestShape').onclick=()=>{const work=workFor(chosen());if(work?.preferredShape)updateSelection('shape',work.preferredShape)};
  for(const [id,key]of [['a18Shape','shape'],['a18Design','design'],['a18Installation','installation'],['a18ImageMode','imageMode']]){
@@ -106,7 +119,9 @@ function down(e){
  e.preventDefault();canvas.setPointerCapture(e.pointerId);
  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
  if(pointers.size>1){if(drag){draft=drag.from;drag=null;paint();}return;}
- const at=screenToWorld(e),found=selectAt(at);selected=found?.id||null;renderProperties();
+ const at=screenToWorld(e),found=selectAt(at);
+ if(selected!==found?.id)closeSheets();
+ selected=found?.id||null;renderProperties();
  drag=found?{id:found.id,startX:found.x,startY:found.y,at,from:L().clone(draft)}:null;paint();
 }
 function move(e){
@@ -170,9 +185,11 @@ function updateSelection(key,value){
 }
 function renderProperties(){
  const f=chosen(),isFrame=f?.kind==='frame';
- text('a18Selected',f?(isFrame?'額縁：'+f.id:(L().LABELS[f.type]||'装飾')+'：'+f.id):'設備をタップしてください');
+ if(!isFrame && $('a18FramePanel'))$('a18FramePanel').hidden=true;
+ if($('a18Details'))$('a18Details').hidden=!isFrame;
+ text('a18Selected',f?(isFrame?'額縁を選択中':(L().LABELS[f.type]||'装飾')+'を選択中'):'家具や額縁をタップして動かせます');
  for(const id of ['a18Shape','a18Design','a18Installation','a18ImageMode'])$(id).disabled=!isFrame;
- $('a18RemoveDecor').disabled=!f||isFrame;
+ $('a18RemoveDecor').hidden=!f||isFrame;
  $('a18PhotoSettings').hidden=!isFrame||f.imageMode!=='custom';
  const recommendation=isFrame?workFor(f)?.preferredShape:null;
  $('a18ShapeRecommendation').hidden=!recommendation;
@@ -184,6 +201,29 @@ function renderProperties(){
   text('a18ZoomText',Math.round((f.imageScale||1)*100)+'%');
  }
  updateButtons();
+}
+function closeSheets(){
+ if($('a18Catalog'))$('a18Catalog').hidden=true;
+ if($('a18FramePanel'))$('a18FramePanel').hidden=true;
+}
+const categories={
+ furniture:['sofa','bench','table','stool','cabinet','rug'],
+ decor:['plant','vase','lamp','rope','clock','sign','column','tapestry'],
+ display:['pedestal','pedestalSquare','statue','easel']
+};
+function renderCatalog(category){
+ root.querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('active',b.dataset.category===category));
+ const target=$('a18CatalogItems');
+ target.innerHTML=categories[category].map(type=>{
+  const item=window.A18Art?.manifest?.decor?.[type];
+  const source=item?.path||'';
+  return '<button class="a18-catalog-item" data-new-type="'+type+'"><img src="'+esc(source)+'" alt=""><span>'+esc(L().LABELS[type])+'</span></button>';
+ }).join('');
+ target.querySelectorAll('[data-new-type]').forEach(b=>b.onclick=()=>{
+  $('a18NewType').value=b.dataset.newType;
+  addDecor();
+  if(chosen()&&chosen().type===b.dataset.newType)$('a18Catalog').hidden=true;
+ });
 }
 function addDecor(){
  const type=$('a18NewType').value,before=L().clone(draft);
@@ -213,7 +253,7 @@ function save(){
  try{
   L().syncWorks(draft,api.works());
   api.onCommit(L().clone(draft));
-  origin=L().clone(draft);renderMap();
+  origin=L().clone(draft);closeSheets();renderMap();
  }catch(e){setMessage('保存できません：'+e.message,true)}
 }
 const imageCache=new Map();

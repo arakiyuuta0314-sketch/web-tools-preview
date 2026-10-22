@@ -19,7 +19,8 @@ async function init(candidate){
  const files=candidate.allCandidateFiles;
  const ids=new Set(files.map(f=>f.path));
  if(ids.size!==files.length)throw Error('素材manifestに重複パスがあります');
- await Promise.all(files.map(f=>fetchImage(f.path)));
+ // Avoid dozens of simultaneous decodes on mobile Safari and local preview servers.
+ for(let i=0;i<files.length;i+=6)await Promise.all(files.slice(i,i+6).map(f=>fetchImage(f.path)));
  manifest=candidate;
  return {loaded:cache.size,paths:[...cache.keys()]};
 }
@@ -49,13 +50,23 @@ function decoration(ctx,f){
 }
 const rectangle=f=>[f.x-f.width/2,f.y-f.height/2,f.x+f.width/2,f.y+f.height/2];
 function frame(ctx,f,img){
- const b=rectangle(f),[x,y,right,bottom]=b,w=right-x,h=bottom-y;
+ const b=rectangle(f),[x,top,right,bottom]=b,w=right-x,h=bottom-top;
+ const y=f.installation==='floor'?top-24:top;
  const style=f.design==='wood'?'wood':'gold',shape=f.shape||'landscape';
  const meta=manifest?.frames?.wall?.[style]?.[shape];
  // The graphic frame is cropped to its alpha bounding rectangle; the inner window stays transparent.
- const marginX=shape==='portrait'?.135:.12;
- const marginY=shape==='landscape'?.17:.12;
+ const marginX=shape==='portrait'?.10:.075;
+ const marginY=shape==='landscape'?.12:.075;
  const ix=x+w*marginX,iy=y+h*marginY,iw=w*(1-2*marginX),ih=h*(1-2*marginY);
+ // The easel is always BEHIND the photo aperture and frame.
+ if(f.installation==='floor'){
+  const easel=manifest?.decor?.easel;
+  if(easel&&loaded(easel.path)){
+   const poleW=w*.65,b=easel.alphaBBox,ah=(b[3]-b[1])/(b[2]-b[0]);
+   alphaDraw(ctx,easel.path,b,{x:f.x-poleW/2,y:bottom-poleW*ah,w:poleW,h:poleW*ah});
+  }
+ }
+
  ctx.save();
  ctx.beginPath();ctx.rect(ix,iy,iw,ih);ctx.clip();
  ctx.fillStyle='#dbcbb0';ctx.fillRect(ix,iy,iw,ih);
@@ -74,13 +85,6 @@ function frame(ctx,f,img){
   ctx.fillStyle='#49372c';ctx.fillRect(ix,iy,iw,ih);
  }
  ctx.restore();
- if(f.installation==='floor'){
-  const easel=manifest?.decor?.easel;
-  if(easel&&loaded(easel.path)){
-   const poleW=w*.65,b=easel.alphaBBox,ah=(b[3]-b[1])/(b[2]-b[0]);
-   alphaDraw(ctx,easel.path,b,{x:f.x-poleW/2,y:bottom+8-poleW*ah,w:poleW,h:poleW*ah});
-  }
- }
  if(meta&&loaded(meta.path))alphaDraw(ctx,meta.path,meta.alphaBBox,{x,y,w,h});
  else{
   ctx.strokeStyle='#c39c58';ctx.lineWidth=8;ctx.strokeRect(x,y,w,h);

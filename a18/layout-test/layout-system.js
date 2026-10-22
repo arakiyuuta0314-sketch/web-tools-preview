@@ -29,6 +29,28 @@ const legacyId=slot=>{
  for(let room=0;room<6;room++)for(let i=0;i<BASE[room].length;i++)if(slotFor(room,i)===slot)return fixtureId(room,i);
  throw Error('未定義の旧展示位置: '+slot);
 };
+// Convert untouched legacy-sized frames to larger physical geometry, once only.
+function enlargeForReadability(fixtures){
+ let resized=0;
+ for(const f of fixtures.filter(x=>x.kind==='frame')){
+  if(f.sizingVersion===2)continue;
+  const raw=BASE[f.roomId]?.[Number(f.id.split('-')[2])];
+  if(!raw)throw Error('Frame geometry is missing: '+f.id);
+  const [l,t,r,b]=raw;
+  // Keep user-edited positions, shapes and sizes unchanged.
+  const pristine=Math.abs(f.x-(l+r)/2)<.001&&Math.abs(f.y-(t+b)/2)<.001&&
+   Math.abs(f.width-(r-l))<.001&&Math.abs(f.height-(b-t))<.001&&f.shape==='landscape';
+  if(pristine){
+   const ow=f.width,oh=f.height;
+   f.width=Math.round(ow*1.17*10)/10;
+   f.height=Math.round(oh*1.085*10)/10;
+   if(!validatePlacement(fixtures,f.roomId).ok){f.width=ow;f.height=oh;}
+   else resized++;
+  }
+  f.sizingVersion=2;
+ }
+ return resized;
+}
 function defaults(){
  const result=[];
  BASE.forEach((rs,room)=>rs.forEach(([x1,y1,x2,y2],index)=>{
@@ -179,5 +201,5 @@ function newDecor(room,type,x=120,y=300){
   roomId:room,kind:'decor',type,installation:type==='tapestry'?'wall':'floor',x,y,width:TYPES[type][0],height:TYPES[type][1],
   shape:'square',design:'classic',assetKey:type,workId:null};
 }
-window.A18Layout={BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,obstacles,walkable,anchor,validatePlacement,setShape,newDecor};
+window.A18Layout={BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,enlargeForReadability};
 })();
