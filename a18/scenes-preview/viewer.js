@@ -4,10 +4,10 @@
   'use strict';
   const root = document.getElementById('photoViewer');
   const $ = id => document.getElementById(id);
-  const stage = $('photoViewport'), photo = $('photoImage');
+  const stage = $('photoViewport'), photo = $('photoImage'), frame=$('photoFrame');
   const title = $('photoTitle'), counter = $('photoCounter'), details = $('photoDetails');
   const zoomText = $('photoZoomText'), empty = $('photoEmpty');
-  let items=[],index=0,onClose=()=>{},scale=1,dx=0,dy=0,showOriginal=false;
+  let items=[],index=0,onClose=()=>{},scale=1,dx=0,dy=0,showOriginal=false,focus=false;
   const active=new Map();
   let gesture=null,lastTap=0,lastTapAt=null,isOpen=false,usedMulti=false;
   const MAX_ZOOM=10,MIN_ZOOM=1;
@@ -18,12 +18,14 @@
     if(!isOpen)return;
     const bounds=area();
     const iw=photo.naturalWidth||1,ih=photo.naturalHeight||1;
-    const fit=Math.min(bounds.width/iw,bounds.height/ih);
-    const imageWidth=iw*fit*scale,imageHeight=ih*fit*scale;
-    const maxX=Math.max(0,(imageWidth-bounds.width)/2);
-    const maxY=Math.max(0,(imageHeight-bounds.height)/2);
+    // The entire image is visible at 100%, surrounded by a real gold frame.
+    const fit=Math.min(Math.max(1,bounds.width-42)/iw,Math.max(1,bounds.height-35)/ih);
+    const frameW=iw*fit+18,frameH=ih*fit+18;
+    frame.style.width=frameW+'px';frame.style.height=frameH+'px';
+    const maxX=Math.max(0,(frameW*scale-bounds.width)/2);
+    const maxY=Math.max(0,(frameH*scale-bounds.height)/2);
     dx=clamp(dx,-maxX,maxX);dy=clamp(dy,-maxY,maxY);
-    photo.style.transform='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    frame.style.transform='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
     zoomText.textContent=Math.round(scale*100)+'%';
     $('photoMinus').disabled=scale<=1.001;
     $('photoPlus').disabled=scale>=MAX_ZOOM-.001;
@@ -48,12 +50,12 @@
     const registered=entry.registered||'不明';
     details.textContent=pieces+'　｜　完成日 '+date+'　｜　登録日 '+registered;
     $('photoPrev').disabled=index<=0;$('photoNext').disabled=index>=items.length-1;
-    photo.hidden=!entry.src;empty.hidden=!!entry.src;
+    photo.hidden=!entry.src;frame.hidden=!entry.src;empty.hidden=!!entry.src;
     photo.alt=(entry.title||'作品')+'の全体写真';
     $('photoCompare').hidden=!entry.originalSrc||entry.originalSrc===entry.src;
     $('photoCompare').textContent='元写真';
     photo.onload=()=>{reset();};
-    photo.onerror=()=>{photo.hidden=true;empty.hidden=false;empty.textContent='画像を読み込めませんでした'};
+    photo.onerror=()=>{photo.hidden=true;frame.hidden=true;empty.hidden=false;empty.textContent='画像を読み込めませんでした'};
     if(entry.src){empty.hidden=true;photo.src=entry.src;}
     else{photo.removeAttribute('src');empty.textContent='作品写真はまだ登録されていません';}
   }
@@ -64,14 +66,14 @@
     const found=items.findIndex(x=>x.id===options.selectedId);
     index=found>=0?found:0;
     onClose=typeof options.onClose==='function'?options.onClose:()=>{};
-    isOpen=true;root.hidden=false;document.body.classList.add('a18-photo-open');
+    isOpen=true;focus=false;root.classList.remove('is-focus');$('photoFocus').textContent='集中';root.hidden=false;document.body.classList.add('a18-photo-open');
     updateItem();$('photoClose').focus({preventScroll:true});
   }
   function close(){
     if(!isOpen)return;
     isOpen=false;root.hidden=true;document.body.classList.remove('a18-photo-open');
     active.clear();gesture=null;photo.onload=null;photo.onerror=null;
-    photo.removeAttribute('src');photo.style.transform='';
+    photo.removeAttribute('src');frame.style.transform='';
     const done=onClose;onClose=()=>{};done();
   }
   function navigate(step){
@@ -135,6 +137,7 @@
   $('photoMinus').onclick=()=>zoomTo(scale/1.6);
   $('photoPlus').onclick=()=>zoomTo(scale*1.6);
   $('photoReset').onclick=reset;
+  $('photoFocus').onclick=()=>{focus=!focus;root.classList.toggle('is-focus',focus);$('photoFocus').textContent=focus?'戻す':'集中';reset()};
   $('photoCompare').onclick=()=>{
     const entry=current();if(!entry?.originalSrc)return;
     showOriginal=!showOriginal;
@@ -153,5 +156,5 @@
   },true);
   window.addEventListener('resize',()=>{if(isOpen)render()});
   // Explicitly exposed solely for browser tests; do not include original photo bytes.
-  window.A18Viewer={open,close,zoomTo,reset,navigate,state:()=>({open:isOpen,index,count:items.length,scale,dx,dy,showOriginal,title:current()?.title||''})};
+  window.A18Viewer={open,close,zoomTo,reset,navigate,state:()=>({open:isOpen,index,count:items.length,scale,dx,dy,showOriginal,focus,title:current()?.title||''})};
 })();

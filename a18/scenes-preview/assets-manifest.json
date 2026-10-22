@@ -1,5 +1,5 @@
 {
-  "version": "v1.2-receptionist-photo-conservator",
+  "version": "v1.3-simplified-floors-and-physical-carrying",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -53,7 +53,17 @@
     }
   },
   "character": "curator-front/back/left/right-00..04.png",
-  "staff": "staff-front.png",
+  "staff": {
+    "entrance": [
+      "list",
+      "sort"
+    ],
+    "gallery": [
+      "register",
+      "list",
+      "sort"
+    ]
+  },
   "limitations": [
     "Graphics extracted and reconstructed from approved art style references; small reconstruction seams remain",
     "Frame wood is part of gallery backdrop for this first room, photographs are separate dynamically",
@@ -90,7 +100,8 @@
     "real_user_photo_privacy": "Actual user-provided puzzle photos NOT published as repo assets",
     "browser_tests": "Chromium 844x390, 932x430 landscape and 390x844 portrait; pinch 2 pointers, zoom pan navigation, photo upload and existing swap",
     "staff_flow": "Chromium 844x390,932x430: registration, enhance preview, before/after toggle, replacement confirmation, viewer original toggle; no external requests",
-    "decline_flow": "Direct upload, reject enhancement, confirm replacement and view original"
+    "decline_flow": "Direct upload, reject enhancement, confirm replacement and view original",
+    "v13": "Chromium: register, carry through both doorways, place, preserve old work, view original; framed viewer 844x390/932x430; synthetic frame crop detection"
   },
   "viewer": {
     "module": [
@@ -108,11 +119,17 @@
       "piece count",
       "completion date",
       "registration date"
+    ],
+    "modules": [
+      "viewer.css",
+      "viewer-frame.css",
+      "viewer.js"
     ]
   },
   "photo_preparation": {
     "modules": [
       "photo-prep.js",
+      "smart-frame.js",
       "photo-tone.js",
       "staff-flow.js"
     ],
@@ -138,5 +155,16 @@
       "border detection is heuristic and confirmation required",
       "demo data not persistent"
     ]
+  },
+  "display_mode": "Plain functional test floors, no decorative furnishings",
+  "navigation": {
+    "entrance_to_gallery": "walk into northeast doorway",
+    "gallery_to_entrance": "walk to center-bottom exit",
+    "carry_persists": true
+  },
+  "registration": {
+    "after_processing": "staff hands painting to curator",
+    "placement": "curator carries to chosen frame",
+    "occupied_frame": "previous painting is kept in inventory"
   }
 }

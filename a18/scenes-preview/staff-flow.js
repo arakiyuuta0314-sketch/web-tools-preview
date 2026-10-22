@@ -20,11 +20,11 @@ const compliments=[
  'この作品にぴったりの額装を考えたいですね。'
 ];
 const doneLines=[
- '綺麗に飾れました！ ぜひ展示室でご覧ください。',
- '素晴らしい展示になりました。今回もお疲れさまです。',
- 'またひとつ、この美術館に素敵な思い出が増えました。',
- '館長、仕上がりました。きっとお客様にも喜んでいただけます。',
- 'お預かりした作品を大切に飾りました。ご確認ください。'
+ '写真の仕上げができました。ここからは館長の出番ですね。',
+ '丁寧に仕上げました。どの額縁に飾りましょうか？',
+ 'またひとつ、素敵な作品をお迎えできましたね。',
+ '館長、作品のご用意が整いました。大切にお渡しします。',
+ 'お預かりした作品の仕上げが終わりました。いよいよ展示ですね。'
 ];
 const last=new Map();
 function pick(tag,arr){
@@ -32,35 +32,43 @@ function pick(tag,arr){
  if(i===previous&&arr.length>1)i=(i+1+Math.floor(Math.random()*(arr.length-1)))%arr.length;
  last.set(tag,i);return arr[i];
 }
-function staffDialog({open,close,list,sortDialog,form}){
- open('館スタッフ','<p class="staff-quote">'+esc(pick('hello',hellos))+'</p><p>作品の登録や展示替えも、私がお手伝いいたします。</p>'+
- '<div class="row"><button id="staffRegister">新しい作品を預ける</button><button id="all" class="light">作品一覧</button><button id="sort" class="light">自動並べ替え</button><button id="close" class="light">閉じる</button></div>');
- $('staffRegister').onclick=()=>form(0,true);$('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
+function staffDialog({open,close,list,sortDialog,form,scene,carrying}){
+ const gallery=scene==='gallery';
+ open(gallery?'展示室スタッフ':'入口スタッフ',
+ '<p class="staff-quote">'+esc(pick('hello',hellos))+'</p>'+
+ (gallery?'<p>新作をお預かりしたら、館長にお渡しします。お好きな額縁まで運んでくださいね。</p>':
+ '<p>入口では作品一覧や展示順を管理しています。登録は展示室のスタッフにご相談ください。</p>')+
+ '<div class="row">'+(gallery?'<button id="staffRegister">新しい作品を預ける</button>':'')+
+ '<button id="all" class="light">作品一覧</button><button id="sort" class="light">自動並べ替え</button><button id="close" class="light">閉じる</button></div>');
+ if(gallery)$('staffRegister').onclick=()=>{
+  if(carrying){open('作品の受け取り','<p>いま作品を持っています。先に額縁へ飾るか、作品一覧へしまってください。</p><div class="row"><button id="close">戻る</button></div>');$('close').onclick=close;return;}
+  form(0,true);
+ };
+ $('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
 }
-function form({spotNo=0,viaStaff=false,open,close,slot,changeScene,works}){
- const ctx={spotNo,viaStaff,open,close,slot,changeScene,works};
- open(viaStaff?'館スタッフ｜作品のお預かり':'新しい作品を登録',
- '<p class="staff-quote">'+esc(viaStaff?pick('hello',hellos):'作品を選んでいただければ、綺麗に飾るお手伝いをいたします。')+'</p>'+
- '<label>展示場所<select id="spot"><option value="0">左の額縁</option><option value="1">中央の額縁</option><option value="2">右の額縁</option></select></label>'+
+function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene}){
+ const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
+ open('展示室スタッフ｜作品のお預かり',
+ '<p class="staff-quote">'+esc(pick('hello',hellos))+'</p>'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：完成したパズル"></label>'+
  '<label>完成日<select id="mode"><option value="unknown">不明</option><option value="known">分かる</option></select></label>'+
  '<label id="dateWrap" hidden>完成日<input id="date" type="date"></label>'+
  '<label>ピース数（任意）<input id="pieces" type="number" min="1" max="999999"></label>'+
  '<label>写真<input id="photo" type="file" accept="image/*"></label>'+
- '<p class="prep-warn">元の写真はそのまま保管します。写真を外部に送信せず、この端末内で調整します（現在は試作版のため再読み込みで作品が消えます）。</p>'+
+ '<p class="prep-warn">元の写真はそのまま端末内で保持します。現在は試作版のため、再読み込みで作品が消えます。</p>'+
  '<p id="err" class="error"></p><div class="row"><button id="save">作品を預ける</button><button id="close" class="light">キャンセル</button></div>');
- $('spot').value=String(spotNo);$('mode').onchange=()=>$('dateWrap').hidden=$('mode').value==='unknown';
+ $('mode').onchange=()=>$('dateWrap').hidden=$('mode').value==='unknown';
  $('close').onclick=close;
  $('save').onclick=()=>{
   const file=$('photo').files?.[0],name=$('name').value.trim();
-  const index=Number($('spot').value),complete=$('mode').value==='known'?$('date').value:null;
+  const complete=$('mode').value==='known'?$('date').value:null;
   if(!name||!file){$('err').textContent='作品名と写真を選んでください';return}
   if(!file.type.startsWith('image/')){$('err').textContent='画像を選択してください';return}
   if(file.size>30*1024*1024){$('err').textContent='30MB以下の画像を選んでください';return}
   if($('mode').value==='known'&&!complete){$('err').textContent='完成日を入力してください';return}
   const originalURL=URL.createObjectURL(file),image=new Image();
   const entry={title:name,pieces:Number($('pieces').value)||null,complete,
-   registered:new Date().toLocaleDateString('sv-SE'),spot:index,image,originalURL};
+   registered:new Date().toLocaleDateString('sv-SE'),spot:null,image,originalURL};
   image.onload=()=>offer(ctx,entry);
   image.onerror=()=>{URL.revokeObjectURL(originalURL);$('err').textContent='写真を読み込めませんでした'};
   image.src=originalURL;
@@ -78,36 +86,38 @@ function offer(ctx,entry){
  $('offerNo').onclick=()=>commit(ctx,entry,null);
 }
 function commit(ctx,entry,canvas){
- const {open,close,slot,works,changeScene}=ctx;
- const existing=slot(entry.spot);
- if(existing){
-  open('展示場所の確認','<p class="staff-quote">こちらには「'+esc(existing.title)+'」が展示中です。</p><p>新作と入れ替えると、試作版では以前の作品が登録一覧からも消えます。よろしいですか？</p>'+
-   '<div class="prep-choices"><button id="overwrite">入れ替えて展示する</button><button id="cancelOverwrite" class="light">戻る</button></div>');
-  $('overwrite').onclick=()=>finalize();
-  $('cancelOverwrite').onclick=()=>compare(ctx,entry);
- }else finalize();
- function finalize(){
-  const old=slot(entry.spot);
-  if(old){const at=works.indexOf(old);if(at>=0)works.splice(at,1);if(old.originalURL&&old.originalURL.startsWith('blob:'))URL.revokeObjectURL(old.originalURL);}
-  works.push({id:'local-'+Date.now(),title:entry.title,pieces:entry.pieces,complete:entry.complete,
-   registered:entry.registered,photo:entry.image,originalURL:entry.originalURL,
-   displayPhoto:canvas||entry.image,displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):null,
-   spot:entry.spot,source:null});
-  open('館スタッフ｜展示のご案内','<p class="staff-quote">'+esc(pick('done',doneLines))+'</p>'+
-   '<p>元の写真はそのまま残しています。鑑賞画面では展示用の仕上げと元写真を見比べられます。</p>'+
-   '<div class="row"><button id="toExhibit">展示室で見る</button></div>');
-  $('toExhibit').onclick=()=>{close();changeScene('gallery');};
- }
+ const {open,close,works,onRegistered}=ctx;
+ const id='local-'+Date.now()+'-'+Math.floor(Math.random()*100000);
+ works.push({id,title:entry.title,pieces:entry.pieces,complete:entry.complete,
+  registered:entry.registered,photo:entry.image,originalURL:entry.originalURL,
+  displayPhoto:canvas||entry.image,displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):null,
+  spot:null,source:null});
+ open('展示室スタッフ｜作品のお渡し',
+  '<p class="staff-quote">'+esc(pick('done',[
+    '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
+    '今回の新作、お預かりしました。額縁までは館長にお願いしてもよろしいですか？',
+    '美しく仕上がりました。ぜひ館長ご自身の手で飾ってください。',
+    ...doneLines.map(t=>t+' 作品をお渡ししますね。')
+  ]))+'</p>'+
+  '<p>作品を持ち上げたまま展示室を歩けます。額縁に近づいて「ここに飾る」を押してください。空いていない額縁の作品は保管庫に移します。</p>'+
+  '<div class="row"><button id="receiveWork">作品を受け取る</button></div>');
+ $('receiveWork').onclick=()=>{close();onRegistered(id);};
 }
 function compare(ctx,entry){
  const full={x:0,y:0,w:entry.image.naturalWidth,h:entry.image.naturalHeight};
- let candidate=full,retained=100;
+ let candidate=full,retained=100,confidence='未検出';
  try{
-  const c=window.A18PhotoPrep.cropSuggestion(entry.image);
-  const ratio=(c.w*c.h)/(full.w*full.h);
-  if(ratio>=.76&&ratio<.99){candidate=c;retained=Math.round(ratio*100);}
+  const edge=window.A18SmartFrame.analyze(entry.image);
+  if(edge&&edge.retained>=.55&&edge.retained<.99&&edge.edgeCount>=3){
+   candidate=edge.rect;retained=Math.round(edge.retained*100);confidence=edge.confidence;
+  }else{
+   const original=window.A18PhotoPrep.cropSuggestion(entry.image);
+   const ratio=(original.w*original.h)/(full.w*full.h);
+   if(ratio>=.65&&ratio<.99){candidate=original;retained=Math.round(ratio*100);confidence='補助推定';}
+  }
  }catch(err){console.warn('トリム候補が未検出のため元画像を維持',err)}
- const suggested=retained>=85&&retained<99;
+ // Cropping remains a suggestion. Uncertain boundaries default to OFF.
+ const suggested=confidence==='medium'&&retained>=86&&retained<99;
  const tone=window.A18PhotoFinish.profile(entry.image);
  const cropIsUseful=candidate!==full;
  ctx.open('館スタッフ｜自動仕上げの確認',
