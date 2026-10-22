@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "siteTitle": "ゆたのアプリ｜Web版・開発中の作品",
+  "siteDescription": "開発中のアプリやWeb試作、公開前の操作確認用プレビューをまとめたページです。",
+  "entries": [
+    {
+      "id": "a18",
+      "name": "パズル美術館",
+      "subtitle": "写真で育てる、自分だけの美術館",
+      "emoji": "🖼️",
+      "stage": "開発中",
+      "kind": "app",
+      "description": "完成したジグソーパズルの写真を展示。館内を歩いて作品を登録・鑑賞・入れ替える、美術館型コレクションアプリ。",
+      "url": "./a18/scenes-preview/index.html",
+      "version": "Web試作 v1.4",
+      "cta": "開発中の最新版を試す",
+      "links": [
+        {
+          "label": "旧50作品版（比較）",
+          "url": "./a18/index.html"
+        },
+        {
+          "label": "美術館の画像素材比較",
+          "url": "./a18/art-preview/index.html"
+        }
+      ]
+    },
+    {
+      "id": "coin-jar",
+      "name": "こつこつ500円貯金",
+      "subtitle": "500円貯金をちょっと楽しく",
+      "emoji": "🐷",
+      "stage": "Webプレビュー",
+      "kind": "tool",
+      "description": "500円玉を入れる・取り出す操作と貯金の記録を、かわいい貯金箱で楽しめるアプリのWeb版。",
+      "url": "./coin-jar/",
+      "version": "Web操作確認版",
+      "cta": "ブラウザで試す",
+      "links": []
+    },
+    {
+      "id": "myprof",
+      "name": "マイプロフ",
+      "subtitle": "自分の情報を、取り出しやすく",
+      "emoji": "🪪",
+      "stage": "Webプレビュー",
+      "kind": "tool",
+      "description": "住所・メールアドレス・学歴・職歴などをカードにまとめ、必要な情報をさっと確認するアプリのWeb版。",
+      "url": "./myprof/",
+      "version": "Web操作確認版",
+      "cta": "ブラウザで試す",
+      "links": []
+    },
+    {
+      "id": "wish-note",
+      "name": "願いを育てる -Wish Note-",
+      "subtitle": "願いを見つめる、小さな時間",
+      "emoji": "🌠",
+      "stage": "Webプレビュー",
+      "kind": "tool",
+      "description": "好きな風景を眺めながら願いを記録し、静かな時間を過ごすアプリのWeb版。",
+      "url": "./wish-note/",
+      "version": "Web操作確認版",
+      "cta": "ブラウザで試す",
+      "links": []
+    },
+    {
+      "id": "flip-fix",
+      "name": "FLIP & FIX Market",
+      "subtitle": "直して、並べて、ショップを育てる",
+      "emoji": "🔧",
+      "stage": "Webテスト",
+      "kind": "game",
+      "description": "中古品を修理し、商品を仕入れて販売するショップ経営ゲーム。別のGitHub Pagesで遊べるWeb試遊版。",
+      "url": "https://arakiyuuta0314-sketch.github.io/flip-fix-market-preview/test-v010/?v=162",
+      "version": "Web試遊版・外部ページ",
+      "cta": "ゲームを開く",
+      "links": []
+    }
+  ]
+}
