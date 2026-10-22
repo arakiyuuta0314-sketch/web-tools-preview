@@ -12,7 +12,7 @@
 <section class="viewport" aria-label="2D美術館" id="viewport"><canvas id="world" width="1060" height="590" aria-label="館長が歩く見下ろし型2D美術館"></canvas><div class="vignette"></div><div class="topnote" id="stageNote">館長を動かして、額縁に近づいてみよう</div><div class="roomLabel"><span id="sceneIcon">✦</span><span id="sceneLabel">木漏れ日の展示室</span></div><div id="toast" role="status" aria-live="polite"></div><div id="fade"></div>
 <div class="gamepad" aria-label="移動操作"><button class="move up" data-dir="up" aria-label="上へ移動">▲</button><button class="move left" data-dir="left" aria-label="左へ移動">◀</button><span class="padcenter">歩く</span><button class="move right" data-dir="right" aria-label="右へ移動">▶</button><button class="move down" data-dir="down" aria-label="下へ移動">▼</button></div>
 <div class="actions"><button id="action" class="primary">調べる</button><button id="carryCancel" class="subaction" hidden>もどす</button></div></section>
-<footer><div><span class="dot"></span> <b>試作 v0.3</b>　館長の移動・持ち上げ・入れ替え・受付スタッフの操作を確認できます</div><div><span class="keycap">矢印キー / WASD</span> 移動　<span class="keycap">Enter</span> 調べる</div></footer></main>
+<footer><div><span class="dot"></span> <b>試作 v0.4</b>　館長の移動・持ち上げ・入れ替え・受付スタッフの操作を確認できます</div><div><span class="keycap">矢印キー / WASD</span> 移動　<span class="keycap">Enter</span> 調べる</div></footer></main>
 <div class="overlay" id="overlay" hidden><div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"></div></div><input id="photoFile" type="file" accept="image/*" hidden>
 <script>
 /* A18 original pixel-illustration renderer v0.2: no external assets */
@@ -45,33 +45,192 @@ function drawEntrance(g,W,H,n,level){rect(g,0,0,W,H,'#465a4f');g.save();g.transl
  for(const xx of [160,838]){plant(g,xx,328,1.24);rect(g,xx-32,396,64,5,C.brass);}
  rect(g,247,398,566,4,'#907955');text(g,'完成の喜びを、いつまでも。',530,430,19,'#52695b');text(g,'展示室で作品を持ち上げて並べ替えましょう',530,457,15,'#6a7568');
  g.restore();}
-function drawGallery(g,room,slots,unlocked,level,atSpot,carry,faceArt,nearId){const n=unlocked;rect(g,0,0,room.w,room.h,'#354943');rect(g,36,25,room.w-72,room.h-48,C.brass);floor(g,52,42,room.w-104,room.h-80,level>5?3:0);
- // Each series of 10 slots is its own visual sector, not an endless corridor.
- for(let row=0;row<5;row++){const open=row*10<n;if(!open)continue;const y=124+row*185;rect(g,99,y-29,room.w-198,139,['#e3dbc9','#dddacb','#d3d9c7','#e0d5c6','#e4ded1'][row]);rect(g,99,y-29,room.w-198,8,'#b9a780');rect(g,99,y+102,room.w-198,10,'#9b886d');rect(g,99,y+112,room.w-198,4,'#ead6ae');for(let j=1;j<=9;j+=2){const x=101+j*151;rect(g,x-4,y-20,8,8,C.gold);}if(row>0){plaque(g,['','東のギャラリー','光の間','回想の間','大展示室'][row],894,y+119,160);}for(const xx of [115,1658])column(g,xx,y-26,141);}
- // edges and a central walkway make the level feel spatial
- rect(g,53,42,room.w-106,24,level>5?'#e5c58a':'#aa936c');rect(g,53,room.h-70,room.w-106,22,'#a58a66');for(let x=86;x<room.w-80;x+=135){rect(g,x,room.h-53,64,6,'#705b46');}for(let y=170;y<room.h-120;y+=165){torch(g,82,y);torch(g,room.w-83,y);}
- for(let i=0;i<n;i++){const s=slots[i],a=atSpot(s.id),has=!!a && carry?.id!==a.id,x=s.x,y=s.y;
- const accent=i<10?'#b49766':i<20?'#8eae9e':i<30?'#cba977':i<40?'#b18d85':'#dfc78e';
- // frame; preserve image aspect inside frame; label is a separate plate.
- rect(g,x-62,y-58,124,112,C.darkWood);rect(g,x-57,y-53,114,102,accent);rect(g,x-52,y-48,104,81,'#f7edd9');rect(g,x-52,y-48,104,6,'#fff7d8');
- if(has)faceArt(a,x-47,y-42,94,69);else{rect(g,x-47,y-42,94,69,'#e6dfcd');rect(g,x-2,y-29,4,37,'#baa98d');rect(g,x-19,y-12,38,4,'#baa98d');}
- rect(g,x-58,y+50,116,30,'#a48b69');rect(g,x-54,y+53,108,23,'#f4e8d1');text(g,has?(a.title.length>9?a.title.slice(0,8)+'…':a.title):'展示できます',x,y+65,14,has?'#4b4b3e':'#7f7d6c');
- rect(g,x-60,y-56,13,5,'#fff1b8');rect(g,x+43,y+49,12,5,'#795d40');
- if(carry && nearId===s.id){g.strokeStyle='#4fa77c';g.lineWidth=5;g.strokeRect(x-68,y-64,136,152);}
- }
- // Rugs and museum amenities; aisle remains walkable.
- rect(g,660,room.h-177,429,118,C.brass);rect(g,669,room.h-168,410,101,'#4d7d6e');rect(g,679,room.h-158,390,82,'#6d9480');for(let ix=687;ix<1075;ix+=25)rect(g,ix,room.h-156,5,5,'#d5b67a');text(g,'MUSEUM COLLECTION',877,room.h-127,22,C.cream);
- for(const [x,y] of [[149,room.h-124],[room.w-157,room.h-125]]){plant(g,x,y,.95);}plaque(g,'第1展示室',882,room.h-50,176);
+
+function museumGlow(g,x,y,r=160,strength=.17){
+ g.save();
+ const h=g.createRadialGradient(x,y,4,x,y,r);
+ h.addColorStop(0,'rgba(255,235,176,'+strength+')');
+ h.addColorStop(.42,'rgba(255,232,178,'+(strength*.35)+')');
+ h.addColorStop(1,'rgba(255,230,180,0)');
+ g.fillStyle=h;g.fillRect(x-r,y-r,r*2,r*2);
+ g.restore();
 }
+function galleryLamp(g,x,y,ornate=false){
+ rect(g,x-3,y-15,6,12,C.brass);rect(g,x-10,y-3,20,5,C.darkWood);
+ rect(g,x-14,y+2,28,3,C.gold);rect(g,x-10,y+5,20,8,'#f6db96');
+ rect(g,x-7,y+13,14,3,'#fff2be');
+ if(ornate){rect(g,x-3,y-19,6,4,'#fff1c1');rect(g,x-18,y+3,4,12,C.gold);rect(g,x+14,y+3,4,12,C.gold);}
+}
+function galleryNiche(g,x,y,w,h,shade,level,row){
+ rect(g,x+6,y+8,w,h,'#796b5b4b');
+ rect(g,x,y,w,h,'#ad9677');
+ rect(g,x+6,y+6,w-12,h-14,shade);
+ rect(g,x+6,y+6,w-12,8,'#fff2d354');
+ rect(g,x+9,y+14,w-18,Math.max(0,h-34),'#ffffff17');
+ rect(g,x,y,w,7,level>5?'#e5c994':'#d1b385');
+ rect(g,x,y+h-12,w,9,'#796249');
+ rect(g,x+6,y+h-8,w-12,4,'#edddb9');
+ for(let k=x+18;k<x+w-12;k+=151){
+   rect(g,k,y+8,2,h-20,'#fff2d121');
+ }
+}
+function galleryCurtain(g,x,y,w,h,level){
+ if(w<46)return;
+ rect(g,x,y,w,h,'#313d39');
+ rect(g,x+4,y+3,w-8,h-12,level>=5?'#405b55':'#47645c');
+ for(let i=0;i<w-16;i+=35){
+  rect(g,x+8+i,y+5,11,h-19,'#679082');
+  rect(g,x+24+i,y+5,6,h-19,'#244a40');
+ }
+ rect(g,x+4,y+6,w-8,6,C.gold);
+ rect(g,x+4,y+h-16,w-8,8,C.darkWood);
+ if(w>165){
+  plaque(g,'次の展示区画',x+w/2,y+h/2,151);
+ }
+}
+function museumBench(g,x,y){
+ rect(g,x+8,y+58,198,17,'#6a533e48');
+ rect(g,x+12,y+48,18,22,'#6e4938');
+ rect(g,x+178,y+48,18,22,'#6e4938');
+ rect(g,x,y+7,205,43,'#6a4c40');
+ rect(g,x+6,y+10,193,33,'#b68a66');
+ rect(g,x+6,y+10,193,6,'#efc99c');
+ rect(g,x+20,y+20,165,15,'#8b6451');
+ rect(g,x+15,y+42,178,9,'#734b3b');
+ rect(g,x+21,y+44,166,4,'#d7ad7c');
+ rect(g,x-4,y-4,17,16,'#e0c48c');
+ rect(g,x+191,y-4,17,16,'#e0c48c');
+}
+function galleryBase(g,room,level){
+ rect(g,0,0,room.w,room.h,'#263e39');
+ rect(g,32,20,room.w-64,room.h-39,C.darkWood);
+ rect(g,41,30,room.w-82,room.h-57,level>=7?'#dbbb87':'#b99864');
+ floor(g,54,43,room.w-108,room.h-85,level>=7?4:level>=4?3:0);
+ // Low-contrast stone/wood inlays, designed to feel like flooring rather than a grid UI.
+ for(let xx=109;xx<room.w-95;xx+=224){
+  rect(g,xx,53,4,room.h-111,'#ad977350');
+  rect(g,xx+8,54,2,room.h-112,'#fffae51a');
+ }
+ for(let yy=81;yy<room.h-84;yy+=184){
+  rect(g,55,yy,room.w-112,3,'#eadabe30');
+ }
+ rect(g,52,41,room.w-104,19,level>=6?'#dfc48a':'#a9906b');
+ rect(g,52,room.h-66,room.w-104,17,'#927750');
+ for(let xx=74;xx<room.w-74;xx+=74){
+  rect(g,xx,room.h-64,29,4,'#d8b781');
+ }
+ // Warm patterned entrance aisle and wall lights for a sense of place.
+ rect(g,752,room.h-195,290,154,'#b08c58');
+ rect(g,763,room.h-185,268,134,'#3b7369');
+ rect(g,774,room.h-174,246,112,'#588f7b');
+ rect(g,787,room.h-161,220,87,'#467869');
+ for(let i=0;i<9;i++){rect(g,778+i*28,room.h-183,8,5,C.gold);rect(g,778+i*28,room.h-69,8,4,C.gold);}
+ text(g,'PUZZLE  GALLERY',898,room.h-118,21,'#f2e9c6');
+ for(let yy=156;yy<room.h-155;yy+=185){galleryLamp(g,87,yy,level>4);galleryLamp(g,room.w-90,yy,level>4);}
+ plant(g,151,room.h-132,1.05);plant(g,room.w-153,room.h-132,1.05);
+ plaque(g,'第1展示室',880,room.h-50,180);
+ // A small reading lounge gives the first six-work gallery a lived-in feeling.
+ // As the second exhibition wall opens, the lounge is relocated in the museum plan.
+ if(level===1){
+  rect(g,1035,434,330,128,'#d7c4a5');
+  rect(g,1042,441,316,114,'#efe2cb');
+  for(let yy=448;yy<554;yy+=17){rect(g,1045,yy,9,5,'#c8a27c');rect(g,1346,yy,9,5,'#c8a27c');}
+  museumBench(g,1095,448);
+  plant(g,1347,484,.85);
+  plaque(g,'鑑賞のひと休み',1188,424,162);
+ }
+}
+function galleryFrame(g,x,y,a,faceArt,carrying,accent,active,level,occupied){
+ const w=122,h=113;
+ // Depth, edge bevel, corner joints, lower caption plate.
+ rect(g,x-64,y-58,w+9,h+33,'#56473767');
+ rect(g,x-62,y-61,w+3,h+21,C.darkWood);
+ rect(g,x-58,y-57,115,h+13,'#74553e');
+ rect(g,x-54,y-53,107,103,accent);
+ rect(g,x-49,y-48,97,88,'#d5c39f');
+ rect(g,x-46,y-45,91,81,'#fbf7e9');
+ if(occupied)faceArt(a,x-43,y-42,85,75);
+ else{
+  rect(g,x-43,y-42,85,75,'#e5e1d4');
+  rect(g,x-2,y-22,4,32,'#c2b6a2');
+  rect(g,x-16,y-8,32,4,'#c2b6a2');
+ }
+ rect(g,x-58,y-57,114,4,'#f9dfa7');
+ rect(g,x-58,y-57,5,102,'#f2dbac');
+ rect(g,x+51,y-53,4,102,'#5d4939');
+ rect(g,x-58,y+42,114,5,'#503a31');
+ for(const [dx,dy] of [[-57,-57],[47,-57],[-57,35],[47,35]]){
+  rect(g,x+dx,y+dy,9,9,'#fce5a9');
+  rect(g,x+dx+3,y+dy+3,3,3,'#aa8451');
+ }
+ // Intentional separate plaque; legible and not laid over the user's photo.
+ rect(g,x-56,y+51,112,26,'#7a6552');
+ rect(g,x-52,y+53,104,21,'#f1e8d3');
+ rect(g,x-52,y+53,104,3,'#fff8e6');
+ const caption=occupied?(a.title.length>8?a.title.slice(0,7)+'…':a.title):'展示できます';
+ text(g,caption,x,y+66,14,occupied?'#453e37':'#75776d');
+ if(carrying && active){
+  g.strokeStyle='#4dae7d';g.lineWidth=5;g.strokeRect(x-66,y-66,132,148);
+  rect(g,x-5,y-75,10,10,'#ecda98');
+ }
+}
+function drawGallery(g,room,slots,unlocked,level,atSpot,carry,faceArt,nearId){
+ galleryBase(g,room,level);
+ const palettes=[
+  {panel:'#dfd4bd',recess:'#f3e9d5',accent:'#bd9662',plaque:'木漏れ日の間'},
+  {panel:'#cddbd3',recess:'#e5f1e7',accent:'#91b7a4',plaque:'若葉の回廊'},
+  {panel:'#d7c7bd',recess:'#f1ded1',accent:'#c2988a',plaque:'夕映えの間'},
+  {panel:'#cbd0dc',recess:'#e7e6ed',accent:'#9fa4be',plaque:'星空の間'},
+  {panel:'#e1d6bd',recess:'#f1e4c6',accent:'#dfbf80',plaque:'黄金の大展示室'}
+ ];
+ for(let row=0;row<5;row++){
+  const count=Math.max(0,Math.min(10,unlocked-row*10));
+  if(!count)continue;
+  const y=187+row*185;
+  const theme=palettes[row];
+  // Every row is a distinct exhibition wall with recessed panels and decorative columns.
+  rect(g,89,y-101,1594,190,'#564b4052');
+  galleryNiche(g,97,y-100,1570,198,theme.panel,level,row);
+  rect(g,100,y-82,1564,27,theme.recess);
+  rect(g,100,y+88,1564,9,'#a99573');
+  for(let col=0;col<10;col++){
+   const s=slots[row*10+col];
+   const bayColor=col%2 ? '#ffffff24':'#5346320b';
+   rect(g,s.x-70,y-68,140,159,bayColor);
+   rect(g,s.x-69,y-68,4,159,'#fff5db30');
+  }
+  // A separate sculptural divider at each end provides a museum-scale silhouette.
+  column(g,105,y-92,185);
+  column(g,1630,y-92,185);
+  for(let col=0;col<10;col+=3){
+   const x=slots[row*10+col].x;
+   galleryLamp(g,x+75,y-74,level>3);
+   museumGlow(g,x+74,y-51,95,level>=5?.18:.10);
+  }
+  if(row>0)plaque(g,theme.plaque,885,y+117,172);
+  for(let col=0;col<count;col++){
+   const s=slots[row*10+col],a=atSpot(s.id);
+   const occupied=!!a && a.id!==carry?.id;
+   galleryFrame(g,s.x,s.y,a,faceArt,!!carry,theme.accent,nearId===s.id,level,occupied);
+  }
+  if(count<10){
+    const boundary=slots[row*10+count-1].x+77;
+    galleryCurtain(g,boundary,y-58,Math.max(0,1630-boundary),141,level);
+  }
+  // Warm illumination is concentrated around artworks; other areas remain calm.
+  for(let col=0;col<count;col+=3){const x=slots[row*10+col].x;museumGlow(g,x,y+65,102,.045);}
+ }
+}
+
 const pal={o:'#312e32',h:'#50423b',hh:'#775748',skin:'#f4c7a0',shadow:'#d69b78',coat:'#49796b',coatHi:'#78a38a',coatD:'#28564e',pants:'#42494a',shoe:'#372f30',gold:'#f8d38a',white:'#faf4db'};
 function pixel(g,x,y,u,v,w,h,c,S=3){rect(g,x+u*S,y+v*S,w*S,h*S,pal[c]||c);}
 function drawSidePlayer(g,x,y,pos,carry,art,faceArt,staff=false){
- const walk=pos.stride%2 ? 1 : 0;
+ const phase=pos.stride%4,walk=(phase===1||phase===3)?1:0;
  g.save();g.translate(x,y);if(pos.dir==='left')g.scale(-1,1);
  const px=(u,v,w,h,c)=>pixel(g,-29,-59,u,v,w,h,c,3);
  g.fillStyle='#192f2a55';g.beginPath();g.ellipse(0,28,24,8,0,0,Math.PI*2);g.fill();
  px(8,22,4,5,'pants');px(12,23,4,4,'pants');
- px(7+walk,25,5,3,'shoe');px(12-walk,25,5,3,'shoe');
+ px(7+(phase===1?2:phase===3?-1:0),25+(phase===2?1:0),5,3,'shoe');px(12+(phase===3?2:phase===1?-1:0),25+(phase===0?1:0),5,3,'shoe');
  px(6,12,10,12,'o');px(7,13,9,10,staff?'#5b8595':'coatD');
  px(9,13,7,9,staff?'#779fb0':'coat');
  px(14,14,2,8,staff?'#a3b8c0':'coatHi');
@@ -87,8 +246,8 @@ function drawSidePlayer(g,x,y,pos,carry,art,faceArt,staff=false){
    frame(g,-33,-137,66,49,'#d7b57a');
    if(art)faceArt(art,-27,-131,54,37);else rect(g,-27,-131,54,37,C.cream);
  }else{
-   px(12,14+walk,3,7,staff?'#779fb0':'coatHi');
-   px(12,21+walk,3,2,'skin');
+   px(12,14+(phase===1?1:0),3,7,staff?'#779fb0':'coatHi');
+   px(12,21+(phase===1?1:0),3,2,'skin');
  }
  g.restore();
 }
@@ -125,7 +284,7 @@ const initial=[
  {id:'sample-3',title:'夜空の星（見本）',pieces:300,completed:null,registered:'2026-10-22',memo:'仮の作品です',sample:2,spot:slots[2].id}
 ];
 let arts=initial.map(a=>({...a})),serial=10,scene='entrance',pos={x:525,y:430,dir:'up',stride:0},carry=null,sortUndo=null,modal=null,photoDraft=null;
-let pointerLoop=null,heldKeys=new Set(),noticeTimer=0,transitioning=false;
+let pointerLoop=null,heldKeys=new Set(),noticeTimer=0,transitioning=false,movedSinceTip=0;
 const imageCache=new Map();const entrance={staff:{x:348,y:277},stone:{x:690,y:268},door:{x:525,y:230}};
 function level(){const n=arts.length;return Math.min(9,1+Math.floor(n/6));}
 function unlocked(){return Math.min(50,6*level());}
@@ -140,7 +299,7 @@ function say(msg){const el=$('toast');el.textContent=msg;el.classList.add('show'
 function writeModal(title,kicker,inner){$('dialog').innerHTML=`<div class="modalbar"><div><small>${esc(kicker)}</small><h2 id="modalTitle">${esc(title)}</h2></div><button class="x" type="button" id="dismiss" aria-label="閉じる">×</button></div>${inner}`;$('overlay').hidden=false;modal=title;$('dismiss').onclick=closeModal;}
 function closeModal(){$('overlay').hidden=true;modal=null;photoDraft=null;}
 $('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal()});
-function sceneTo(next){if(transitioning)return;transitioning=true;const fade=$('fade');fade.classList.add('show');setTimeout(()=>{scene=next;pos=next==='gallery'?{x:525,y:277,dir:'up',stride:0}:{x:525,y:430,dir:'up',stride:0};carry=null;titleBar();$('stageNote').textContent=next==='gallery'?'作品の近くで「調べる」を押す':'スタッフか石碑に近づこう';setTimeout(()=>{fade.classList.remove('show');transitioning=false;},200)},240)}
+function sceneTo(next){if(transitioning)return;transitioning=true;const fade=$('fade');fade.classList.add('show');setTimeout(()=>{scene=next;pos=next==='gallery'?{x:525,y:277,dir:'up',stride:0}:{x:525,y:430,dir:'up',stride:0};carry=null;movedSinceTip=0;$('stageNote').hidden=false;titleBar();$('stageNote').textContent=next==='gallery'?'作品の近くで「調べる」を押す':'スタッフか石碑に近づこう';setTimeout(()=>{fade.classList.remove('show');transitioning=false;},200)},240)}
 function screenCam(){return scene==='entrance'?{x:0,y:0}: {x:Math.max(0,Math.min(room.w-W,pos.x-W/2)),y:Math.max(0,Math.min(room.h-H,pos.y-H/2))};}
 function resizeCanvas(){const view=$('viewport'),box=view.getBoundingClientRect(),style=getComputedStyle(view);const bw=parseFloat(style.borderLeftWidth)+parseFloat(style.borderRightWidth),bh=parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth),cw=box.width-bw,ch=box.height-bh;if(cw<1||ch<1)return;W=Math.max(280,Math.min(1850,Math.round(H*cw/ch)));canvas.width=W;canvas.height=H;ctx.imageSmoothingEnabled=false;}
 function isNear(x,y,r=118){return Math.hypot(pos.x-x,pos.y-y)<r;}
@@ -159,6 +318,7 @@ function solidFurniture(){
   {x:125,y:427,w:64,h:80},{x:915,y:427,w:64,h:80}
  ];
  const obstacles=slots.slice(0,unlocked()).map(s=>({x:s.x-62,y:s.y-58,w:124,h:138}));
+ if(unlocked()<=10){obstacles.push({x:1095,y:446,w:205,h:71},{x:1326,y:433,w:45,h:79});}
  for(let row=0;row<5;row++){
   if(row*10>=unlocked())continue;
   const y=124+row*185;
@@ -187,7 +347,7 @@ function walk(direction){
  if(direction==='down')ny+=delta;
  if(direction==='left')nx-=delta;
  if(direction==='right')nx+=delta;
- if(canStand(nx,ny)){pos.x=nx;pos.y=ny;pos.stride=(pos.stride+1)%4;}
+ if(canStand(nx,ny)){pos.x=nx;pos.y=ny;pos.stride=(pos.stride+1)%4;if(++movedSinceTip>=4)$('stageNote').hidden=true;}
  else pos.stride=0;
  updateAct();
 }
