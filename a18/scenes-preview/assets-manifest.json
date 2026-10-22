@@ -1,5 +1,5 @@
 {
-  "version": "v0.8-operation-and-accessibility-preview",
+  "version": "v0.9-speed-collision-and-interaction",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -79,6 +79,10 @@
     "browser_view": "Default full-scene aspect-locked fit; switchable zoom",
     "floating_player": "Cropped precomputed alpha bounding boxes and small foot shadow",
     "first_run_title": "Defaults to パズル美術館, localStorage only for museum title",
-    "standalone_web_app": "Manifest and Apple meta tags added; iPhone installed mode not verified"
+    "standalone_web_app": "Manifest and Apple meta tags added; iPhone installed mode not verified",
+    "movement_speed": "step12px / repeat65ms; swept in 3px collision substeps",
+    "interaction_hysteresis": "enter range and larger leave range per staff, door, and frame",
+    "extra_obstacles": "foreground gallery balustrade",
+    "tests": "Chromium landscape 844x390/932x430, portrait 390x844, reachability BFS, hold stop, staff and gallery action, photo upload"
   }
 }

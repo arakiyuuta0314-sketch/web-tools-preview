@@ -5,7 +5,7 @@
 <meta name="apple-mobile-web-app-title" content="パズル美術館">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>パズル美術館｜入口と展示室の操作・当たり判定試作 v0.8</title>
+<title>パズル美術館｜入口と展示室の操作・移動改修 v0.9</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -51,7 +51,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body><div class="rotate">📱 <strong>スマホを横向きにしてください</strong><small>館内を広く、絵が歪まないように表示します。</small></div>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div><div class="status" id="statusText">新素材の入口＋第1展示室</div><div class="nav"><button id="viewMode" aria-pressed="true">拡大表示</button><button id="sceneBtn">展示室へ</button><button id="showList">作品を見る</button><button id="addPhoto" class="gold">＋ 写真を飾る</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v0.8 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v0.9 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 <footer><span>背景・館長・写真が独立した素材／データは一時保存</span><span><a href="../index.html?v=562e40d" style="color:#ffe1a6;margin-right:14px">旧50作品版と比較</a>方向キー / WASD　移動</span></footer>
@@ -61,12 +61,14 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 'use strict';
 const $=id=>document.getElementById(id);
 const canvas=$('world'),ctx=canvas.getContext('2d'),overlay=$('overlay');
-const src={entrance:{w:546,h:483,background:'entrance_base.webp',spawn:[195,313],name:'美術館の入口'},gallery:{w:589,h:482,background:'gallery_base.webp',spawn:[316,235],name:'第1展示室'}};
+const src={entrance:{w:546,h:483,background:'entrance_base.webp',spawn:[195,313],name:'美術館の入口'},gallery:{w:589,h:482,background:'gallery_base.webp',spawn:[316,260],name:'第1展示室'}};
 const ap=[[153,54,208,106],[265,56,318,108],[374,55,426,110]];
 const works=[{id:'sample-1',title:'湖畔の風景（見本）',pieces:1000,complete:null,registered:'2026-10-22',source:0,spot:0},{id:'sample-2',title:'夕焼けの空（見本）',pieces:500,complete:'2025-05-10',registered:'2026-10-22',source:1,spot:1},{id:'sample-3',title:'花の庭園（見本）',pieces:300,complete:null,registered:'2026-10-22',source:2,spot:2}];
 const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
 try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
 let scene='entrance',pos={x:195,y:313,dir:'up',stride:0},carrying=null,modal=false,cameraY=0,logicalH=290,frame=0,loaded=false,lastArrange=null;
+const MOVE_DISTANCE=12,MOVE_REPEAT_MS=65,MOVE_SUBSTEP=3;
+let activeInteraction=null;
 const images=new Map(),spriteBounds=new Map(),movement={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',w:'up',a:'left',s:'down',d:'right'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slot=i=>works.find(w=>w.spot===i)||null,makeUrl=f=>URL.createObjectURL(f);
@@ -119,7 +121,8 @@ const obstacles={
   [238,345,274,389], // Angel statue and railing
   [110,164,279,374],[420,483,278,371], // Armchairs
   [163,219,266,349],[367,424,265,349], // Front marble pedestals
-  [0,69,0,215],[520,589,0,210] // Side walls and lamps
+  [0,69,0,215],[520,589,0,210], // Side walls and lamps
+  [0,121,381,482],[469,589,382,482] // Foreground staircase rails (prevent floor clipping)
  ]
 };
 function safeMove(x,y){
@@ -132,20 +135,48 @@ function safeMove(x,y){
  return true;
 }
 function inZone(x1,x2,y1,y2){return pos.x>=x1&&pos.x<=x2&&pos.y>=y1&&pos.y<=y2;}
-function walk(dir){if(modal)return;const step=9,dx=dir==='right'?step:dir==='left'?-step:0,dy=dir==='down'?step:dir==='up'?-step:0;pos.dir=dir;
- if(safeMove(pos.x+dx,pos.y+dy)){pos.x+=dx;pos.y+=dy;pos.stride=(pos.stride+1)%5;$('hint').hidden=true}update();}
+function walk(dir){
+ if(modal)return;
+ const dx=dir==='right'?MOVE_DISTANCE:dir==='left'?-MOVE_DISTANCE:0;
+ const dy=dir==='down'?MOVE_DISTANCE:dir==='up'?-MOVE_DISTANCE:0;
+ pos.dir=dir;
+ // Swept motion: use 3px substeps so higher speed cannot skip small obstacles.
+ const ticks=Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/MOVE_SUBSTEP);
+ let moved=false;
+ for(let i=0;i<ticks;i++){
+  const nx=pos.x+dx/ticks,ny=pos.y+dy/ticks;
+  if(!safeMove(nx,ny))break;
+  pos.x=nx;pos.y=ny;moved=true;
+ }
+ if(moved){pos.stride=(pos.stride+1)%5;$('hint').hidden=true}
+ update();
+}
+function interactionCandidates(){
+ if(scene==='entrance')return[
+  {type:'staff',x:195,y:224,enter:55,leave:74},
+  {type:'door',x:401,y:197,enter:53,leave:69}
+ ];
+ return ap.map((rect,i)=>{
+  const x=(rect[0]+rect[2])/2;
+  return {type:'art',i,x,y:185,enter:67,leave:82};
+ });
+}
+function interactionId(hit){return hit.type+':'+(hit.i??'')}
 function nearby(){
- if(scene==='entrance'){
-  if(inZone(111,278,192,229))return {type:'staff'};
-  if(inZone(353,440,149,208))return {type:'door'};
-  return null;
+ const items=interactionCandidates();
+ if(activeInteraction){
+  const keep=items.find(hit=>interactionId(hit)===interactionId(activeInteraction));
+  if(keep&&Math.hypot(pos.x-keep.x,pos.y-keep.y)<=keep.leave){
+   return activeInteraction=keep;
+  }
+  activeInteraction=null;
  }
- if(!inZone(100,487,197,233))return null;
- for(let i=0;i<3;i++){
-  const [left,,right]=ap[i],center=(left+right)/2;
-  if(Math.abs(pos.x-center)<=40)return {type:'art',i};
+ let chosen=null,best=Infinity;
+ for(const hit of items){
+  const distance=Math.hypot(pos.x-hit.x,pos.y-hit.y);
+  if(distance<=hit.enter&&distance<best){chosen=hit;best=distance}
  }
- return null;
+ return activeInteraction=chosen;
 }
 function update(){
  $('sceneBtn').textContent=scene==='entrance'?'展示室へ':'入口へ';
@@ -156,7 +187,7 @@ function update(){
  if(hit)$('act').textContent=hit.type==='staff'?'話しかける':hit.type==='door'?'展示室へ':carrying?'ここに飾る':'作品を調べる';
  $('cancel').hidden=!carrying;
 }
-function changeScene(next){if(!src[next])throw new Error('scene missing');scene=next;carrying=null;pos={x:src[next].spawn[0],y:src[next].spawn[1],dir:next==='gallery'?'up':'down',stride:0};cameraY=0;$('hint').hidden=false;resize();update();}
+function changeScene(next){if(!src[next])throw new Error('scene missing');scene=next;carrying=null;activeInteraction=null;pos={x:src[next].spawn[0],y:src[next].spawn[1],dir:next==='gallery'?'up':'down',stride:0};cameraY=0;$('hint').hidden=false;resize();update();}
 function paintArtwork(a,i){const [x1,y1,x2,y2]=ap[i],w=x2-x1,h=y2-y1;if(!a)return;
  const img=a.photo || get('sample'+a.source);if(!img)return;
  ctx.fillStyle='#f6f0e1';ctx.fillRect(x1,y1,w,h);
@@ -241,11 +272,11 @@ canvas.onclick=e=>{if(modal||scene!=='gallery')return;const h=nearby();if(h?.typ
 window.addEventListener('keydown',e=>{if(modal)return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
 window.addEventListener('keyup',e=>heldKeys.delete(e.key));
 window.addEventListener('blur',()=>heldKeys.clear());document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();clearInterval(pointerLoop)}});
-setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(movement[key]);}},95);
-for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),95);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
+setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(movement[key]);}},MOVE_REPEAT_MS);
+for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),MOVE_REPEAT_MS);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);
-window.__A18_SCENE_STUDY__={state:()=>({scene,pos:{...pos},carrying,museumTitle,viewMode,interaction:nearby(),works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
+window.__A18_SCENE_STUDY__={state:()=>({scene,pos:{...pos},carrying,museumTitle,viewMode,interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
 boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
 })();
 </script></body></html>
