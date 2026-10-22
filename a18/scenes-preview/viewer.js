@@ -130,18 +130,16 @@
     const prev=active.get(e.pointerId);active.delete(e.pointerId);
     if(active.size===1){const pt=Array.from(active.values())[0];gesture={x:pt.x,y:pt.y,dx,dy};}
     else{gesture=null;}
-    // Double tap toggles 1x/3x without interfering with two-finger pinch.
-    if(!usedMulti&&e.type==='pointerup'&&e.pointerType==='touch'&&active.size===0&&prev&&Math.hypot(e.clientX-prev.x,e.clientY-prev.y)<18){
-      const now=Date.now(),pt={x:e.clientX,y:e.clientY};
-      if(now-lastTap<330&&lastTapAt&&Math.hypot(pt.x-lastTapAt.x,pt.y-lastTapAt.y)<32){
-        zoomTo(scale<1.3?3:1,pt);lastTap=0;
-      }else{lastTap=now;lastTapAt=pt;}
+    // Single tap returns to the artwork inspection panel.
+    if(active.size===0&&!usedMulti&&e.type==='pointerup'&&scale<=1.01&&gestureStart){
+      const mx=e.clientX-gestureStart.x,my=e.clientY-gestureStart.y;
+      if(Math.abs(mx)>55&&Math.abs(mx)>Math.abs(my)*1.35)navigate(mx<0?1:-1);
+      else if(Math.hypot(mx,my)<18)close();
     }
-    if(active.size===0&&!usedMulti&&e.type==='pointerup'&&scale<=1.01&&gestureStart&&Math.abs(e.clientX-gestureStart.x)>55&&Math.abs(e.clientX-gestureStart.x)>Math.abs(e.clientY-gestureStart.y)*1.35)navigate(e.clientX<gestureStart.x?1:-1);
     if(active.size===0){usedMulti=false;gestureStart=null;}
   };
   for(const ev of ['pointerup','pointercancel','lostpointercapture'])stage.addEventListener(ev,finish);
-  stage.addEventListener('dblclick',e=>{e.preventDefault();zoomTo(scale<1.3?3:1,{x:e.clientX,y:e.clientY});});
+  stage.addEventListener('dblclick',e=>{e.preventDefault();});
   stage.addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();zoomTo(scale*(e.deltaY<0?1.22:1/1.22),{x:e.clientX,y:e.clientY});},{passive:false});
   stage.addEventListener('contextmenu',e=>e.preventDefault());
   stage.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
