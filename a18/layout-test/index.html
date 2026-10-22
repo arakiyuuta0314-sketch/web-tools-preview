@@ -7,12 +7,12 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="layout-editor.css?v=2.2"><script src="layout-system.js?v=2.2"></script><script src="asset-renderer.js?v=official1"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
+<link rel="stylesheet" href="layout-editor.css?v=2.2"><link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=classic1"></script><script src="museum-navigation.js?v=1"></script><script src="asset-renderer.js?v=classic1"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
 <script src="staff-flow.js?v=1.17" defer></script>
-<title>パズル美術館｜正式候補素材テスト v2.1</title>
+<title>パズル美術館｜館内移動と大きい額縁 v2.4</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -70,7 +70,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.1 実素材検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.4 扉と額縁</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
@@ -121,7 +121,7 @@ let galleryIndex=0; // 0 = entrance, 1..5 = galleries 2..6.
 // Fixture IDs are stable. The legacy 28 slots have an explicit one-to-one migration.
 const L=window.A18Layout;
 const fixtures=L.defaults();
-L.enlargeForReadability(fixtures);
+L.restoreClassicFrameDimensions(fixtures);
 const roomRects=()=>L.roomFrames(fixtures,galleryIndex).map(L.r);
 const frameCount=room=>L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
@@ -220,7 +220,8 @@ async function getAlphaBounds(img){
 async function boot(){
  // Defer scripts (staff/photo modules) must finish before registration becomes playable.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
- if(!window.A18LayoutEditor||!window.A18Art||!window.A18Storage||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
+ if(!window.A18Navigation||!window.A18LayoutEditor||!window.A18Art||!window.A18Storage||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
+ window.A18Navigation.validateGraph(ROOM_LINKS);
  let restored=false;
  const state=await window.A18Storage.load();
  if(state){
@@ -228,7 +229,7 @@ async function boot(){
   const restoredWorks=window.A18Storage.restoreWorks(state.works);
   L.migrateLegacy(restoredWorks);
   L.assertData(state.fixtures,restoredWorks);
-  L.enlargeForReadability(state.fixtures);
+  L.restoreClassicFrameDimensions(state.fixtures);
   for(let room=0;room<6;room++){const result=L.validatePlacement(state.fixtures,room);if(!result.ok)throw Error('保存した第'+(room+1)+'室の配置が不正：'+result.reason)}
   fixtures.splice(0,fixtures.length,...state.fixtures);
   works.splice(0,works.length,...restoredWorks);
@@ -322,17 +323,7 @@ function safeMove(x,y){
  }
  return true;
 }
-const PORTAL_EDGES={
- entrance:{
-  west:{x1:24,x2:44,y1:345,y2:417},east:{x1:501,x2:522,y1:345,y2:417},
-  north:{x1:345,x2:383,y1:101,y2:118}
- },
- gallery:{
-  west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},
-  north:{x1:345,x2:385,y1:101,y2:118},
-  south:{x1:265,x2:329,y1:452,y2:471}
- }
-};
+const PORTAL_EDGES=window.A18Navigation.EDGES;
 function checkPortal(){
  for(const [edge,target] of Object.entries(ROOM_LINKS[galleryIndex])){
   const rect=PORTAL_EDGES[scene][edge];
@@ -385,7 +376,7 @@ function nearby(){
 }
 function update(){
  const displayed=works.filter(w=>w.fixtureId!=null&&fixtures.some(f=>f.id===w.fixtureId&&f.roomId===galleryIndex)).length;
- $('statusText').textContent=ROOM_LABELS[galleryIndex]+' ／ 展示 '+displayed+'/'+roomCapacity(galleryIndex)+' ／ 所蔵 '+works.length+'/'+MAX_WORKS+'作品　〈全エリア移動テスト〉';
+ $('statusText').textContent=ROOM_LABELS[galleryIndex]+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
  const hit=nearby();
  $('act').hidden=!hit;
  if(hit)$('act').textContent=hit.type==='staff'||hit.type==='butler'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'空の額縁';
@@ -445,28 +436,9 @@ function drawBackground(){
  // Exhibits now have their own movable Fixture sprites, not decorations baked into the floor.
  if(scene==='entrance')window.A18Art.npc(ctx,'staff',257,353);
  else window.A18Art.npc(ctx,'staff',297,232);
- // Draw exactly the edges defined by the 6-area adjacency graph.
- const doors=ROOM_LINKS[galleryIndex];
- for(const [edge,target]of Object.entries(doors)){
-  const rect=PORTAL_EDGES[scene][edge];
-  const cx=(rect.x1+rect.x2)/2,cy=(rect.y1+rect.y2)/2;
-  ctx.fillStyle='#345d4a';
-  if(edge==='north'){
-   ctx.fillRect(rect.x1-4,80,rect.x2-rect.x1+8,61);
-  }else if(edge==='south'){
-   ctx.fillRect(rect.x1-3,m.h-30,rect.x2-rect.x1+6,22);
-  }else if(edge==='west'){
-   ctx.fillRect(20,rect.y1-8,28,rect.y2-rect.y1+16);
-  }else{
-   ctx.fillRect(m.w-48,rect.y1-8,28,rect.y2-rect.y1+16);
-  }
-  ctx.font='bold 12px sans-serif';ctx.textAlign=edge==='west'?'left':edge==='east'?'right':'center';
-  ctx.fillStyle='#fff0c6';
-  const text=(edge==='west'?'← ':edge==='east'?'→ ':edge==='north'?'▲ ':'▼ ')+(target+1);
-  const tx=edge==='west'?52:edge==='east'?m.w-52:cx;
-  const ty=edge==='north'?78:edge==='south'?m.h-37:rect.y1-14;
-  ctx.fillText(text,tx,ty);
- }
+ // Render physical doorways and destination signs from the SAME portal geometry
+ // used for collision and transitions. No independent fake green rectangles.
+ window.A18Navigation.drawDoors(ctx,{room:galleryIndex,scene,width:m.w,height:m.h,wallFoot:wallFootLine(),links:ROOM_LINKS});
  ctx.textAlign='center';ctx.fillStyle='#3d5445';ctx.font='bold 16px sans-serif';
  ctx.fillText(ROOM_LABELS[galleryIndex],m.w/2,m.h-49);
 }
@@ -636,6 +608,12 @@ function form(spotNo=0,viaStaff=false){
 }
 const heldKeys=new Set();let pointerLoop=null;
 $('museumName').onclick=()=>nameDialog(false);
+$('floorMapButton').onclick=()=>showFloorMap();
+function showFloorMap(){
+ open('館内図',window.A18Navigation.mapHTML(galleryIndex)+
+  '<div class="row"><button id="closeFloorMap">歩いて戻る</button></div>');
+ $('closeFloorMap').onclick=close;
+}
 $('act').onclick=action;
 $('cancel').onclick=()=>{carrying=null;carryOrigin=null;update();requestSave()};
 overlay.onclick=e=>{if(e.target===overlay)close()};
@@ -649,7 +627,7 @@ for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventList
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
  state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,avatarGender,assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
- move:walk,canMove:safeMove,changeScene,inspect,form,
+ move:walk,canMove:safeMove,changeScene,inspect,form,showFloorMap,checkPortal,portalEdges:PORTAL_EDGES,
  openEditor:()=>window.A18LayoutEditor.open({fixtures:()=>fixtures,works:()=>works,onCommit:next=>{fixtures.splice(0,fixtures.length,...next);requestSave();update()},onClose:update}),
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');avatarGender=g;requestSave();},
  validateLayout:room=>L.validatePlacement(fixtures,room),

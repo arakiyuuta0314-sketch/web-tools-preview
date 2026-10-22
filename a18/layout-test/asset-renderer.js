@@ -53,46 +53,42 @@ function decoration(ctx,f){
 }
 const rectangle=f=>[f.x-f.width/2,f.y-f.height/2,f.x+f.width/2,f.y+f.height/2];
 function frame(ctx,f,img){
- const b=rectangle(f),[x,top,right,bottom]=b,w=right-x,h=bottom-top;
- const y=f.installation==='floor'?top-24:top;
- const style=f.design==='wood'?'wood':'gold',shape=f.shape||'landscape';
- const meta=manifest?.frames?.wall?.[style]?.[shape];
- // The graphic frame is cropped to its alpha bounding rectangle; the inner window stays transparent.
- const marginX=shape==='portrait'?.10:.075;
- const marginY=shape==='landscape'?.12:.075;
- const ix=x+w*marginX,iy=y+h*marginY,iw=w*(1-2*marginX),ih=h*(1-2*marginY);
- // The easel is always BEHIND the photo aperture and frame.
+ const [x,top,right,bottom]=rectangle(f),w=right-x,h=bottom-top;
+ // Restore v1.8's large, programmatically drawn frame (12px outer rim),
+ // not the unapproved shrunken transparent-PNG frame candidate.
+ // Rendering geometry is separate from fixture and interaction coordinates.
  if(f.installation==='floor'){
-  const easel=manifest?.decor?.easel;
-  if(easel&&loaded(easel.path)){
-   const poleW=w*.65,b=easel.alphaBBox,ah=(b[3]-b[1])/(b[2]-b[0]);
-   alphaDraw(ctx,easel.path,b,{x:f.x-poleW/2,y:bottom-poleW*ah,w:poleW,h:poleW*ah});
-  }
+  ctx.fillStyle='#ad9880';ctx.fillRect(x-8,top-12,w+16,h+23);
+  ctx.fillStyle='#8b775b';ctx.fillRect(x-10,bottom+11,w+20,9);
  }
-
+ ctx.fillStyle='#845c34';ctx.fillRect(x-12,top-12,w+24,h+24);
+ const gold=ctx.createLinearGradient(x-8,top-8,right+8,bottom+8);
+ gold.addColorStop(0,'#f3e2ac');gold.addColorStop(.5,'#9d6d31');gold.addColorStop(1,'#e8c77e');
+ ctx.fillStyle=gold;ctx.fillRect(x-9,top-9,w+18,h+18);
+ ctx.fillStyle='#43352b';ctx.fillRect(x-3,top-3,w+6,h+6);
+ if(f.design==='wood'){
+  ctx.fillStyle='#8c5a36';ctx.fillRect(x-8,top-8,w+16,h+16);
+  ctx.strokeStyle='#e0b878';ctx.lineWidth=2;ctx.strokeRect(x-5,top-5,w+10,h+10);
+ }
  ctx.save();
- ctx.beginPath();ctx.rect(ix,iy,iw,ih);ctx.clip();
- ctx.fillStyle='#dbcbb0';ctx.fillRect(ix,iy,iw,ih);
+ ctx.beginPath();ctx.rect(x,top,w,h);ctx.clip();
+ ctx.fillStyle='#ddcfad';ctx.fillRect(x,top,w,h);
  if(img&&img.naturalWidth>0){
   const sw=img.naturalWidth,sh=img.naturalHeight,mode=f.imageMode||'cover';
-  const fit=mode==='contain'?Math.min(iw/sw,ih/sh):Math.max(iw/sw,ih/sh);
+  const fit=mode==='contain'?Math.min(w/sw,h/sh):Math.max(w/sw,h/sh);
   const scale=fit*(mode==='custom'?(f.imageScale||1):1);
   const dw=sw*scale,dh=sh*scale;
-  const ox=mode==='custom'?(iw-dw)*(f.imageX||0)/2:0;
-  const oy=mode==='custom'?(ih-dh)*(f.imageY||0)/2:0;
-  ctx.drawImage(img,ix+(iw-dw)/2+ox,iy+(ih-dh)/2+oy,dw,dh);
+  const ox=mode==='custom'?(w-dw)*(f.imageX||0)/2:0;
+  const oy=mode==='custom'?(h-dh)*(f.imageY||0)/2:0;
+  ctx.drawImage(img,x+(w-dw)/2+ox,top+(h-dh)/2+oy,dw,dh);
  }else if(!f.workId){
-  ctx.fillStyle='#7d674c';ctx.textAlign='center';ctx.font='bold '+Math.max(16,Math.min(iw,ih)*.38)+'px serif';
-  ctx.fillText('+',f.x,f.y+6);
+  ctx.fillStyle='#9e8c71';ctx.textAlign='center';ctx.textBaseline='alphabetic';
+  ctx.font='bold 20px serif';ctx.fillText('+',f.x,f.y+6);
  }else{
-  ctx.fillStyle='#49372c';ctx.fillRect(ix,iy,iw,ih);
+  ctx.fillStyle='#49372c';ctx.fillRect(x,top,w,h);
  }
  ctx.restore();
- if(meta&&loaded(meta.path))alphaDraw(ctx,meta.path,meta.alphaBBox,{x,y,w,h});
- else{
-  ctx.strokeStyle='#c39c58';ctx.lineWidth=8;ctx.strokeRect(x,y,w,h);
-  ctx.strokeStyle='#694726';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
- }
 }
+
 window.A18Art={init,npc,decoration,frame,get:loaded,get manifest(){return manifest},stats:()=>({loaded:cache.size,paths:[...cache.keys()]})};
 })();

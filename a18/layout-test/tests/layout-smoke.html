@@ -1,0 +1,203 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><title>A18 layout smoke</title>
+<style>body{font:14px system-ui;margin:5px}iframe{width:900px;height:650px;border:1px solid #999}pre{white-space:pre-wrap}</style>
+<iframe id="game" src="../index.html"></iframe><pre id="result">RUNNING</pre>
+<script>
+(async()=>{
+ const out=[],assert=(condition,message)=>{if(!condition)throw Error(message);out.push('PASS '+message);document.getElementById('result').textContent=out.join('\\n')};
+ const sleep=n=>new Promise(r=>setTimeout(r,n));
+ const frame=document.getElementById('game'),api=()=>frame.contentWindow.__A18_SCENE_STUDY__;
+ const until=async(fn,label='condition',ms=12000)=>{
+  const start=Date.now();while(Date.now()-start<ms){try{if(fn())return true}catch(e){}await sleep(70)}
+  throw Error('Timeout '+label);
+ };
+ let errors=[];frame.addEventListener('load',()=>frame.contentWindow.addEventListener('error',e=>errors.push(e.message)));
+ try{
+  await until(()=>api()?.ready(),'initial boot');
+  let game=frame.contentWindow,doc=game.document,L=game.A18Layout;
+  if(doc.getElementById('confirmName')){doc.getElementById('confirmName').click();if(doc.getElementById('skipTour'))doc.getElementById('skipTour').click();}
+  assert(api().state().fixtures.filter(f=>f.kind==='frame').length===28,'28 frames default');
+  assert(game.A18Navigation.validateGraph(api().state().allRoomLinks),'floor map matches all passages');
+  assert(game.document.getElementById('floorMapButton'),'accessible floor map button');
+  doc.getElementById('floorMapButton').click();
+  assert(doc.querySelectorAll('.a18-room-tile').length===6,'all six rooms drawn in floor map');
+  doc.getElementById('closeFloorMap').click();
+  assert(api().state().assetStatus.loaded===72,'48 approved characters and 24 experimental fixtures decoded');
+  assert(game.A18Art.manifest.decor.sofa.path.includes('sofa_red.png'),'sofa actual asset path selected');
+  let totalLinks=0;
+  for(let room=0;room<6;room++){
+   const f=api().state().fixtures;
+   assert(L.validatePlacement(f,room).ok,'room '+room+' valid');
+   api().changeScene(room);
+   totalLinks+=Object.keys(api().state().links).length;
+  }
+  assert(totalLinks===14,'7 bidirectional doors');
+  const originalFrame=api().state().fixtures.find(f=>f.id==='frame-0-0');
+  assert(originalFrame.width===100 && originalFrame.height===77,'frame dimensions restored to v1.8');
+  const doorEdges=game.A18Navigation.EDGES;
+  function travelToDoor(room,edge){
+   api().changeScene(room);
+   const before=api().state(),dest=before.links[edge],bounds=doorEdges[before.scene][edge];
+   const steps=[['up',0,-12],['down',0,12],['left',-12,0],['right',12,0]];
+   const queue=[{x:before.pos.x,y:before.pos.y,route:[]}],seen=new Set([before.pos.x+','+before.pos.y]);
+   let found=null;
+   for(let i=0;i<queue.length && i<5000;i++){
+    const point=queue[i];
+    if(point.x>=bounds.x1&&point.x<=bounds.x2&&point.y>=bounds.y1&&point.y<=bounds.y2){found=point;break;}
+    for(const [dir,dx,dy]of steps){
+     const nx=point.x+dx,ny=point.y+dy,key=nx+','+ny;
+     if(seen.has(key))continue;
+     // The player moves in four swept 3px increments.
+     let legal=true;
+     for(let sub=1;sub<=4;sub++)if(!api().canMove(point.x+dx*sub/4,point.y+dy*sub/4)){legal=false;break;}
+     if(!legal)continue;
+     seen.add(key);queue.push({x:nx,y:ny,route:[...point.route,dir]});
+    }
+   }
+   assert(Boolean(found),'reachable door from room '+room+' toward '+edge);
+   for(const dir of found.route)api().move(dir);
+   assert(api().state().galleryIndex===dest,'walking through '+room+'/'+edge+' reaches '+dest);
+  }
+  for(let room=0;room<6;room++)
+   for(const edge of Object.keys(api().state().allRoomLinks[room]))travelToDoor(room,edge);
+  api().changeScene(0);
+
+  api().changeScene(0);
+  for(let n=0;n<11;n++)api().move('left');
+  for(let n=0;n<7;n++)api().move('up');
+  assert(api().state().interaction?.type==='butler','butler reachable by walking');
+  doc.getElementById('act').click();doc.getElementById('rpgAdvance').click();
+  assert(!doc.getElementById('a18Decorate'),'rearrangement is not offered to players');
+  assert(Boolean(doc.getElementById('a18SelectAvatar')),'avatar selection remains accessible');
+  assert(doc.querySelector('.rpg-portrait img')?.src.includes('butler-front-00.png'),'real butler portrait in dialogue');
+  doc.getElementById('a18No').click();
+  api().openEditor(); // Development-only regression path, inaccessible from gameplay UI.
+  assert(Boolean(doc.getElementById('a18LayoutEditor')),'dormant editor remains available for later tests');
+  const beforeEditWalk=api().state().pos;
+  api().move('right');
+  assert(api().state().pos.x===beforeEditWalk.x&&api().state().pos.y===beforeEditWalk.y,'curator cannot walk while editor is open');
+  doc.getElementById('a18EditorExit').click();
+  api().openEditor();
+  assert(doc.querySelectorAll('#a18LayoutEditor [data-room]').length===6,'six-room god map');
+  doc.querySelector('[data-room="0"]').click();
+  assert(Boolean(doc.getElementById('a18EditCanvas')),'room canvas');
+  assert(doc.querySelectorAll('#a18NewType option').length===18,'all 18 furniture and decor choices available');
+  frame.style.width='390px';frame.style.height='780px';await sleep(250);
+  assert(game.matchMedia('(orientation:portrait) and (max-width:850px)').matches,'iPhone 12 width portrait recognized');
+  assert(game.getComputedStyle(doc.querySelector('.a18-edit-panel')).display==='flex','mobile layout properties in compact bar');
+  assert(doc.getElementById('a18FramePanel').hidden,'advanced frame settings hidden by default');
+  assert(doc.getElementById('a18Catalog').hidden,'furniture catalog hidden by default');
+  assert(doc.getElementById('a18OpenCatalog').getBoundingClientRect().width>70,'one obvious add furniture action');
+  assert(doc.getElementById('a18EditCanvas').clientWidth>200,'mobile decoration canvas visible');
+  assert(doc.getElementById('a18EditCanvas').clientHeight>250,'canvas receives majority of portrait space');
+  assert(game.A18Art.get(game.A18Art.manifest.frames.wall.gold.landscape.path)?.naturalWidth===256,'actual gold frame texture loaded');
+  frame.style.width='900px';frame.style.height='650px';await sleep(250);
+  doc.getElementById('a18OpenCatalog').click();
+  assert(!doc.getElementById('a18Catalog').hidden,'catalog opens only on demand');
+  assert(doc.querySelectorAll('[data-new-type]').length===6,'furniture gallery has six choices');
+  doc.querySelector('[data-new-type=sofa]').click();
+  assert(doc.getElementById('a18Catalog').hidden,'catalog closes after adding furniture');
+  assert(!doc.getElementById('a18Undo').disabled,'undo enabled after decoration');
+  doc.getElementById('a18Undo').click();
+  assert(!doc.getElementById('a18Redo').disabled,'redo enabled');
+  doc.getElementById('a18Redo').click();
+  doc.getElementById('a18Save').click();
+  assert(api().state().fixtures.some(f=>f.kind==='decor'),'decor committed');
+  api().openEditor();doc.querySelector('[data-room="0"]').click();
+  doc.getElementById('a18NewType').value='plant';doc.getElementById('a18AddDecor').click();
+  game.confirm=()=>true;doc.getElementById('a18Discard').click();
+  assert(api().state().fixtures.filter(f=>f.kind==='decor').length===1,'discard keeps previously saved layout');
+  doc.getElementById('a18EditorExit').click();
+  api().setAvatar('female');assert(api().state().avatarGender==='female','female avatar choice');
+  assert(game.A18Art.get(game.A18Art.manifest.butler.path)?.naturalWidth===60,'real butler stand loaded');
+  function makeImage(){
+   return new Promise(resolve=>{
+    const c=doc.createElement('canvas');c.width=30;c.height=90;
+    const cx=c.getContext('2d');cx.fillStyle='#392d70';cx.fillRect(0,0,30,90);
+    cx.fillStyle='#efbc61';cx.fillRect(5,15,20,60);
+    c.toBlob(blob=>resolve(new game.File([blob],'vertical.png',{type:'image/png'})),'image/png');
+   });
+  }
+  async function register(title){
+   api().form(0,true);
+   doc.getElementById('name').value=title;
+   doc.getElementById('notes').value='思い出の試験記録';
+   const dt=new game.DataTransfer();dt.items.add(await makeImage());
+   doc.getElementById('photo').files=dt.files;
+   doc.getElementById('save').click();
+   await until(()=>doc.getElementById('offerNo'),'photo offer');
+   doc.getElementById('offerNo').click();
+   await until(()=>doc.getElementById('receiveWork'),'received work');
+   doc.getElementById('receiveWork').click();
+   assert(Boolean(api().state().carrying),'registered photo is carried');
+  }
+  await register('縦写真の試験');
+  api().inspect(0);
+  assert(api().state().works.find(w=>w.title==='縦写真の試験').fixtureId==='frame-0-0','first exhibit linked via fixture ID');
+  await register('交換テスト');
+  api().inspect(0);
+  const swappedFrame=api().state().fixtures.find(f=>f.id==='frame-0-0');
+  assert(swappedFrame.imageScale===1&&swappedFrame.imageX===0&&swappedFrame.imageY===0,'exchange resets photo crop offsets');
+  assert(Boolean(api().state().carrying),'exchange lifts previous work');
+  api().inspect(1);
+  assert(api().state().works.filter(w=>w.fixtureId).length===2,'exchange retains both works');
+  api().inspect(0);
+  doc.getElementById('editNote').click();
+  doc.getElementById('editMemo').value='後から編集した思い出';
+  doc.getElementById('saveMemo').click();
+  assert(api().state().works.some(w=>w.notes==='後から編集した思い出'),'memo changed');
+  doc.getElementById('close').click();
+  api().openEditor();doc.querySelector('[data-room="0"]').click();
+  const editCanvas=doc.getElementById('a18EditCanvas');
+  // World point to canvas CSS for a synthetic pointer; test the same handlers as touch.
+  editCanvas.setPointerCapture=()=>{};
+  let f=api().state().fixtures.find(f=>f.id==='frame-0-0');
+  const ew=editCanvas.clientWidth,eh=editCanvas.clientHeight;
+  const iw=L.ROOM_SIZE[0].w,ih=L.ROOM_SIZE[0].h,z=Math.min(ew/iw,eh/ih)*.95;
+  const sx=(ew-iw*z)/2+f.x*z,sy=(eh-ih*z)/2+f.y*z;
+  const box=editCanvas.getBoundingClientRect();
+  const send=(type,x,y)=>editCanvas.dispatchEvent(new game.PointerEvent(type,{bubbles:true,pointerId:7,clientX:box.left+x,clientY:box.top+y}));
+  send('pointerdown',sx,sy);send('pointerup',sx,sy);
+  assert(!doc.getElementById('a18Details').hidden,'frame-specific edit action visible after selection');
+  assert(doc.getElementById('a18FramePanel').hidden,'advanced frame controls stay collapsed');
+  doc.getElementById('a18Details').click();
+  assert(!doc.getElementById('a18FramePanel').hidden,'frame controls open by request');
+  assert(!doc.getElementById('a18PhotoSection').open,'photo adjustments further collapsed by default');
+  send('pointerdown',sx,sy);send('pointermove',sx+20*z,sy);send('pointerup',sx+20*z,sy);
+  assert(!doc.getElementById('a18Undo').disabled,'drag produces undo history');
+  doc.getElementById('a18Undo').click();doc.getElementById('a18Redo').click();
+  assert(doc.getElementById('a18ShapeHint').textContent.includes('縦型'),'portrait photo receives portrait recommendation');
+  doc.getElementById('a18SuggestShape').click();
+  doc.getElementById('a18Design').value='wood';doc.getElementById('a18Design').dispatchEvent(new game.Event('change',{bubbles:true}));
+  doc.getElementById('a18ImageMode').value='contain';doc.getElementById('a18ImageMode').dispatchEvent(new game.Event('change',{bubbles:true}));
+  send('pointerdown',sx+20*z,sy);send('pointermove',sx+180*z,sy);send('pointerup',sx+180*z,sy);
+  assert(doc.getElementById('a18EditMessage').textContent.includes('戻しました'),'invalid frame drag rolls back');
+  doc.getElementById('a18Save').click();
+  f=api().state().fixtures.find(f=>f.id==='frame-0-0');
+  assert(f.shape==='portrait'&&f.imageMode==='contain'&&f.design==='wood','portrait wooden frame with contain');
+  assert(f.x>100,'drag updates continuous fixture coordinate');
+  // Negative geometry test: overlap two frames deliberately.
+  const invalid=L.defaults();invalid[0].x=invalid[1].x;
+  assert(!L.validatePlacement(invalid,0).ok,'overlap rejected');
+  await sleep(1500);
+  frame.addEventListener('load',()=>{});
+  frame.src='../index.html';
+  await until(()=>api()?.ready()&&api().state().works.length===2&&api().state().avatarGender==='female','restored data');
+  const restored=api().state();
+  assert(restored.works.length===2,'photo records survive reload');
+  assert(restored.fixtures.some(f=>f.kind==='decor'),'decor survives reload');
+  assert(restored.fixtures.find(f=>f.id==='frame-0-0').imageMode==='contain','photo mode survives reload');
+  assert(restored.avatarGender==='female','avatar survives reload');
+  assert(restored.works.some(w=>w.notes==='後から編集した思い出'),'memo survives reload');
+  // Verify the original blob and the viewer with restored images.
+  assert(game.indexedDB!==undefined,'browser indexedDB available');
+  const w=frame.contentWindow;
+  const snap=await w.A18Storage.load();
+  assert(snap.works.every(w=>w.originalBlob&&w.originalBlob.size>0),'original photo blobs preserved');
+  assert(snap.works.every(w=>w.preferredShape==='portrait'),'orientation recommendation survives reload');
+  assert(errors.length===0,'no window errors: '+errors.join(','));
+  out.push('FINAL: ALL TESTS PASS');
+ }catch(e){out.push('FAIL: '+e.stack);try{out.push('URL='+frame.contentWindow.location.href+' loaded='+api()?.ready()+' hint='+frame.contentWindow.document.getElementById('hint')?.textContent+' typeof L='+typeof frame.contentWindow.A18Layout+' storage='+typeof frame.contentWindow.A18Storage.load+' src='+frame.src)}catch(ignore){out.push('DIAGNOSTIC ERROR '+ignore)}out.push('BROWSER ERRORS: '+errors.join(' // '));}
+ document.getElementById('result').textContent=out.join('\n');
+ document.title=out.some(x=>x.startsWith('FAIL'))?'A18 TEST FAILED':'A18 TEST PASSED';
+})();
+</script></html>
