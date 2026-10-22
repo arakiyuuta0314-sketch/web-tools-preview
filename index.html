@@ -1,90 +1,38 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f2f8f3">
-<meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="description" content="開発中のアプリやWeb試作、公開前の操作確認用プレビューをまとめたページです。">
-<title>ゆたのアプリ｜Web版・開発中の作品</title>
-<link rel="stylesheet" href="./app-index.css">
-<script src="./app-index.js" defer></script>
-</head>
-<body><main>
-<header class="hero">
- <div class="eyebrow"><span aria-hidden="true">✦</span> YUTA'S WEB APP STUDIO</div>
- <h1>アプリ開発室</h1>
- <p class="lead">制作中のアプリも、完成に近づいたアプリも。<br>いま試せるWeb版をここにまとめています。</p>
- <div class="hero-meta"><span><strong>5</strong> 作品</span><span><strong>1</strong> 開発中</span><span>スマホ・PCで確認できます</span></div>
-</header>
-<section class="find" aria-label="作品を探す">
- <label for="appSearch">作品を探す</label>
- <div class="search-wrap"><span aria-hidden="true">⌕</span><input type="search" id="appSearch" placeholder="アプリ名や内容で検索" autocomplete="off"></div>
- <span id="searchStatus" class="search-status" aria-live="polite">5作品を表示中</span>
-</section>
-<div id="catalog">
-<section class="group" data-group="developing" aria-labelledby="developing-heading">
- <div class="group-head"><div><h2 id="developing-heading">開発中のアプリ</h2><p>更新しながら操作と機能を確かめているWeb試作です。</p></div><span class="group-count">1作品</span></div>
- <div class="cards">
-<article class="card" data-app-id="a18" data-search="パズル美術館 写真で育てる、自分だけの美術館 完成したジグソーパズルの写真を展示。館内を歩いて作品を登録・鑑賞・入れ替える、美術館型コレクションアプリ。 web試作 v1.4 開発中">
- <a class="card-main" href="./a18/scenes-preview/index.html" aria-label="パズル美術館 — 開発中の最新版を試す">
-  <span class="card-top"><span class="icon-plate" aria-hidden="true">🖼️</span><span class="stage-tag">開発中</span></span>
-  <span class="card-copy"><span class="app-name">パズル美術館</span><span class="app-tagline">写真で育てる、自分だけの美術館</span></span>
-  <span class="app-description">完成したジグソーパズルの写真を展示。館内を歩いて作品を登録・鑑賞・入れ替える、美術館型コレクションアプリ。</span>
-  <span class="card-bottom"><span class="version">Web試作 v1.4</span><span class="open-link">開発中の最新版を試す <span aria-hidden="true">→</span></span></span>
- </a>
- <nav class="other-links" aria-label="パズル美術館の過去版と比較資料"><a href="./a18/index.html">旧50作品版（比較） <span aria-hidden="true">↗</span></a><a href="./a18/art-preview/index.html">美術館の画像素材比較 <span aria-hidden="true">↗</span></a></nav>
-</article></div>
-</section>
-<section class="group" data-group="previews" aria-labelledby="previews-heading">
- <div class="group-head"><div><h2 id="previews-heading">Web版・試遊版</h2><p>作成したアプリをブラウザで試せるプレビューです。</p></div><span class="group-count">4作品</span></div>
- <div class="cards">
-<article class="card" data-app-id="coin-jar" data-search="こつこつ500円貯金 500円貯金をちょっと楽しく 500円玉を入れる・取り出す操作と貯金の記録を、かわいい貯金箱で楽しめるアプリのweb版。 web操作確認版 webプレビュー">
- <a class="card-main" href="./coin-jar/" aria-label="こつこつ500円貯金 — ブラウザで試す">
-  <span class="card-top"><span class="icon-plate" aria-hidden="true">🐷</span><span class="stage-tag">Webプレビュー</span></span>
-  <span class="card-copy"><span class="app-name">こつこつ500円貯金</span><span class="app-tagline">500円貯金をちょっと楽しく</span></span>
-  <span class="app-description">500円玉を入れる・取り出す操作と貯金の記録を、かわいい貯金箱で楽しめるアプリのWeb版。</span>
-  <span class="card-bottom"><span class="version">Web操作確認版</span><span class="open-link">ブラウザで試す <span aria-hidden="true">→</span></span></span>
- </a>
-
-</article>
-
-<article class="card" data-app-id="myprof" data-search="マイプロフ 自分の情報を、取り出しやすく 住所・メールアドレス・学歴・職歴などをカードにまとめ、必要な情報をさっと確認するアプリのweb版。 web操作確認版 webプレビュー">
- <a class="card-main" href="./myprof/" aria-label="マイプロフ — ブラウザで試す">
-  <span class="card-top"><span class="icon-plate" aria-hidden="true">🪪</span><span class="stage-tag">Webプレビュー</span></span>
-  <span class="card-copy"><span class="app-name">マイプロフ</span><span class="app-tagline">自分の情報を、取り出しやすく</span></span>
-  <span class="app-description">住所・メールアドレス・学歴・職歴などをカードにまとめ、必要な情報をさっと確認するアプリのWeb版。</span>
-  <span class="card-bottom"><span class="version">Web操作確認版</span><span class="open-link">ブラウザで試す <span aria-hidden="true">→</span></span></span>
- </a>
-
-</article>
-
-<article class="card" data-app-id="wish-note" data-search="願いを育てる -wish note- 願いを見つめる、小さな時間 好きな風景を眺めながら願いを記録し、静かな時間を過ごすアプリのweb版。 web操作確認版 webプレビュー">
- <a class="card-main" href="./wish-note/" aria-label="願いを育てる -Wish Note- — ブラウザで試す">
-  <span class="card-top"><span class="icon-plate" aria-hidden="true">🌠</span><span class="stage-tag">Webプレビュー</span></span>
-  <span class="card-copy"><span class="app-name">願いを育てる -Wish Note-</span><span class="app-tagline">願いを見つめる、小さな時間</span></span>
-  <span class="app-description">好きな風景を眺めながら願いを記録し、静かな時間を過ごすアプリのWeb版。</span>
-  <span class="card-bottom"><span class="version">Web操作確認版</span><span class="open-link">ブラウザで試す <span aria-hidden="true">→</span></span></span>
- </a>
-
-</article>
-
-<article class="card" data-app-id="flip-fix" data-search="flip &amp; fix market 直して、並べて、ショップを育てる 中古品を修理し、商品を仕入れて販売するショップ経営ゲーム。別のgithub pagesで遊べるweb試遊版。 web試遊版・外部ページ webテスト">
- <a class="card-main" href="https://arakiyuuta0314-sketch.github.io/flip-fix-market-preview/test-v010/?v=162" aria-label="FLIP &amp; FIX Market — ゲームを開く">
-  <span class="card-top"><span class="icon-plate" aria-hidden="true">🔧</span><span class="stage-tag">Webテスト</span></span>
-  <span class="card-copy"><span class="app-name">FLIP &amp; FIX Market</span><span class="app-tagline">直して、並べて、ショップを育てる</span></span>
-  <span class="app-description">中古品を修理し、商品を仕入れて販売するショップ経営ゲーム。別のGitHub Pagesで遊べるWeb試遊版。</span>
-  <span class="card-bottom"><span class="version">Web試遊版・外部ページ</span><span class="open-link">ゲームを開く <span aria-hidden="true">→</span></span></span>
- </a>
-
-</article></div>
-</section></div>
-<p id="noResults" class="no-results" hidden>該当するアプリはありません。別の言葉で検索してください。</p>
-<section class="info" aria-labelledby="about-heading">
- <h2 id="about-heading">このページについて</h2>
- <p>新しいアプリは原則、<strong>Webで試作 → 操作・機能を確認 → iPhoneアプリとして仕上げる</strong>順で開発しています。公開準備中のものや開発途中の版も一覧に加えます。</p>
- <p>このサイトはURLを知っていれば誰でもアクセスできるテスト用サイトです。Appleの課金・AdMob広告・通知など、iPhone固有の機能はWeb版で完全には再現されません。試作中の作品データは端末のブラウザに保存される場合があり、更新や履歴削除で消えることがあります。大切な情報の保管には使用しないでください。</p>
- <p>FLIP &amp; FIX Marketは別のGitHub Pagesサイトで開きます。Web版の公開状況とApp Storeでの公開状況は別です。</p>
-</section>
-<footer><span>© 2026 ゆた｜Webアプリ開発室</span><span>公開中の試作・確認用サイト</span></footer>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#f7faf7">
+<title>アプリ一覧</title>
+<link rel="stylesheet" href="app-index.css">
+</head><body>
+<main><header><h1>アプリ一覧</h1><p>開発中・確認用のWeb版をまとめています。</p></header>
+<nav class="apps" aria-label="アプリ一覧">
+<a class="app" href="./a18/scenes-preview/index.html">
+      <span class="emoji" aria-hidden="true">🖼️</span>
+      <span class="body"><strong>パズル美術館</strong><small>開発中</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+<a class="app" href="./coin-jar/">
+      <span class="emoji" aria-hidden="true">🐷</span>
+      <span class="body"><strong>こつこつ500円貯金</strong><small>Web版</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+<a class="app" href="./myprof/">
+      <span class="emoji" aria-hidden="true">🪪</span>
+      <span class="body"><strong>マイプロフ</strong><small>Web版</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+<a class="app" href="./wish-note/">
+      <span class="emoji" aria-hidden="true">🌠</span>
+      <span class="body"><strong>願いを育てる -Wish Note-</strong><small>Web版</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+<a class="app" href="https://arakiyuuta0314-sketch.github.io/flip-fix-market-preview/test-v010/?v=162">
+      <span class="emoji" aria-hidden="true">🔧</span>
+      <span class="body"><strong>FLIP &amp; FIX Market</strong><small>Web版</small></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+</nav>
+<p class="note">開発用のリンク集です。Web版の今後の扱いは未定です。</p>
 </main></body></html>
