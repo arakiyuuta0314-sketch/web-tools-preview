@@ -1,0 +1,79 @@
+{
+  "version": "v0.7-work-in-progress",
+  "scenes": {
+    "entrance": {
+      "asset": "entrance_base.webp",
+      "size": [
+        546,
+        483
+      ],
+      "spawn": [
+        193,
+        338
+      ],
+      "staff": [
+        190,
+        105
+      ],
+      "door": [
+        414,
+        103
+      ]
+    },
+    "gallery": {
+      "asset": "gallery_base.webp",
+      "size": [
+        589,
+        482
+      ],
+      "spawn": [
+        303,
+        433
+      ],
+      "apertures": [
+        [
+          153,
+          54,
+          208,
+          106
+        ],
+        [
+          265,
+          56,
+          318,
+          108
+        ],
+        [
+          374,
+          55,
+          426,
+          110
+        ]
+      ]
+    }
+  },
+  "character": "curator-front/back/left/right-00..04.png",
+  "staff": "staff-front.png",
+  "limitations": [
+    "Graphics extracted and reconstructed from approved art style references; small reconstruction seams remain",
+    "Frame wood is part of gallery backdrop for this first room, photographs are separate dynamically",
+    "Desk is part of entrance background; receptionist is separate PNG",
+    "This preview is a comparison, not completed 50-item app"
+  ],
+  "extra_assets": {
+    "empty_frame": "assets/props/frame_gold_empty.png",
+    "sofa": "assets/props/sofa_red.png",
+    "lamp": "assets/props/table_lamp.png",
+    "plant": "assets/props/plant.png"
+  },
+  "qa": {
+    "responsive_sizes": [
+      "844x390",
+      "932x430",
+      "1180x700",
+      "390x844"
+    ],
+    "manual_status": "iPhone Safari not yet checked",
+    "preserved": "prior v0.6 and 50-work prototype untouched"
+  }
+}
