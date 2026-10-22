@@ -79,16 +79,17 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
  const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
  if(works.length>=maxWorks){open('作品の登録上限','<p>'+maxWorks+'作品に達しました。別フロアへの増築は今後のアップデートで検討します。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
  open('スタッフ｜作品のお預かり',
- staffPortrait(pick('hello',hellos))+
+ '<div class="registration-intro">'+staffPortrait('新しい作品をお預かりしますね。')+'</div>'+ 
  '<div class="registration-fields">'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：お気に入りの風景"></label>'+
  '<label>完成日（任意：不明なら今日を選択）<input id="date" type="date"></label>'+
- '<div class="date-actions"><button type="button" id="dateClear" class="light">不明として記録</button><button type="button" id="dateToday" class="light">今日に戻す</button></div>'+
+ '<div class="date-actions"><button type="button" id="dateClear" class="light">不明</button><button type="button" id="dateToday" class="light">今日</button></div>'+
  '<label>ピース数（任意）<input id="pieces" type="number" min="1" max="999999"></label>'+
- '<label>備考・思い出（任意）<textarea id="notes" maxlength="3000" rows="4" placeholder="作品にまつわる出来事や思い出を自由に残せます"></textarea></label>'+
+ '<label>備考・思い出（任意）<textarea id="notes" maxlength="3000" rows="2" placeholder="作品にまつわる思い出を自由に残せます"></textarea></label>'+
  '<label>写真<input id="photo" type="file" accept="image/*"></label></div>'+
- '<p class="prep-warn">元の写真はそのまま端末内で保持します。現在は試作版のため、再読み込みで作品が消えます。</p>'+
- '<p id="err" class="error"></p><div class="row"><button id="save">作品を預ける</button><button id="close" class="light">キャンセル</button></div>');
+ '<p class="prep-warn">試作版：再読み込みで作品が消えます。元写真は加工しません。</p>'+
+ '<p id="err" class="error"></p><div class="row registration-actions"><button id="save">作品を預ける</button><button id="close" class="light">キャンセル</button></div>');
+ document.getElementById('dialog').classList.add('registration-compact');
  const today=()=>{
    const d=new Date();
    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
