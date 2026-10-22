@@ -1,5 +1,5 @@
 {
-  "version": "v1.4-portrait-first-development-real-swap",
+  "version": "v1.5-quality-collection-onboarding-rooms",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -104,7 +104,11 @@
     "v13": "Chromium: register, carry through both doorways, place, preserve old work, view original; framed viewer 844x390/932x430; synthetic frame crop detection",
     "v14_portrait": "Chromium 390x844, 375x667, 430x932 landscape 844x390; staff, camera, controls",
     "v14_swap": "Chromium portrait+landscape artwork swap A/B, new work exchange with old painting carried; no deletion",
-    "v14_orientation": "Chromium portrait image and landscape image; auto-fit aspect + orientation mismatch indication + response on device viewport rotation"
+    "v14_orientation": "Chromium portrait image and landscape image; auto-fit aspect + orientation mismatch indication + response on device viewport rotation",
+    "v15_basic": "Chromium iPhone-size390x844 DPR3 and landscape844x390 DPR2: 0 works, name+intro, staff empty list, registration with single date, thumbnail, stored pickup, hanging, high-DPI backing, JS errors none",
+    "v15_extension": "Chromium 4 registered works unlock 2nd room, carry across room doorway, hang global slot3, works preserved",
+    "v15_photo": "Chromium approved automatic tone/crop preview -> receive -> hang -> compare original 1536 px, JS errors none",
+    "v15_limits": "50 real-life photos and iPhone Safari performance not yet verified"
   },
   "viewer": {
     "module": [
@@ -182,5 +186,31 @@
     "occupied_frame": "place held artwork then immediately hold previous artwork",
     "empty_frame": "hang held artwork and release",
     "cancel": "stow held artwork, without deleting it"
+  },
+  "museum_content": {
+    "initial_works": 0,
+    "initial_rooms": 1,
+    "initial_slots": 3,
+    "max_works": 50,
+    "extra_room_capacity": 4,
+    "max_rooms": 13,
+    "unlock": "4th registered work opens 2nd gallery, another gallery every 4 works; last gallery has 3 slots",
+    "status": "prototype logic, 50 real large puzzle photos not yet load-tested"
+  },
+  "photo_display": {
+    "render": "Canvas backing pixel resolution scales by device pixel ratio, up to 3",
+    "fit": "Original aspect ratio maintained in picture frame",
+    "gallery_cache": "Load decoded artwork on demand, cache only current room plus currently held work",
+    "source": "Unmodified photo retained as blob URL in test session, processed output as JPEG data URL"
+  },
+  "registration_ui": {
+    "completed_on": "One optional date field; blank means unknown; Today/Clear buttons",
+    "list": "Photo thumbnail, title, completion date and physical position; stored artworks say 取り出す",
+    "hud": "Museum title outside world; walking controls in bottom strip; action/status in play area"
+  },
+  "opening": {
+    "fresh_install": "Name dialog then brief museum welcome and optional guided introduction; no sample works",
+    "returning_name": "Museum opens empty in web prototype because no persistent collection",
+    "later": "Full story, progression and native storage remain future items"
   }
 }

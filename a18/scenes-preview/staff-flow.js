@@ -46,26 +46,27 @@ function staffDialog({open,close,list,sortDialog,form,scene,carrying}){
  };
  $('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
 }
-function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene}){
+function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50}){
  const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
+ if(works.length>=maxWorks){open('作品の登録上限','<p>50作品に達しました。今後の増築アップデートで上限を拡張する予定です。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
  open('展示室スタッフ｜作品のお預かり',
  '<p class="staff-quote">'+esc(pick('hello',hellos))+'</p>'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：完成したパズル"></label>'+
- '<label>完成日<select id="mode"><option value="unknown">不明</option><option value="known">分かる</option></select></label>'+
- '<label id="dateWrap" hidden>完成日<input id="date" type="date"></label>'+
+ '<label>完成日（任意）<input id="date" type="date" value=""></label>'+
+ '<div class="date-actions"><button type="button" id="dateToday" class="light">今日を設定</button><button type="button" id="dateClear" class="light">クリア（不明）</button></div>'+
  '<label>ピース数（任意）<input id="pieces" type="number" min="1" max="999999"></label>'+
  '<label>写真<input id="photo" type="file" accept="image/*"></label>'+
  '<p class="prep-warn">元の写真はそのまま端末内で保持します。現在は試作版のため、再読み込みで作品が消えます。</p>'+
  '<p id="err" class="error"></p><div class="row"><button id="save">作品を預ける</button><button id="close" class="light">キャンセル</button></div>');
- $('mode').onchange=()=>$('dateWrap').hidden=$('mode').value==='unknown';
+ $('dateToday').onclick=()=>{$('date').value=new Date().toLocaleDateString('sv-SE');};
+ $('dateClear').onclick=()=>{$('date').value='';};
  $('close').onclick=close;
  $('save').onclick=()=>{
   const file=$('photo').files?.[0],name=$('name').value.trim();
-  const complete=$('mode').value==='known'?$('date').value:null;
+  const complete=$('date').value||null;
   if(!name||!file){$('err').textContent='作品名と写真を選んでください';return}
   if(!file.type.startsWith('image/')){$('err').textContent='画像を選択してください';return}
   if(file.size>30*1024*1024){$('err').textContent='30MB以下の画像を選んでください';return}
-  if($('mode').value==='known'&&!complete){$('err').textContent='完成日を入力してください';return}
   const originalURL=URL.createObjectURL(file),image=new Image();
   const entry={title:name,pieces:Number($('pieces').value)||null,complete,
    registered:new Date().toLocaleDateString('sv-SE'),spot:null,image,originalURL};
@@ -87,11 +88,21 @@ function offer(ctx,entry){
 }
 function commit(ctx,entry,canvas){
  const {open,close,works,onRegistered}=ctx;
+ function previewThumb(){
+  const source=canvas||entry.image,w=source.width,h=source.height;
+  const thumb=document.createElement('canvas');thumb.width=176;thumb.height=132;
+  const t=thumb.getContext('2d');t.fillStyle='#e7dcc8';t.fillRect(0,0,176,132);
+  t.imageSmoothingEnabled=true;t.imageSmoothingQuality='high';
+  const scale=Math.min(176/w,132/h);
+  t.drawImage(source,(176-w*scale)/2,(132-h*scale)/2,w*scale,h*scale);
+  return thumb.toDataURL('image/jpeg',.82);
+ }
+ const thumbnail=previewThumb();
  const id='local-'+Date.now()+'-'+Math.floor(Math.random()*100000);
  works.push({id,title:entry.title,pieces:entry.pieces,complete:entry.complete,
-  registered:entry.registered,photo:entry.image,originalURL:entry.originalURL,
-  displayPhoto:canvas||entry.image,displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):null,
-  spot:null,source:null});
+  registered:entry.registered,originalURL:entry.originalURL,
+  displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
+  thumbnail,spot:null,source:null});
  open('展示室スタッフ｜作品のお渡し',
   '<p class="staff-quote">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
@@ -99,7 +110,7 @@ function commit(ctx,entry,canvas){
     '美しく仕上がりました。ぜひ館長ご自身の手で飾ってください。',
     ...doneLines.map(t=>t+' 作品をお渡ししますね。')
   ]))+'</p>'+
-  '<p>作品を持ち上げたまま展示室を歩けます。額縁に近づいて「ここに飾る」を押してください。空いていない額縁の作品は保管庫に移します。</p>'+
+  '<p>作品を受け取ったら好きな額縁まで運んでください。展示中の作品がある場合はその場で入れ替わり、前の作品を館長が持ちます。</p>'+
   '<div class="row"><button id="receiveWork">作品を受け取る</button></div>');
  $('receiveWork').onclick=()=>{close();onRegistered(id);};
 }
