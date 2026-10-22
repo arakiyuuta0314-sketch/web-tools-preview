@@ -1,1 +1,0 @@
-A18 furniture and decor extracted candidates. These are NOT approved for production until visual QA and placement/collision QA. Existing official character sprites remain unchanged. Source sheet included separately in conversation.

@@ -6,12 +6,9 @@
     "folder": "characters"
   },
   "furniture": {
-    "status": "NOT_APPROVED_QA_REJECTED_OR_HOLD",
-    "count": 0,
-    "folder": "furniture",
+    "status": "not_produced",
     "approved_count": 0,
-    "qa_report": "FURNITURE_QA_20261023.json",
-    "candidate_folder": "../../candidates/furniture_v0_2"
-  },
-  "old_paths": "retained until references are migrated"
+    "count": 0,
+    "folder": "furniture"
+  }
 }
