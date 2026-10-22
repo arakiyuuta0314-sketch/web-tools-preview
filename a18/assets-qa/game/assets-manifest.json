@@ -1,0 +1,287 @@
+{
+  "version": "v1.8-frame-collision-audit",
+  "scenes": {
+    "entrance": {
+      "asset": "entrance_base.webp",
+      "size": [
+        546,
+        483
+      ],
+      "spawn": [
+        193,
+        338
+      ],
+      "staff": [
+        190,
+        105
+      ],
+      "door": [
+        414,
+        103
+      ]
+    },
+    "gallery": {
+      "asset": "gallery_clean.png",
+      "size": [
+        589,
+        482
+      ],
+      "spawn": [
+        303,
+        433
+      ],
+      "apertures": [
+        [
+          148,
+          53,
+          216,
+          109
+        ],
+        [
+          258,
+          54,
+          332,
+          110
+        ],
+        [
+          365,
+          53,
+          437,
+          110
+        ]
+      ]
+    }
+  },
+  "character": "curator-front/back/left/right-00..04.png",
+  "staff": {
+    "entrance": [
+      "list",
+      "sort"
+    ],
+    "gallery": [
+      "register",
+      "list",
+      "sort"
+    ]
+  },
+  "limitations": [
+    "Graphics extracted and reconstructed from approved art style references; small reconstruction seams remain",
+    "Frame wood is part of gallery backdrop for this first room, photographs are separate dynamically",
+    "Desk is part of entrance background; receptionist is separate PNG",
+    "This preview is a comparison, not completed 50-item app"
+  ],
+  "extra_assets": {
+    "empty_frame": "assets/props/frame_gold_empty.png",
+    "sofa": "assets/props/sofa_red.png",
+    "lamp": "assets/props/table_lamp.png",
+    "plant": "assets/props/plant.png"
+  },
+  "qa": {
+    "responsive_sizes": [
+      "844x390",
+      "932x430",
+      "1180x700",
+      "390x844"
+    ],
+    "manual_status": "iPhone Safari not yet checked",
+    "preserved": "prior v0.6 and 50-work prototype untouched",
+    "collision_reachability": "All three frames, staff and entry door reachable in Chromium-grid BFS",
+    "browser_view": "Default full-scene aspect-locked fit; switchable zoom",
+    "floating_player": "Cropped precomputed alpha bounding boxes and small foot shadow",
+    "first_run_title": "Defaults to パズル美術館, localStorage only for museum title",
+    "standalone_web_app": "Manifest and Apple meta tags added; iPhone installed mode not verified",
+    "movement_speed": "step12px / repeat65ms; swept in 3px collision substeps",
+    "interaction_hysteresis": "enter range and larger leave range per staff, door, and frame",
+    "extra_obstacles": "foreground gallery balustrade",
+    "tests": "Chromium landscape844x390/932x430, portrait390x844; inspect/lift/swap/photo upload; screenshot reviewed",
+    "photo_residual": "Original baked-in artwork removed from all three frame wells; current photos drawn independently in clipped apertures",
+    "action_proximity": "Frame enter38/leave51, staff enter43/leave58, door enter43/leave57",
+    "high_density": "Synthetic 1536x1152 mosaic generated only in Windows Temp, successfully loaded and zoomed 6.55x",
+    "real_user_photo_privacy": "Actual user-provided puzzle photos NOT published as repo assets",
+    "browser_tests": "Chromium 844x390, 932x430 landscape and 390x844 portrait; pinch 2 pointers, zoom pan navigation, photo upload and existing swap",
+    "staff_flow": "Chromium 844x390,932x430: registration, enhance preview, before/after toggle, replacement confirmation, viewer original toggle; no external requests",
+    "decline_flow": "Direct upload, reject enhancement, confirm replacement and view original",
+    "v13": "Chromium: register, carry through both doorways, place, preserve old work, view original; framed viewer 844x390/932x430; synthetic frame crop detection",
+    "v14_portrait": "Chromium 390x844, 375x667, 430x932 landscape 844x390; staff, camera, controls",
+    "v14_swap": "Chromium portrait+landscape artwork swap A/B, new work exchange with old painting carried; no deletion",
+    "v14_orientation": "Chromium portrait image and landscape image; auto-fit aspect + orientation mismatch indication + response on device viewport rotation",
+    "v15_basic": "Chromium iPhone-size390x844 DPR3 and landscape844x390 DPR2: 0 works, name+intro, staff empty list, registration with single date, thumbnail, stored pickup, hanging, high-DPI backing, JS errors none",
+    "v15_extension": "Chromium 4 registered works unlock 2nd room, carry across room doorway, hang global slot3, works preserved",
+    "v15_photo": "Chromium approved automatic tone/crop preview -> receive -> hang -> compare original 1536 px, JS errors none",
+    "v15_limits": "50 real-life photos and iPhone Safari performance not yet verified",
+    "v16_map": "Chromium iPhone portrait390x844 and landscape844x390: 14 directed door traversals, six rooms, 3+5x5 active frames, initial zero",
+    "v16_rpg": "Chromium: RPG staff greeting, choice menu, entrance registration and gallery registration, handover, carry between rooms, swap occupied entrance frame, exhibit displaced artwork in empty frame and list check",
+    "v17_registration": "Chromium 390x844 DPR3 and 844x390 DPR2: single tap greeting, todays date default, explicit unknown clear, 3000-char memo, automatic finishing offer+compare with separate cards, notes persisted and edited and shown in viewer; zero page errors",
+    "v17_navigation": "Chromium 14/14 directional room transitions accessible with grid navigation",
+    "v17_frames": "Chromium 28/28 exhibition frames approached via collision-aware walk; six distinct layouts",
+    "v18_navigation": "Chromium: 14/14 directed portal transitions and 28/28 frame interaction paths",
+    "v18_staff": "Chromium: six staff prompts accessible, short-motion prompt stable, upper walls blocked without north corridor",
+    "v18_artwork": "Chromium: new photo registered/carried and displayed in entrance #2; screenshot with no generated cream mat"
+  },
+  "viewer": {
+    "module": [
+      "viewer.css",
+      "viewer.js"
+    ],
+    "max_zoom": 10,
+    "features": [
+      "contain without crop",
+      "touch pinch zoom",
+      "drag-pan",
+      "double tap",
+      "wheel",
+      "next/previous",
+      "piece count",
+      "completion date",
+      "registration date"
+    ],
+    "modules": [
+      "viewer.css",
+      "viewer-frame.css",
+      "viewer-orientation.css",
+      "viewer.js"
+    ],
+    "orientation": "Auto-detect source image portrait/landscape and fit correctly; show turn-device hint when mismatched; cannot force iOS Safari to physically rotate"
+  },
+  "photo_preparation": {
+    "modules": [
+      "photo-prep.js",
+      "smart-frame.js",
+      "photo-tone.js",
+      "staff-flow.js"
+    ],
+    "features": [
+      "staff conversational registration",
+      "randomized greetings praise and completion",
+      "opt-in autocrop",
+      "exposure highlights shadows",
+      "conservative neutral white balance",
+      "contrast and saturation",
+      "subtle local clarity",
+      "non-destructive original",
+      "before after",
+      "viewer toggle",
+      "explicit overwrite confirmation"
+    ],
+    "max_long_side": 1800,
+    "format": "processed JPEG copy, source original unchanged",
+    "limitations": [
+      "no AI content generation",
+      "no reliable deglare",
+      "no perspective correction",
+      "border detection is heuristic and confirmation required",
+      "demo data not persistent"
+    ]
+  },
+  "display_mode": "Plain functional test floors, no decorative furnishings",
+  "navigation": {
+    "entrance_to_gallery": "walk into northeast doorway",
+    "gallery_to_entrance": "walk to center-bottom exit",
+    "carry_persists": true
+  },
+  "registration": {
+    "after_processing": "staff hands painting to curator",
+    "placement": "curator carries to chosen frame",
+    "occupied_frame": "previous painting is kept in inventory"
+  },
+  "controls": {
+    "development_default": "portrait",
+    "landscape": "supported for later finishing",
+    "portrait_hud": "separate bottom d-pad/actions",
+    "camera": "follow player horizontally and vertically, no stretching"
+  },
+  "swap": {
+    "occupied_frame": "place held artwork then immediately hold previous artwork",
+    "empty_frame": "hang held artwork and release",
+    "cancel": "stow held artwork, without deleting it"
+  },
+  "museum_content": {
+    "initial_works": 0,
+    "initial_rooms": 1,
+    "initial_slots": 3,
+    "max_works": 50,
+    "extra_room_capacity": 4,
+    "max_rooms": 13,
+    "unlock": "4th registered work opens 2nd gallery, another gallery every 4 works; last gallery has 3 slots",
+    "status": "prototype logic, 50 real large puzzle photos not yet load-tested"
+  },
+  "photo_display": {
+    "render": "Canvas backing pixel resolution scales by device pixel ratio, up to 3",
+    "fit": "Original aspect ratio maintained in picture frame",
+    "gallery_cache": "Load decoded artwork on demand, cache only current room plus currently held work",
+    "source": "Unmodified photo retained as blob URL in test session, processed output as JPEG data URL"
+  },
+  "registration_ui": {
+    "completed_on": "One optional date field; blank means unknown; Today/Clear buttons",
+    "list": "Photo thumbnail, title, completion date and physical position; stored artworks say 取り出す",
+    "hud": "Museum title outside world; walking controls in bottom strip; action/status in play area"
+  },
+  "opening": {
+    "fresh_install": "Name dialog then brief museum welcome and optional guided introduction; no sample works",
+    "returning_name": "Museum opens empty in web prototype because no persistent collection",
+    "later": "Full story, progression and native storage remain future items"
+  },
+  "map_structure": {
+    "stage": "all six areas open for QA; progression remains deferred",
+    "rooms": {
+      "1": "entrance / 3 frames, 2 reserved for last level",
+      "2-6": "five frames per room"
+    },
+    "edges": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        5,
+        6
+      ]
+    ],
+    "traversal": "walk physically into door hitboxes in each area",
+    "global_spots": "0,1,2 for entrance; 3,4 reserved for entrance expansion; 5..29 five per gallery",
+    "active_frame_count": 28,
+    "target_final_frame_count": 30,
+    "growth": "not implemented; all six rooms temporarily accessible for structural QA"
+  },
+  "rpg_dialogue": {
+    "style": "bottom scene overlay with staff portrait, speaker name, dialogue line and choice buttons",
+    "sequence": "approach staff -> welcome -> continue/skip -> choose register/list/sort/leave -> form -> handover dialogue",
+    "gallery_and_entrance_staff": "both accept registration",
+    "form": "direct native form fields; do not turn text fields into typewriter dialog"
+  },
+  "v17_updates": {
+    "rpg_staff_greeting": "tap dialogue pane once; small ▼ タップでつづく, then show choices; remove redundant next/choose buttons",
+    "rpg_photo_review": "offer and compare use separate floating media sheet and bottom RPG-style staff dialogue",
+    "completed_date": "today selected as the default in registration; explicit option to record unknown or reset to today; one date field",
+    "notes": "optional up to 3000 chars; available in registration, original collection object, thumbnail-list preview, inspect, edit, and photo viewer",
+    "room_layouts": "six unique room frame arrangements; floor stands affect collision; all 28 frames accessible",
+    "entrance": "reception desk/staff moved to lower portion, upper gallery line cleared; entrance north doorway repositioned between gold frames",
+    "growth": "still not implemented, 6 rooms open, 28 available frames out of future 30"
+  },
+  "v18_updates": {
+    "thumbnail_gallery": "Filled artwork interior using center cover crop; no cream mat. Viewer continues to retain full photograph.",
+    "geometry": "Wall boundary aligns to rendered gallery wall and has a passable north doorway only where room graph requires it; desks and floor stands block walk consistently.",
+    "interaction": "Wall frames interact from floor-side anchors, floor stands from front edge; reception interaction is at standing location, nearest target; small exit hysteresis.",
+    "phase": "Structural prototype; no level progression, final art, or persistence yet."
+  }
+}

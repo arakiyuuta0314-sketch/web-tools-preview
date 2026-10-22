@@ -1,0 +1,60 @@
+/* v1.4 development portrait-first controls.
+   The map uses a tracked camera in portrait, not a squashed full-room screenshot. */
+@media (orientation:portrait) and (max-width:850px){
+  .rotate{display:none!important}
+  .app{height:100dvh;overflow:hidden}
+  .app header{
+    flex:none;height:88px;display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:42px 22px;
+    grid-template-areas:"brand nav" "status status";
+    column-gap:5px;row-gap:0;
+    padding:5px 10px 6px;
+    align-items:center;
+  }
+  .brand{grid-area:brand;min-width:0;max-width:100%;overflow:hidden}
+  .brand small{display:block;font-size:9px;letter-spacing:.13em}
+  .brand #museumName{font-size:18px;max-width:100%;text-overflow:ellipsis}
+  .status{grid-area:status;min-width:0;text-align:left;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .nav{grid-area:nav;justify-content:flex-end;gap:5px}
+  .nav button{font-size:12px;padding:8px 9px;min-height:35px;white-space:nowrap}
+  #viewMode{display:none}
+  .stage{display:block;position:relative;min-height:0;flex:1;background:#18372f;overflow:hidden}
+  .stage:after{
+    content:"";display:block;position:absolute;left:0;right:0;bottom:0;height:164px;
+    background:#19372f;border-top:2px solid #a58a5c;z-index:1;pointer-events:none;
+  }
+  .stage canvas{
+    box-shadow:none!important;max-width:none!important;max-height:none!important;
+    left:0;top:0;
+  }
+  .stage .tag{display:none}
+  .stage .hint{
+    left:50%;right:auto;transform:translateX(-50%);
+    top:8px;max-width:calc(100% - 18px);
+    font-size:13px;padding:7px 11px;
+    width:max-content;white-space:normal;
+  }
+  .dpad{left:11px;bottom:9px;width:147px;height:147px;gap:3px}
+  .dpad button{font-size:20px;border-width:1.5px}
+  .dpad .label{font-size:13px}
+  .act{right:11px;bottom:34px;max-width:calc(100% - 168px);gap:6px}
+  .act button{min-width:145px;min-height:56px;padding:8px 11px;font-size:17px}
+  .act button.secondary{font-size:13px;min-height:38px}
+  footer{display:none}
+  .overlay{padding:10px}
+  .dialog{max-height:calc(100dvh - 30px);font-size:16px;padding:13px 14px;border-width:3px}
+  .dialog h2{font-size:21px}
+  .dialog button{font-size:16px;min-height:44px}
+  .dialog label{margin-top:8px}
+  .dialog input,.dialog select{font-size:16px}
+  .dialog .prep-choices{bottom:-13px}
+}
+@media (orientation:portrait) and (max-width:370px){
+  .app header{grid-template-rows:39px 22px;height:82px}
+  .brand #museumName{font-size:16px}
+  .nav button{padding:7px;font-size:11px}
+  .dpad{width:138px;height:138px}
+  .act{max-width:calc(100% - 154px)}
+  .act button{min-width:125px;font-size:15px}
+}

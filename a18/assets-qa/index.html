@@ -1,0 +1,41 @@
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A18 実装素材検証</title><style>body{margin:0;background:#eee8dd;color:#283f34;font-family:system-ui,sans-serif}header{padding:18px 16px;background:#213f34;color:#fff}h1{font-size:20px;margin:0}p{font-size:12px}h2{font-size:17px;margin:14px 12px 7px}.museum{aspect-ratio:546/483;position:relative;background:linear-gradient(to bottom,#bba58c 0 38%,#dfd4bf 38% 100%);margin:10px;border:8px solid #937c62;overflow:hidden}.museum:after{content:'';position:absolute;inset:38% 0 0;background:repeating-linear-gradient(90deg,transparent 0 15%,#b9b39e 15.1% 15.3%)}.museum img{position:absolute;object-fit:contain;z-index:2}.museum span{position:absolute;z-index:3;color:white;font-size:10px;text-shadow:0 1px 3px #222}.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:8px}.tile{background:#fff9ec;border:1px solid #cbbca1;text-align:center;border-radius:6px;min-height:107px}.tile img{height:79px;width:92%;object-fit:contain;image-rendering:auto}.tile small{font-size:9px;display:block;overflow-wrap:anywhere}.portraits{display:flex;justify-content:space-around;gap:12px;padding:8px}.portrait{width:44%;text-align:center;background:#fff9ec}.portrait img{width:100%;height:140px;object-fit:contain}.note{padding:0 12px}</style></head><body>
+<header><h1>A18 パズル美術館｜素材実装QA</h1><p>実PNGの縮小表示と館内配置の参考。元ゲーム本体とは別の検証画面。</p></header><section style="padding:12px"><h2>女性館長・4方向歩行アニメーション</h2><div style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:6px"><div style="border:1px solid #baa98d;background:#fff9ef;border-radius:8px;padding:8px"><img src="walk_front.gif" style="height:100px;max-width:100%;image-rendering:auto"><small style="display:block">前</small></div><div style="border:1px solid #baa98d;background:#fff9ef;border-radius:8px;padding:8px"><img src="walk_back.gif" style="height:100px;max-width:100%;image-rendering:auto"><small style="display:block">後</small></div><div style="border:1px solid #baa98d;background:#fff9ef;border-radius:8px;padding:8px"><img src="walk_left.gif" style="height:100px;max-width:100%;image-rendering:auto"><small style="display:block">左</small></div><div style="border:1px solid #baa98d;background:#fff9ef;border-radius:8px;padding:8px"><img src="walk_right.gif" style="height:100px;max-width:100%;image-rendering:auto"><small style="display:block">右</small></div></div><p style="font-size:12px">実際の操作テストは <a href="./game/index.html">ゲーム内歩行テストを開く</a> から確認できます。</p></section>
+<h2>美術館内での見え方（縮小参考）</h2><div class="museum">
+<img src="props/frame_gold_landscape.png" style="left:10%;top:9%;width:27%;height:27%">
+<img src="props/frame_gold_portrait.png" style="left:43%;top:6%;width:18%;height:31%">
+<img src="props/frame_wood_square.png" style="left:72%;top:6%;width:19%;height:28%">
+<img src="props/sofa_red.png" style="left:28%;top:58%;width:31%;height:30%">
+<img src="props/potted_plant.png" style="left:8%;top:48%;width:15%;height:35%">
+<img src="props/rope_barrier.png" style="left:72%;top:69%;width:25%;height:22%">
+<img src="staff_female/stand.png" style="left:20%;top:41%;width:8%;height:20%">
+<img src="butler/stand.png" style="left:82%;top:40%;width:8%;height:20%">
+<img src="curator_female/front_00.png" style="left:52%;top:67%;width:9%;height:18%">
+</div><h2>会話ポートレート</h2><div class="portraits">
+<div class="portrait"><img src="staff_female/portrait.png" alt="女性スタッフ"><b>女性スタッフ</b></div>
+<div class="portrait"><img src="butler/portrait.png" alt="爺や"><b>爺や</b></div>
+</div><h2>家具・額縁・装飾 24点</h2><div class="tiles">
+<div class="tile"><img src="props/bench.png" alt="bench"><small>bench</small></div>
+<div class="tile"><img src="props/column.png" alt="column"><small>column</small></div>
+<div class="tile"><img src="props/easel_wood.png" alt="easel_wood"><small>easel_wood</small></div>
+<div class="tile"><img src="props/floor_lamp.png" alt="floor_lamp"><small>floor_lamp</small></div>
+<div class="tile"><img src="props/flower_vase.png" alt="flower_vase"><small>flower_vase</small></div>
+<div class="tile"><img src="props/frame_gold_landscape.png" alt="frame_gold_landscape"><small>frame_gold_landscape</small></div>
+<div class="tile"><img src="props/frame_gold_portrait.png" alt="frame_gold_portrait"><small>frame_gold_portrait</small></div>
+<div class="tile"><img src="props/frame_gold_square.png" alt="frame_gold_square"><small>frame_gold_square</small></div>
+<div class="tile"><img src="props/frame_wood_landscape.png" alt="frame_wood_landscape"><small>frame_wood_landscape</small></div>
+<div class="tile"><img src="props/frame_wood_portrait.png" alt="frame_wood_portrait"><small>frame_wood_portrait</small></div>
+<div class="tile"><img src="props/frame_wood_square.png" alt="frame_wood_square"><small>frame_wood_square</small></div>
+<div class="tile"><img src="props/grandfather_clock.png" alt="grandfather_clock"><small>grandfather_clock</small></div>
+<div class="tile"><img src="props/information_sign.png" alt="information_sign"><small>information_sign</small></div>
+<div class="tile"><img src="props/pedestal_round.png" alt="pedestal_round"><small>pedestal_round</small></div>
+<div class="tile"><img src="props/pedestal_square.png" alt="pedestal_square"><small>pedestal_square</small></div>
+<div class="tile"><img src="props/potted_plant.png" alt="potted_plant"><small>potted_plant</small></div>
+<div class="tile"><img src="props/rope_barrier.png" alt="rope_barrier"><small>rope_barrier</small></div>
+<div class="tile"><img src="props/round_table.png" alt="round_table"><small>round_table</small></div>
+<div class="tile"><img src="props/rug_red.png" alt="rug_red"><small>rug_red</small></div>
+<div class="tile"><img src="props/sofa_red.png" alt="sofa_red"><small>sofa_red</small></div>
+<div class="tile"><img src="props/statue_bust.png" alt="statue_bust"><small>statue_bust</small></div>
+<div class="tile"><img src="props/stool.png" alt="stool"><small>stool</small></div>
+<div class="tile"><img src="props/tapestry.png" alt="tapestry"><small>tapestry</small></div>
+<div class="tile"><img src="props/wood_cabinet.png" alt="wood_cabinet"><small>wood_cabinet</small></div>
+</div><p class="note">この一覧は画像透過と視認性のQA専用。自由配置・当たり判定・作品表示枠の寸法確定は別工程です。</p></body></html>

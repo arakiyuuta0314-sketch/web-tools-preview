@@ -1,0 +1,893 @@
+{
+  "version": "candidate_v1.1",
+  "source_branch": "main read only; QA runtime cloned into Windows Temp",
+  "file_count": 48,
+  "female_curator_frames": 20,
+  "npc_png": 4,
+  "props_png": 24,
+  "status": {
+    "character_asset_png": "pass",
+    "female_walk_browser": "passed - four directions, 2 steps each",
+    "npc_browser": "passed - static stand and portraits loaded at mobile viewport",
+    "props_browser": "passed - 24 PNG render, alpha visibility review, no browser image failures",
+    "iphone12_physical": "not tested",
+    "fixture_placement_collision": "not implemented; structure thread required"
+  },
+  "items": [
+    {
+      "path": "butler/portrait.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        39,
+        12,
+        216,
+        230
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "b9ed143578c9adb972cf5c99de0fcee57a9a308b036230225a27451979865025",
+      "placement": "npc",
+      "anchor_norm": [
+        0.498,
+        0.8984
+      ]
+    },
+    {
+      "path": "butler/stand.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        14,
+        4,
+        45,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "72c792a1cb7c4a418c6974fe22441243c342df5186216dead8df294e7f73c67a",
+      "placement": "npc",
+      "anchor_norm": [
+        0.4917,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/back_00.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        9,
+        5,
+        51,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "fcb33c16aa7c3ee61043ea63adaa3f18394bcf9c5f0864b95a39c5acd057d404",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/back_01.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        9,
+        5,
+        51,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "c915f465b62ff309813a59a645c1c3d6bb2f209baaf603a087a57d9d3d445e57",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/back_02.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        9,
+        5,
+        50,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "c7dfadf94c342e9eca38a6af261ff2ef0781b98ec90c7c9537b8ccd1f8c900cb",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/back_03.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        8,
+        5,
+        51,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "2f039cadaeadb5979f6cef687f122b5b1d203e9061ff837399c10df70eee6400",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/back_04.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        9,
+        5,
+        51,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "e4de88287ac02d1a0da17443a9740d94361ebe0a85d6ffcdaadb20db0446fa80",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/front_00.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "9cf2cd588b6f781f6d9d5b4f5bcbec6ef2707d3f8322880ca49efb5643e426ed",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/front_01.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        6,
+        5,
+        53,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "3a19c1cab0fb4f7ae2d9e0c1bea11af3edf21b3e8c4e6aa28b6125e0fa44dee6",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/front_02.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        6,
+        5,
+        54,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "ee30f52b7d4d9cb9d7a48257c795970ea72ea8b719ac420d5aff429adf577497",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/front_03.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        6,
+        6,
+        54,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "fc3bd5ac3878c4a7094f0c763f1c891044faee5b1dd8cdb2608f06b7ede4b7ff",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/front_04.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        6,
+        5,
+        54,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "3a14b385c5384dc252624c9f44dd4ae9865e7344f159330811eea83ffce41cb4",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/left_00.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        8,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "11173b2d805242121552540c61d5e94dbcfe0c95b91576bdfaa8b7269c73e3cd",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/left_01.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "648ebb7a8fddbee97cd73c2ee95445cca9a8d81badf3ff22a6633db9c87bd39c",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/left_02.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "3dfaea618c4b345db2d9f3d7483348d6eed3a1ccb518905f1b4b02bdab43b09b",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/left_03.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "e3a899e8bc8a0ac2e43e41ae570a9cf8389ba6d6fd8e33ad256792ae778267c9",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/left_04.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        8,
+        5,
+        51,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "deb2a82c63d1aabf42e58d59626852d7e477e3bb99f191137f4db8c310132060",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/right_00.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        8,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "eac98f94e4d4c2fccca2af34d7da670994a0e46d23d654f9e883ffa269afda98",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/right_01.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "63830ec5a042d85236190471e8204d68b250027120e2c0f99dc4be39ce59bc30",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/right_02.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "1f5b9964790e31a15b0e876fb115fd04c8f35a0ae6d003df898118ca81d15f40",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "curator_female/right_03.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        6,
+        7,
+        54,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "dbe6da80c7fc395e091d91daa8bec511e5c80c0b953eeeb4c7ab78b685330053",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    },
+    {
+      "path": "curator_female/right_04.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        7,
+        5,
+        52,
+        72
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "0b73a9309d921f7f7a06c2eb03546586b3fe524278e277d1b388b4b459b38e74",
+      "placement": "avatar",
+      "anchor_norm": [
+        0.4917,
+        0.9351
+      ]
+    },
+    {
+      "path": "props/bench.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        26,
+        155,
+        228,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "f5bb7f45b6073c690857975247891571fdb48029584d52204ed8dec02afddfef",
+      "placement": "floor",
+      "anchor_norm": [
+        0.4961,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/column.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        82,
+        55,
+        174,
+        234
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "eba4610b0849ea7500e274b296578f8f28651eb12e2f83757178077a87b27d3d",
+      "placement": "floor",
+      "anchor_norm": [
+        0.5,
+        0.9141
+      ]
+    },
+    {
+      "path": "props/easel_wood.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        52,
+        37,
+        205,
+        237
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "388af2bf5fea1621efbcc016e7c500090ad1ecb40eb595566d2deda2f4c63d09",
+      "placement": "floor",
+      "anchor_norm": [
+        0.502,
+        0.9258
+      ]
+    },
+    {
+      "path": "props/floor_lamp.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        61,
+        37,
+        195,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "c87669c297d356c60cefb293dcf658372f10dedffcf8b9b13ff5471e78f8d2dd",
+      "placement": "ceiling_or_floor",
+      "anchor_norm": [
+        0.5,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/flower_vase.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        75,
+        61,
+        186,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "3bf27b7a8e59132b4235fc7cc15a9ce4ad332d6feded28ff832d6d5313a4a5a1",
+      "placement": "floor",
+      "anchor_norm": [
+        0.5098,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/frame_gold_landscape.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        20,
+        57,
+        237,
+        200
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "ef04ef5ee0ea25374c135c62428e384b85710e4ee2f39b28f4c872424bf030a3",
+      "placement": "wall",
+      "anchor_norm": [
+        0.502,
+        0.7812
+      ]
+    },
+    {
+      "path": "props/frame_gold_portrait.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        63,
+        18,
+        194,
+        239
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "89b3443c4ebdb5cec8fb63c3b4cdac97d395f8555ab3f39eae68ca0f3cb9ee57",
+      "placement": "wall",
+      "anchor_norm": [
+        0.502,
+        0.9336
+      ]
+    },
+    {
+      "path": "props/frame_gold_square.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        31,
+        31,
+        226,
+        226
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "1690212a37a4409554e7775cb8d708758cbe8989ea07260948044ce037093966",
+      "placement": "wall",
+      "anchor_norm": [
+        0.502,
+        0.8828
+      ]
+    },
+    {
+      "path": "props/frame_wood_landscape.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        20,
+        57,
+        237,
+        200
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "8eaaf33d372298cc78d7f715a4e1de5050696f0322196e9c1aa01aa039736a86",
+      "placement": "wall",
+      "anchor_norm": [
+        0.502,
+        0.7812
+      ]
+    },
+    {
+      "path": "props/frame_wood_portrait.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        63,
+        18,
+        194,
+        239
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "8d8225a88229dc5c2256c17156b04e6b960e785abc44ec0cdfa3abb32376564d",
+      "placement": "wall",
+      "anchor_norm": [
+        0.502,
+        0.9336
+      ]
+    },
+    {
+      "path": "props/frame_wood_square.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        31,
+        31,
+        226,
+        226
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "262d8255fcb8af691b5951b3aded22809ef9356b95d6faf088804dfbe0c4a29a",
+      "placement": "wall",
+      "anchor_norm": [
+        0.502,
+        0.8828
+      ]
+    },
+    {
+      "path": "props/grandfather_clock.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        87,
+        38,
+        170,
+        234
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "2d4ebe2b481b85e9526cb18c110ee37c9e032b66c707bf0f992263f7ed34beff",
+      "placement": "floor",
+      "anchor_norm": [
+        0.502,
+        0.9141
+      ]
+    },
+    {
+      "path": "props/information_sign.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        49,
+        40,
+        199,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "832e42b9db0732c19b7a419a568e67837f87f0eff2f8a10b3f74eb3c1ef5bb21",
+      "placement": "floor",
+      "anchor_norm": [
+        0.4844,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/pedestal_round.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        70,
+        39,
+        184,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "f52cc0348fc0804e08faec2e884d38be7a71f01135316393ce9f3e7b4c7eeaea",
+      "placement": "floor",
+      "anchor_norm": [
+        0.4961,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/pedestal_square.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        47,
+        68,
+        210,
+        237
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "d62435eed4dd42785d2b8079fc3f2b7af43e45bad134e0ed750161cdbd877c42",
+      "placement": "floor",
+      "anchor_norm": [
+        0.502,
+        0.9258
+      ]
+    },
+    {
+      "path": "props/potted_plant.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        20,
+        50,
+        237,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "1eb75d7bd5f25a343280c1dee9730468bb7903c819ed2ae538afeb5e8e0c4ffe",
+      "placement": "floor",
+      "anchor_norm": [
+        0.502,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/rope_barrier.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        20,
+        67,
+        235,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "73d888cdaf2b12216a0346506bfe50f3aee78d8237ef61a93270030893c8a8e3",
+      "placement": "floor",
+      "anchor_norm": [
+        0.498,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/round_table.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        24,
+        51,
+        233,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "e8ce7f4374831d8f7a33ecd1c000b1fdec6620200eaf663103c6b005b5435a08",
+      "placement": "floor",
+      "anchor_norm": [
+        0.502,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/rug_red.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        21,
+        129,
+        236,
+        237
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "af8ce98740ffcc9bd0c8e4ea84fd7081ae090cff8aeb05e9a47bc2769d3707e0",
+      "placement": "floor_flat",
+      "anchor_norm": [
+        0.502,
+        0.9258
+      ]
+    },
+    {
+      "path": "props/sofa_red.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        23,
+        128,
+        232,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "ee5c6098dc5671a556c893639dfe86233ebcd566cf19cf490dbc199112be0790",
+      "placement": "floor",
+      "anchor_norm": [
+        0.498,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/statue_bust.png",
+      "width": 81,
+      "height": 143,
+      "alpha_bbox": [
+        6,
+        4,
+        72,
+        105
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "3f5f8d5b41b37c02d3f27f906160cb209a984fe839683cc3318d81fc453ce495",
+      "placement": "floor",
+      "anchor_norm": [
+        0.4815,
+        0.7343
+      ]
+    },
+    {
+      "path": "props/stool.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        48,
+        55,
+        209,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "d245ac50cfdac7c96742aadbd5052185a6a9c01aa79ddc7237ceee439dbe4335",
+      "placement": "floor",
+      "anchor_norm": [
+        0.502,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/tapestry.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        98,
+        76,
+        237,
+        238
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "d51a5354ff5a51f96833e2df8bb8ff381a6a55d9a95c48f629b7f98dd26faba1",
+      "placement": "floor",
+      "anchor_norm": [
+        0.6543,
+        0.9297
+      ]
+    },
+    {
+      "path": "props/wood_cabinet.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        38,
+        44,
+        223,
+        237
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "f1afdec324594f98a4af2bc92a2943379082880619d78e8d4eee149e31b1763b",
+      "placement": "floor",
+      "anchor_norm": [
+        0.5098,
+        0.9258
+      ]
+    },
+    {
+      "path": "staff_female/portrait.png",
+      "width": 256,
+      "height": 256,
+      "alpha_bbox": [
+        58,
+        15,
+        197,
+        164
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "3448c13159668b630ee2e4a08b027fc3ad7decffc0765c5f9ec07aef7515f00a",
+      "placement": "npc",
+      "anchor_norm": [
+        0.498,
+        0.6406
+      ]
+    },
+    {
+      "path": "staff_female/stand.png",
+      "width": 60,
+      "height": 77,
+      "alpha_bbox": [
+        13,
+        4,
+        47,
+        73
+      ],
+      "alpha_corners_zero": true,
+      "sha256": "bd2efd751a3c6154115b8db4b59aaec53bdd41ef05a7d7671542643ea6523101",
+      "placement": "npc",
+      "anchor_norm": [
+        0.5,
+        0.9481
+      ]
+    }
+  ],
+  "qa": {
+    "engine": "Chrome headless, 390x844 DPR3",
+    "walk_dirs": [
+      "up",
+      "down",
+      "left",
+      "right"
+    ],
+    "images_loaded": 35,
+    "web_page_errors": 0
+  }
+}
