@@ -1,0 +1,299 @@
+{
+  "total": 24,
+  "approved": 0,
+  "rejected": 12,
+  "hold": 12,
+  "assets": [
+    {
+      "id": "bench",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "脚の下に市松模様が残存",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        156,
+        60
+      ]
+    },
+    {
+      "id": "cabinet",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "脚元に市松模様が残存",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        109,
+        119
+      ]
+    },
+    {
+      "id": "carpet",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        135,
+        87
+      ]
+    },
+    {
+      "id": "chandelier",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        71,
+        96
+      ]
+    },
+    {
+      "id": "clock",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        62,
+        122
+      ]
+    },
+    {
+      "id": "column",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        41,
+        128
+      ]
+    },
+    {
+      "id": "door",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "下に文字状の断片が残存",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        106,
+        131
+      ]
+    },
+    {
+      "id": "easel",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        67,
+        98
+      ]
+    },
+    {
+      "id": "floor_tile",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "下に不要な点が残存",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        118,
+        124
+      ]
+    },
+    {
+      "id": "frame_landscape",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "作品画像が額内に焼き込まれており写真差し替え不可",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        115,
+        74
+      ]
+    },
+    {
+      "id": "frame_portrait",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "作品画像が額内に焼き込まれており写真差し替え不可",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        80,
+        97
+      ]
+    },
+    {
+      "id": "frame_square",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "中央に記号が残り写真表示領域未分離",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        89,
+        94
+      ]
+    },
+    {
+      "id": "pedestal",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        63,
+        98
+      ]
+    },
+    {
+      "id": "plant",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        86,
+        95
+      ]
+    },
+    {
+      "id": "rope_barrier",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        117,
+        98
+      ]
+    },
+    {
+      "id": "sculpture",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "左側に別オブジェクトの燭台が混入",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        96,
+        100
+      ]
+    },
+    {
+      "id": "signboard",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        79,
+        118
+      ]
+    },
+    {
+      "id": "sofa",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "脚元に市松模様が残存",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        174,
+        94
+      ]
+    },
+    {
+      "id": "stool",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        76,
+        112
+      ]
+    },
+    {
+      "id": "table",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        90,
+        92
+      ]
+    },
+    {
+      "id": "tapestry",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "左端に別画像の破片が混入",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        95,
+        127
+      ]
+    },
+    {
+      "id": "vase",
+      "status": "HOLD_NEEDS_VISUAL_AND_GAME_QA",
+      "issues": [
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        80,
+        98
+      ]
+    },
+    {
+      "id": "wall_panel",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "左端に別画像の破片が混入",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        176,
+        111
+      ]
+    },
+    {
+      "id": "window",
+      "status": "REJECTED_NEEDS_REWORK",
+      "issues": [
+        "下端に不要な点が残存",
+        "切り出し境界に不透明画素が多く、欠け・残骸の再確認が必要",
+        "実際のゲーム表示と接地・当たり判定は未検証"
+      ],
+      "size": [
+        69,
+        124
+      ]
+    }
+  ],
+  "candidate_folder": "a18/scenes-preview/assets/candidates/furniture_v0_2"
+}

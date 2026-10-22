@@ -6,9 +6,12 @@
     "folder": "characters"
   },
   "furniture": {
-    "status": "candidate_pending_visual_and_collision_QA",
-    "count": 24,
-    "folder": "furniture"
+    "status": "NOT_APPROVED_QA_REJECTED_OR_HOLD",
+    "count": 0,
+    "folder": "furniture",
+    "approved_count": 0,
+    "qa_report": "FURNITURE_QA_20261023.json",
+    "candidate_folder": "../../candidates/furniture_v0_2"
   },
   "old_paths": "retained until references are migrated"
 }

@@ -1,0 +1,410 @@
+[
+  {
+    "id": "bench",
+    "dimensions": [
+      156,
+      60
+    ],
+    "bbox": [
+      0,
+      0,
+      156,
+      60
+    ],
+    "edge_alpha_fraction": 0.051,
+    "partial_alpha_fraction": 0.146,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "cabinet",
+    "dimensions": [
+      109,
+      119
+    ],
+    "bbox": [
+      0,
+      0,
+      109,
+      99
+    ],
+    "edge_alpha_fraction": 0.283,
+    "partial_alpha_fraction": 0.059,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "carpet",
+    "dimensions": [
+      135,
+      87
+    ],
+    "bbox": [
+      0,
+      0,
+      135,
+      87
+    ],
+    "edge_alpha_fraction": 0.3,
+    "partial_alpha_fraction": 0.052,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "chandelier",
+    "dimensions": [
+      71,
+      96
+    ],
+    "bbox": [
+      0,
+      0,
+      71,
+      96
+    ],
+    "edge_alpha_fraction": 0.039,
+    "partial_alpha_fraction": 0.117,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "clock",
+    "dimensions": [
+      62,
+      122
+    ],
+    "bbox": [
+      0,
+      0,
+      62,
+      108
+    ],
+    "edge_alpha_fraction": 0.147,
+    "partial_alpha_fraction": 0.074,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "column",
+    "dimensions": [
+      41,
+      128
+    ],
+    "bbox": [
+      0,
+      0,
+      41,
+      104
+    ],
+    "edge_alpha_fraction": 0.417,
+    "partial_alpha_fraction": 0.053,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "door",
+    "dimensions": [
+      106,
+      131
+    ],
+    "bbox": [
+      0,
+      0,
+      106,
+      121
+    ],
+    "edge_alpha_fraction": 0.238,
+    "partial_alpha_fraction": 0.051,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "easel",
+    "dimensions": [
+      67,
+      98
+    ],
+    "bbox": [
+      0,
+      0,
+      67,
+      98
+    ],
+    "edge_alpha_fraction": 0.088,
+    "partial_alpha_fraction": 0.093,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "floor_tile",
+    "dimensions": [
+      118,
+      124
+    ],
+    "bbox": [
+      0,
+      0,
+      118,
+      114
+    ],
+    "edge_alpha_fraction": 0.238,
+    "partial_alpha_fraction": 0.044,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "frame_landscape",
+    "dimensions": [
+      115,
+      74
+    ],
+    "bbox": [
+      0,
+      0,
+      115,
+      74
+    ],
+    "edge_alpha_fraction": 0.159,
+    "partial_alpha_fraction": 0.075,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "frame_portrait",
+    "dimensions": [
+      80,
+      97
+    ],
+    "bbox": [
+      0,
+      0,
+      80,
+      97
+    ],
+    "edge_alpha_fraction": 0.037,
+    "partial_alpha_fraction": 0.088,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "frame_square",
+    "dimensions": [
+      89,
+      94
+    ],
+    "bbox": [
+      0,
+      0,
+      89,
+      94
+    ],
+    "edge_alpha_fraction": 0.0,
+    "partial_alpha_fraction": 0.082,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "pedestal",
+    "dimensions": [
+      63,
+      98
+    ],
+    "bbox": [
+      0,
+      0,
+      63,
+      98
+    ],
+    "edge_alpha_fraction": 0.068,
+    "partial_alpha_fraction": 0.087,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "plant",
+    "dimensions": [
+      86,
+      95
+    ],
+    "bbox": [
+      0,
+      0,
+      86,
+      95
+    ],
+    "edge_alpha_fraction": 0.066,
+    "partial_alpha_fraction": 0.098,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "rope_barrier",
+    "dimensions": [
+      117,
+      98
+    ],
+    "bbox": [
+      0,
+      0,
+      117,
+      98
+    ],
+    "edge_alpha_fraction": 0.044,
+    "partial_alpha_fraction": 0.103,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "sculpture",
+    "dimensions": [
+      96,
+      100
+    ],
+    "bbox": [
+      0,
+      0,
+      96,
+      100
+    ],
+    "edge_alpha_fraction": 0.12,
+    "partial_alpha_fraction": 0.075,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "signboard",
+    "dimensions": [
+      79,
+      118
+    ],
+    "bbox": [
+      0,
+      0,
+      79,
+      99
+    ],
+    "edge_alpha_fraction": 0.424,
+    "partial_alpha_fraction": 0.064,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "sofa",
+    "dimensions": [
+      174,
+      94
+    ],
+    "bbox": [
+      0,
+      0,
+      174,
+      94
+    ],
+    "edge_alpha_fraction": 0.06,
+    "partial_alpha_fraction": 0.078,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "stool",
+    "dimensions": [
+      76,
+      112
+    ],
+    "bbox": [
+      0,
+      0,
+      76,
+      88
+    ],
+    "edge_alpha_fraction": 0.162,
+    "partial_alpha_fraction": 0.079,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "table",
+    "dimensions": [
+      90,
+      92
+    ],
+    "bbox": [
+      0,
+      0,
+      90,
+      92
+    ],
+    "edge_alpha_fraction": 0.104,
+    "partial_alpha_fraction": 0.107,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "tapestry",
+    "dimensions": [
+      95,
+      127
+    ],
+    "bbox": [
+      0,
+      0,
+      95,
+      109
+    ],
+    "edge_alpha_fraction": 0.225,
+    "partial_alpha_fraction": 0.048,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "vase",
+    "dimensions": [
+      80,
+      98
+    ],
+    "bbox": [
+      0,
+      0,
+      80,
+      98
+    ],
+    "edge_alpha_fraction": 0.076,
+    "partial_alpha_fraction": 0.089,
+    "bottom_contact": true,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "wall_panel",
+    "dimensions": [
+      176,
+      111
+    ],
+    "bbox": [
+      0,
+      0,
+      176,
+      99
+    ],
+    "edge_alpha_fraction": 0.373,
+    "partial_alpha_fraction": 0.039,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  },
+  {
+    "id": "window",
+    "dimensions": [
+      69,
+      124
+    ],
+    "bbox": [
+      0,
+      0,
+      69,
+      114
+    ],
+    "edge_alpha_fraction": 0.137,
+    "partial_alpha_fraction": 0.063,
+    "bottom_contact": false,
+    "status": "PENDING_VISUAL_QA"
+  }
+]
