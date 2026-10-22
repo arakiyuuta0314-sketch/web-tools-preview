@@ -7,7 +7,6 @@ const EDGES={
  entrance:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:501,x2:522,y1:345,y2:417},north:{x1:345,x2:383,y1:101,y2:118}},
  gallery:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},north:{x1:345,x2:385,y1:101,y2:118},south:{x1:265,x2:329,y1:452,y2:471}}
 };
-const routeName=(room)=>NAMES[room];
 function validateGraph(links){
  if(Object.keys(links).length!==6)throw Error('館内の部屋数が一致しません');
  for(let room=0;room<6;room++){
@@ -37,21 +36,11 @@ function arch(ctx,x,y,w,h){
  ctx.strokeStyle='#be9c67';ctx.lineWidth=2;
  ctx.strokeRect(x-5,y-5,w+10,h+10);
 }
-function label(ctx,txt,x,y,maxW){
- const size=txt.length>=7?11:12;
- ctx.font='bold '+size+'px system-ui,sans-serif';
- const measured=ctx.measureText(txt).width;
- const w=Math.min(maxW,measured+16);
- ctx.fillStyle='#17372d';ctx.fillRect(x-w/2,y-15,w,22);
- ctx.strokeStyle='#d6b678';ctx.lineWidth=1;ctx.strokeRect(x-w/2+.5,y-14.5,w-1,21);
- ctx.fillStyle='#fff2cf';ctx.textAlign='center';ctx.fillText(txt,x,y+1);
-}
 function drawDoors(ctx,{room,scene,width,height,wallFoot,links}){
  const passages=links[room];
  // Path textures are visual guidance, never a new invisible collision wall.
- for(const [edge,target] of Object.entries(passages)){
+ for(const edge of Object.keys(passages)){
   const rect=EDGES[scene][edge];
-  const txt=routeName(target);
   if(edge==='north'){
    const cx=(rect.x1+rect.x2)/2;
    // The real movement strip is x≈349..382 and the portal triggers at y=101..118.
@@ -60,14 +49,12 @@ function drawDoors(ctx,{room,scene,width,height,wallFoot,links}){
    arch(ctx,cx-23,78,46,70);
    ctx.fillStyle='#364e42';ctx.fillRect(cx-15,117,30,31);
    drawArrow(ctx,'north',cx,105);
-   label(ctx,txt,cx,wallFoot+42,130);
   }else if(edge==='south'){
    const cx=(rect.x1+rect.x2)/2;
    ctx.fillStyle='#d1bd99';ctx.fillRect(cx-35,height-58,70,53);
    ctx.fillStyle='#bea276';ctx.fillRect(cx-35,height-34,70,4);
    arch(ctx,cx-34,height-19,68,35);
    drawArrow(ctx,'south',cx,height-5);
-   label(ctx,txt,cx,height-63,144);
   }else{
    const left=edge==='west';
    const start=left?17:width-61;
@@ -76,8 +63,6 @@ function drawDoors(ctx,{room,scene,width,height,wallFoot,links}){
    ctx.fillStyle='#cbb28e';ctx.fillRect(left?33:width-93,cy+14,60,5);
    arch(ctx,start,rect.y1-9,44,rect.y2-rect.y1+18);
    drawArrow(ctx,edge,left?38:width-38,cy);
-   const labelX=left?109:width-109;
-   label(ctx,txt,labelX,rect.y1-12,125);
   }
  }
 }
@@ -90,7 +75,7 @@ function mapHTML(room){
  }
  return '<p class="a18-map-lead">扉に向かって歩くと、隣の部屋へ移動します。</p>'+
  '<div class="a18-floorplan" aria-label="美術館の全6部屋の配置">'+cells.join('')+'</div>'+
- '<p class="a18-map-foot">上下左右の扉には、移動先の部屋名が書かれています。</p>';
+ '<p class="a18-map-foot">館内図で現在地を確認できます。</p>';
 }
 window.A18Navigation={NAMES,POSITIONS,EDGES,validateGraph,drawDoors,mapHTML};
 })();

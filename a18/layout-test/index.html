@@ -7,12 +7,12 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="layout-editor.css?v=2.2"><link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=classic1"></script><script src="museum-navigation.js?v=1"></script><script src="asset-renderer.js?v=classic1"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
+<link rel="stylesheet" href="layout-editor.css?v=2.2"><link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=classic1"></script><script src="museum-navigation.js?v=2"></script><script src="asset-renderer.js?v=larger2"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
 <script src="staff-flow.js?v=1.17" defer></script>
-<title>パズル美術館｜館内移動と大きい額縁 v2.4</title>
+<title>パズル美術館｜額縁拡大・縦型対応 v2.5</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -70,7 +70,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.4 扉と額縁</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.5 額縁縦型</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
@@ -399,7 +399,7 @@ function changeScene(next,options={}){
 }
 function paintArtwork(a,i){
  const f=L.roomFrames(fixtures,galleryIndex)[i];
- window.A18Art.frame(ctx,f,artworkImage(a));
+ window.A18Art.frame(ctx,f,artworkImage(a),L.roomFrames(fixtures,galleryIndex),a?.preferredShape||null);
 }
 function avatar(){
  const dir=pos.dir==='up'?'back':pos.dir==='down'?'front':pos.dir;
@@ -439,8 +439,6 @@ function drawBackground(){
  // Render physical doorways and destination signs from the SAME portal geometry
  // used for collision and transitions. No independent fake green rectangles.
  window.A18Navigation.drawDoors(ctx,{room:galleryIndex,scene,width:m.w,height:m.h,wallFoot:wallFootLine(),links:ROOM_LINKS});
- ctx.textAlign='center';ctx.fillStyle='#3d5445';ctx.font='bold 16px sans-serif';
- ctx.fillText(ROOM_LABELS[galleryIndex],m.w/2,m.h-49);
 }
 function decorate(){
  const decor=fixtures.filter(f=>f.roomId===galleryIndex&&f.kind==='decor');
