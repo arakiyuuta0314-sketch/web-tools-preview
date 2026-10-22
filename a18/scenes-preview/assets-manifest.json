@@ -1,5 +1,5 @@
 {
-  "version": "v1.0-clean-frame-photo-compositing",
+  "version": "v1.1-artwork-focus-viewer",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -85,6 +85,27 @@
     "extra_obstacles": "foreground gallery balustrade",
     "tests": "Chromium landscape844x390/932x430, portrait390x844; inspect/lift/swap/photo upload; screenshot reviewed",
     "photo_residual": "Original baked-in artwork removed from all three frame wells; current photos drawn independently in clipped apertures",
-    "action_proximity": "Frame enter38/leave51, staff enter43/leave58, door enter43/leave57"
+    "action_proximity": "Frame enter38/leave51, staff enter43/leave58, door enter43/leave57",
+    "high_density": "Synthetic 1536x1152 mosaic generated only in Windows Temp, successfully loaded and zoomed 6.55x",
+    "real_user_photo_privacy": "Actual user-provided puzzle photos NOT published as repo assets",
+    "browser_tests": "Chromium 844x390, 932x430 landscape and 390x844 portrait; pinch 2 pointers, zoom pan navigation, photo upload and existing swap"
+  },
+  "viewer": {
+    "module": [
+      "viewer.css",
+      "viewer.js"
+    ],
+    "max_zoom": 10,
+    "features": [
+      "contain without crop",
+      "touch pinch zoom",
+      "drag-pan",
+      "double tap",
+      "wheel",
+      "next/previous",
+      "piece count",
+      "completion date",
+      "registration date"
+    ]
   }
 }

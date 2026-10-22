@@ -5,7 +5,8 @@
 <meta name="apple-mobile-web-app-title" content="パズル美術館">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>パズル美術館｜入口と展示室の額縁画像と近接操作 v1.0</title>
+<link rel="stylesheet" href="viewer.css">
+<title>パズル美術館｜入口と展示室の作品鑑賞とピンチズーム v1.1</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -51,11 +52,31 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body><div class="rotate">📱 <strong>スマホを横向きにしてください</strong><small>館内を広く、絵が歪まないように表示します。</small></div>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div><div class="status" id="statusText">新素材の入口＋第1展示室</div><div class="nav"><button id="viewMode" aria-pressed="true">拡大表示</button><button id="sceneBtn">展示室へ</button><button id="showList">作品を見る</button><button id="addPhoto" class="gold">＋ 写真を飾る</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v1.0 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v1.1 検証表示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 <footer><span>背景・館長・写真が独立した素材／データは一時保存</span><span><a href="../index.html?v=562e40d" style="color:#ffe1a6;margin-right:14px">旧50作品版と比較</a>方向キー / WASD　移動</span></footer>
 </div><div id="overlay" class="overlay" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true"></section></div>
+<section id="photoViewer" class="a18-viewer" hidden role="dialog" aria-modal="true" aria-label="作品を大きく鑑賞する">
+  <div class="a18-viewer-bar">
+    <button type="button" id="photoClose" class="a18-viewer-exit" aria-label="作品詳細に戻る">← 戻る</button>
+    <button type="button" id="photoPrev" aria-label="前の作品">◀</button>
+    <div class="a18-viewer-caption"><strong id="photoTitle"></strong><small id="photoCounter"></small></div>
+    <button type="button" id="photoNext" aria-label="次の作品">▶</button>
+    <button type="button" id="photoMinus" aria-label="縮小">−</button>
+    <span id="photoZoomText" class="zoom-label">100%</span>
+    <button type="button" id="photoPlus" aria-label="拡大">＋</button>
+    <button type="button" id="photoReset" class="a18-viewer-reset">全体</button>
+  </div>
+  <div class="a18-viewer-image-zone" id="photoViewport" aria-label="写真をピンチで拡大・移動">
+    <img id="photoImage" class="a18-viewer-image" alt="" draggable="false">
+    <div id="photoEmpty" class="a18-viewer-empty" hidden>写真を読み込めませんでした</div>
+  </div>
+  <div class="a18-viewer-bottom"><div id="photoDetails" class="a18-viewer-details"></div>
+    <div class="a18-viewer-tip">ピンチで拡大・ドラッグで移動・ダブルタップで切替</div>
+  </div>
+</section>
+<script src="viewer.js"></script>
 <script>
 (() => {
 'use strict';
@@ -260,8 +281,22 @@ function inspect(i){
   const b=slot(i);if(b&&b.id!==a.id)b.spot=a.spot;a.spot=i;carrying=null;update();return;
  }
  const a=slot(i);if(!a){form(i);return;}
- open(a.title,'<p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered)+'<br>ピース：'+esc(a.pieces||'未登録')+'</p><div class="row"><button id="lift">頭上に持ち上げる</button><button id="view" class="light">作品を見る</button><button id="close" class="light">閉じる</button></div>');
- $('lift').onclick=()=>{carrying=a.id;close()};$('view').onclick=()=>{let src=a.photo?.src||get('sample'+a.source)?.src;open(a.title,'<img alt="展示写真" style="width:100%;max-height:55dvh;object-fit:contain" src="'+src+'"><div class="row"><button id="close" class="light">戻る</button></div>');$('close').onclick=()=>inspect(i)};$('close').onclick=close;
+ open(a.title,'<p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered)+'<br>ピース：'+esc(a.pieces||'未登録')+'</p><div class="row"><button id="view">大きく鑑賞する</button><button id="lift" class="light">持ち上げる</button><button id="close" class="light">閉じる</button></div>');
+ $('lift').onclick=()=>{carrying=a.id;close()};
+ $('view').onclick=()=>{
+  const items=[...works].filter(w=>w.spot!==null).sort((a,b)=>a.spot-b.spot).map(w=>({
+   id:w.id,title:w.title,pieces:w.pieces,complete:w.complete,registered:w.registered,
+   src:w.photo?.src || get('sample'+w.source)?.src || ''
+  }));
+  close();
+  window.A18Viewer.open({items,selectedId:a.id,onClose:()=>{
+   modal=false;
+   const selected=works.find(w=>w.id===a.id);
+   if(selected&&selected.spot!=null)inspect(selected.spot);
+  }});
+  modal=true;
+ };
+ $('close').onclick=close;
 }
 function list(){
  open('作品一覧','<p class="small">画像素材制作段階：この比較版の登録枠は3つ。元の50作品版は維持しています。</p><div class="artlist">'+[0,1,2].map(i=>{const a=slot(i);return '<div class="artitem"><span><b>'+(i+1)+'. '+esc(a?.title||'展示なし')+'</b><br><small>完成日：'+esc(a?.complete||'不明')+'</small></span><button data-open="'+i+'">開く</button></div>'}).join('')+'</div><div class="row"><button id="close" class="light">戻る</button></div>');
