@@ -11,7 +11,7 @@
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
 <script src="staff-flow.js?v=1.7" defer></script>
-<title>パズル美術館｜会話と作品登録 v1.7</title>
+<title>パズル美術館｜額縁と接触判定 v1.8</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -69,7 +69,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v1.7 UI検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v1.8 接触判定検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
@@ -167,7 +167,7 @@ function artworkImage(work){
 }
 function trimImageCache(){
  const start=roomStart(galleryIndex),end=start+roomCapacity(galleryIndex);
- const visible=new Set(works.filter(w=>scene==='gallery'&&w.spot!=null&&w.spot>=start&&w.spot<end).map(w=>w.id));
+ const visible=new Set(works.filter(w=>w.spot!=null&&w.spot>=start&&w.spot<end).map(w=>w.id));
  if(carrying)visible.add(carrying);
  for(const id of workImageCache.keys())if(!visible.has(id))workImageCache.delete(id);
 }
@@ -225,20 +225,29 @@ function worldPoint(e){
          y:(e.clientY-b.top)*logicalH/b.height+cameraY};
 }
 // Collision and interaction are intentionally separate.
+// Exact rectangles for the displayed desks, stands and the upper wall.
+// All interaction anchors are computed from the same room geometry.
+const wallFootLine=()=>scene==='entrance'?202:164;
+const northDoorway=()=>({x1:344,x2:387});
 function roomObstacles(){
  const desks=scene==='entrance'?[[180,305,358,395]]:[[262,338,246,285]];
- // Plinths are physical obstacles only when they stand on the floor;
- // upper wall frames do not block the viewing line.
  const plinths=roomRects().filter(rect=>rect[1]>=220)
-   .map(([left,top,right,bottom])=>[left-10,right+10,top-12,bottom+10]);
+  .map(([left,top,right,bottom])=>[left-10,right+10,top-12,bottom+10]);
  return [...desks,...plinths];
 }
 function safeMove(x,y){
- const radius=9,m=src[scene];
+ const m=src[scene];
+ const radius=9,footY=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
+ // The wall cannot be walked through. Only the actual north doorway forms a corridor.
+ if(y<wallFootLine()){
+  const door=northDoorway();
+  if(ROOM_LINKS[galleryIndex].north==null||x<door.x1+radius/2||x>door.x2-radius/2)return false;
+ }
  for(const [left,right,top,bottom] of roomObstacles()){
-  const cx=Math.max(left,Math.min(x,right)),cy=Math.max(top,Math.min(y+5,bottom));
-  if(Math.hypot(x-cx,y+5-cy)<radius)return false;
+  const cx=Math.max(left,Math.min(x,right));
+  const cy=Math.max(top,Math.min(footY,bottom));
+  if(Math.hypot(x-cx,footY-cy)<radius)return false;
  }
  return true;
 }
@@ -249,7 +258,7 @@ const PORTAL_EDGES={
  },
  gallery:{
   west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},
-  north:{x1:342,x2:389,y1:101,y2:118},
+  north:{x1:345,x2:385,y1:101,y2:118},
   south:{x1:265,x2:329,y1:452,y2:471}
  }
 };
@@ -282,27 +291,35 @@ function walk(dir){
  update();
 }
 function interactionCandidates(){
- const artworks=roomRects().map((r,i)=>({
-  type:'art',i:roomStart(galleryIndex)+i,
-  x:(r[0]+r[2])/2,y:r[3]+(r[1]>200?29:27),enter:40,leave:51
- }));
- // Entrance staff stays available for new registration, list, and reordering.
- return galleryIndex===0?
-  [...artworks,{type:'staff',x:298,y:344,enter:46,leave:60}]:
-  [...artworks,{type:'staff',x:300,y:318,enter:43,leave:55}];
+ const wallLine=wallFootLine();
+ const artworks=roomRects().map((r,i)=>{
+  const wall=r[1]<220;
+  return {
+   type:'art',i:roomStart(galleryIndex)+i,
+   x:(r[0]+r[2])/2,
+   // Wall pieces: stand on the floor, not in the picture or in the wall.
+   // Plinth pieces: stand just below their physical footprint.
+   y:wall?wallLine+18:r[3]+29,
+   enter:32,leave:38
+  };
+ });
+ const staff=galleryIndex===0
+  ?{type:'staff',x:247,y:420,enter:35,leave:40}
+  :{type:'staff',x:300,y:323,enter:35,leave:40};
+ return [...artworks,staff];
 }
 function interactionId(hit){return hit.type+':'+(hit.i??'')}
 function nearby(){
  const items=interactionCandidates();
- if(activeInteraction){
-  const keep=items.find(h=>interactionId(h)===interactionId(activeInteraction));
-  if(keep&&Math.hypot(pos.x-keep.x,pos.y-keep.y)<=keep.leave)
-   return activeInteraction=keep;
-  activeInteraction=null;
+ let closest=null,nearest=Infinity;
+ for(const item of items){
+  const distance=Math.hypot(pos.x-item.x,pos.y-item.y);
+  // Short hysteresis only for a candidate already active; no long-range latch.
+  const limit=activeInteraction&&interactionId(item)===interactionId(activeInteraction)
+   ?item.leave:item.enter;
+  if(distance<=limit && distance<nearest){closest=item;nearest=distance;}
  }
- let picked=null,distance=Infinity;
- for(const h of items){const n=Math.hypot(pos.x-h.x,pos.y-h.y);if(n<=h.enter&&n<distance){picked=h;distance=n}}
- return activeInteraction=picked;
+ return activeInteraction=closest;
 }
 function update(){
  const start=roomStart(galleryIndex);
@@ -333,15 +350,21 @@ function paintArtwork(a,i){
  // Original or approved display photo is sampled directly onto the high-DPI canvas.
  const pad=2,ix=x1+pad,iy=y1+pad,iw=w-2*pad,ih=h-2*pad;
  ctx.save();ctx.beginPath();ctx.rect(ix,iy,iw,ih);ctx.clip();
- ctx.fillStyle='#e8dfcb';ctx.fillRect(ix,iy,iw,ih);
  if(a){
   const img=artworkImage(a);
-  if(img&&img.width&&img.height){
-   const ratio=Math.min(iw/img.width,ih/img.height);
-   const drawW=img.width*ratio,drawH=img.height*ratio;
-   ctx.drawImage(img,ix+(iw-drawW)/2,iy+(ih-drawH)/2,drawW,drawH);
+  if(img&&img.naturalWidth&&img.naturalHeight){
+   // COVER is only for the tiny exhibit thumbnail. It removes generated
+   // letterbox/mat bands. The viewer still opens the full uncut photograph.
+   const sw=img.naturalWidth,sh=img.naturalHeight;
+   const cropW=Math.min(sw,sh*iw/ih),cropH=Math.min(sh,sw*ih/iw);
+   const sx=(sw-cropW)/2,sy=(sh-cropH)/2;
+   ctx.drawImage(img,sx,sy,cropW,cropH,ix,iy,iw,ih);
+  }else{
+   // Show the dark inner backing while the image is loading.
+   ctx.fillStyle='#46382c';ctx.fillRect(ix,iy,iw,ih);
   }
  }else{
+  ctx.fillStyle='#ddcfad';ctx.fillRect(ix,iy,iw,ih);
   ctx.fillStyle='#9e8c71';ctx.font='bold 20px serif';ctx.textAlign='center';
   ctx.fillText('+',(x1+x2)/2,(y1+y2)/2+6);
  }
@@ -383,7 +406,7 @@ function drawBackground(){
   gold.addColorStop(0,'#f3e2ac');gold.addColorStop(.5,'#9d6d31');gold.addColorStop(1,'#e8c77e');
   ctx.fillStyle=gold;ctx.fillRect(a-9,b-9,c-a+18,d-b+18);
   ctx.fillStyle='#43352b';ctx.fillRect(a-3,b-3,c-a+6,d-b+6);
-  ctx.fillStyle='#ddcfad';ctx.fillRect(a,b,c-a,d-b);
+  ctx.fillStyle='#43352b';ctx.fillRect(a,b,c-a,d-b);
   ctx.fillStyle='#6d5743';ctx.fillRect((a+c)/2-27,d+13,54,14);
   ctx.fillStyle='#fff0cf';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
   ctx.fillText('展示 '+(i+1),(a+c)/2,d+24);
@@ -571,7 +594,7 @@ setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(m
 for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),MOVE_REPEAT_MS);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
-window.__A18_SCENE_STUDY__={state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete,notes:a.notes||''}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw new Error('展示枠不足');a.spot=AVAILABLE_SLOTS[i];});trimImageCache();},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
+window.__A18_SCENE_STUDY__={state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete,notes:a.notes||''}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw new Error('展示枠不足');a.spot=AVAILABLE_SLOTS[i];});trimImageCache();},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
 boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
 })();
 </script></body></html>

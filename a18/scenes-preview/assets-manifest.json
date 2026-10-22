@@ -1,5 +1,5 @@
 {
-  "version": "v1.7-ui-memo-room-layouts",
+  "version": "v1.8-frame-collision-audit",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -113,7 +113,10 @@
     "v16_rpg": "Chromium: RPG staff greeting, choice menu, entrance registration and gallery registration, handover, carry between rooms, swap occupied entrance frame, exhibit displaced artwork in empty frame and list check",
     "v17_registration": "Chromium 390x844 DPR3 and 844x390 DPR2: single tap greeting, todays date default, explicit unknown clear, 3000-char memo, automatic finishing offer+compare with separate cards, notes persisted and edited and shown in viewer; zero page errors",
     "v17_navigation": "Chromium 14/14 directional room transitions accessible with grid navigation",
-    "v17_frames": "Chromium 28/28 exhibition frames approached via collision-aware walk; six distinct layouts"
+    "v17_frames": "Chromium 28/28 exhibition frames approached via collision-aware walk; six distinct layouts",
+    "v18_navigation": "Chromium: 14/14 directed portal transitions and 28/28 frame interaction paths",
+    "v18_staff": "Chromium: six staff prompts accessible, short-motion prompt stable, upper walls blocked without north corridor",
+    "v18_artwork": "Chromium: new photo registered/carried and displayed in entrance #2; screenshot with no generated cream mat"
   },
   "viewer": {
     "module": [
@@ -274,5 +277,11 @@
     "room_layouts": "six unique room frame arrangements; floor stands affect collision; all 28 frames accessible",
     "entrance": "reception desk/staff moved to lower portion, upper gallery line cleared; entrance north doorway repositioned between gold frames",
     "growth": "still not implemented, 6 rooms open, 28 available frames out of future 30"
+  },
+  "v18_updates": {
+    "thumbnail_gallery": "Filled artwork interior using center cover crop; no cream mat. Viewer continues to retain full photograph.",
+    "geometry": "Wall boundary aligns to rendered gallery wall and has a passable north doorway only where room graph requires it; desks and floor stands block walk consistently.",
+    "interaction": "Wall frames interact from floor-side anchors, floor stands from front edge; reception interaction is at standing location, nearest target; small exit hysteresis.",
+    "phase": "Structural prototype; no level progression, final art, or persistence yet."
   }
 }
