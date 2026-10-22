@@ -1,0 +1,157 @@
+
+/* MyProf app identity. Kept in the app; common Safe Area/layout logic stays shared. */
+:root{--myprof-ink:#243d38;--myprof-deep:#2b765e;--myprof-line:#e5eee6}
+html{background:#f9faf7}
+.page{padding-top:26px}
+.topbar{margin-bottom:21px}
+.brand-icon{height:44px;width:44px;border-radius:14px;overflow:hidden;box-shadow:0 2px 9px #438d7130;background:#daf3e5}
+.brand-icon img{display:block;width:100%;height:100%;object-fit:cover}
+.brand h1{font-size:24px;letter-spacing:-.03em}
+.brand .eyebrow{font-size:9px;letter-spacing:.13em}
+.tabbar{background:#eaf0e9;border-radius:18px}
+.tab.active{color:#246b53}
+.welcome-card{min-height:450px;border-radius:29px;position:relative;overflow:hidden;
+ background:linear-gradient(145deg,#e0f8ed,#eff9f3 56%,#f8f3e6);padding:25px;
+ display:flex;flex-direction:column;align-items:flex-start;box-shadow:0 16px 40px #47846c16}
+.welcome-card::before{content:"";position:absolute;right:-100px;top:80px;width:350px;height:350px;background:#b4dec164;border-radius:50%}
+.welcome-sub{letter-spacing:.16em;color:#5a987d;font-size:10px;font-weight:800;z-index:1}
+.welcome-illustration{width:116px;height:116px;margin:23px 0 8px;border-radius:28px;overflow:hidden;box-shadow:0 12px 26px #2b7e5a25;z-index:1}
+.welcome-illustration img{width:100%;height:100%}
+.welcome-card h2{font-size:31px;line-height:1.5;letter-spacing:-.025em;z-index:1;margin:8px 0}
+.welcome-card p{line-height:1.9;max-width:280px;font-size:14px;color:#658776;z-index:1}
+.welcome-card .primary-button{margin-top:auto;min-width:190px;z-index:1}
+.welcome-note{text-align:center;color:#8ea096;font-size:12px;margin:18px 0}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:3px 0 11px}
+.card-top h2{font-size:19px;letter-spacing:.01em}
+.card-top .quiet-link{font-size:12px;white-space:nowrap}
+.card-scene{width:100%;height:355px;isolation:isolate;contain:layout paint;overflow:hidden}
+/* A real 3D backface leaked through the card on iOS WKWebView.
+   Only the chosen side participates in layout/compositing; a 2D squash
+   supplies the flip cue without reversing either text layer. */
+.card-rotator{position:relative;width:100%;height:100%}
+.card-rotator.is-flipping{animation:myprof-2d-flip .42s ease-in-out both}
+@keyframes myprof-2d-flip{0%{transform:scaleX(1)}48%{transform:scaleX(.045)}52%{transform:scaleX(.045)}100%{transform:scaleX(1)}}
+.card-rotator .card-back{display:none}
+.card-rotator.flipped .card-front{display:none}
+.card-rotator.flipped .card-back{display:block}
+.license-card{position:absolute;inset:0;border-radius:25px;overflow:hidden;
+ box-shadow:0 13px 30px #294b3c20;color:#28513f}
+.card-front{background:linear-gradient(136deg,#d0efe0 0%,#e6f6e8 58%,#faf0db 100%);background-position:center;background-size:cover}
+.card-front::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(120deg,#eafbf0c7,#f7f9ee9e)}
+.card-deco{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.card-deco.d1{width:275px;height:275px;background:#b9e3ca65;right:-120px;top:-94px}
+.card-deco.d2{width:290px;height:290px;background:#f4ecd163;bottom:-190px;left:-83px}
+.card-content{height:100%;position:relative;z-index:1;padding:19px 21px;display:flex;flex-direction:column}
+.card-topline{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:9px;color:#537b69;font-weight:800;letter-spacing:.11em}
+.card-topline .logo{font-size:14px;letter-spacing:.055em;color:#27694f;font-weight:900}
+.logo-dot{color:#e5b55e}
+.card-person{display:flex;align-items:center;gap:14px;margin:18px 0 10px;min-width:0}
+.card-avatar{width:72px;height:72px;border:3px solid #fffd;border-radius:19px;background:#fff9;display:grid;place-items:center;
+ font-size:43px;flex:none;overflow:hidden;box-shadow:0 3px 12px #448b7130}
+.card-avatar img{width:100%;height:100%;object-fit:cover}
+.card-info{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.card-info small{font-size:9px;letter-spacing:.09em;color:#699382;font-weight:700}
+.card-info strong{font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;color:#284f40}
+.card-info>span{font-size:12px;font-weight:650;color:#557e6e}
+.card-age{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:1;border-top:1px solid #ffffffac;padding-top:8px}
+.card-age>div{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:750;color:#638b78}
+.card-age>div span{font-size:9px;letter-spacing:.1em}
+.card-age p{margin:0;white-space:nowrap;display:flex;align-items:baseline;justify-content:flex-end;line-height:1}
+.card-age .number{font-size:clamp(64px,19vw,95px);font-weight:800;letter-spacing:-.1em;color:#21543f;font-variant-numeric:tabular-nums}
+.card-age .unit{font-size:19px;padding-left:11px;font-weight:800}
+.card-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
+.card-bottom>div{background:#ffffffba;border:1px solid #fff9;border-radius:13px;padding:10px 3px;text-align:center}
+.card-bottom small,.back-grid small{font-size:10px;color:#678b78;display:block;margin-bottom:4px}
+.card-bottom strong{font-size:14px;white-space:nowrap}
+.card-back{background:linear-gradient(135deg,#325d56,#336e5d 53%,#26735e);color:#fcfff8}
+.card-back .card-topline{color:#dcece5}
+.card-back .logo{color:#fff}
+.back-big{margin-top:11px;background:#ffffff18;border:1px solid #ffffff39;padding:9px 15px;border-radius:15px}
+.back-big>small{font-size:11px;color:#e5f3ed}
+.back-big p{margin:3px 0 1px;display:flex;align-items:baseline;gap:7px}
+.back-big strong{font-size:clamp(36px,10vw,52px);letter-spacing:-.055em;font-variant-numeric:tabular-nums}
+.back-big span{font-weight:700}
+.back-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 8px}
+.back-grid>div{background:#ffffff15;border:1px solid #ffffff28;border-radius:13px;padding:10px 6px}
+.back-grid small{color:#cfebdc;font-size:9px}
+.back-grid strong{font-size:13px;white-space:nowrap}
+.card-yaku-inline{display:flex;flex-direction:column;gap:4px;border-top:1px solid #ffffff3b;padding-top:7px;margin-top:0}.card-yaku-inline>small{color:#dcf1e5;font-size:9px;font-weight:700}.card-yaku-inline>div{display:flex;flex-wrap:wrap;gap:4px 12px}.card-yaku-inline>div span{font-size:10px;color:#fff;font-weight:750}.back-bottom{margin-top:auto;border-top:1px solid #ffffff3d;padding-top:7px;color:#e6f6e8;font-size:11px;font-weight:700}.card-disclaimer{display:block;max-width:650px;line-height:1.7;margin:9px 3px 12px;font-size:11px}
+.card-turn{display:block;margin:13px auto 4px;background:#f4f8f3;border:1px solid #d8eadb;border-radius:50px;min-height:44px;
+ padding:10px 21px;font-size:13px;font-weight:750;color:#38775f;box-shadow:0 3px 13px #4e846415}
+.birthday-ribbon{background:#edf5ef;color:#497f61;border:1px solid #e0ece2;border-radius:14px;
+ margin:15px 0 4px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;font-weight:700}
+.birthday-ribbon span{font-size:20px}
+.back-extra .back-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 1px;border-bottom:1px solid #e9efe9;font-size:12px}
+.back-extra .back-item span{color:#71897b}
+.back-extra .back-item strong{font-size:13px;text-align:right}
+.back-extra .fine{display:block;line-height:1.7;padding-top:7px}
+.shortcuts .shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.shortcut-grid button{min-height:113px;border:1px solid #e8efea;border-radius:16px;background:#fbfcf9;
+ padding:12px 5px;color:#456a57;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.shortcut-grid button>span{font-size:25px;color:#529b7b}
+.shortcut-grid strong{font-size:12px;white-space:nowrap}
+.shortcut-grid small{font-size:10px;color:#8b9d90;text-align:center}
+@media(max-width:375px){
+ .card-scene{height:355px}
+ .card-content{padding:16px}
+ .card-person{gap:10px}
+ .card-avatar{width:65px;height:65px}
+ .card-age .number{font-size:72px}
+ .card-info strong{font-size:18px}
+ .shortcut-grid button{min-height:104px}
+ .shortcut-grid strong{font-size:11px}
+ .shortcut-grid small{font-size:9px}
+}
+@media(max-width:345px){
+ .card-scene{height:326px}
+ .card-content{padding:14px}
+ .card-age .number{font-size:63px}
+ .card-person{margin:14px 0 6px}
+ .card-avatar{width:60px;height:60px}
+ .card-bottom strong{font-size:12px}
+ .back-grid strong{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.card-rotator.is-flipping{animation:none}}
+
+.card-scene{cursor:pointer;border-radius:25px;outline-offset:4px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.card-scene:focus-visible{outline:3px solid #d59d4b}
+.card-turn{touch-action:manipulation}
+
+/* Native iOS status-bar clearance: the first TestFlight capture put the card logo too close to the clock. */
+html.app-viewport .page{padding-top:max(68px,calc(17px + env(safe-area-inset-top)))}
+
+/* Additional traditional calendar facts on the reverse: compact and non-overlapping. */
+.tradition-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:6px;margin:0 0 6px}
+.tradition-grid>div{border:1px solid #ffffff35;background:#ffffff19;border-radius:10px;min-width:0;padding:6px 8px}
+.tradition-grid small{display:block;color:#d5eae0;font-size:9px;margin-bottom:2px}
+.tradition-grid strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:#fff}
+.card-back .back-big{margin-top:8px;padding:7px 13px}
+.card-back .back-grid{margin:6px 0}
+.card-back .back-grid>div{padding:7px 5px}
+.card-back .card-yaku-inline{padding-top:5px;gap:2px}
+.card-back .back-bottom{padding-top:5px}
+.calendar-trivia{margin-top:15px}
+.calendar-trivia-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.calendar-trivia-grid>div{min-width:0;background:#f3f9f3;border:1px solid #e1ece3;border-radius:14px;padding:14px 12px}
+.calendar-trivia-grid small{color:#6c8875;font-size:11px;display:block;min-height:2.7em;line-height:1.4}
+.calendar-trivia-grid strong{color:#2c5c48;font-size:17px;display:block;margin:7px 0;overflow-wrap:anywhere}
+.calendar-trivia-grid span{color:#6b8575;font-size:11px;line-height:1.6;display:block}
+.calendar-note,.calendar-warning{line-height:1.75;margin:11px 0 0}
+.calendar-warning{background:#fff8ed;border:1px solid #f2dfc4;border-radius:10px;padding:9px 11px;color:#856133}
+@media(max-width:430px){
+ .calendar-trivia-grid{grid-template-columns:1fr;gap:8px}
+ .calendar-trivia-grid>div{padding:11px 13px}
+ .calendar-trivia-grid small{min-height:0}
+ .calendar-trivia-grid strong{margin:4px 0}
+}
+@media(max-width:360px){
+ .tradition-grid>div{padding:4px 6px}
+ .tradition-grid strong{font-size:12px}
+ .card-back .back-big{margin-top:6px;padding:6px 10px}
+ .card-back .back-grid>div{padding:6px 4px}
+ .card-back .card-yaku-inline>div span{font-size:9px}
+ .card-back .back-bottom{font-size:10px}
+}
+
+/* Native pinch zoom remains available. Horizontal swipes are limited to the card. */
+.card-scene{touch-action:pan-y pinch-zoom}

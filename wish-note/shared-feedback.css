@@ -1,0 +1,10 @@
+.shared-confirm-backdrop{position:fixed;z-index:1100;inset:0;display:grid;place-items:center;background:#182a35aa;padding:calc(20px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.shared-confirm-panel{width:min(100%,420px);max-height:85dvh;overflow:auto;background:#fff;color:#29353b;border-radius:20px;padding:22px;box-shadow:0 15px 50px #0005}
+.shared-confirm-panel h2{font-size:19px;margin:0 0 10px}
+.shared-confirm-panel p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;margin:0 0 20px}
+.shared-confirm-actions{display:flex;gap:10px;justify-content:flex-end}
+.shared-confirm-actions button{border:1px solid #d8e2e1;border-radius:12px;background:#f0f5f4;color:#2c4d47;padding:13px 17px;min-height:44px;font-weight:700}
+.shared-confirm-actions [data-confirm-accept]{background:#286d60;border-color:#286d60;color:#fff}
+.shared-confirm-actions [data-confirm-accept].danger{background:#a63e39;border-color:#a63e39}
+.shared-confirm-actions button:focus-visible{outline:3px solid #ffb04d;outline-offset:2px}
+[aria-busy="true"]{cursor:progress}

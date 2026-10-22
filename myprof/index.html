@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef5ee">
+<meta name="description" content="自分の年齢とプロフィール、人生の年表をひとつに。">
+<title>マイプロフ｜いまの自分がすぐわかる</title>
+<link rel="icon" href="./assets/app-icon.png" type="image/png">
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="./shared-layout.css">
+<link rel="stylesheet" href="./shared-feedback.css">
+<link rel="stylesheet" href="./myprof-card.css">
+<link rel="stylesheet" href="./custom-cards.css">
+<meta name="robots" content="noindex, nofollow, noarchive"><link rel="stylesheet" href="./web-preview.css">
+</head>
+<body>
+<main class="page" id="app-main">
+ <header class="topbar">
+  <div class="brand"><span class="brand-icon"><img src="./assets/app-icon.png" alt=""></span><div><span class="eyebrow">MY PROF · MY LITTLE CARD</span><h1>マイプロフ</h1></div></div>
+  <button id="settings-button" class="icon-button" aria-label="設定を開く" type="button">⚙</button>
+ </header>
+ <nav class="tabbar" aria-label="ページを選ぶ">
+  <button class="tab active" data-view="home" aria-current="page">マイカード</button>
+  <button class="tab" data-view="details">詳細</button>
+  <button class="tab" data-view="timeline">わたし履歴</button>
+ </nav>
+ <div id="card-file-tabs"></div>
+ <section id="screen-home" class="screen"></section>
+ <aside id="custom-inline-ad" class="native-ad-section" hidden aria-label="スポンサー広告">
+  <p class="ad-section-caption">広告</p>
+  <capacitor-admob-native feed-id="myprof-extra-cards" slot-key="additional-card-sponsored-footer"></capacitor-admob-native>
+ </aside>
+ <section id="screen-details" class="screen" hidden></section>
+ <section id="screen-timeline" class="screen" hidden></section>
+ <footer class="footer">いまの自分も、これまでの自分も。</footer>
+</main>
+<div id="preview-ad" class="preview-ad" role="note"><span>広告スペース（ブラウザ確認用）</span></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<div class="overlay" id="editor-overlay" hidden>
+ <div class="scrim" id="editor-scrim"></div>
+ <section class="sheet edit-sheet" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+  <header class="sheet-header"><div><span class="eyebrow">PERSONAL NOTE</span><h2 id="editor-title" tabindex="-1">プロフィールを編集</h2></div><button class="icon-button" id="editor-close" type="button" aria-label="閉じる">×</button></header>
+  <form id="profile-form">
+   <nav class="editor-sections" role="tablist" aria-label="編集する情報">
+    <button type="button" role="tab" class="editor-section-tab active" id="editor-tab-basic" data-editor-section="basic" aria-controls="editor-panel-basic" aria-selected="true">基本情報</button>
+    <button type="button" role="tab" class="editor-section-tab" id="editor-tab-appearance" data-editor-section="appearance" aria-controls="editor-panel-appearance" aria-selected="false">写真・背景</button>
+    <button type="button" role="tab" class="editor-section-tab" id="editor-tab-contact" data-editor-section="contact" aria-controls="editor-panel-contact" aria-selected="false">住所・メール</button>
+   </nav>
+   <section id="editor-panel-basic" role="tabpanel" aria-labelledby="editor-tab-basic" data-editor-panel="basic">
+   <div class="field-grid">
+    <div class="field full birthday-field"><div class="birthday-label">生年月日 <small>年齢計算のために必要</small></div>
+     <p class="birthday-help">生まれた年・月・日を順番に入力してください。カレンダー操作は不要です。</p>
+     <div class="birth-inputs">
+      <label>年<input id="p-birthYear" type="text" inputmode="numeric" autocomplete="bday-year" maxlength="4" pattern="[0-9]{4}" placeholder="例：1989" aria-label="生まれた年（西暦4桁）" required></label>
+      <label>月<select id="p-birthMonth" autocomplete="bday-month" aria-label="生まれた月" required><option value="">選択</option></select></label>
+      <label>日<select id="p-birthDay" autocomplete="bday-day" aria-label="生まれた日" required><option value="">選択</option></select></label>
+     </div>
+    </div>
+    <label class="field">名前（任意）<input id="p-name" name="name" maxlength="80" autocomplete="name" placeholder="お名前"></label>
+    <label class="field">ニックネーム<input id="p-nickname" name="nickname" maxlength="80" placeholder="呼び名"></label>
+    <label class="field">血液型<select id="p-bloodType" name="bloodType"><option value="">未設定</option><option>A型</option><option>B型</option><option>O型</option><option>AB型</option><option>不明</option></select></label>
+    <label class="field">出身地<input id="p-birthplace" name="birthplace" maxlength="100" placeholder="例：兵庫県"></label>
+   </div>
+   </section>
+   <section id="editor-panel-appearance" role="tabpanel" aria-labelledby="editor-tab-appearance" data-editor-panel="appearance" hidden>
+   <h3 class="form-heading">写真・アイコン</h3>
+   <div id="icon-picker" class="icon-grid" role="group" aria-label="プロフィールアイコン"></div>
+   <label class="field full">顔写真を設定（任意）<input id="avatar-file" type="file" accept="image/*"><small>端末内で縮小して保存します。選ぶとアイコンより優先して表示。</small></label>
+   <button id="clear-avatar" type="button" class="link-button">写真を外す</button>
+   <h3 class="form-heading">背景をカスタマイズ</h3>
+   <div id="color-picker" class="color-grid" role="group" aria-label="背景色"></div>
+   <label class="field full">背景写真（任意）<input id="background-file" type="file" accept="image/*"></label>
+   <button id="clear-background" type="button" class="link-button">背景写真を外す</button>
+   </section>
+   <section id="editor-panel-contact" role="tabpanel" aria-labelledby="editor-tab-contact" data-editor-panel="contact" hidden>
+   <h3 class="form-heading">住所 <small>ホーム画面には表示されません</small></h3>
+   <div class="field-grid">
+    <label class="field">郵便番号<input id="p-postalCode" name="postalCode" maxlength="12" autocomplete="postal-code" placeholder="123-4567"></label>
+    <label class="field">都道府県<input id="p-prefecture" name="prefecture" maxlength="40" autocomplete="address-level1" placeholder="兵庫県"></label>
+    <label class="field full">市区町村<input id="p-city" name="city" maxlength="120" autocomplete="address-level2" placeholder="○○市○○区"></label>
+    <label class="field full">町名・番地<input id="p-street" name="street" maxlength="160" autocomplete="street-address" placeholder="○○町 1-2-3"></label>
+    <label class="field full">建物・部屋番号<input id="p-building" name="building" maxlength="120" placeholder="○○マンション 101号室"></label>
+   </div>
+   <h3 class="form-heading">メールアドレス <small>複数登録できます</small></h3>
+   <div id="email-editor-list" class="email-edit-list"></div>
+   <button id="add-email" type="button" class="secondary-button">＋ メールアドレスを追加</button>
+   <label class="field full note-input">自由メモ<textarea id="p-notes" name="notes" maxlength="5000" rows="3" placeholder="覚えておきたいことを自由に"></textarea></label>
+   </section>
+   <div class="sticky-actions"><button type="button" class="secondary-button" id="cancel-profile">キャンセル</button><button class="primary-button" type="submit">保存する</button></div>
+  </form>
+ </section>
+</div>
+
+<div class="overlay" id="event-overlay" hidden>
+ <div class="scrim" id="event-scrim"></div>
+ <section class="sheet compact-sheet" role="dialog" aria-modal="true" aria-labelledby="event-title">
+  <header class="sheet-header"><h2 id="event-title">出来事を追加</h2><button class="icon-button" id="event-close" type="button" aria-label="閉じる">×</button></header>
+  <form id="event-form">
+   <label class="field full">出来事<input id="event-name" maxlength="150" placeholder="例：初めての就職" required></label>
+   <label class="field full">分類<select id="event-category"><option value="life">出来事・思い出</option><option value="education">学歴</option><option value="work">職歴</option></select></label>
+   <label class="field full">日付<input id="event-date" type="date" min="1900-01-01" max="2100-12-31" required></label>
+   <label class="field full">メモ<textarea id="event-note" maxlength="2000" rows="3" placeholder="学校名・会社名など"></textarea></label>
+   <div class="sticky-actions"><button type="button" id="event-delete" class="danger-link" hidden>削除する</button><button type="button" class="secondary-button" id="event-cancel">キャンセル</button><button type="submit" class="primary-button">保存する</button></div>
+  </form>
+ </section>
+</div>
+<div class="overlay" id="settings-overlay" hidden>
+ <div class="scrim" id="settings-scrim"></div>
+ <section class="sheet compact-sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <header class="sheet-header"><h2 id="settings-title">設定とデータ管理</h2><button class="icon-button" id="settings-close" type="button" aria-label="閉じる">×</button></header>
+  <p class="help">入力したプロフィールと年表は、このアプリの端末内データとして保存します。アカウント登録や開発者サーバーへのプロフィール送信機能はありません。iOSの端末バックアップは別の仕組みです。</p>
+  <p class="help privacy-ad-notice"><strong>情報の保存について</strong>
+   お名前・生年月日・住所・メール・写真・年表は端末内に保存され、広告SDKに入力内容を渡す処理はありません。Google AdMobは広告配信・効果測定のため、IPアドレスや端末識別子、広告閲覧・診断情報などを取得する場合があります。</p>
+  <div class="settings-stack">
+   <div class="settings-row"><div><strong id="purchase-label">広告削除（準備中）</strong><small id="purchase-help">テスト版では購入できません。広告はテスト表示です。</small></div><button id="remove-ads" class="secondary-button" type="button" disabled>準備中</button></div>
+   <button id="restore" class="secondary-button" type="button" disabled>購入を復元（準備中）</button>
+   <button id="privacy-choices" class="secondary-button" type="button">広告のプライバシー設定</button>
+   <hr>
+   <button id="clear-profile" class="danger-button" type="button">すべてのマイプロフデータを削除</button>
+   <p class="help small">プロフィールと追加カード・写真を削除します。広告削除の購入権利は削除しません。元には戻せません。</p>
+   <hr>
+   <a id="privacy-link" href="#" target="_blank" rel="noopener">プライバシーポリシー ↗</a>
+   <a id="support-link" href="#" target="_blank" rel="noopener">お問い合わせ・サポート ↗</a>
+  </div>
+ </section>
+</div>
+<!-- Custom social cards live in a separate namespace. The standard personal card is never exported. -->
+<div class="overlay" id="custom-create-overlay" hidden>
+ <div class="scrim" id="card-create-scrim"></div>
+ <section class="sheet compact-sheet" role="dialog" aria-modal="true" aria-labelledby="card-create-heading">
+  <header class="sheet-header"><div><span class="eyebrow">NEW CARD</span><h2 id="card-create-heading">新しいカード</h2></div><button class="icon-button" type="button" id="card-create-close" aria-label="閉じる">×</button></header>
+  <form id="card-create-form">
+   <label class="field full">カードの用途・タブの名前<input id="card-create-title" maxlength="60" data-autofocus placeholder="例：X / Instagram / 趣味 / 仕事"></label>
+   <div class="card-purpose-suggestions"><span class="help">たとえば</span><button type="button" data-card-purpose="X">X</button><button type="button" data-card-purpose="Instagram">Instagram</button><button type="button" data-card-purpose="仕事">仕事</button><button type="button" data-card-purpose="趣味">趣味</button></div>
+   <label class="field full">デザインの雰囲気<select id="card-create-preset"></select></label>
+   <label class="field full">カードの形<select id="card-create-size"></select></label>
+   <label class="field full">配置する項目のテンプレート<select id="card-create-fields"></select></label>
+   <p class="help small">名前・趣味などの入力欄をまとめて配置します。見本の文字はあとで自由に編集できます。</p>
+   <div class="card-template-preview"><canvas id="card-create-preview" role="img" aria-label="選択したテンプレートのプレビュー"></canvas></div>
+   <p class="help">新しいカードに個人情報は自動で追加されません。文字や写真は自分で選んで編集できます。</p>
+   <div class="sticky-actions"><button type="button" id="card-create-cancel" class="secondary-button">キャンセル</button><button class="primary-button" type="submit">カードを作る →</button></div>
+  </form>
+ </section>
+</div>
+
+<div class="overlay" id="custom-card-overlay" hidden>
+ <section class="custom-editor-shell" role="dialog" aria-modal="true" aria-labelledby="custom-editor-heading">
+  <header class="custom-editor-header">
+   <button type="button" class="secondary-button" data-card-editor="close" aria-label="カード編集を閉じる">← 戻る</button>
+   <div><span class="eyebrow">CARD DESIGN STUDIO</span><h2 id="custom-editor-heading">カードを編集</h2></div>
+   <button class="primary-button" data-card-editor="save">保存</button>
+  </header>
+  <div class="custom-editor-scroll">
+   <div class="custom-editor-settings">
+    <label>カードの目的<input id="card-editor-title" maxlength="60" placeholder="カード名"></label>
+    <label>デザインの雰囲気<select id="card-editor-preset" aria-label="編集中のカードのデザインの雰囲気"></select></label>
+   </div>
+   <details class="card-editor-more" id="card-editor-card-settings">
+    <summary>カードの形・背景色を調整</summary><div class="custom-editor-advanced-settings">
+    <label>サイズ<select id="card-editor-size"></select></label>
+    <label>背景色<input id="card-editor-bg" type="color" value="#f3f8f4"></label>
+    <label>背景モード<select id="card-editor-background-style"><option value="gradient">グラデーション</option><option value="solid">単色</option></select></label>
+    <label>2色目<input id="card-editor-bg2" type="color" value="#5a9982"></label>
+    </div>
+   </details>
+   <p class="card-template-hint">雰囲気を変えても入力した文字・写真・配置は残ります。色は個別に調整できます。</p>
+   <div class="custom-editor-quick-fields">
+    <label>項目配置テンプレート<select id="card-editor-fields" aria-label="追加する項目セット"></select></label>
+    <button type="button" class="secondary-button" data-card-editor="add-fields">この面に項目を配置</button>
+    <p class="help small">既存の項目は消しません。見本の項目を追加してから、文字・位置を編集できます。個人カードの情報は引用しません。</p>
+   </div>
+   <div class="custom-editor-face-actions">
+    <button id="card-face-front" class="chosen" data-card-editor="front-face">表面</button>
+    <button id="card-face-back" data-card-editor="back-face">裏面を追加・編集</button>
+    <button id="card-face-remove" data-card-editor="remove-face">裏面を削除</button>
+   </div>
+   <div class="custom-background-photo">
+    <div><strong>背景に好きな写真を使う</strong><small>現在編集中の面に設定されます。文字や装飾はそのまま残ります。</small></div>
+    <div class="custom-background-actions"><button type="button" class="secondary-button" data-card-editor="add-background-photo">写真を選択</button><button type="button" class="secondary-button" id="card-remove-background" data-card-editor="remove-background-photo">背景写真を解除</button></div>
+    <input id="card-background-file" type="file" accept="image/*" hidden>
+    <div class="card-background-adjust" id="card-background-adjust" hidden>
+     <label>拡大率<input id="card-background-scale" type="number" min="1" max="5" step=".1"></label>
+     <label>左右位置<input id="card-background-x" type="number" min="-1" max="1" step=".05"></label>
+     <label>上下位置<input id="card-background-y" type="number" min="-1" max="1" step=".05"></label>
+    </div>
+   </div>
+   <p class="card-canvas-tip">カード上の文字や写真をタップして選択。ドラッグで移動できます。</p>
+   <div id="card-canvas-viewport" class="custom-canvas-viewport">
+    <canvas id="card-editor-canvas" tabindex="0" aria-label="自由配置できるカード編集キャンバス"></canvas>
+   </div>
+   <div class="card-zoom-tools"><button data-card-editor="zoom-out">−</button><span id="card-zoom-label">100%</span><button data-card-editor="zoom-in">＋</button><button data-card-editor="fit">画面に合わせる</button></div>
+   <div id="card-quick-edit" class="card-quick-edit" hidden>
+    <label>選択中の文字 <textarea id="card-quick-text" rows="2" maxlength="1200" placeholder="ここで文字を書き換えられます"></textarea></label>
+    <button type="button" class="secondary-button" data-card-editor="focus-properties">色・大きさ・位置を詳しく調整 ↓</button>
+   </div>
+   <div class="card-edit-toolbar" role="group" aria-label="カードに追加する">
+    <button data-card-editor="add-text">Ｔ 文字</button>
+    <button data-card-editor="add-photo">▣ 写真</button>
+    <button data-card-editor="add-shape">▢ 四角</button>
+    <button data-card-editor="add-ellipse">◯ 丸</button>
+    <button data-card-editor="add-line">╱ 線</button>
+    <button data-card-editor="add-sticker">✨ 装飾</button>
+    <input id="card-photo-file" type="file" accept="image/*" hidden>
+   </div>
+   <div class="custom-editor-two-col">
+    <section class="card-edit-box">
+     <div class="panel-title"><h3>レイヤー</h3><small class="fine">選んで位置を編集</small></div>
+     <div id="card-layers" class="card-layer-list"></div>
+     <div class="card-layer-tools"><button data-card-editor="front">最前面</button><button data-card-editor="back">最背面</button><button data-card-editor="duplicate">複製</button><button data-card-editor="delete-layer">削除</button></div>
+    </section>
+    <section id="card-properties" class="card-edit-box" hidden>
+     <div class="panel-title"><h3>要素の調整</h3><small class="fine">ドラッグでも移動できます</small></div>
+     <label id="card-prop-text-row">文字<textarea id="card-prop-text" rows="2" maxlength="1200"></textarea></label>
+     <div class="card-property-grid">
+      <label>左 (%)<input id="card-prop-x" type="number" step="1" min="-100" max="200"></label>
+      <label>上 (%)<input id="card-prop-y" type="number" step="1" min="-100" max="200"></label>
+      <label>幅 (%)<input id="card-prop-w" type="number" step="1" min="1" max="200"></label>
+      <label>高さ (%)<input id="card-prop-h" type="number" step="1" min="1" max="200"></label>
+      <label>回転 (°)<input id="card-prop-rotation" type="number" step="5" min="-360" max="360"></label>
+      <label>不透明度 (%)<input id="card-prop-opacity" type="number" step="5" min="0" max="100"></label>
+      <label>角丸 (%)<input id="card-prop-radius" type="number" step="5" min="0" max="50"></label>
+      <label>色<input id="card-prop-fill" type="color"></label>
+     </div>
+     <div id="card-prop-image" class="card-property-grid" hidden>
+      <label>写真の拡大率<input id="card-prop-imageScale" type="number" min="1" max="5" step=".1"></label>
+      <label>写真の左右位置<input id="card-prop-imageX" type="number" min="-1" max="1" step=".05"></label>
+      <label>写真の上下位置<input id="card-prop-imageY" type="number" min="-1" max="1" step=".05"></label>
+     </div>
+     <div id="card-prop-fonts" class="card-property-grid">
+      <label>文字サイズ<input id="card-prop-fontSize" type="number" min="8" max="400"></label>
+      <label>太さ<select id="card-prop-weight"><option value="400">通常</option><option value="500">中</option><option value="600">やや太い</option><option value="700">太い</option><option value="800">特太</option></select></label>
+      <label>書体<select id="card-prop-fontFamily"><option value="sans-serif">ゴシック</option><option value="serif">明朝</option><option value="monospace">等幅</option></select></label>
+      <label>文字揃え<select id="card-prop-align"><option value="left">左</option><option value="center">中央</option><option value="right">右</option></select></label>
+     </div>
+     <div class="card-layer-tools"><button data-card-editor="center">左右中央</button><button data-card-editor="middle">上下中央</button><button id="card-layer-visibility" data-card-editor="layer-visibility">非表示</button><button id="card-layer-lock" data-card-editor="layer-lock">ロック</button></div>
+    </section>
+   </div>
+   <div id="card-advanced-extra-anchor"></div>
+   <div class="custom-editor-footer">
+    <button id="card-undo" class="secondary-button" data-card-editor="undo">↶ 元に戻す</button>
+    <button id="card-redo" class="secondary-button" data-card-editor="redo">↷ やり直す</button>
+    <span class="fine">編集内容は「保存」で確定します</span>
+   </div>
+  </div>
+ </section>
+</div>
+
+<div class="overlay" id="custom-export-overlay" hidden>
+ <div class="scrim" id="card-export-scrim"></div>
+ <section class="sheet compact-sheet" role="dialog" aria-modal="true" aria-labelledby="card-export-heading">
+  <header class="sheet-header"><h2 id="card-export-heading">共有前の画像確認</h2><button class="icon-button" id="card-export-close" type="button" aria-label="閉じる">×</button></header>
+  <p class="help" id="card-export-description"></p>
+  <label class="field full">画像にする面<select id="card-export-face"><option value="front">表面</option></select></label>
+  <div class="card-export-image-wrap"><img id="card-export-image" alt="出力予定のカード画像"></div>
+  <p class="help small">画像に写っている文字・写真がそのまま出力されます。保存先・共有先は自分で選択してください。</p>
+  <div class="sticky-actions"><button class="primary-button" id="card-export-download" type="button">画像を保存する</button><button class="primary-button" id="card-export-share" type="button">SNSなどに共有する</button></div>
+ </section>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>

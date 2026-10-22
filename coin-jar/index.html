@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#fff8f4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="500円玉を入れるだけ。貯まるのが楽しみになる貯金箱。">
+  <title>こつこつ500円貯金</title>
+  <link rel="icon" type="image/png" href="./assets/app-icon.png">
+  <link rel="stylesheet" href="./style.css">
+<meta name="robots" content="noindex, nofollow, noarchive"><link rel="stylesheet" href="./web-preview.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><img src="./assets/app-icon.png" alt=""></div>
+        <div><div class="brand-title">こつこつ貯金</div><div class="brand-caption">500円玉が、ちいさな楽しみに。</div></div>
+      </div>
+      <button id="open-settings" class="icon-button" type="button" aria-label="設定を開く" title="設定">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="M19.3 12a7.6 7.6 0 0 0-.1-1l1.7-1.3-1.6-2.8-2.1.8a8.6 8.6 0 0 0-1.7-1L15.2 4H8.8l-.4 2.7c-.6.2-1.1.6-1.6 1l-2.1-.8-1.6 2.8 1.7 1.3a7 7 0 0 0 0 2l-1.7 1.3 1.6 2.8 2.1-.8c.5.4 1 .8 1.6 1l.4 2.7h6.4l.4-2.7c.6-.2 1.2-.6 1.7-1l2.1.8 1.6-2.8-1.7-1.3c.1-.3.1-.6.1-1Z"/></svg>
+      </button>
+    </header>
+    <main class="main">
+      <section class="hero" aria-label="貯金額">
+        <div class="hero-light hero-light-a"></div><div class="hero-light hero-light-b"></div>
+        <div class="small-label"><span class="shine">✦</span> いままでの貯金</div>
+        <div class="amount-line"><strong id="total-amount" class="amount" aria-live="polite">0</strong><span class="yen">円</span></div>
+        <div class="coin-count"><span class="tiny-coin">¥</span><span id="coin-count">500円玉 0枚</span></div>
+        <div id="art-stage" class="art-stage" aria-live="off">
+          <div class="sparkle s1">✧</div><div class="sparkle s2">✦</div><div class="sparkle s3">✧</div>
+          <div class="pig-glow" aria-hidden="true"></div>
+          <div class="pig-floor-shadow" aria-hidden="true"></div>
+          <img class="standing-coin" src="./assets/piggy-standing-coin.webp" alt="" aria-hidden="true" draggable="false">
+          <img id="piggy-art" class="piggy-art" src="./assets/piggy-body-neutral.webp" alt="ピンク色の豚の貯金箱" draggable="false">
+          <div id="drop-coin" class="drop-coin" aria-hidden="true">500</div><div class="exit-coin" aria-hidden="true">500</div><div class="burst" aria-hidden="true"><span>✦</span><span>✦</span><span>✧</span><span>✦</span><span>✧</span><span>✦</span></div>
+        </div>
+        <div id="action-toast" class="action-toast" role="status" aria-live="polite"></div>
+      </section>
+      <section class="goal-card" aria-labelledby="goal-title">
+        <div class="goal-head"><div><div class="eyebrow">MY GOAL</div><h2 id="goal-title">目標まであと <span id="remaining-amount">50,000円</span></h2></div><div class="percent-pill" id="progress-percent">0%</div></div>
+        <div class="track" role="progressbar" aria-label="貯金の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track"><span class="track-fill" id="progress-fill"></span></div>
+        <div class="goal-footer"><span id="goal-amount">目標 50,000円</span><button id="change-goal" class="small-link" type="button">目標を変更 <span aria-hidden="true">›</span></button></div>
+        <button class="new-cycle-button" id="start-again" type="button" hidden>🎉 おめでとう！ 次の貯金を始める ›</button>
+      </section>
+      <section class="actions" aria-label="500円玉の貯金を操作">
+        <button class="deposit-button" id="deposit" type="button"><span class="deposit-icon">＋</span><span>500円を入れる</span><span class="deposit-glow">✦</span></button>
+        <div class="sub-actions">
+          <button class="secondary-action" id="withdraw" type="button">− 1枚取り出す</button>
+          <button class="secondary-action" id="undo" type="button">↶ ひとつ戻す</button>
+        </div>
+      </section>
+      <details class="history-panel" id="history-panel">
+        <summary class="section-heading"><span class="section-title">貯金のきろく</span><span class="history-hint">最近の記録を見る <span aria-hidden="true">⌄</span></span></summary>
+        <div id="history-list" class="history-list"><div class="empty-history">はじめの500円玉を入れてみよう！</div></div>
+      </details>
+      <div class="foot-note">あなたの記録は、この端末内に保存されます。</div>
+    </main>
+    <div id="web-ad-placeholder" class="web-ad-placeholder" role="note">広告エリア <span>（ブラウザプレビュー）</span></div>
+  </div>
+  <div class="dialog-layer" id="goal-dialog" hidden>
+    <div class="dialog-backdrop" data-close="goal"></div><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="goal-dialog-title">
+      <div class="dialog-handle" aria-hidden="true"></div>
+      <h2 id="goal-dialog-title">目標金額をきめる</h2>
+      <p>500円単位で設定できます。</p>
+      <label class="field-label" for="goal-input">目標金額（円）</label>
+      <input id="goal-input" type="number" inputmode="numeric" min="500" max="500000000" step="500" value="50000">
+      <div class="quick-goals">
+        <button class="quick-goal" data-goal="10000" type="button">1万円</button>
+        <button class="quick-goal" data-goal="30000" type="button">3万円</button>
+        <button class="quick-goal" data-goal="50000" type="button">5万円</button>
+        <button class="quick-goal" data-goal="100000" type="button">10万円</button>
+      </div>
+      <div class="dialog-buttons"><button type="button" class="cancel" data-close="goal">キャンセル</button><button id="save-goal" type="button" class="save">決定する</button></div>
+    </section>
+  </div>
+  <div class="dialog-layer" id="settings-dialog" hidden>
+    <div class="dialog-backdrop" data-close="settings"></div>
+    <section class="dialog settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="dialog-handle"></div><h2 id="settings-title">設定</h2>
+      <div class="setting-row"><div><strong>貯金の効果音</strong><small>お好みの音を選んで、試聴できます</small></div><label class="switch"><input id="sound-toggle" type="checkbox" checked aria-label="効果音を有効にする"><span class="switch-ui"></span></label></div>
+      <fieldset class="sound-picker" id="sound-picker">
+        <legend>効果音を選ぶ</legend>
+        <label class="sound-option"><input type="radio" name="coin-sound" value="original" checked><span class="sound-copy"><strong>きらり</strong><small>これまでの明るい音</small></span><button type="button" class="sound-preview" data-preview="original" aria-label="きらりを試聴">▶</button></label>
+        <label class="sound-option"><input type="radio" name="coin-sound" value="drop"><span class="sound-copy"><strong>チャリン</strong><small>1枚の硬貨が落ちる音</small></span><button type="button" class="sound-preview" data-preview="drop" aria-label="チャリンを試聴">▶</button></label>
+        <label class="sound-option"><input type="radio" name="coin-sound" value="stack"><span class="sound-copy"><strong>チャラッ</strong><small>硬貨が重なる音</small></span><button type="button" class="sound-preview" data-preview="stack" aria-label="チャラッを試聴">▶</button></label>
+      </fieldset>
+      <div class="setting-group-title">大切な記録</div>
+      <button class="setting-item" id="export" type="button">記録をファイルに保存 <span>›</span></button>
+      <button class="setting-item" id="import" type="button">保存ファイルから復元 <span>›</span></button>
+      <button class="setting-item" id="archive-open" type="button">これまでの貯金 <span id="archive-count">0回 ›</span></button>
+      <button class="setting-item" id="reset-savings" type="button">新しい貯金を始める <span>›</span></button>
+      <p class="setting-description">新しい貯金を始めても、これまでの記録は残ります。</p>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+      <div class="setting-group-title">広告</div>
+      <p class="setting-description">無料版はバナー広告と、ときどき全画面広告が表示されます。</p>
+      <div class="setting-description ad-test-diagnostic" aria-live="polite"><strong>広告の状態：</strong><span id="ad-test-status">起動を確認中</span></div>
+      <button class="setting-item" id="ad-privacy-options" type="button">広告のプライバシー設定 <span>›</span></button>
+      <button class="setting-item" id="privacy-info" type="button">プライバシーについて <span>›</span></button>
+      <button class="premium" id="purchase" type="button">✦ 広告を永久に削除（480円）</button>
+      <button class="setting-item" id="restore-purchase" type="button">以前の購入を復元する <span>›</span></button>
+      <div class="setting-description" id="purchase-status" aria-live="polite">購入状態を確認しています</div>
+      <button class="close-dialog" data-close="settings" type="button">閉じる</button>
+    </section>
+  </div>
+  <div class="dialog-layer" id="archives-dialog" hidden>
+    <div class="dialog-backdrop" data-close="archives"></div>
+    <section class="dialog archives-dialog" role="dialog" aria-modal="true" aria-labelledby="archives-title">
+      <div class="dialog-handle" aria-hidden="true"></div>
+      <h2 id="archives-title">これまでの貯金</h2>
+      <p>新しい貯金を始める前の記録も、大切に残しています。</p>
+      <div id="archives-list" class="archives-list"></div>
+      <button class="close-dialog" data-close="archives" type="button">閉じる</button>
+    </section>
+  </div>
+  <div class="dialog-layer" id="privacy-dialog" hidden>
+    <div class="dialog-backdrop" data-close="privacy"></div>
+    <section class="dialog privacy-dialog" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+      <div class="dialog-handle" aria-hidden="true"></div>
+      <h2 id="privacy-title">プライバシーについて</h2>
+      <p>貯金額・目標金額・入出金の記録・効果音の設定は、お使いの端末に保存されます。アカウント登録や貯金記録の外部送信はありません。</p>
+      <p>無料版ではGoogle AdMobの広告を表示します。広告の配信や不正利用防止のため、Googleが端末情報などを処理する場合があります。広告に関する同意の選択は設定画面の「広告のプライバシー設定」から確認できます。</p>
+      <p>広告削除の購入と復元はAppleのアプリ内課金機能で処理されます。バックアップは、利用者が操作したときだけ端末から書き出します。</p>
+      <p>アプリを削除すると端末内の貯金記録も失われます。必要に応じてバックアップを保存してください。</p>
+      <p><a href="https://arakiyuuta0314-sketch.github.io/app-legal-pages/privacy/" target="_blank" rel="noopener noreferrer">プライバシーポリシー全文を読む ↗</a></p>
+      <button class="close-dialog" data-close="privacy" type="button">閉じる</button>
+    </section>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script defer src="./monetization.js"></script>
+  <script type="module" src="./app.js"></script>
+</body></html>

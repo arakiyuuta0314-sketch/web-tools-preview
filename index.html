@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#edf7ef">
+<title>ゆたのWebアプリ｜ブラウザ版プレビュー</title>
+<meta name="description" content="iPhone向けに開発したツールをWebブラウザから試せるプレビューページ。">
+<style>
+:root{color-scheme:light;--ink:#193229;--sub:#637269;--line:#d9e8de;--green:#257953}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;background:linear-gradient(155deg,#f0f9f1 0%,#fff 52%,#f7fbf6 100%);min-height:100vh}
+main{max-width:900px;margin:auto;padding:clamp(28px,6vw,72px) 20px 70px}
+.eyebrow{font-size:12px;letter-spacing:.15em;font-weight:800;color:var(--green)}h1{font-size:clamp(30px,6vw,47px);letter-spacing:-.055em;line-height:1.25;margin:14px 0 15px}p{line-height:1.9}header p{max-width:640px;color:var(--sub);font-size:15px;margin:0 0 34px}.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;min-height:230px;padding:25px 22px;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 30px #2449320c;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}.card:hover,.card:focus-visible{transform:translateY(-3px);border-color:#75bd91;outline:0}.icon{width:61px;height:61px;border-radius:18px;display:grid;place-items:center;font-size:33px;background:#fff2f4}.card:nth-child(2) .icon{background:#eef7ef}.card:nth-child(3) .icon{background:#e9f4ff}.card h2{font-size:20px;line-height:1.4;margin:18px 0 4px}.card p{font-size:13px;line-height:1.7;color:var(--sub);margin:0 0 17px}.go{margin-top:auto;font-size:13px;color:var(--green);font-weight:800}
+.note{margin-top:29px;padding:23px 25px;background:#fff;border:1px solid var(--line);border-radius:18px}.note h2{font-size:15px;margin:0 0 6px}.note p{font-size:13px;color:var(--sub);margin:0}.note p+p{margin-top:7px}footer{margin-top:32px;font-size:12px;color:#7b8981}
+@media(max-width:530px){main{padding-top:45px}.card{min-height:0}.apps{grid-template-columns:1fr}.card h2{margin-top:12px}}
+</style>
+</head>
+<body><main>
+<header><div class="eyebrow">WEB APP PREVIEW</div><h1>ゆたのWebアプリ</h1><p>iPhone向けに作った3つのアプリを、ブラウザでもお試しいただけます。スマートフォン・PCのどちらからでも開けます。</p></header>
+<section class="apps" aria-label="アプリを選ぶ">
+<a class="card" href="./coin-jar/"><span class="icon" aria-hidden="true">🐷</span><h2>こつこつ500円貯金</h2><p>500円玉を入れたり取り出したり。楽しく貯金を記録。</p><span class="go">ブラウザで開く →</span></a>
+<a class="card" href="./myprof/"><span class="icon" aria-hidden="true">🪪</span><h2>マイプロフ</h2><p>自分のプロフィールと、人生の記録を一枚のカードに。</p><span class="go">ブラウザで開く →</span></a>
+<a class="card" href="./wish-note/"><span class="icon" aria-hidden="true">✨</span><h2>願いを育てる -Wish Note-</h2><p>好きな風景を眺めながら、願いと向き合う小さなノート。</p><span class="go">ブラウザで開く →</span></a>
+</section>
+<section class="note"><h2>プレビュー版について</h2><p>このサイトは開発版のWebプレビューです。Appleのアプリ内課金、iPhone専用の広告や通知など、一部の機能はWebでは利用できません。</p><p>入力した内容は基本的にお使いのブラウザ内に保存され、iPhoneアプリとは同期されません。ブラウザのデータを削除すると記録も消える場合があります。大切な情報の長期保存には使わないでください。</p><p>URLは一般公開されています。検索結果への掲載は抑制していますが、アクセス制限ではありません。</p></section>
+<footer>© 2026 ゆた / Web preview</footer>
+</main></body></html>

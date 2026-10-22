@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b2d6ec">
+<meta name="color-scheme" content="light">
+<title>願いを育てる-Wish Note-</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="shared-feedback.css">
+<meta name="robots" content="noindex, nofollow, noarchive"><link rel="stylesheet" href="./web-preview.css">
+</head>
+<body>
+<div id="app">
+<section class="screen scenic home" data-screen="home">
+  <canvas id="sky-ripple-canvas" class="sky-ripple-canvas" aria-hidden="true"></canvas>
+  <div id="sky-ripple-field" class="sky-ripple-field" aria-hidden="true"></div>
+  <div class="hero-copy" aria-label="願いを育てる-Wish Note-"><h1 class="home-title-ja">願いを育てる</h1><p class="home-title-en">-Wish Note-</p></div>
+  <nav class="floating-menu" aria-label="ホームメニュー">
+    <div class="float-submenu">
+      <button class="side-icon" type="button" data-action="new" aria-label="新しい願い" title="New"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="side-icon" type="button" data-action="list" aria-label="願い一覧" title="List"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+      <button class="side-icon" type="button" data-action="settings" aria-label="設定" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l-1.87 1.87A1.7 1.7 0 0 0 16 18.4a1.7 1.7 0 0 0-1.4 1.56V21h-5.2v-1.04A1.7 1.7 0 0 0 8 18.4a1.7 1.7 0 0 0-1.88.35l-1.87-1.87A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3.04 13.6H2v-3.2h1.04A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.35-1.88l1.87-1.87A1.7 1.7 0 0 0 8 5.6a1.7 1.7 0 0 0 1.4-1.56V3h5.2v1.04A1.7 1.7 0 0 0 16 5.6a1.7 1.7 0 0 0 1.88-.35l1.87 1.87A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.56 1.4H22v3.2h-1.04A1.7 1.7 0 0 0 19.4 15Z"/></svg></button>
+    </div>
+  </nav>
+  <button class="execute-icon" type="button" data-action="begin" aria-label="引き寄せる" title="引き寄せる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7z"/></svg></button>
+</section>
+<section class="screen settings wish-index" data-screen="list" hidden>
+ <header class="settings-head"><button class="back-dark" data-action="home" aria-label="ホームに戻る">‹</button><h1>登録一覧</h1><button class="text-link" data-action="new">新しく願う</button></header>
+ <p class="screen-intro">登録した願いを選んで、確認・編集できます。</p>
+ <div id="wish-list" class="wish-list"></div>
+</section>
+<section class="screen scenic" data-screen="detail" hidden>
+ <header class="nav"><button data-action="list" aria-label="一覧に戻る">‹</button><h1>願いの記録</h1><button class="text-link" data-action="edit">編集</button></header>
+ <div class="detail-body"><p class="detail-wish" id="detail-wish"></p><div class="detail-stats" id="detail-stats"></div><div id="achievement-info"></div>
+ <div class="detail-actions"><button class="ghost-button" data-action="select">この願いを選ぶ</button><button class="ghost-button" data-action="achievement">叶った日を登録</button><button class="ghost-button danger" data-action="delete">願いを削除</button></div></div>
+</section>
+<section class="screen settings wish-editor" data-screen="editor" hidden>
+ <header class="settings-head"><button class="back-dark" data-action="back-editor" aria-label="戻る">‹</button><h1 id="editor-title">新しい願い</h1><button class="editor-header-save" type="submit" form="wish-form">保存</button></header>
+ <form id="wish-form" class="form-body editor-form">
+ <section class="editor-card editor-text-card"><label class="field-caption" for="wish-text">願いを、言葉に。</label>
+ <textarea id="wish-text" name="wishText" maxlength="500" placeholder="願いを入力してください" required></textarea>
+ <p class="helper" id="wish-char-count">0 / 500文字</p></section>
+ <p class="group-heading">背景と文字色</p>
+ <section class="editor-card"><div class="background-picker"><label class="field-caption" for="wish-color">願いの文字色</label><input type="color" id="wish-color" value="#ffffff" aria-label="願いの文字色"><label class="field-caption" for="background-kind">背景の種類</label><select id="background-kind"><option value="built-in">アプリ内の風景</option><option value="photo">自分の写真</option></select><div id="built-in-backgrounds"><label class="field-caption" for="background-id">背景を選ぶ（制作候補32枚）</label><select id="background-id"></select><img id="background-preview" alt="選択中の背景プレビュー" loading="lazy"><label class="random-checkbox"><input id="random-bg" type="checkbox"> 毎回ランダムに表示</label><p class="helper">内蔵画像は画質検証中の候補です。</p></div><div id="personal-photo" hidden><label class="field-caption" for="photo-input">写真を選ぶ</label><input id="photo-input" type="file" accept="image/*"><img id="photo-preview" alt="選択中の写真" hidden><p class="helper">写真は端末内に保存します。再インストールや機種変更に備えたバックアップは今後対応予定です。</p></div></div></section>
+ <p class="group-heading">文字の表示と配置</p>
+ <section class="editor-card"><div class="wish-layout-controls">
+ <p class="field-caption">願いの表示調整</p>
+ <label class="wish-layout-label" for="wish-font-size">文字サイズ <output id="wish-font-size-value">23px</output></label>
+ <input id="wish-font-size" type="range" min="16" max="40" step="1" value="23">
+ <label class="wish-layout-label" for="wish-text-width">文字の横幅 <output id="wish-text-width-value">92%</output></label>
+ <input id="wish-text-width" type="range" min="70" max="96" step="1" value="92">
+ <p class="field-caption">文字の位置</p>
+ <div class="wish-position-presets" role="group" aria-label="縦位置を選ぶ"><button type="button" data-position-preset="top">上部</button><button type="button" data-position-preset="center">中央</button><button type="button" data-position-preset="bottom">下部</button></div>
+ <p class="helper placement-guide">下の風景上で文字を指で動かすと、好きな位置に配置できます。</p>
+ <div id="wish-placement-preview" class="wish-placement-preview" role="group" aria-label="文字配置プレビュー"><div id="wish-placement-stage" class="wish-placement-stage"><div id="wish-placement-text" class="wish-placement-text"></div></div><div class="wish-placement-ad">広告表示エリア</div></div>
+ <button type="button" id="wish-position-reset" class="ghost-button wish-position-reset">中央に戻す</button>
+ </div></section>
+ <button type="submit" class="white-cta editor-bottom-save">願いを保存</button></form>
+</section>
+<section class="screen scenic session" data-screen="session" hidden>
+ <div class="wish-position" id="wish-position"><p class="session-words a16-wish-display-text" id="session-words"></p></div>
+ <div class="session-controls"><p id="session-seconds" role="timer" hidden>15</p><button data-action="return-session" class="session-return" aria-label="ホームへ戻る" hidden>‹</button></div>
+</section>
+<section class="screen scenic done" data-screen="done" hidden>
+ <div class="done-center"><span class="done-symbol">✧</span><h1>今日の願いを、心に。</h1><p id="done-stats"></p></div>
+ <nav class="done-links"><button class="float-action main-cta" data-action="home">ホームへ</button><button class="float-action" data-action="list">登録一覧を見る</button></nav>
+</section>
+<section class="screen scenic" data-screen="achievement" hidden>
+ <header class="nav"><button data-action="detail" aria-label="願い詳細へ戻る">‹</button><h1>叶った日の記録</h1><span class="nav-spacer"></span></header>
+ <form id="achievement-form" class="form-body"><p class="screen-intro">この願いが叶った日を、記録します。</p>
+ <label class="field-caption" for="achieved-date">叶った日</label><input id="achieved-date" type="date" required>
+ <label class="field-caption" for="achievement-note">ひとこと（任意）</label><textarea id="achievement-note" maxlength="500" placeholder="叶ったときの気持ちを残せます。"></textarea>
+ <button class="white-cta" type="submit">叶った日を保存</button><button class="float-action standalone" data-action="unachieve" type="button" id="unachieve-button">叶った記録を取り消す</button></form>
+</section>
+<section class="screen settings guide-screen" data-screen="guide" hidden>
+ <header class="settings-head guide-head"><button class="back-dark" data-action="guide-exit" type="button" aria-label="案内を閉じる">‹</button><h1>はじめての方へ</h1><span></span></header>
+ <main class="guide-body">
+  <div class="guide-intro"><span class="guide-eyebrow">願いを育てる-Wish Note-</span><h2>願いを思い出す、小さな時間。</h2><p>心の中にある願いを、ひとつの言葉に。<br>好きな景色を眺めながら、静かに思い描くための小さなノートです。</p></div>
+  <section class="guide-panel" aria-labelledby="guide-belief-title"><h3 id="guide-belief-title">「引き寄せ」って、なんだろう？</h3><p>望む未来を思い浮かべ、意識を向けるという考え方です。Wish Noteでは、願いを思い出し、自分にとって大切なことや次の小さな一歩に気づく時間として取り入れています。</p></section>
+  <h3 class="guide-section-title">使い方は、3つだけ</h3>
+  <ol class="guide-steps">
+   <li><span class="guide-step-number">01</span><div><h4>願いを、言葉にする</h4><p>「きっと、私は理想の未来を生きている。」のように、心地よい言葉で登録しましょう。背景や文字の位置も自由に整えられます。</p></div></li>
+   <li><span class="guide-step-number">02</span><div><h4>景色の中で、思い描く</h4><p>ホームの再生マークから、5〜30秒の「引き寄せ」を始めます。願いをそっと見つめて、叶ったときの気持ちを想像してみましょう。</p></div></li>
+   <li><span class="guide-step-number">03</span><div><h4>今日の一歩を、大切に</h4><p>できそうなことが見つかったら、ひとつ試してみても。引き寄せの回数は自動で記録され、願いが叶った日も残せます。</p></div></li>
+  </ol>
+  <section class="guide-panel guide-frequency"><h3>どれくらい続けたらいい？</h3><p><strong>おすすめは、1日1回。</strong> 朝や寝る前など、気持ちの落ち着くタイミングで。もう一度向き合いたい日は何回でも大丈夫です。</p><p>回数が多いほど叶うという決まりはありません。できない日があっても、気にしなくて大丈夫。</p></section>
+  <p class="guide-footnote">願いを思い描くだけで現実が変わると、科学的に証明されているわけではありません。自分の望みを確かめ、行動を考えるきっかけとして使ってください。</p>
+  <details class="guide-sources"><summary>考え方の参考資料</summary><p><a href="https://woopmylife.org/ja/practice" target="_blank" rel="noopener noreferrer">WOOP：願い・結果・障害・計画</a></p><p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8149892/" target="_blank" rel="noopener noreferrer">目標に向かう行動の研究（英語）</a></p><p><a href="https://doi.org/10.1002/ejsp.674" target="_blank" rel="noopener noreferrer">習慣形成の研究（英語）</a></p></details>
+  <div class="guide-actions"><button type="button" class="guide-primary" data-action="guide-start" id="guide-start">願いを登録する</button><button type="button" class="guide-secondary" data-action="guide-exit" id="guide-exit">あとで</button></div>
+ </main>
+</section>
+<section class="screen settings" data-screen="settings" hidden>
+ <header class="settings-head"><button class="back-dark" data-action="home" aria-label="ホームに戻る">‹</button><h1>設定</h1><span></span></header>
+ <div class="settings-body">
+ <p class="group-heading">引き寄せ</p>
+ <div class="settings-group">
+  <label class="settings-row" for="menu-side"><span>メニューの位置</span><select id="menu-side"><option value="left">左</option><option value="right">右</option></select></label>
+  <label class="settings-row" for="duration"><span>引き寄せ時間</span><select id="duration"><option value="5">5秒</option><option value="10">10秒</option><option value="15">15秒</option><option value="20">20秒</option><option value="30">30秒</option></select></label>
+  <label class="settings-row" for="reminder-time"><span>通知時刻</span><input type="time" id="reminder-time"></label>
+  <label class="settings-row" for="reminder-enabled"><span>毎日の通知</span><input id="reminder-enabled" type="checkbox" disabled></label>
+ </div><p class="settings-explanation" id="reminder-status">ブラウザ試作では通知は送信されません。iPhoneアプリで設定できます。</p>
+ <p class="group-heading">はじめての方へ</p>
+ <div class="settings-group"><button class="settings-row guide-settings-link" type="button" data-action="guide-open"><span>このアプリの目的と使い方</span><span aria-hidden="true">›</span></button></div>
+ <p class="group-heading">広告・購入</p>
+ <div class="settings-group">
+  <button type="button" class="settings-row ad-privacy-row" id="ads-privacy-button" data-action="ads-privacy" hidden><span>広告のプライバシー設定</span><span aria-hidden="true">›</span></button>
+  <button type="button" class="settings-row purchase-row" id="remove-ads-button" data-action="buy-remove-ads" disabled><span>広告を永久に削除</span><span id="remove-ads-price" class="purchase-price">確認中</span></button>
+  <button type="button" class="settings-row purchase-row" id="restore-purchases-button" data-action="restore-purchase" disabled><span>購入を復元</span><span aria-hidden="true">›</span></button>
+ </div><p class="settings-explanation">無料版には広告が表示されます。広告削除は一度の購入で永久に有効です。機種変更後も同じApple Accountで「購入を復元」できます。</p><p id="purchase-status" class="settings-explanation purchase-status" role="status" aria-live="polite">App Storeに接続して確認します。</p>
+ <p class="group-heading">ヘルプ・規約</p>
+ <div class="settings-group">
+  <a class="settings-row" id="privacy-link" rel="noopener noreferrer" target="_blank"><span>プライバシーポリシー</span><span>↗</span></a>
+  <a class="settings-row" id="support-link" rel="noopener noreferrer" target="_blank"><span>サポート</span><span>↗</span></a>
+  <a class="settings-row" id="contact-link"><span>お問い合わせ</span><span>↗</span></a>
+ </div>
+ <p class="settings-explanation">願いと写真は端末内に保存します。写真を含む機種変更用バックアップは未対応です。</p>
+ </div>
+</section>
+<div id="scene-dip" class="scene-dip" aria-hidden="true"></div>
+<div class="ad-space" aria-hidden="true"><span>広告枠（開発版では未接続）</span></div>
+<div id="error" role="alert" hidden></div>
+</div>
+<div id="toast" class="a16-toast" role="status" aria-live="polite" hidden></div>
+<script defer src="app.js"></script>
+</body></html>

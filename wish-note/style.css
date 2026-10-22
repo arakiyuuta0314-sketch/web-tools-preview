@@ -1,0 +1,403 @@
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;color:#fff;font-size:16px;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}html,body,#app{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden}
+button,input,textarea,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #ffcc78;outline-offset:3px}
+#app{position:relative;isolation:isolate;background:#bdddef}.screen{position:absolute;inset:0;overflow-y:auto;padding-bottom:calc(86px + env(safe-area-inset-bottom));scrollbar-width:none}.screen[hidden]{display:none!important}.screen::-webkit-scrollbar{display:none}
+.scenic{background:linear-gradient(180deg,rgba(55,124,190,.10) 0%,rgba(207,236,248,.06) 35%,rgba(36,108,158,.21) 67%,rgba(7,52,93,.74) 100%),radial-gradient(ellipse at 76% 16%,#f9f9eb 0%,#a2d3ed 23%,transparent 46%),linear-gradient(175deg,#347fc1 0%,#7ec9ee 35%,#c7dfde 49%,#6499c6 51%,#164b86 100%)}
+.scenic:before{content:"";pointer-events:none;position:fixed;left:0;right:0;top:48%;height:1px;background:rgba(255,255,255,.4);box-shadow:0 5px 40px 7px rgba(255,255,255,.26)}
+.top-brand{position:absolute;top:calc(55px + env(safe-area-inset-top));left:24px;right:24px;text-align:center;text-shadow:0 1px 10px rgba(0,34,62,.4);display:grid;gap:6px}
+.top-brand span{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:17px;letter-spacing:.17em}.top-brand small{font-family:Georgia,serif;font-size:10px;letter-spacing:.35em;opacity:.78}
+.hero-copy{position:absolute;top:41%;transform:translateY(-50%);left:24px;right:24px;text-align:center}
+.hero-wish,.detail-wish,.session-words{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.8;letter-spacing:.06em;text-shadow:0 2px 20px rgba(0,30,57,.75)}
+.hero-wish{font-size:clamp(20px,6vw,27px);margin:0 0 20px}.hero-stats{font-size:12px;letter-spacing:.10em;opacity:.85;text-shadow:0 2px 7px #225273;margin:0}
+.floating-menu{position:absolute;bottom:calc(111px + env(safe-area-inset-bottom));left:16px;right:16px;text-align:center;display:flex;flex-direction:column;gap:18px}
+.float-action{border:0;background:transparent;color:#fff;text-shadow:0 2px 14px #254664;font-size:13px;padding:12px 9px;min-height:44px;letter-spacing:.08em}
+.float-action:active{transform:scale(.97);opacity:.78}.main-cta{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:26px;letter-spacing:.22em}
+.float-submenu{display:flex;justify-content:center;flex-wrap:wrap;column-gap:7px}
+.ad-space{position:absolute;bottom:0;left:0;right:0;height:calc(50px + env(safe-area-inset-bottom));z-index:3;background:rgba(255,255,255,.92);color:#7a8692;display:flex;align-items:center;justify-content:center;padding-bottom:env(safe-area-inset-bottom);font-size:11px;letter-spacing:.04em;border-top:1px solid #e2e5e6}
+.screen.session{padding-bottom:calc(50px + env(safe-area-inset-bottom))}.nav{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 20px;padding-top:calc(48px + env(safe-area-inset-top))}.nav h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:18px;letter-spacing:.12em;font-weight:400;text-align:center}.nav button{border:0;color:#fff;background:transparent;min-height:44px;min-width:44px;font-size:31px;text-shadow:0 1px 12px #356b8a}.nav button.text-link{font-size:12px;min-width:85px;text-align:right;padding:0}.nav-spacer{width:44px}.screen-intro{text-align:center;margin:28px 24px;color:#f5fbff;text-shadow:0 2px 10px #3d657b;font-size:13px}
+.wish-list{padding:12px 24px 30px;display:grid;gap:14px;max-width:640px;margin:auto}.wish-tile{display:grid;gap:12px;text-align:left;width:100%;padding:22px;border:1px solid rgba(255,255,255,.26);border-radius:15px;background:linear-gradient(140deg,rgba(41,95,145,.75),rgba(22,56,89,.72));color:white;box-shadow:0 12px 25px rgba(10,41,80,.14);min-height:110px}.wish-tile.active-tile{border-color:#f8e7ba}.wish-tile .tile-text{font:18px/1.7 "Hiragino Mincho ProN","Yu Mincho",serif;white-space:pre-wrap;overflow-wrap:anywhere}.wish-tile .tile-sub{font-size:11px;opacity:.83;letter-spacing:.05em}.empty-message{text-align:center;margin:70px auto 20px;line-height:2;font-size:14px}.ghost-button{border:1px solid rgba(255,255,255,.62);background:rgba(16,52,87,.24);border-radius:30px;color:white;min-height:48px;padding:11px 24px;font-size:13px;letter-spacing:.07em}.ghost-button.danger{border-color:#f7c9c4;color:#ffe2d9}.detail-body{max-width:640px;margin:auto;padding:22px 29px 50px}.detail-wish{font-size:clamp(19px,5vw,26px);margin:38px auto 32px;min-height:100px;text-align:center}.detail-stats{display:grid;grid-template-columns:1fr 1fr;gap:20px 18px;padding:20px 0}.stat-label{font-size:11px;opacity:.75}.stat-value{font-size:15px;line-height:1.5;white-space:pre-wrap;margin-top:8px}.detail-actions{margin-top:26px;display:grid;justify-items:center;gap:13px}.achieved-label{margin:14px 0;font-size:14px;text-align:center;color:#ffe7a7}.form-body{max-width:640px;margin:22px auto;padding:15px 29px 65px;display:grid;gap:10px}.field-caption{margin-top:18px;margin-bottom:8px;font-size:13px;letter-spacing:.05em}.form-body textarea,.form-body input[type=date]{width:100%;background:rgba(15,52,89,.36);color:#fff;border:1px solid #ffffff88;border-radius:12px;padding:16px;resize:vertical;line-height:1.65;min-height:135px}.form-body input[type=date]{min-height:53px;color-scheme:dark}.form-body textarea::placeholder{color:#f2f7fbba}.helper{font-size:11px;color:#eaf2f7;text-align:right}.setting-note{display:grid;gap:8px;background:#144b7b50;border-radius:13px;margin:14px 0;padding:18px;font-size:12px}.setting-note small{opacity:.75;line-height:1.65}.white-cta{width:100%;border:0;border-radius:26px;min-height:52px;background:#fff8ef;color:#2e5a75;font-size:15px;font-weight:650;margin-top:13px}.float-action.standalone{margin-top:10px;display:block;width:100%}.session{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:4px}.session-caption{position:absolute;top:calc(85px + env(safe-area-inset-top));font-size:11px;letter-spacing:.25em;color:#f3f7fd}.session-words{font-size:clamp(25px,6vw,33px);padding:28px;max-width:680px;animation:appear 2.5s ease both}.session-controls{position:absolute;bottom:calc(40px + env(safe-area-inset-bottom));display:grid;gap:14px}.session-controls #session-seconds{font-size:28px;margin:0;font-family:Georgia,serif;font-variant-numeric:tabular-nums;color:#fff8ec}.session-controls button{font-size:12px}.done-center{position:absolute;top:42%;left:25px;right:25px;transform:translateY(-50%);text-align:center}.done-symbol{font-size:40px;color:#ffe3ad}.done-center h1{font:24px/1.8 "Hiragino Mincho ProN","Yu Mincho",serif}.done-center p{font-size:13px;line-height:2;opacity:.85}.done-links{position:absolute;bottom:calc(108px + env(safe-area-inset-bottom));left:15px;right:15px;display:grid;gap:5px;text-align:center}
+.settings{background:#f4f5f6;color:#253847}.settings-head{padding:calc(28px + env(safe-area-inset-top)) 20px 8px;display:grid;grid-template-columns:45px 1fr 45px;align-items:center}.settings-head h1{text-align:center;font-size:20px;margin:0;font-weight:650}.back-dark{border:0;background:transparent;color:#324954;font-size:32px;min-width:44px;min-height:44px}.settings-body{max-width:640px;margin:auto;padding:10px 19px 40px}.group-heading{margin:26px 8px 10px;color:#69747d;font-size:12px}.settings-group{background:white;border-radius:13px;overflow:hidden;padding:0 14px;box-shadow:0 1px 5px #2233440d}.settings-row{display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;min-height:53px;padding:8px 2px;font-size:14px}.settings-row+.settings-row{border-top:1px solid #e7e9ed}.settings-row select,.settings-row input{color:#4c667a;border:0;background:none;font-size:14px;max-width:120px;color-scheme:light}.disabled-row span:last-child{color:#8795a0;font-size:12px}.settings-explanation{font-size:12px;line-height:1.8;color:#71808b;padding:0 8px;margin:12px 0 23px}
+#error{position:absolute;left:15px;right:15px;bottom:calc(65px + env(safe-area-inset-bottom));z-index:8;background:#fff1ec;color:#9a3730;padding:15px 17px;border-radius:12px;box-shadow:0 5px 30px #0002;font-size:13px;line-height:1.5}#error[hidden]{display:none}
+@media(min-width:640px){.screen.scenic{background-attachment:fixed}.floating-menu{bottom:130px}.ad-space{height:52px;padding-bottom:0}.screen{padding-bottom:75px}}@media(max-height:640px){.top-brand{top:calc(20px + env(safe-area-inset-top))}.floating-menu{bottom:calc(70px + env(safe-area-inset-bottom));gap:0}.hero-copy{top:33%}.main-cta{font-size:21px}.screen-intro{margin:10px 24px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+@keyframes appear{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.hero-wish{max-height:31dvh;overflow:hidden}.session-words{max-height:62dvh;overflow-y:auto;scrollbar-width:thin}.session-words.long-words{font-size:clamp(16px,4.6vw,22px);line-height:1.65;max-height:58dvh}
+
+/* Work images: review-only candidates, dynamically selected per wish. */
+.scenic{background-image:linear-gradient(180deg,rgba(7,28,47,.12),rgba(8,27,45,.06) 34%,rgba(9,28,46,.13) 63%,rgba(7,25,42,.46) 100%),var(--scene-url)!important;background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important}
+.scenic:before{content:none!important}
+.scenic[data-tone="dark"]{color:#163a57}
+.scenic[data-tone="dark"] .float-action,.scenic[data-tone="dark"] .nav button{color:#173d5c;text-shadow:0 1px 12px rgba(255,255,255,.9)}
+.scenic[data-tone="dark"] .hero-wish,.scenic[data-tone="dark"] .detail-wish,.scenic[data-tone="dark"] .session-words,.scenic[data-tone="dark"] .hero-stats,.scenic[data-tone="dark"] .top-brand{color:#193f5b;text-shadow:0 1px 14px rgba(255,255,255,.88)}
+.scenic[data-tone="dark"] .screen-intro,.scenic[data-tone="dark"] .field-caption,.scenic[data-tone="dark"] .helper{color:#1a3c57;text-shadow:0 1px 12px rgba(255,255,255,.95)}
+.scenic[data-tone="dark"] .ghost-button{color:#153957;background:rgba(255,255,255,.64);border-color:#6387a0}
+.scenic[data-tone="dark"] .done-center,.scenic[data-tone="dark"] .session-caption,.scenic[data-tone="dark"] .session-controls{color:#173d58;text-shadow:0 1px 10px rgba(255,255,255,.8)}
+.scenic[data-tone="dark"] .done-center p,.scenic[data-tone="dark"] .done-symbol,.scenic[data-tone="dark"] .session-controls #session-seconds{color:#173d58}
+.background-picker{display:grid;gap:12px;padding:15px;border-radius:14px;background:rgba(7,32,53,.46);backdrop-filter:blur(8px)}
+.background-picker .field-caption{margin:0;color:#fff!important;text-shadow:0 1px 8px #152e47!important}
+.background-picker select{border:1px solid #e4ebee88;border-radius:10px;background:#fff;color:#23435b;padding:12px;min-height:48px}
+.background-picker img{width:130px;max-height:268px;aspect-ratio:9/19.5;object-fit:cover;border-radius:9px;margin:auto;box-shadow:0 3px 19px #0004}
+.background-picker .random-checkbox{display:flex;align-items:center;gap:12px;min-height:45px;font-size:14px;color:#fff}
+.background-picker input[type=checkbox]{width:20px;height:20px;accent-color:#547b9d}
+.background-picker .helper{color:#f3f7fa!important;text-shadow:0 1px 7px #253e5e!important;line-height:1.5;text-align:left}
+.wish-tile{background-size:cover;background-position:center}
+.a16-toast{position:fixed;z-index:1300;left:18px;right:18px;bottom:calc(76px + env(safe-area-inset-bottom));max-width:470px;margin:auto;padding:14px 18px;border-radius:14px;background:#183b56;color:white;box-shadow:0 8px 30px #0004;font-size:14px;text-align:center}
+.a16-toast[hidden]{display:none}
+html.app-viewport .ad-space{height:calc(var(--app-banner-height,50px) + env(safe-area-inset-bottom))}
+html.app-viewport .floating-menu{bottom:calc(var(--app-banner-height,50px) + 61px + env(safe-area-inset-bottom))}
+html.app-viewport .done-links{bottom:calc(var(--app-banner-height,50px) + 58px + env(safe-area-inset-bottom))}
+html.app-viewport #app.session-active .ad-space{display:flex}
+
+/* Main action stays legible on the darker lower half of bright landscapes. */
+.scenic[data-tone="dark"] .floating-menu .float-action,.scenic[data-tone="dark"] .done-links .float-action{color:#fff;text-shadow:0 2px 14px rgba(3,27,48,.93)}
+.scenic[data-tone="dark"] .hero-stats{color:#1e415a;text-shadow:0 1px 11px rgba(255,255,255,.92)}
+
+/* Personal-photo picker and native-only reminder toggle. */
+#personal-photo[hidden],#built-in-backgrounds[hidden],#photo-preview[hidden]{display:none!important}
+#personal-photo,#built-in-backgrounds{display:grid;gap:11px}
+#personal-photo input[type=file]{max-width:100%;font-size:12px;color:white}
+#personal-photo input[type=file]::file-selector-button{border:1px solid #ffffff7a;border-radius:9px;background:#f7fafc;color:#25455d;padding:11px;margin-right:10px}
+#photo-preview{max-width:200px;width:100%;max-height:380px;object-fit:contain;justify-self:center;border-radius:10px;box-shadow:0 7px 25px #0003}
+#reminder-enabled{width:22px;height:22px;accent-color:#4f8cac;cursor:pointer}
+#reminder-enabled:disabled{opacity:.35;cursor:default}
+.scenic[data-tone=photo] .hero-wish,.scenic[data-tone=photo] .detail-wish,.scenic[data-tone=photo] .session-words{color:white;text-shadow:0 2px 8px #0b233d,0 0 17px #132c48}
+.scenic[data-tone=photo] .floating-menu .float-action{color:white;text-shadow:0 2px 13px #0a2944}
+.scenic[data-tone=photo] .hero-stats{color:white;text-shadow:0 2px 7px #0c263f}
+
+/* The record must be readable over arbitrary user photographs, without permanent card borders. */
+.scenic[data-tone="photo"] .detail-stats{background:linear-gradient(90deg,rgba(5,26,47,.47),rgba(7,33,58,.33));backdrop-filter:blur(5px);border-radius:16px;padding:18px}
+.scenic[data-tone="photo"] .detail-stats .stat-label,.scenic[data-tone="photo"] .detail-stats .stat-value{color:#fff;text-shadow:0 2px 9px rgba(0,15,33,.95)}
+.scenic[data-tone="photo"] #achievement-info{background:linear-gradient(90deg,rgba(5,26,47,.42),rgba(7,33,58,.20));border-radius:12px;padding:10px 14px;text-shadow:0 2px 8px #001e39}
+
+/* A16 light and water: effects are separate from the scenery image and never block buttons. */
+.home{isolation:isolate;touch-action:pan-y}
+.home .top-brand,.home .hero-copy,.home .floating-menu{z-index:3}
+.sky-ripple-canvas,.sky-ripple-field{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.sky-ripple-canvas{display:block}
+.sky-ripple-field{overflow:hidden}
+.a16-ambient-ripple{
+  position:absolute;width:22px;height:22px;border:1px solid rgba(235,250,255,.25);
+  border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(.12);
+  box-shadow:inset 0 0 8px rgba(255,255,255,.08),0 0 10px rgba(255,255,255,.12);
+  animation:a16-water-ring 2100ms cubic-bezier(.25,.40,.28,1) both
+}
+@keyframes a16-water-ring{
+  0%{opacity:.55;transform:translate(-50%,-50%) scale(.16)}
+  35%{opacity:.37}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(22)}
+}
+.scene-dip{
+  position:fixed;inset:0;pointer-events:none;z-index:110;opacity:0;
+  background:radial-gradient(ellipse at 50% 40%,rgba(226,245,255,.75) 0%,rgba(172,204,228,.79) 55%,rgba(45,100,137,.87) 100%);
+  will-change:opacity
+}
+.scene-dip.a16-dip-active{pointer-events:auto;animation:a16-color-dip var(--a16-dip-duration,780ms) ease-in-out both}
+@keyframes a16-color-dip{
+  0%{opacity:0}
+  42%{opacity:.85}
+  51%{opacity:.9}
+  60%{opacity:.76}
+  100%{opacity:0}
+}
+.session .session-words{animation:none;will-change:opacity,transform,filter}
+.session .session-words.is-animating{animation:a16-wish-float var(--a16-wish-duration,15000ms) cubic-bezier(.3,.07,.5,.98) both}
+@keyframes a16-wish-float{
+  0%{opacity:0;filter:blur(7px);transform:translateY(16px) scale(.984)}
+  23%{opacity:1;filter:blur(0);transform:translateY(0) scale(1)}
+  68%{opacity:1;filter:blur(0);transform:translateY(-2px) scale(1.003)}
+  87%{opacity:.83;filter:blur(.5px);transform:translateY(-6px) scale(1)}
+  100%{opacity:.16;filter:blur(4px);transform:translateY(-12px) scale(.996)}
+}
+@media(prefers-reduced-motion:reduce){
+  .a16-ambient-ripple{display:none!important}
+  .scene-dip.a16-dip-active{animation:none!important;opacity:0!important;pointer-events:none!important}
+  .session .session-words.is-animating{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}
+}
+
+/* Individual image luminance varies (especially dawn/twilight).
+   Protect legibility without introducing permanent menu cards or separators. */
+.scenic.home .top-brand,.scenic.home[data-tone="dark"] .top-brand{
+  color:#fff!important;text-shadow:0 2px 12px rgba(6,25,43,.86),0 0 2px rgba(10,27,49,.84)!important
+}
+.scenic.home .hero-wish,.scenic.home[data-tone="dark"] .hero-wish{
+  color:#fff!important;text-shadow:0 2px 13px rgba(6,24,45,.95),0 1px 3px rgba(6,27,47,.75)!important
+}
+.scenic.home .hero-stats,.scenic.home[data-tone="dark"] .hero-stats{
+  color:#fff!important;text-shadow:0 2px 10px rgba(7,32,52,.95)!important
+}
+.scenic.session .session-words,.scenic.session[data-tone="dark"] .session-words{
+  color:#fff!important;
+  margin:0 auto;
+  text-shadow:0 3px 16px rgba(7,21,37,.96),0 1px 5px rgba(6,23,42,.86)!important;
+  background:radial-gradient(ellipse at center,rgba(5,21,39,.36),rgba(8,34,57,.18) 42%,transparent 76%);
+}
+.scenic.session .session-caption,.scenic.session[data-tone="dark"] .session-caption,
+.scenic.session .session-controls,.scenic.session[data-tone="dark"] .session-controls,
+.scenic.session .session-controls #session-seconds,.scenic.session[data-tone="dark"] .session-controls #session-seconds{
+  color:white!important;text-shadow:0 2px 12px rgba(4,21,38,.95)!important
+}
+.scenic.session .session-controls .float-action,.scenic.session[data-tone="dark"] .session-controls .float-action{
+  color:#fff!important;text-shadow:0 2px 11px rgba(4,21,38,.95)!important
+}
+
+
+/* A16 minimal home: the scenery and one wish take precedence over navigation. */
+.screen.home .top-brand,.screen.home .hero-stats{display:none!important}
+.screen.home .hero-copy{top:45%;left:44px;right:44px;z-index:4;pointer-events:none}
+.screen.home .hero-wish{font-size:clamp(23px,6.3vw,32px);line-height:1.95;color:#fff!important;text-shadow:0 2px 5px #102d46,0 0 16px #153751,0 0 32px rgba(5,25,45,.8)!important}
+.screen.home .floating-menu{position:absolute;z-index:6;left:10px;right:auto;top:calc(86px + env(safe-area-inset-top));bottom:auto;display:block;width:54px}
+.screen.home[data-menu-side="right"] .floating-menu{left:auto;right:10px}
+.screen.home .float-submenu{display:flex;flex-direction:column;align-items:center;gap:13px}
+.screen.home .side-icon{display:grid;place-items:center;width:52px;height:52px;border:1px solid rgba(255,255,255,.32);border-radius:50%;color:#fff;background:rgba(10,36,61,.28);box-shadow:0 4px 22px rgba(5,25,43,.15);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);padding:12px}
+.screen.home .side-icon svg,.screen.home .execute-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.screen.home .execute-icon{position:absolute;z-index:6;left:50%;transform:translateX(-50%);bottom:calc(81px + env(safe-area-inset-bottom));width:68px;height:68px;border:1px solid rgba(255,255,255,.64);border-radius:50%;background:rgba(13,46,74,.29);color:#fff;box-shadow:0 4px 24px #071e3455;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:18px}
+.screen.home .execute-icon:active{transform:translateX(-50%) scale(.93)}
+.screen.home.a16-entrance .hero-copy{animation:a16-home-title-hold 3.4s ease-out both}
+.screen.home.a16-entrance .side-icon{animation:a16-icon-pop .54s cubic-bezier(.2,1.5,.4,1) both}
+.screen.home.a16-entrance .side-icon:nth-child(1){animation-delay:3.9s}
+.screen.home.a16-entrance .side-icon:nth-child(2){animation-delay:4.08s}
+.screen.home.a16-entrance .side-icon:nth-child(3){animation-delay:4.26s}
+.screen.home.a16-entrance .execute-icon{animation:a16-execute-arrive .85s ease-out 4.05s both}
+@keyframes a16-home-title-hold{0%,10%{opacity:0;filter:blur(10px);transform:translateY(-50%) scale(.97)}75%,100%{opacity:1;filter:blur(0);transform:translateY(-50%) scale(1)}}
+@keyframes a16-icon-pop{from{opacity:0;transform:translateX(-20px) scale(.5)}to{opacity:1;transform:translateX(0) scale(1)}}
+.screen.home[data-menu-side="right"].a16-entrance .side-icon{animation-name:a16-icon-pop-right}
+@keyframes a16-icon-pop-right{from{opacity:0;transform:translateX(20px) scale(.5)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes a16-execute-arrive{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.scene-dip{background:radial-gradient(ellipse at 50% 45%,rgba(253,255,255,.99),rgba(232,244,251,.97) 65%,rgba(203,227,242,.96))!important}
+@keyframes a16-color-dip{0%{opacity:0}24%{opacity:.66}43%,55%{opacity:.97}76%{opacity:.52}100%{opacity:0}}
+.screen.session #session-seconds{display:none!important}
+@media(prefers-reduced-motion:reduce){.screen.home.a16-entrance .hero-copy,.screen.home.a16-entrance .side-icon,.screen.home.a16-entrance .execute-icon{animation:none!important;opacity:1!important;filter:none!important}}
+
+.screen.home .hero-wish{margin:0;max-height:42dvh;overflow:auto;text-wrap:pretty}
+.screen.home .side-icon:focus-visible,.screen.home .execute-icon:focus-visible{outline:3px solid #ffe4a0;outline-offset:3px}
+
+.screen.home .floating-menu .side-icon{min-width:52px!important;min-height:52px!important;flex:0 0 52px!important;box-sizing:border-box!important}
+
+
+
+/* v0.5: keep navigation low and make wish management as legible as settings. */
+.screen.home .floating-menu{top:auto;bottom:calc(98px + env(safe-area-inset-bottom))}
+.screen.wish-index{background:#f4f5f6;color:#253847}
+.screen.wish-index .screen-intro{color:#69747d;text-align:left;margin:22px 25px 10px;font-size:13px;line-height:1.8}
+.screen.wish-index .wish-list{padding:10px 19px 45px;gap:12px}
+.screen.wish-index .wish-index-row{display:flex;align-items:stretch;background:white;border-radius:13px;overflow:hidden;box-shadow:0 1px 7px #22334412}
+.screen.wish-index .wish-tile{min-height:92px;flex:1;min-width:0;padding:18px;background:#fff!important;border:0;border-radius:0;box-shadow:none;color:#253847;gap:8px}
+.screen.wish-index .wish-tile.active-tile{border-left:4px solid #75a8ba}
+.screen.wish-index .wish-tile .tile-text{font-size:17px;line-height:1.55;color:#233c4e}
+.screen.wish-index .wish-tile .tile-sub{color:#667986;opacity:1}
+.screen.wish-index .wish-list-edit{min-width:68px;border:0;border-left:1px solid #e7e9ed;background:#fff;color:#286584;font-size:14px;font-weight:600}
+.screen.wish-index .wish-list-edit:active,.screen.wish-index .wish-tile:active{background:#e8f0f4!important}
+.screen.wish-index .empty-message{color:#566b78}
+.screen.wish-index .white-cta{background:#fff;color:#286584}
+body{background:#d5e6ed}
+.screen.home.a16-entrance{animation:a16-scene-fade 2.6s cubic-bezier(.18,.58,.30,1) both}
+@keyframes a16-scene-fade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.screen.home.a16-entrance{animation:none!important}}
+
+.screen.session .session-caption{display:none!important}
+.screen.session .session-controls{z-index:10;bottom:calc(94px + env(safe-area-inset-bottom))}
+.screen.session .session-return{display:grid;place-items:center;border:1px solid #ffffffa8;border-radius:50%;background:#153c5980;color:white;font-size:38px;width:62px;height:62px}
+.screen.session .session-return[hidden]{display:none!important}
+.screen.session .session-words{color:var(--wish-color,#fff)}
+.screen.home .hero-wish{color:inherit}
+.screen.session .session-words{position:relative;z-index:3}
+.form-body input[type=color]{width:70px;height:48px;border:1px solid #ffffff88;border-radius:10px;background:transparent;padding:4px}
+
+.screen.wish-index .settings-head{grid-template-columns:44px minmax(0,1fr) auto;gap:8px}
+.screen.wish-index .settings-head .text-link{white-space:nowrap;font-size:12px;padding:8px 2px;min-height:44px}
+
+
+/* Wish-specific color wins over scenery contrast defaults. */
+.scenic.session .session-words,
+.scenic.session[data-tone="dark"] .session-words,
+.scenic.session[data-tone="photo"] .session-words{color:var(--a16-selected-text-color,#fff)!important}
+.scenic.home .hero-wish,
+.scenic.home[data-tone="dark"] .hero-wish,
+.scenic.home[data-tone="photo"] .hero-wish,
+.scenic[data-screen="detail"] .detail-wish,
+.scenic[data-screen="detail"][data-tone="dark"] .detail-wish,
+.scenic[data-screen="detail"][data-tone="photo"] .detail-wish{color:var(--a16-selected-text-color,#fff)!important}
+
+/* The record is a legible frosted panel over the selected landscape. */
+.screen[data-screen="detail"] .detail-body{
+  margin:22px auto 34px;
+  padding:20px 18px 28px;
+  width:calc(100% - 34px);
+  border-radius:22px;
+  background:linear-gradient(160deg,rgba(10,35,56,.67),rgba(9,35,60,.55));
+  border:1px solid rgba(255,255,255,.26);
+  box-shadow:0 12px 40px rgba(9,31,52,.17);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  color:#fff;
+}
+.screen[data-screen="detail"] .detail-wish{margin:14px auto 24px;min-height:0;padding:6px 8px}
+.screen[data-screen="detail"] .detail-stats{
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:15px;
+  padding:18px 15px;
+  gap:19px 12px;
+}
+.screen[data-screen="detail"] .detail-stats .stat-label,
+.screen[data-screen="detail"] .detail-stats .stat-value{color:#fff;text-shadow:0 1px 7px rgba(0,20,37,.45)}
+.screen[data-screen="detail"] .detail-stats .stat-label{opacity:.85}
+.screen[data-screen="detail"] #achievement-info:not(:empty){background:rgba(255,255,255,.12);border-radius:12px;padding:12px;margin-top:12px}
+.screen[data-screen="detail"] .detail-actions .ghost-button{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.65)}
+.screen[data-screen="detail"] .detail-actions .ghost-button.danger{color:#ffe1dd}
+@media(max-width:360px){.screen[data-screen="detail"] .detail-stats{grid-template-columns:1fr 1fr;gap:16px 10px}.screen[data-screen="detail"] .stat-value{font-size:13px}}
+
+/* Detail navigation stays readable regardless of the image's sky tone. */
+.screen[data-screen="detail"] .nav{color:#fff;text-shadow:0 2px 11px rgba(5,21,40,.9)}
+.screen[data-screen="detail"] .nav button{color:#fff!important;text-shadow:0 2px 11px rgba(5,21,40,.9)!important}
+
+/* Use one typesetting rule on the home and manifestation screens: identical wrapping for identical text. */
+.screen.home .hero-copy{left:44px;right:44px;pointer-events:auto}
+.screen.home .hero-wish{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.screen.home .a16-wish-display-text,.screen.session .a16-wish-display-text{
+  font-size:clamp(23px,6.3vw,32px);
+  line-height:1.9;
+  letter-spacing:.06em;
+  text-wrap:wrap;
+  overflow-wrap:anywhere;
+  white-space:pre-wrap;
+  padding:0;
+  width:100%;
+  box-sizing:border-box;
+}
+.screen.session .a16-wish-display-text{width:calc(100% - 88px);max-width:560px;margin:0 auto}
+.screen.home .a16-wish-display-text.long-words,.screen.session .a16-wish-display-text.long-words{font-size:clamp(16px,4.6vw,22px);line-height:1.65}
+
+/* The single home title also serves as the entrance title. */
+.screen.home .hero-copy{display:flex;flex-direction:column;align-items:center;gap:5px}
+.screen.home .home-title-ja{margin:0;font:400 clamp(28px,7vw,38px)/1.65 "Hiragino Mincho ProN","Yu Mincho",serif;letter-spacing:.085em;color:#fff;text-shadow:0 2px 14px #082942,0 0 26px #092a4c}
+.screen.home .home-title-en{margin:0;font:italic clamp(17px,4.8vw,21px)/1.7 Georgia,serif;letter-spacing:.09em;color:#fff;text-shadow:0 2px 14px #082942,0 0 26px #092a4c}
+
+/* Per-wish typography and placement, previewed before saving. */
+.wish-layout-controls{display:grid;gap:12px;padding:18px 15px;background:rgba(6,31,55,.55);border:1px solid rgba(255,255,255,.22);border-radius:16px;margin-top:14px}
+.wish-layout-controls>.field-caption{margin:4px 0 0;color:white!important}
+.wish-layout-label{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:white}
+.wish-layout-controls input[type=range]{width:100%;accent-color:#bad8f6;min-height:36px;touch-action:pan-y}
+.wish-layout-label output{font-variant-numeric:tabular-nums;font-weight:600;color:#fff}
+.wish-position-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wish-position-presets button{border:1px solid rgba(255,255,255,.5);background:#ffffff21;color:#fff;min-height:43px;border-radius:10px;font-size:13px}
+.wish-position-presets button[aria-pressed=true]{background:#e8f3fc;color:#244a67;border-color:#fff;font-weight:600}
+.wish-layout-controls .placement-guide{color:#fff;text-shadow:0 1px 5px #18344b;text-align:left;margin:0;line-height:1.55}
+.wish-placement-preview{background-color:#174265;background-size:cover;background-position:center;position:relative;width:min(100%,310px);aspect-ratio:9/16.3;margin:0 auto;border:1px solid rgba(255,255,255,.46);box-shadow:0 7px 22px #001d36a0;border-radius:14px;overflow:hidden;touch-action:none;user-select:none}
+.wish-placement-stage{position:absolute;left:0;top:0;right:0;bottom:35px;touch-action:none}
+.wish-placement-text{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-family:"Hiragino Mincho ProN","Yu Mincho",serif;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center;letter-spacing:.06em;line-height:1.75;text-shadow:0 1px 5px rgba(0,22,41,.9),0 0 10px rgba(0,22,41,.75);pointer-events:none}
+.wish-placement-ad{height:35px;position:absolute;bottom:0;left:0;right:0;background:#ffffffdc;color:#74808c;text-align:center;display:grid;place-items:center;font-size:10px}
+.wish-position-reset{justify-self:center;background:#ffffff1a;padding:8px 22px;min-height:42px}
+.screen.session .wish-position{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);display:flex;justify-content:center;align-items:center;z-index:4;pointer-events:none}
+.screen.session .wish-position .session-words{width:100%;max-width:none;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:calc(100dvh - 230px);overflow-y:auto;pointer-events:auto}
+.screen.session .wish-position .session-words.long-words{font-size:inherit}
+@media(prefers-reduced-motion:reduce){.screen.session .wish-position .session-words{animation:none!important}}
+/* Subtle refraction: remove conspicuous bright outline from the fallback. */
+.a16-ambient-ripple{border-color:rgba(236,249,255,.10);box-shadow:none;opacity:.32}
+
+/* Editor is a readable settings-style workspace; scenery lives only in the placement preview. */
+.screen.wish-editor{background:#f4f5f6;color:#253847}
+.screen.wish-editor .settings-head{
+  position:sticky;top:0;z-index:8;
+  grid-template-columns:45px minmax(0,1fr) 58px;
+  background:rgba(244,245,246,.97);
+  padding:calc(13px + env(safe-area-inset-top)) 18px 10px;
+  border-bottom:1px solid #e4e8ec;
+}
+.screen.wish-editor .settings-head h1{font-size:19px}
+.screen.wish-editor .editor-header-save{border:0;background:transparent;color:#286584;font-size:14px;font-weight:650;min-width:52px;min-height:44px;padding:0}
+.screen.wish-editor .editor-form{max-width:640px;margin:0 auto;padding:16px 19px calc(106px + env(safe-area-inset-bottom));gap:0}
+.screen.wish-editor .editor-card{
+  background:#fff;border:1px solid #eef0f2;border-radius:15px;
+  padding:17px 16px;display:grid;gap:12px;
+  box-shadow:0 1px 6px rgba(28,51,68,.06);
+}
+.screen.wish-editor .editor-card .field-caption{margin:0;color:#425768;font-size:13px;font-weight:600;letter-spacing:0}
+.screen.wish-editor .editor-card .helper{color:#7a8791;font-size:12px;line-height:1.6;margin:0}
+.screen.wish-editor .editor-text-card textarea{
+  width:100%;background:#f8fafb;border:1px solid #d9e0e6;
+  border-radius:11px;color:#253847;font-size:17px;line-height:1.75;
+  padding:14px;resize:vertical;min-height:132px;max-height:320px;
+}
+.screen.wish-editor .editor-text-card textarea::placeholder{color:#8996a1}
+.screen.wish-editor .group-heading{margin:22px 8px 10px;font-size:12px}
+.screen.wish-editor .background-picker{
+  background:none;border:0;box-shadow:none;padding:0;
+  -webkit-backdrop-filter:none;backdrop-filter:none;gap:12px
+}
+.screen.wish-editor .background-picker .field-caption{color:#425768!important;text-shadow:none!important}
+.screen.wish-editor .background-picker select,
+.screen.wish-editor .background-picker input[type=file]{
+  width:100%;max-width:100%;min-height:48px;
+  border:1px solid #d9e0e6;border-radius:11px;
+  background:#f8fafb;color:#253847;padding:11px;
+}
+.screen.wish-editor .background-picker #built-in-backgrounds,
+.screen.wish-editor .background-picker #personal-photo{display:grid;gap:12px}
+.screen.wish-editor .background-picker .random-checkbox{color:#253847;min-height:44px}
+.screen.wish-editor .background-picker .helper{color:#738390!important;text-shadow:none!important}
+.screen.wish-editor .background-picker #background-preview,
+.screen.wish-editor .background-picker #photo-preview{display:none!important}
+.screen.wish-editor .form-body input[type=color]{background:#f8fafb;border-color:#d9e0e6}
+.screen.wish-editor .wish-layout-controls{
+  padding:0;background:none;border:0;border-radius:0;margin:0;
+  gap:12px;color:#253847
+}
+.screen.wish-editor .wish-layout-controls>.field-caption{color:#425768!important}
+.screen.wish-editor .wish-layout-label{color:#344f62}
+.screen.wish-editor .wish-layout-label output{color:#286584}
+.screen.wish-editor .wish-layout-controls input[type=range]{accent-color:#397c9d}
+.screen.wish-editor .wish-position-presets button{
+  background:#f5f8fa;border-color:#d2dce3;color:#32556d;border-radius:11px
+}
+.screen.wish-editor .wish-position-presets button[aria-pressed=true]{
+  background:#dbeefa;border-color:#6b9fbb;color:#185778
+}
+.screen.wish-editor .wish-layout-controls .placement-guide{color:#6b7c8b;text-shadow:none}
+.screen.wish-editor .wish-position-reset{background:#f3f7f9;border:1px solid #d7e1e7;color:#286584}
+.screen.wish-editor .wish-placement-preview{border:1px solid #cbd6df;box-shadow:0 5px 20px rgba(33,53,69,.12)}
+.screen.wish-editor .editor-bottom-save{background:#336f91;color:#fff;border-radius:14px;min-height:54px;margin-top:20px}
+.screen.wish-editor .editor-bottom-save:disabled,.screen.wish-editor .editor-header-save:disabled{opacity:.5}
+@media(max-width:360px){.screen.wish-editor .editor-form{padding-left:12px;padding-right:12px}.screen.wish-editor .editor-card{padding:14px 12px}}
+
+/* First-run guide: practical, calm, readable, and reusable from Settings. */
+.screen.guide-screen{background:#f4f5f6;color:#253847}
+.guide-head{position:sticky;top:0;z-index:6;background:#f4f5f6;border-bottom:1px solid #e6eaed}
+.guide-body{max-width:620px;margin:0 auto;padding:16px 20px calc(115px + env(safe-area-inset-bottom))}
+.guide-intro{padding:26px 22px 27px;border-radius:18px;background:linear-gradient(145deg,#e4eef5,#f9fafb 77%);border:1px solid #dbe7ef;text-align:center}
+.guide-eyebrow{display:block;color:#5e7c93;font-size:12px;letter-spacing:.045em}
+.guide-intro h2{font:400 clamp(19px,5.2vw,25px)/1.75 "Hiragino Mincho ProN","Yu Mincho",serif;letter-spacing:.04em;color:#2b526e;margin:10px 0}
+.guide-intro p{font-size:13px;line-height:1.95;color:#587083;margin:0}
+.guide-panel{margin-top:20px;background:#fff;border:1px solid #e5eaee;border-radius:15px;padding:19px 19px 17px;box-shadow:0 1px 6px #22334408}
+.guide-panel h3{font-size:15px;color:#325a70;margin:0 0 11px}
+.guide-panel p{font-size:13px;line-height:1.88;color:#4c6476;margin:0}
+.guide-panel p+p{margin-top:12px}
+.guide-section-title{font-size:13px;font-weight:600;color:#647b88;margin:26px 3px 12px}
+.guide-steps{list-style:none;margin:0;padding:0;background:#fff;border:1px solid #e6eaee;border-radius:15px;overflow:hidden}
+.guide-steps li{display:flex;align-items:flex-start;gap:14px;padding:18px 16px}
+.guide-steps li+li{border-top:1px solid #ecf0f3}
+.guide-step-number{flex:none;display:grid;place-items:center;width:37px;height:37px;border-radius:50%;background:#e9f2f6;color:#52768f;font:600 12px Georgia,serif;letter-spacing:.01em}
+.guide-steps h4{color:#30566e;font-size:14px;margin:2px 0 8px}
+.guide-steps p{color:#526a7b;line-height:1.85;font-size:13px;margin:0}
+.guide-frequency{background:#edf5f8;border-color:#dbeaf0}
+.guide-frequency strong{font-weight:700;color:#2b5e77}
+.guide-footnote{margin:21px 6px 15px;color:#6b7882;font-size:12px;line-height:1.9}
+.guide-sources{font-size:12px;color:#5d7585;padding:7px 4px 12px}
+.guide-sources summary{cursor:pointer;min-height:44px;display:flex;align-items:center;text-decoration:underline;text-underline-offset:3px}
+.guide-sources a{color:#2e7192;text-decoration:underline;line-height:1.75}
+.guide-actions{display:grid;gap:10px;margin-top:18px}
+.guide-primary,.guide-secondary{width:100%;min-height:52px;border-radius:13px;font-size:14px;font-weight:600}
+.guide-primary{border:0;background:#356f91;color:#fff}
+.guide-secondary{border:1px solid #cddce5;background:#fff;color:#416a83}
+.guide-settings-link{width:100%;border:0;background:#fff;color:#253847;text-align:left;font:inherit;cursor:pointer}
+.guide-settings-link span:last-child{font-size:23px;color:#8699a5}
+@media(max-width:360px){.guide-body{padding-left:13px;padding-right:13px}.guide-intro{padding-left:14px;padding-right:14px}.guide-steps li{gap:10px;padding:16px 12px}}
+
+/* The actual iOS banner is a native view. This WebView strip must never mask or label it. */
+html.a16-native.native-ad-hidden .ad-space{display:none!important}
+html.a16-native.native-ad-visible .ad-space{background:transparent;border:0;pointer-events:none}
+html.a16-native.native-ad-visible .ad-space span{display:none!important}
+.ad-privacy-row[hidden]{display:none!important}
+
+.settings-row.purchase-row{width:100%;border-left:0;border-right:0;border-bottom:0;background:#fff;color:#253847;text-align:left;cursor:pointer}.settings-row.purchase-row:disabled{opacity:.55;cursor:default}.purchase-price{font-size:12px;color:#46728c;white-space:nowrap}.purchase-status{margin-top:-14px}
