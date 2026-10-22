@@ -412,14 +412,14 @@ function drawBackground(){
   ctx.fillText('展示 '+(i+1),(a+c)/2,d+24);
  }
  if(scene==='entrance'){
-  // Staff stays in the lower reception nook; the wall and paintings remain unobstructed.
-  ctx.fillStyle='#3a4b40';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
-  ctx.fillText('受付・作品登録',240,302);
-  const npc=get('staff');if(npc)ctx.drawImage(npc,236,307,41,51);
+  // A narrow counter conceals the incomplete feet in the source sprite.
+  const npc=get('staff');if(npc)ctx.drawImage(npc,240,311,34,43);
+  ctx.fillStyle='#8f6745';ctx.fillRect(237,346,40,12);
+  ctx.fillStyle='#b78b58';ctx.fillRect(237,346,40,4);
  }else{
-  const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,55);
-  ctx.fillStyle='#e8d6b0';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
-  ctx.fillText('展示スタッフ',300,233);
+  const npc=get('staff');if(npc)ctx.drawImage(npc,280,190,34,43);
+  ctx.fillStyle='#8f6745';ctx.fillRect(277,225,40,12);
+  ctx.fillStyle='#b78b58';ctx.fillRect(277,225,40,4);
  }
  // Draw exactly the edges defined by the 6-area adjacency graph.
  const doors=ROOM_LINKS[galleryIndex];
