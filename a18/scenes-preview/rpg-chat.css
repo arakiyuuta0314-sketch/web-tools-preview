@@ -1,0 +1,28 @@
+/* RPG-style staff conversation: the world remains visible above the dialogue. */
+.overlay.rpg-mode{background:#0a1c1590;place-items:end center;padding:12px 12px max(18px,env(safe-area-inset-bottom))}
+.overlay.rpg-mode .dialog{
+ width:min(730px,100%);max-height:min(62dvh,460px);
+ background:#fff8e9;border:4px solid #b89453;
+ box-shadow:0 9px 0 #253b32,0 20px 55px #0009;
+ border-radius:15px;padding:14px 17px;overflow:auto
+}
+.rpg-chat{display:flex;align-items:center;gap:14px}
+.rpg-portrait{width:72px;height:79px;flex:none;background:#e8d7b3;border:2px solid #c4a975;border-radius:11px;display:grid;place-items:center;overflow:hidden}
+.rpg-portrait img{width:64px;height:73px;object-fit:contain;image-rendering:auto}
+.rpg-words{min-width:0;flex:1}
+.rpg-name{display:inline-block;padding:2px 11px;color:#ffefc9;background:#315947;border-radius:7px;font-weight:800;font-size:14px}
+.rpg-message{color:#263c31;font-weight:720;font-size:18px;line-height:1.65;margin:8px 0 3px!important}
+.rpg-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.overlay.rpg-mode .rpg-choices button{min-height:44px;padding:8px 12px;font-size:15px;border-radius:10px}
+.overlay.rpg-mode .rpg-choices button:first-child{background:#316953;color:#fff}
+@media(orientation:portrait) and (max-width:850px){
+ .overlay.rpg-mode{padding:9px 9px max(22px,env(safe-area-inset-bottom))}
+ .overlay.rpg-mode .dialog{padding:12px;max-height:min(65dvh,490px);width:100%;font-size:16px}
+ .rpg-chat{gap:10px;align-items:flex-start}
+ .rpg-portrait{width:56px;height:65px}
+ .rpg-portrait img{width:52px;height:60px}
+ .rpg-name{font-size:12px;padding:2px 8px}
+ .rpg-message{font-size:17px;line-height:1.55}
+ .rpg-choices{gap:7px}
+ .overlay.rpg-mode .rpg-choices button{font-size:14px;padding:8px 6px;min-height:47px}
+}

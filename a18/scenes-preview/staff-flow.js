@@ -34,22 +34,41 @@ function pick(tag,arr){
 }
 function staffDialog({open,close,list,sortDialog,form,scene,carrying}){
  const gallery=scene==='gallery';
- open(gallery?'展示室スタッフ':'入口スタッフ',
- '<p class="staff-quote">'+esc(pick('hello',hellos))+'</p>'+
- (gallery?'<p>新作をお預かりしたら、館長にお渡しします。お好きな額縁まで運んでくださいね。</p>':
- '<p>入口では作品一覧や展示順を管理しています。登録は展示室のスタッフにご相談ください。</p>')+
- '<div class="row">'+(gallery?'<button id="staffRegister">新しい作品を預ける</button>':'')+
- '<button id="all" class="light">作品一覧</button><button id="sort" class="light">自動並べ替え</button><button id="close" class="light">閉じる</button></div>');
- if(gallery)$('staffRegister').onclick=()=>{
-  if(carrying){open('作品の受け取り','<p>いま作品を持っています。先に額縁へ飾るか、作品一覧へしまってください。</p><div class="row"><button id="close">戻る</button></div>');$('close').onclick=close;return;}
-  form(0,true);
- };
- $('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
+ const title=gallery?'展示室スタッフ':'エントランススタッフ';
+ const nextText='さて、館長。今日はどのようなご用件でしょうか？';
+ function speaker(message,more=''){
+  return '<div class="rpg-chat">'+
+   '<div class="rpg-portrait"><img src="assets/staff-front.png" alt="スタッフ"></div>'+
+   '<div class="rpg-words"><span class="rpg-name">'+esc(title)+'</span>'+
+   '<p class="rpg-message">'+esc(message)+'</p></div></div>'+more;
+ }
+ function menu(){
+  open(title,speaker(nextText,
+   '<div class="rpg-choices">'+
+   '<button id="staffRegister">新しい作品を預ける</button>'+
+   '<button id="all">作品の一覧を見る</button>'+
+   '<button id="sort">展示順を並べ替える</button>'+
+   '<button id="close" class="light">またあとで</button></div>'),'rpg');
+  $('staffRegister').onclick=()=>{
+   if(carrying){
+    open(title,speaker('館長、いま作品をお持ちですね。飾るか保管してから、またお預かりいたします。',
+     '<div class="rpg-choices"><button id="returnMenu">わかりました</button><button id="close" class="light">戻る</button></div>'),'rpg');
+    $('returnMenu').onclick=menu;$('close').onclick=close;return;
+   }
+   form(0,true);
+  };
+  $('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
+ }
+ open(title,speaker(pick('hello',hellos),
+  '<div class="rpg-choices"><button id="rpgNext">つづける ▼</button>'+
+  '<button id="rpgSkip" class="light">用件を選ぶ</button></div>'),'rpg');
+ $('rpgNext').onclick=menu;
+ $('rpgSkip').onclick=menu;
 }
 function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50}){
  const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
- if(works.length>=maxWorks){open('作品の登録上限','<p>50作品に達しました。今後の増築アップデートで上限を拡張する予定です。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
- open('展示室スタッフ｜作品のお預かり',
+ if(works.length>=maxWorks){open('作品の登録上限','<p>'+maxWorks+'作品に達しました。別フロアへの増築は今後のアップデートで検討します。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
+ open('スタッフ｜作品のお預かり',
  '<p class="staff-quote">'+esc(pick('hello',hellos))+'</p>'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：完成したパズル"></label>'+
  '<label>完成日（任意）<input id="date" type="date" value=""></label>'+
@@ -103,15 +122,14 @@ function commit(ctx,entry,canvas){
   registered:entry.registered,originalURL:entry.originalURL,
   displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
   thumbnail,spot:null,source:null});
- open('展示室スタッフ｜作品のお渡し',
-  '<p class="staff-quote">'+esc(pick('done',[
+ open('スタッフ｜作品のお渡し',
+  '<div class="rpg-chat"><div class="rpg-portrait"><img src="assets/staff-front.png" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">館スタッフ</span><p class="rpg-message">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
     '今回の新作、お預かりしました。額縁までは館長にお願いしてもよろしいですか？',
     '美しく仕上がりました。ぜひ館長ご自身の手で飾ってください。',
     ...doneLines.map(t=>t+' 作品をお渡ししますね。')
-  ]))+'</p>'+
-  '<p>作品を受け取ったら好きな額縁まで運んでください。展示中の作品がある場合はその場で入れ替わり、前の作品を館長が持ちます。</p>'+
-  '<div class="row"><button id="receiveWork">作品を受け取る</button></div>');
+  ]))+'</p></div></div>'+
+  '<div class="rpg-choices"><button id="receiveWork">作品を受け取る ▼</button></div>', 'rpg');
  $('receiveWork').onclick=()=>{close();onRegistered(id);};
 }
 function compare(ctx,entry){

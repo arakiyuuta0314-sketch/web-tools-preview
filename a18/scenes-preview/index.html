@@ -10,8 +10,8 @@
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
-<script src="staff-flow.js?v=1.5" defer></script>
-<title>パズル美術館｜入口と展示室の作品登録・展示・鑑賞 v1.5</title>
+<script src="staff-flow.js?v=1.6" defer></script>
+<title>パズル美術館｜6エリア・RPG会話 v1.6</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -65,11 +65,11 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.5"></head>
+</style><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v1.5 機能検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v1.6 6エリア検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
@@ -93,23 +93,51 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
     <div class="a18-viewer-tip">ピンチで拡大・ドラッグで移動・ダブルタップで切替</div>
   </div>
 </section>
-<script src="viewer.js?v=1.5"></script>
+<script src="viewer.js?v=1.6"></script>
 <script>
 (() => {
 'use strict';
 const $=id=>document.getElementById(id);
 const canvas=$('world'),ctx=canvas.getContext('2d'),overlay=$('overlay');
-const src={entrance:{w:546,h:483,spawn:[195,413],name:'美術館の入口'},gallery:{w:589,h:482,spawn:[295,418],name:'第1展示室'}};
-const ap=[[94,58,196,135],[244,58,346,135],[394,58,496,135]];
-const works=[]; // Production-style clean slate, no auto-generated sample collection.
-const MAX_WORKS=50,EXTRA_PER_ROOM=4;
-let galleryIndex=0;
-const extraAp=[[52,58,148,135],[178,58,274,135],[304,58,400,135],[430,58,526,135]];
-const roomStart=room=>room===0?0:3+(room-1)*EXTRA_PER_ROOM;
-const roomCapacity=room=>Math.max(0,Math.min(room===0?3:EXTRA_PER_ROOM,MAX_WORKS-roomStart(room)));
-const roomRects=()=>galleryIndex===0?ap:extraAp.slice(0,roomCapacity(galleryIndex));
-const roomCount=()=>Math.ceil((MAX_WORKS-3)/EXTRA_PER_ROOM)+1;
-const unlockedRooms=()=>Math.min(roomCount(),1+Math.ceil(Math.max(0,works.length-3)/EXTRA_PER_ROOM));
+const src={
+ entrance:{w:546,h:483,spawn:[195,413],name:'エントランス'},
+ gallery:{w:589,h:482,spawn:[295,418],name:'展示室'}
+};
+const works=[]; // Empty collection; source photos stay local during Web tests.
+const MAX_WORKS=30;
+// UI movement is playable across all six areas during the structural test.
+// Gallery-level unlocking and the two final entrance frames come later.
+const ROOM_LINKS={
+ 0:{west:1,east:2,north:5},
+ 1:{east:0,north:3},
+ 2:{west:0,north:4},
+ 3:{south:1,east:5},
+ 4:{south:2,west:5},
+ 5:{south:0,west:3,east:4}
+};
+const ROOM_LABELS=['エントランス','第2展示室','第3展示室','第4展示室','第5展示室','第6展示室'];
+let galleryIndex=0; // 0 = entrance, 1..5 = galleries 2..6.
+const entranceFrames=[[40,58,140,135],[216,58,316,135],[401,58,501,135]];
+const galleryFrames=[
+ [42,58,140,134],[208,58,306,134],[418,58,516,134],
+ [56,251,154,327],[405,251,503,327]
+];
+const roomStart=room=>room===0?0:5+(room-1)*5;
+const roomCapacity=room=>room===0?3:5;
+const roomRects=()=>galleryIndex===0?entranceFrames:galleryFrames;
+const roomCount=()=>6;
+const unlockedRooms=()=>6; // Open test map; actual level system will gate later.
+const AVAILABLE_SLOTS=[...Array.from({length:3},(_,i)=>i),...Array.from({length:25},(_,i)=>i+5)];
+function artworkLocation(w){
+ if(w.spot==null)return '保管中';
+ for(let room=0;room<6;room++){
+  const start=roomStart(room);
+  if(w.spot>=start&&w.spot<start+roomCapacity(room)){
+   return ROOM_LABELS[room]+'・枠'+(w.spot-start+1);
+  }
+ }
+ throw new Error('Work uses unopened frame slot: '+w.spot);
+}
 const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
 try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
 let scene='entrance',pos={x:195,y:413,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraX=0,cameraY=0,logicalW=546,logicalH=483,frame=0,loaded=false,lastArrange=null,tutorialStep=0;
@@ -193,8 +221,8 @@ function worldPoint(e){
 }
 // Collision and interaction are intentionally separate.
 const obstacles={
- entrance:[[92,296,196,248]], // Staff reception desk
- gallery:[[478,558,242,285]]  // Gallery staff service desk
+ entrance:[[92,296,199,246]],
+ gallery:[[262,338,246,284],[48,163,249,329],[397,515,249,329]]
 };
 function safeMove(x,y){
  const radius=9,m=src[scene];
@@ -205,25 +233,26 @@ function safeMove(x,y){
  }
  return true;
 }
-const doors={
- entrance:{x1:382,x2:447,y1:126,y2:169,next:'gallery'},
- gallery:{x1:262,x2:330,y1:456,y2:482,next:'entrance'}
+const PORTAL_EDGES={
+ entrance:{
+  west:{x1:24,x2:44,y1:345,y2:417},east:{x1:501,x2:522,y1:345,y2:417},
+  north:{x1:345,x2:390,y1:101,y2:118}
+ },
+ gallery:{
+  west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},
+  north:{x1:342,x2:389,y1:101,y2:118},
+  south:{x1:265,x2:329,y1:452,y2:471}
+ }
 };
 function checkPortal(){
- if(scene==='gallery'&&pos.y>=343&&pos.y<=426){
-  if(pos.x>=src.gallery.w-40&&galleryIndex+1<unlockedRooms()){
-   galleryIndex++;
-   changeScene('gallery',{roomDoor:'next'});fade();return true;
+ for(const [edge,target] of Object.entries(ROOM_LINKS[galleryIndex])){
+  const rect=PORTAL_EDGES[scene][edge];
+  if(!rect)throw new Error('Door edge definition missing: '+scene+' '+edge);
+  if(pos.x>=rect.x1&&pos.x<=rect.x2&&pos.y>=rect.y1&&pos.y<=rect.y2){
+   const reverse={west:'east',east:'west',north:'south',south:'north'}[edge];
+   changeScene(target,{arrivalFrom:reverse});
+   fade();return true;
   }
-  if(pos.x<=40&&galleryIndex>0){
-   galleryIndex--;
-   changeScene('gallery',{roomDoor:'previous'});fade();return true;
-  }
- }
- const d=doors[scene];
- if(pos.x>=d.x1&&pos.x<=d.x2&&pos.y>=d.y1&&pos.y<=d.y2){
-  changeScene(d.next,{fromDoor:true});
-  fade();return true;
  }
  return false;
 }
@@ -244,11 +273,14 @@ function walk(dir){
  update();
 }
 function interactionCandidates(){
- if(scene==='entrance')return[{type:'staff',x:195,y:239,enter:40,leave:53}];
- return [
-  ...roomRects().map((rect,i)=>({type:'art',i:roomStart(galleryIndex)+i,x:(rect[0]+rect[2])/2,y:162,enter:42,leave:53})),
-  {type:'staff',x:519,y:294,enter:45,leave:58}
- ];
+ const artworks=roomRects().map((r,i)=>({
+  type:'art',i:roomStart(galleryIndex)+i,
+  x:(r[0]+r[2])/2,y:r[3]+(r[1]>200?29:27),enter:40,leave:51
+ }));
+ // Entrance staff stays available for new registration, list, and reordering.
+ return galleryIndex===0?
+  [...artworks,{type:'staff',x:195,y:265,enter:43,leave:55}]:
+  [...artworks,{type:'staff',x:300,y:318,enter:43,leave:55}];
 }
 function interactionId(hit){return hit.type+':'+(hit.i??'')}
 function nearby(){
@@ -264,8 +296,9 @@ function nearby(){
  return activeInteraction=picked;
 }
 function update(){
- const inRoom=works.filter(w=>w.spot!=null&&w.spot>=roomStart(galleryIndex)&&w.spot<roomStart(galleryIndex)+roomCapacity(galleryIndex)).length;
- $('statusText').textContent=(scene==='gallery'?'第'+(galleryIndex+1)+'展示室　'+inRoom+'/'+roomCapacity(galleryIndex)+'枠':'美術館の入口')+'　館Lv.'+unlockedRooms()+'　所蔵 '+works.length+'/'+MAX_WORKS+'作品';
+ const start=roomStart(galleryIndex);
+ const displayed=works.filter(w=>w.spot!=null&&w.spot>=start&&w.spot<start+roomCapacity(galleryIndex)).length;
+ $('statusText').textContent=ROOM_LABELS[galleryIndex]+' ／ 展示 '+displayed+'/'+roomCapacity(galleryIndex)+' ／ 所蔵 '+works.length+'/'+MAX_WORKS+'作品　〈全エリア移動テスト〉';
  const hit=nearby();
  $('act').hidden=!hit;
  if(hit)$('act').textContent=hit.type==='staff'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'空の額縁';
@@ -273,12 +306,17 @@ function update(){
  $('cancel').textContent='作品をしまう';
 }
 function changeScene(next,options={}){
- if(!src[next])throw new Error('scene missing');
- scene=next;activeInteraction=null;
- if(next==='entrance')galleryIndex=0;
- const location=options.roomDoor?(options.roomDoor==='next'?[82,387]:[503,387]):
-  options.fromDoor?(next==='gallery'?[295,418]:[414,238]):src[next].spawn;
- pos={x:location[0],y:location[1],dir:next==='gallery'?'up':'down',stride:0};
+ const room=Number.isInteger(next)?next:(next==='entrance'?0:next==='gallery'?1:NaN);
+ if(!Number.isInteger(room)||room<0||room>5)throw new Error('Invalid museum area: '+next);
+ galleryIndex=room;
+ scene=room===0?'entrance':'gallery';
+ activeInteraction=null;
+ const m=src[scene];
+ const location={
+  west:[76,388],east:[m.w-76,388],north:[367,151],south:[296,426]
+ }[options.arrivalFrom]||m.spawn;
+ const direction={west:'right',east:'left',north:'down',south:'up'}[options.arrivalFrom]||'up';
+ pos={x:location[0],y:location[1],dir:direction,stride:0};
  cameraX=0;cameraY=0;$('hint').hidden=true;trimImageCache();resize();update();
 }
 function paintArtwork(a,i){
@@ -314,53 +352,69 @@ function avatar(){
  }
 }
 function drawBackground(){
- const m=src[scene];
- const wallEnd=scene==='entrance'?187:151;
- // Plain functional layout for hitbox QA. No sofas, statues or furniture.
+ const m=src[scene],wallEnd=scene==='entrance'?187:151;
+ // Functional art studio: floor first; final illustration/artwork is a separate phase.
  ctx.fillStyle='#d6cfbd';ctx.fillRect(0,0,m.w,m.h);
  ctx.fillStyle='#dfd5c1';ctx.fillRect(20,20,m.w-40,m.h-35);
  ctx.fillStyle='#bcaa91';ctx.fillRect(20,20,m.w-40,wallEnd-20);
  ctx.fillStyle='#efe6d4';ctx.fillRect(20,wallEnd,m.w-40,m.h-wallEnd-15);
  ctx.fillStyle='#a79277';ctx.fillRect(20,wallEnd-8,m.w-40,8);
- // Thin grid tiles help verify the foot-level collision geometry.
  ctx.strokeStyle='#c9bca6';ctx.lineWidth=.6;
  for(let x=26;x<m.w-21;x+=42){ctx.beginPath();ctx.moveTo(x,wallEnd);ctx.lineTo(x,m.h-16);ctx.stroke()}
  for(let y=wallEnd;y<m.h-15;y+=42){ctx.beginPath();ctx.moveTo(21,y);ctx.lineTo(m.w-21,y);ctx.stroke()}
+ // Wall frames and two central display pedestals in the five-frame galleries.
+ for(let i=0;i<roomRects().length;i++){
+  const [a,b,c,d]=roomRects()[i];
+  if(b>200){
+   ctx.fillStyle='#ad9880';ctx.fillRect(a-8,b-12,c-a+16,d-b+23);
+   ctx.fillStyle='#8b775b';ctx.fillRect(a-10,d+11,c-a+20,9);
+  }
+  ctx.fillStyle='#845c34';ctx.fillRect(a-12,b-12,c-a+24,d-b+24);
+  const gold=ctx.createLinearGradient(a-8,b-8,c+8,d+8);
+  gold.addColorStop(0,'#f3e2ac');gold.addColorStop(.5,'#9d6d31');gold.addColorStop(1,'#e8c77e');
+  ctx.fillStyle=gold;ctx.fillRect(a-9,b-9,c-a+18,d-b+18);
+  ctx.fillStyle='#43352b';ctx.fillRect(a-3,b-3,c-a+6,d-b+6);
+  ctx.fillStyle='#ddcfad';ctx.fillRect(a,b,c-a,d-b);
+  ctx.fillStyle='#6d5743';ctx.fillRect((a+c)/2-27,d+13,54,14);
+  ctx.fillStyle='#fff0cf';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
+  ctx.fillText('展示 '+(i+1),(a+c)/2,d+24);
+ }
  if(scene==='entrance'){
-  ctx.fillStyle='#80664c';ctx.fillRect(376,87,80,92);
-  ctx.fillStyle='#3b5846';ctx.fillRect(387,96,56,76);
-  ctx.fillStyle='#e9ce93';ctx.font='bold 15px sans-serif';ctx.textAlign='center';
-  ctx.fillText('展示室へ',417,78);
-  ctx.font='13px sans-serif';ctx.fillText('▲ 通る',415,186);
   ctx.fillStyle='#8f6745';ctx.fillRect(92,199,204,47);
   ctx.fillStyle='#b78b58';ctx.fillRect(98,203,192,14);
-  ctx.fillStyle='#3a4b40';ctx.font='bold 14px sans-serif';
-  ctx.fillText('受付',194,192);
+  ctx.fillStyle='#3a4b40';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
+  ctx.fillText('受付・作品登録',194,191);
   const npc=get('staff');if(npc)ctx.drawImage(npc,175,143,39,53);
  }else{
-  // Oversized gallery art compared with the earlier decorated room.
-  for(let i=0;i<roomRects().length;i++){
-   const [a,b,c,d]=roomRects()[i];
-   ctx.fillStyle='#845c34';ctx.fillRect(a-12,b-12,c-a+24,d-b+24);
-   const gold=ctx.createLinearGradient(a-8,b-8,c+8,d+8);
-   gold.addColorStop(0,'#f3e2ac');gold.addColorStop(.5,'#9d6d31');gold.addColorStop(1,'#e8c77e');
-   ctx.fillStyle=gold;ctx.fillRect(a-9,b-9,c-a+18,d-b+18);
-   ctx.fillStyle='#43352b';ctx.fillRect(a-3,b-3,c-a+6,d-b+6);
-   ctx.fillStyle='#ddcfad';ctx.fillRect(a,b,c-a,d-b);
-   ctx.fillStyle='#6d5743';ctx.fillRect((a+c)/2-27,d+14,54,14);
-   ctx.fillStyle='#fff0cf';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText('展示 '+(roomStart(galleryIndex)+i+1),(a+c)/2,d+25);
-  }
-  // Staff is to the right of the room; registration and sorting are local.
-  const npc=get('staff');if(npc)ctx.drawImage(npc,495,184,45,57);
-  ctx.fillStyle='#9b7652';ctx.fillRect(478,245,80,40);
-  ctx.fillStyle='#e8d6b0';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('展示スタッフ',517,233);
-  ctx.fillStyle='#3e694d';
-  if(galleryIndex+1<unlockedRooms()){ctx.fillRect(552,348,17,76);ctx.fillStyle='#faf0c7';ctx.font='bold 12px sans-serif';ctx.textAlign='right';ctx.fillText('次の展示室 →',548,376);}
-  else if(galleryIndex+1<roomCount()){ctx.fillStyle='#6b6c61';ctx.fillRect(552,348,17,76);ctx.fillStyle='#fff1d2';ctx.font='bold 12px sans-serif';ctx.textAlign='right';ctx.fillText('増築準備中',548,376);}
-  if(galleryIndex>0){ctx.fillStyle='#3e694d';ctx.fillRect(20,348,17,76);ctx.fillStyle='#faf0c7';ctx.font='bold 12px sans-serif';ctx.textAlign='left';ctx.fillText('← 前の展示室',42,376);}
-  ctx.fillStyle='#4e6451';ctx.fillRect(260,452,70,21);
-  ctx.fillStyle='#ecdfba';ctx.font='bold 14px sans-serif';ctx.fillText('▼ 入口へ',294,442);
+  const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,55);
+  ctx.fillStyle='#9b7652';ctx.fillRect(262,246,76,38);
+  ctx.fillStyle='#e8d6b0';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
+  ctx.fillText('展示スタッフ',300,233);
  }
+ // Draw exactly the edges defined by the 6-area adjacency graph.
+ const doors=ROOM_LINKS[galleryIndex];
+ for(const [edge,target]of Object.entries(doors)){
+  const rect=PORTAL_EDGES[scene][edge];
+  const cx=(rect.x1+rect.x2)/2,cy=(rect.y1+rect.y2)/2;
+  ctx.fillStyle='#345d4a';
+  if(edge==='north'){
+   ctx.fillRect(rect.x1-4,80,rect.x2-rect.x1+8,61);
+  }else if(edge==='south'){
+   ctx.fillRect(rect.x1-3,m.h-30,rect.x2-rect.x1+6,22);
+  }else if(edge==='west'){
+   ctx.fillRect(20,rect.y1-8,28,rect.y2-rect.y1+16);
+  }else{
+   ctx.fillRect(m.w-48,rect.y1-8,28,rect.y2-rect.y1+16);
+  }
+  ctx.font='bold 12px sans-serif';ctx.textAlign=edge==='west'?'left':edge==='east'?'right':'center';
+  ctx.fillStyle='#fff0c6';
+  const text=(edge==='west'?'← ':edge==='east'?'→ ':edge==='north'?'▲ ':'▼ ')+(target+1);
+  const tx=edge==='west'?52:edge==='east'?m.w-52:cx;
+  const ty=edge==='north'?78:edge==='south'?m.h-37:rect.y1-14;
+  ctx.fillText(text,tx,ty);
+ }
+ ctx.textAlign='center';ctx.fillStyle='#3d5445';ctx.font='bold 16px sans-serif';
+ ctx.fillText(ROOM_LABELS[galleryIndex],m.w/2,m.h-49);
 }
 function draw(){
  if(!loaded)return;
@@ -376,9 +430,9 @@ function draw(){
  ctx.save();const scale=canvas.width/logicalW;
  ctx.setTransform(scale,0,0,scale,-cameraX*scale,-cameraY*scale);
  drawBackground();
- if(scene==='gallery')for(let i=0;i<roomRects().length;i++)paintArtwork(slot(roomStart(galleryIndex)+i),i);
+ for(let i=0;i<roomRects().length;i++)paintArtwork(slot(roomStart(galleryIndex)+i),i);
  const hit=nearby();
- if(scene==='gallery'&&hit?.type==='art'&&carrying){const [x1,y1,x2,y2]=roomRects()[hit.i-roomStart(galleryIndex)];ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}
+ if(hit?.type==='art'&&carrying){const [x1,y1,x2,y2]=roomRects()[hit.i-roomStart(galleryIndex)];ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}
  avatar();ctx.restore();requestAnimationFrame(draw);
 }
 function nameDialog(first=false){
@@ -398,19 +452,22 @@ function nameDialog(first=false){
  if(!first)$('close').onclick=close;
 }
 function introDialog(){
- open('小さな美術館のはじまり','<p>今日からあなたが、この美術館の館長です。</p><p>まだ展示品はありません。ひとつずつ、あなたの作品で満たしていきましょう。</p><p class="small">受付に話しかける → 展示室へ歩く → スタッフに写真を預ける → 作品を運んで飾る、の順で操作を試せます。</p><div class="row"><button id="startTour">美術館へ</button><button id="skipTour" class="light">説明を閉じる</button></div>');
+ open('小さな美術館のはじまり','<p>今日からあなたが、この美術館の館長です。</p><p>まだ展示品はありません。ひとつずつ、あなたの作品で満たしていきましょう。</p><p class="small">エントランスのスタッフに話しかける → 写真を預ける → 作品を受け取る → お好きな額縁に飾る、の順で操作を試せます。</p><div class="row"><button id="startTour">美術館へ</button><button id="skipTour" class="light">説明を閉じる</button></div>');
  for(const id of ['startTour','skipTour'])$(id).onclick=()=>{tutorialStep=id==='startTour'?1:0;close();if(tutorialStep){$('hint').textContent='まずは入口のスタッフに話しかけてみよう';$('hint').hidden=false;}};
 }
 
-function open(title,contents){modal=true;$('dialog').innerHTML='<h2>'+esc(title)+'</h2>'+contents;overlay.hidden=false;}
-function close(){modal=false;overlay.hidden=true;update();}
+function open(title,contents,kind='standard'){
+ modal=true;overlay.classList.toggle('rpg-mode',kind==='rpg');
+ $('dialog').innerHTML=(kind==='rpg'?'':'<h2>'+esc(title)+'</h2>')+contents;
+ overlay.hidden=false;
+}
+function close(){modal=false;overlay.hidden=true;overlay.classList.remove('rpg-mode');update();}
 function action(){
  const h=nearby();if(!h)return;
  if(h.type==='staff'){staffDialog();return}
  if(h.type==='art'){inspect(h.i);return}
 }
 function inspect(i){
- if(scene!=='gallery')return;
  if(carrying){
   const a=works.find(w=>w.id===carrying);
   if(!a){carrying=null;update();return}
@@ -427,7 +484,7 @@ function inspect(i){
   a.spot=i;carrying=null;carryOrigin=null;update();return;
  }
  const a=slot(i);
- if(!a){open('空の額縁','<p>展示室スタッフから新しい作品を受け取り、この額縁まで運んできましょう。</p><div class="row"><button id="close">わかった</button></div>');$('close').onclick=close;return}
+ if(!a){open('空の額縁','<p>スタッフから新しい作品を受け取り、この額縁まで運んできましょう。</p><div class="row"><button id="close">わかった</button></div>');$('close').onclick=close;return}
  open(a.title,'<p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered)+'<br>ピース：'+esc(a.pieces||'未登録')+'</p><div class="row"><button id="view">大きく鑑賞する</button><button id="lift" class="light">持ち上げる</button><button id="close" class="light">閉じる</button></div>');
  $('lift').onclick=()=>{carrying=a.id;carryOrigin=i;a.spot=null;close()};
  $('view').onclick=()=>{
@@ -448,11 +505,11 @@ function list(){
  const cards=displayed.map(a=>{
   const img=a.thumbnail||a.displaySrc||a.originalURL||'';
   return '<div class="artitem">'+(img?'<img class="art-thumb" src="'+esc(img)+'" alt="">':'<span class="art-thumb blank-thumb" aria-hidden="true">額</span>')+
-   '<span class="artitem-copy"><b>'+esc(a.title)+'</b><small>'+(a.spot!=null?'展示 '+(a.spot+1)+'番':'保管中')+' ／ 完成日：'+esc(a.complete||'不明')+'</small></span>'+
+   '<span class="artitem-copy"><b>'+esc(a.title)+'</b><small>'+artworkLocation(a)+' ／ 完成日：'+esc(a.complete||'不明')+'</small></span>'+
    '<button data-work="'+esc(a.id)+'">'+(a.spot!=null?'作品を見る':'取り出す')+'</button></div>';
  });
  open('作品一覧', '<p class="small">'+works.length+' / '+MAX_WORKS+'作品　写真から探して選べます。</p>'+
- (cards.length?'<div class="artlist">'+cards.join('')+'</div>':'<p class="empty-collection">登録された作品はまだありません。<br>展示室スタッフに写真を預けてみましょう。</p>')+
+ (cards.length?'<div class="artlist">'+cards.join('')+'</div>':'<p class="empty-collection">登録された作品はまだありません。<br>エントランスのスタッフに写真を預けてみましょう。</p>')+
  '<div class="row"><button id="close" class="light">閉じる</button></div>');
  document.querySelectorAll('[data-work]').forEach(button=>button.onclick=()=>{
   const art=works.find(a=>a.id===button.dataset.work);if(!art)return;
@@ -472,7 +529,7 @@ function list(){
 function staffDialog(){
  window.A18Registration.staffDialog({open,close,list,sortDialog,form,scene,carrying});
 }
-function sortDialog(){open('展示品の並べ替え','<label>並べ替えの基準<select id="sortKind"><option value="complete">完成日順</option><option value="registered">登録順</option></select></label><label>順序<select id="sortOrder"><option value="asc">古い順</option><option value="desc">新しい順</option></select></label><p class="small">完成日が不明な場合だけ、登録日を並べ替えに使用します。</p><div class="row"><button id="apply">並べ替える</button><button id="close" class="light">戻る</button></div>');$('apply').onclick=()=>{const kind=$('sortKind').value,order=$('sortOrder').value;lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].filter(a=>a.spot!=null).sort((a,b)=>{const da=kind==='registered'?a.registered:(a.complete||a.registered),db=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?da.localeCompare(db):db.localeCompare(da)});sorted.forEach((a,i)=>a.spot=i);close();fade();update();};$('close').onclick=staffDialog;}
+function sortDialog(){open('展示品の並べ替え','<label>並べ替えの基準<select id="sortKind"><option value="complete">完成日順</option><option value="registered">登録順</option></select></label><label>順序<select id="sortOrder"><option value="asc">古い順</option><option value="desc">新しい順</option></select></label><p class="small">完成日が不明な場合だけ、登録日を並べ替えに使用します。</p><div class="row"><button id="apply">並べ替える</button><button id="close" class="light">戻る</button></div>');$('apply').onclick=()=>{const kind=$('sortKind').value,order=$('sortOrder').value;lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].filter(a=>a.spot!=null).sort((a,b)=>{const da=kind==='registered'?a.registered:(a.complete||a.registered),db=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?da.localeCompare(db):db.localeCompare(da)});sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw new Error('展示枠不足');a.spot=AVAILABLE_SLOTS[i];});close();fade();trimImageCache();update();};$('close').onclick=staffDialog;}
 function fade(){const fade=document.createElement('div');fade.style.cssText='position:fixed;z-index:19;inset:0;background:#102d27;opacity:1;transition:opacity .4s;pointer-events:none';document.body.appendChild(fade);requestAnimationFrame(()=>fade.style.opacity='0');setTimeout(()=>fade.remove(),440);}
 function form(spotNo=0,viaStaff=false){
  window.A18Registration.form({spotNo,viaStaff,open,close,slot,changeScene,works,maxWorks:MAX_WORKS,
@@ -483,7 +540,7 @@ $('museumName').onclick=()=>nameDialog(false);
 $('act').onclick=action;
 $('cancel').onclick=()=>{carrying=null;carryOrigin=null;update()};
 overlay.onclick=e=>{if(e.target===overlay)close()};
-canvas.onclick=e=>{if(modal||scene!=='gallery')return;const h=nearby();if(h?.type==='art'){const pt=worldPoint(e),[x1,y1,x2,y2]=roomRects()[h.i-roomStart(galleryIndex)];if(pt.x>x1-28&&pt.x<x2+28&&pt.y>y1-31&&pt.y<y2+55)inspect(h.i);}};
+canvas.onclick=e=>{if(modal)return;const h=nearby();if(h?.type==='art'){const pt=worldPoint(e),[x1,y1,x2,y2]=roomRects()[h.i-roomStart(galleryIndex)];if(pt.x>x1-28&&pt.x<x2+28&&pt.y>y1-31&&pt.y<y2+55)inspect(h.i);}};
 window.addEventListener('keydown',e=>{if(modal)return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
 window.addEventListener('keyup',e=>heldKeys.delete(e.key));
 window.addEventListener('blur',()=>heldKeys.clear());document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();clearInterval(pointerLoop)}});
@@ -491,7 +548,7 @@ setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(m
 for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),MOVE_REPEAT_MS);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
-window.__A18_SCENE_STUDY__={state:()=>({scene,galleryIndex,unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
+window.__A18_SCENE_STUDY__={state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw new Error('展示枠不足');a.spot=AVAILABLE_SLOTS[i];});trimImageCache();},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
 boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
 })();
 </script></body></html>
