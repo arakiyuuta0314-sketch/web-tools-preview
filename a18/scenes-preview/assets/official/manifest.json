@@ -1,0 +1,14 @@
+{
+  "canonical_repo_path": "a18/scenes-preview/assets/official",
+  "characters": {
+    "status": "approved",
+    "count": 48,
+    "folder": "characters"
+  },
+  "furniture": {
+    "status": "candidate_pending_visual_and_collision_QA",
+    "count": 24,
+    "folder": "furniture"
+  },
+  "old_paths": "retained until references are migrated"
+}

@@ -177,9 +177,9 @@ const A18_FEMALE=new URLSearchParams(location.search).get('avatar')==='female';
 const SPRITE_BOUNDS={"front0":{"x":10,"y":4,"w":42,"h":68},"front1":{"x":8,"y":3,"w":42,"h":69},"front2":{"x":6,"y":4,"w":43,"h":68},"front3":{"x":7,"y":4,"w":43,"h":68},"front4":{"x":9,"y":4,"w":42,"h":68},"back0":{"x":7,"y":3,"w":41,"h":63},"back1":{"x":6,"y":3,"w":42,"h":63},"back2":{"x":6,"y":3,"w":40,"h":63},"back3":{"x":7,"y":3,"w":40,"h":63},"back4":{"x":8,"y":3,"w":41,"h":63},"left0":{"x":13,"y":8,"w":40,"h":59},"left1":{"x":14,"y":8,"w":39,"h":59},"left2":{"x":15,"y":8,"w":38,"h":59},"left3":{"x":13,"y":8,"w":40,"h":60},"left4":{"x":11,"y":8,"w":41,"h":59},"right0":{"x":6,"y":2,"w":40,"h":56},"right1":{"x":6,"y":2,"w":39,"h":57},"right2":{"x":6,"y":2,"w":39,"h":57},"right3":{"x":6,"y":2,"w":40,"h":56},"right4":{"x":8,"y":2,"w":41,"h":57}};
 async function getAlphaBounds(im){const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(im,0,0);const a=cx.getImageData(0,0,c.width,c.height).data;let x0=c.width,y0=c.height,x1=0,y1=0;for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){if(a[(y*c.width+x)*4+3]>20){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1)}}return {x:x0,y:y0,w:x1-x0,h:y1-y0};}
 async function boot(){
- const loads=[image('staff','assets/unified/staff-front-00.png'),image('butler','assets/unified/butler-front-00.png')];
+ const loads=[image('staff','assets/official/characters/staff-front-00.png'),image('butler','assets/official/characters/butler-front-00.png')];
  // Sample images are retained as static developer assets, but are never pre-registered.
- for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++)loads.push(image(dir+i,(A18_FEMALE?'assets/unified/female-':'assets/curator-')+dir+'-'+String(i).padStart(2,'0')+'.png'));
+ for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++)loads.push(image(dir+i,(A18_FEMALE?'assets/official/characters/female-':'assets/official/characters/curator-')+dir+'-'+String(i).padStart(2,'0')+'.png'));
  await Promise.all(loads);
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
   const id=dir+i;const bounds=A18_FEMALE?await getAlphaBounds(get(id)):SPRITE_BOUNDS[id];spriteBounds.set(id,bounds);

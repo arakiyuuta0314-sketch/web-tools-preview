@@ -1,0 +1,270 @@
+{
+  "count": 24,
+  "source": "A18 unified sheet supplied in conversation",
+  "assets": [
+    {
+      "id": "bench",
+      "file": "bench.png",
+      "size": [
+        156,
+        60
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "cabinet",
+      "file": "cabinet.png",
+      "size": [
+        109,
+        119
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "carpet",
+      "file": "carpet.png",
+      "size": [
+        135,
+        87
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "chandelier",
+      "file": "chandelier.png",
+      "size": [
+        71,
+        96
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "clock",
+      "file": "clock.png",
+      "size": [
+        62,
+        122
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "column",
+      "file": "column.png",
+      "size": [
+        41,
+        128
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "door",
+      "file": "door.png",
+      "size": [
+        106,
+        131
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "easel",
+      "file": "easel.png",
+      "size": [
+        67,
+        98
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "floor_tile",
+      "file": "floor_tile.png",
+      "size": [
+        118,
+        124
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "frame_landscape",
+      "file": "frame_landscape.png",
+      "size": [
+        115,
+        74
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "frame_portrait",
+      "file": "frame_portrait.png",
+      "size": [
+        80,
+        97
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "frame_square",
+      "file": "frame_square.png",
+      "size": [
+        89,
+        94
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "pedestal",
+      "file": "pedestal.png",
+      "size": [
+        63,
+        98
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "plant",
+      "file": "plant.png",
+      "size": [
+        86,
+        95
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "rope_barrier",
+      "file": "rope_barrier.png",
+      "size": [
+        117,
+        98
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "sculpture",
+      "file": "sculpture.png",
+      "size": [
+        96,
+        100
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "signboard",
+      "file": "signboard.png",
+      "size": [
+        79,
+        118
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "sofa",
+      "file": "sofa.png",
+      "size": [
+        174,
+        94
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "stool",
+      "file": "stool.png",
+      "size": [
+        76,
+        112
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "table",
+      "file": "table.png",
+      "size": [
+        90,
+        92
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "tapestry",
+      "file": "tapestry.png",
+      "size": [
+        95,
+        127
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "vase",
+      "file": "vase.png",
+      "size": [
+        80,
+        98
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "wall_panel",
+      "file": "wall_panel.png",
+      "size": [
+        176,
+        111
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    },
+    {
+      "id": "window",
+      "file": "window.png",
+      "size": [
+        69,
+        124
+      ],
+      "mode": "RGBA",
+      "status": "needs manual visual approval",
+      "collision": "not implemented"
+    }
+  ]
+}
