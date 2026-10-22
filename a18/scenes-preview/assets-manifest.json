@@ -1,5 +1,5 @@
 {
-  "version": "v1.1-artwork-focus-viewer",
+  "version": "v1.2-receptionist-photo-conservator",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -88,7 +88,9 @@
     "action_proximity": "Frame enter38/leave51, staff enter43/leave58, door enter43/leave57",
     "high_density": "Synthetic 1536x1152 mosaic generated only in Windows Temp, successfully loaded and zoomed 6.55x",
     "real_user_photo_privacy": "Actual user-provided puzzle photos NOT published as repo assets",
-    "browser_tests": "Chromium 844x390, 932x430 landscape and 390x844 portrait; pinch 2 pointers, zoom pan navigation, photo upload and existing swap"
+    "browser_tests": "Chromium 844x390, 932x430 landscape and 390x844 portrait; pinch 2 pointers, zoom pan navigation, photo upload and existing swap",
+    "staff_flow": "Chromium 844x390,932x430: registration, enhance preview, before/after toggle, replacement confirmation, viewer original toggle; no external requests",
+    "decline_flow": "Direct upload, reject enhancement, confirm replacement and view original"
   },
   "viewer": {
     "module": [
@@ -106,6 +108,35 @@
       "piece count",
       "completion date",
       "registration date"
+    ]
+  },
+  "photo_preparation": {
+    "modules": [
+      "photo-prep.js",
+      "photo-tone.js",
+      "staff-flow.js"
+    ],
+    "features": [
+      "staff conversational registration",
+      "randomized greetings praise and completion",
+      "opt-in autocrop",
+      "exposure highlights shadows",
+      "conservative neutral white balance",
+      "contrast and saturation",
+      "subtle local clarity",
+      "non-destructive original",
+      "before after",
+      "viewer toggle",
+      "explicit overwrite confirmation"
+    ],
+    "max_long_side": 1800,
+    "format": "processed JPEG copy, source original unchanged",
+    "limitations": [
+      "no AI content generation",
+      "no reliable deglare",
+      "no perspective correction",
+      "border detection is heuristic and confirmation required",
+      "demo data not persistent"
     ]
   }
 }

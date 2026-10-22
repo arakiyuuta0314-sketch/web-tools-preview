@@ -7,7 +7,7 @@
   const stage = $('photoViewport'), photo = $('photoImage');
   const title = $('photoTitle'), counter = $('photoCounter'), details = $('photoDetails');
   const zoomText = $('photoZoomText'), empty = $('photoEmpty');
-  let items=[],index=0,onClose=()=>{},scale=1,dx=0,dy=0;
+  let items=[],index=0,onClose=()=>{},scale=1,dx=0,dy=0,showOriginal=false;
   const active=new Map();
   let gesture=null,lastTap=0,lastTapAt=null,isOpen=false,usedMulti=false;
   const MAX_ZOOM=10,MIN_ZOOM=1;
@@ -41,7 +41,7 @@
   function reset(){scale=1;dx=0;dy=0;active.clear();gesture=null;render();}
   function updateItem(){
     const entry=current();if(!entry)return;
-    reset();
+    showOriginal=false;reset();
     title.textContent=entry.title||'無題の作品';
     counter.textContent=(index+1)+' / '+items.length+' 作品';
     const date=entry.complete||'不明',pieces=entry.pieces ? entry.pieces.toLocaleString('ja-JP')+'ピース':'ピース数未登録';
@@ -50,6 +50,8 @@
     $('photoPrev').disabled=index<=0;$('photoNext').disabled=index>=items.length-1;
     photo.hidden=!entry.src;empty.hidden=!!entry.src;
     photo.alt=(entry.title||'作品')+'の全体写真';
+    $('photoCompare').hidden=!entry.originalSrc||entry.originalSrc===entry.src;
+    $('photoCompare').textContent='元写真';
     photo.onload=()=>{reset();};
     photo.onerror=()=>{photo.hidden=true;empty.hidden=false;empty.textContent='画像を読み込めませんでした'};
     if(entry.src){empty.hidden=true;photo.src=entry.src;}
@@ -133,6 +135,12 @@
   $('photoMinus').onclick=()=>zoomTo(scale/1.6);
   $('photoPlus').onclick=()=>zoomTo(scale*1.6);
   $('photoReset').onclick=reset;
+  $('photoCompare').onclick=()=>{
+    const entry=current();if(!entry?.originalSrc)return;
+    showOriginal=!showOriginal;
+    $('photoCompare').textContent=showOriginal?'展示版':'元写真';
+    reset();photo.src=showOriginal?entry.originalSrc:entry.src;
+  };
   window.addEventListener('keydown',e=>{
     if(!isOpen)return;
     if(['Escape','ArrowLeft','ArrowRight','+','-','0'].includes(e.key))e.preventDefault();
@@ -145,5 +153,5 @@
   },true);
   window.addEventListener('resize',()=>{if(isOpen)render()});
   // Explicitly exposed solely for browser tests; do not include original photo bytes.
-  window.A18Viewer={open,close,zoomTo,reset,navigate,state:()=>({open:isOpen,index,count:items.length,scale,dx,dy,title:current()?.title||''})};
+  window.A18Viewer={open,close,zoomTo,reset,navigate,state:()=>({open:isOpen,index,count:items.length,scale,dx,dy,showOriginal,title:current()?.title||''})};
 })();
