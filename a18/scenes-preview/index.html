@@ -11,7 +11,7 @@
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
 <script src="staff-flow.js" defer></script>
-<title>パズル美術館｜入口と展示室の作品を運ぶ美術館 v1.3</title>
+<title>パズル美術館｜入口と展示室の縦画面開発と作品交換 v1.4</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -65,11 +65,11 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style></head>
-<body><div class="rotate">📱 <strong>スマホを横向きにしてください</strong><small>館内を広く、絵が歪まないように表示します。</small></div>
+</style><link rel="stylesheet" href="portrait.css"><link rel="stylesheet" href="viewer-orientation.css"></head>
+<body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div><div class="status" id="statusText">新素材の入口＋第1展示室</div><div class="nav"><button id="viewMode" aria-pressed="true">拡大表示</button><button id="showList">作品を見る</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v1.3 操作検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><div class="tag">✦ <strong>ART STUDY</strong> · v1.4 縦画面検証</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 <footer><span>扉を歩いて移動 · スタッフに相談 · 作品を運んで飾る</span><span><a href="../index.html?v=562e40d" style="color:#ffe1a6;margin-right:14px">旧50作品版と比較</a>方向キー / WASD　移動</span></footer>
@@ -85,7 +85,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
     <button type="button" id="photoPlus" aria-label="拡大">＋</button>
     <button type="button" id="photoReset" class="a18-viewer-reset">全体</button><button type="button" id="photoCompare" hidden>元写真</button><button type="button" id="photoFocus">集中</button>
   </div>
-  <div class="a18-viewer-image-zone" id="photoViewport" aria-label="写真をピンチで拡大・移動">
+  <div class="a18-viewer-image-zone" id="photoViewport" aria-label="写真をピンチで拡大・移動"><div id="photoOrientationNotice" class="a18-orientation-notice" role="status"></div>
     <div id="photoFrame" class="a18-art-frame"><img id="photoImage" class="a18-viewer-image" alt="" draggable="false"></div>
     <div id="photoEmpty" class="a18-viewer-empty" hidden>写真を読み込めませんでした</div>
   </div>
@@ -104,7 +104,7 @@ const ap=[[94,58,196,135],[244,58,346,135],[394,58,496,135]];
 const works=[{id:'sample-1',title:'湖畔の風景（見本）',pieces:1000,complete:null,registered:'2026-10-22',source:0,spot:0},{id:'sample-2',title:'夕焼けの空（見本）',pieces:500,complete:'2025-05-10',registered:'2026-10-22',source:1,spot:1},{id:'sample-3',title:'花の庭園（見本）',pieces:300,complete:null,registered:'2026-10-22',source:2,spot:2}];
 const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
 try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
-let scene='entrance',pos={x:195,y:413,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraY=0,logicalH=290,frame=0,loaded=false,lastArrange=null;
+let scene='entrance',pos={x:195,y:413,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraX=0,cameraY=0,logicalW=546,logicalH=483,frame=0,loaded=false,lastArrange=null;
 const MOVE_DISTANCE=12,MOVE_REPEAT_MS=65,MOVE_SUBSTEP=3;
 let activeInteraction=null;
 const images=new Map(),spriteBounds=new Map(),movement={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',w:'up',a:'left',s:'down',d:'right'};
@@ -126,23 +126,39 @@ async function boot(){
  let first=true;try{first=!localStorage.getItem(NAME_KEY)}catch(e){}
  if(first)nameDialog(true);
 }
+function isPortraitGame(){return matchMedia('(orientation:portrait) and (max-width:850px)').matches;}
 function resize(){
  const b=$('stage').getBoundingClientRect();if(!b.width||!b.height)return;
  const m=src[scene];
- if(viewMode==='overview'){
+ if(isPortraitGame()){
+  const availableHeight=Math.max(1,Math.round(b.height-164));
+  canvas.width=Math.max(1,Math.round(b.width));canvas.height=availableHeight;
+  canvas.style.width=canvas.width+'px';canvas.style.height=availableHeight+'px';
+  canvas.style.position='absolute';canvas.style.left='0px';canvas.style.top='0px';
+  logicalW=Math.min(m.w,312);
+  logicalH=canvas.height*logicalW/canvas.width;
+  $('stage').classList.remove('overview');
+ }else if(viewMode==='overview'){
   const scale=Math.min(b.width/m.w,b.height/m.h);
   const dw=Math.max(1,Math.floor(m.w*scale)),dh=Math.max(1,Math.floor(m.h*scale));
   canvas.width=m.w;canvas.height=m.h;canvas.style.width=dw+'px';canvas.style.height=dh+'px';
+  canvas.style.position='';canvas.style.left='';canvas.style.top='';
   $('stage').classList.add('overview');$('stage').style.setProperty('--side-width',Math.max(0,(b.width-dw)/2)+'px');
-  logicalH=m.h;cameraY=0;
+  logicalW=m.w;logicalH=m.h;cameraX=0;cameraY=0;
  }else{
   canvas.width=800;canvas.height=Math.max(1,Math.round(800*b.height/b.width));
-  canvas.style.width='100%';canvas.style.height='100%';$('stage').classList.remove('overview');
-  logicalH=canvas.height*m.w/800;
+  canvas.style.width='100%';canvas.style.height='100%';
+  canvas.style.position='';canvas.style.left='';canvas.style.top='';
+  $('stage').classList.remove('overview');
+  logicalW=m.w;logicalH=canvas.height*m.w/800;
  }
  ctx.imageSmoothingEnabled=true;
 }
-function worldPoint(e){const b=canvas.getBoundingClientRect(),m=src[scene],k=m.w/b.width;return {x:(e.clientX-b.left)*k,y:(e.clientY-b.top)*k+(viewMode==='overview'?0:cameraY)};}
+function worldPoint(e){
+ const b=canvas.getBoundingClientRect();
+ return {x:(e.clientX-b.left)*logicalW/b.width+cameraX,
+         y:(e.clientY-b.top)*logicalH/b.height+cameraY};
+}
 // Collision and interaction are intentionally separate.
 const obstacles={
  entrance:[[92,296,196,248]], // Staff reception desk
@@ -207,7 +223,7 @@ function update(){
  $('statusText').textContent=src[scene].name+' ／ 展示 '+works.filter(w=>w.spot!=null).length+' / 3枠 ／ 館 Lv.1';
  const hit=nearby();
  $('act').hidden=!hit;
- if(hit)$('act').textContent=hit.type==='staff'?'話しかける':carrying?'ここに飾る':slot(hit.i)?'作品を調べる':'空の額縁';
+ if(hit)$('act').textContent=hit.type==='staff'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'空の額縁';
  $('cancel').hidden=!carrying;
  $('cancel').textContent='作品をしまう';
 }
@@ -216,7 +232,7 @@ function changeScene(next,options={}){
  scene=next;activeInteraction=null;
  const location=options.fromDoor?(next==='gallery'?[295,418]:[414,238]):src[next].spawn;
  pos={x:location[0],y:location[1],dir:next==='gallery'?'up':'down',stride:0};
- cameraY=0;$('hint').hidden=true;resize();update();
+ cameraX=0;cameraY=0;$('hint').hidden=true;resize();update();
 }
 function paintArtwork(a,i){
  const [x1,y1,x2,y2]=ap[i],w=x2-x1,h=y2-y1;
@@ -298,10 +314,17 @@ function drawBackground(){
 }
 function draw(){
  if(!loaded)return;
- const m=src[scene],maxY=Math.max(0,m.h-logicalH),desired=Math.max(0,Math.min(maxY,pos.y-logicalH*.70));
- if(viewMode==='overview')cameraY=0;else cameraY+=Math.max(-14,Math.min(14,(desired-cameraY)*.25));
+ const m=src[scene],maxY=Math.max(0,m.h-logicalH),maxX=Math.max(0,m.w-logicalW);
+ const targetY=logicalH>=m.h?(m.h-logicalH)/2:Math.max(0,Math.min(maxY,pos.y-logicalH*.55));
+ const targetX=logicalW>=m.w?(m.w-logicalW)/2:Math.max(0,Math.min(maxX,pos.x-logicalW*.50));
+ if(!isPortraitGame()&&viewMode==='overview'){cameraX=0;cameraY=0;}
+ else{
+  cameraX+=Math.max(-22,Math.min(22,(targetX-cameraX)*.45));
+  cameraY+=Math.max(-22,Math.min(22,(targetY-cameraY)*.45));
+ }
  ctx.clearRect(0,0,canvas.width,canvas.height);
- ctx.save();const scale=canvas.width/m.w;ctx.setTransform(scale,0,0,scale,0,-cameraY*scale);
+ ctx.save();const scale=canvas.width/logicalW;
+ ctx.setTransform(scale,0,0,scale,-cameraX*scale,-cameraY*scale);
  drawBackground();
  if(scene==='gallery')for(let i=0;i<3;i++)paintArtwork(slot(i),i);
  const hit=nearby();
@@ -337,9 +360,13 @@ function inspect(i){
   if(!a){carrying=null;update();return}
   const b=slot(i);
   if(b&&b.id!==a.id){
-    // Returning an existing moved painting swaps slots; a newly
-    // registered painting sends the old item safely to the storeroom.
-    b.spot=carryOrigin!=null?carryOrigin:null;
+    // RPG-style exchange: hang the held item and immediately lift the previous one.
+    // The old work remains in the collection and in the curator's hands.
+    a.spot=i;b.spot=null;
+    carrying=b.id;carryOrigin=i;
+    $('hint').hidden=false;
+    $('hint').textContent='「'+b.title+'」を受け取りました。次の額縁へ運べます';
+    update();return;
   }
   a.spot=i;carrying=null;carryOrigin=null;update();return;
  }
@@ -403,8 +430,8 @@ window.addEventListener('blur',()=>heldKeys.clear());document.addEventListener('
 setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(movement[key]);}},MOVE_REPEAT_MS);
 for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),MOVE_REPEAT_MS);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
-window.addEventListener('resize',resize);
-window.__A18_SCENE_STUDY__={state:()=>({scene,pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
+window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
+window.__A18_SCENE_STUDY__={state:()=>({scene,pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,viewport:{logicalW,logicalH,cameraX,cameraY,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,spot:a.spot,title:a.title,complete:a.complete}))}),move:walk,canMove:safeMove,changeScene,inspect,sort:(kind='complete',order='asc')=>{lastArrange=works.map(a=>[a.id,a.spot]);const sorted=[...works].sort((a,b)=>{const akey=kind==='registered'?a.registered:(a.complete||a.registered),bkey=kind==='registered'?b.registered:(b.complete||b.registered);return order==='asc'?akey.localeCompare(bkey):bkey.localeCompare(akey)});sorted.forEach((a,i)=>a.spot=i);},restore:()=>{if(lastArrange)for(const [id,spot]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.spot=spot;}},ready:()=>loaded};
 boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
 })();
 </script></body></html>

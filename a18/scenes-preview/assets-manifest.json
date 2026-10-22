@@ -1,5 +1,5 @@
 {
-  "version": "v1.3-simplified-floors-and-physical-carrying",
+  "version": "v1.4-portrait-first-development-real-swap",
   "scenes": {
     "entrance": {
       "asset": "entrance_base.webp",
@@ -101,7 +101,10 @@
     "browser_tests": "Chromium 844x390, 932x430 landscape and 390x844 portrait; pinch 2 pointers, zoom pan navigation, photo upload and existing swap",
     "staff_flow": "Chromium 844x390,932x430: registration, enhance preview, before/after toggle, replacement confirmation, viewer original toggle; no external requests",
     "decline_flow": "Direct upload, reject enhancement, confirm replacement and view original",
-    "v13": "Chromium: register, carry through both doorways, place, preserve old work, view original; framed viewer 844x390/932x430; synthetic frame crop detection"
+    "v13": "Chromium: register, carry through both doorways, place, preserve old work, view original; framed viewer 844x390/932x430; synthetic frame crop detection",
+    "v14_portrait": "Chromium 390x844, 375x667, 430x932 landscape 844x390; staff, camera, controls",
+    "v14_swap": "Chromium portrait+landscape artwork swap A/B, new work exchange with old painting carried; no deletion",
+    "v14_orientation": "Chromium portrait image and landscape image; auto-fit aspect + orientation mismatch indication + response on device viewport rotation"
   },
   "viewer": {
     "module": [
@@ -123,8 +126,10 @@
     "modules": [
       "viewer.css",
       "viewer-frame.css",
+      "viewer-orientation.css",
       "viewer.js"
-    ]
+    ],
+    "orientation": "Auto-detect source image portrait/landscape and fit correctly; show turn-device hint when mismatched; cannot force iOS Safari to physically rotate"
   },
   "photo_preparation": {
     "modules": [
@@ -166,5 +171,16 @@
     "after_processing": "staff hands painting to curator",
     "placement": "curator carries to chosen frame",
     "occupied_frame": "previous painting is kept in inventory"
+  },
+  "controls": {
+    "development_default": "portrait",
+    "landscape": "supported for later finishing",
+    "portrait_hud": "separate bottom d-pad/actions",
+    "camera": "follow player horizontally and vertically, no stretching"
+  },
+  "swap": {
+    "occupied_frame": "place held artwork then immediately hold previous artwork",
+    "empty_frame": "hang held artwork and release",
+    "cancel": "stow held artwork, without deleting it"
   }
 }

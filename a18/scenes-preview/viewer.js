@@ -54,7 +54,17 @@
     photo.alt=(entry.title||'作品')+'の全体写真';
     $('photoCompare').hidden=!entry.originalSrc||entry.originalSrc===entry.src;
     $('photoCompare').textContent='元写真';
-    photo.onload=()=>{reset();};
+    photo.onload=()=>{
+      const portraitPhoto=photo.naturalHeight>photo.naturalWidth;
+      root.dataset.artOrientation=portraitPhoto?'portrait':'landscape';
+      const screenPortrait=window.innerHeight>=window.innerWidth;
+      const mismatch=portraitPhoto!==screenPortrait;
+      $('photoOrientationNotice').textContent=mismatch?(portraitPhoto
+       ?'縦長作品：端末を縦向きにすると大きく見られます'
+       :'横長作品：端末を横向きにすると大きく見られます'):'';
+      root.classList.toggle('needs-turn',mismatch);
+      reset();
+    };
     photo.onerror=()=>{photo.hidden=true;frame.hidden=true;empty.hidden=false;empty.textContent='画像を読み込めませんでした'};
     if(entry.src){empty.hidden=true;photo.src=entry.src;}
     else{photo.removeAttribute('src');empty.textContent='作品写真はまだ登録されていません';}
@@ -154,7 +164,7 @@
     else if(e.key==='-')zoomTo(scale/1.6);
     else if(e.key==='0')reset();
   },true);
-  window.addEventListener('resize',()=>{if(isOpen)render()});
+  window.addEventListener('resize',()=>{if(isOpen){const portraitPhoto=photo.naturalHeight>photo.naturalWidth;const screenPortrait=innerHeight>=innerWidth;const mismatch=portraitPhoto!==screenPortrait;root.classList.toggle('needs-turn',mismatch);$('photoOrientationNotice').textContent=mismatch?(portraitPhoto?'縦長作品：端末を縦向きにすると大きく見られます':'横長作品：端末を横向きにすると大きく見られます'):'';render();}});
   // Explicitly exposed solely for browser tests; do not include original photo bytes.
   window.A18Viewer={open,close,zoomTo,reset,navigate,state:()=>({open:isOpen,index,count:items.length,scale,dx,dy,showOriginal,focus,title:current()?.title||''})};
 })();
