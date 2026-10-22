@@ -93,7 +93,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
     <div class="a18-viewer-tip">ピンチで拡大・ドラッグで移動・ダブルタップで切替</div>
   </div>
 </section>
-<script src="viewer.js?v=1.7"></script>
+<script src="viewer.js?v=1.15"></script>
 <script>
 (() => {
 'use strict';
@@ -415,9 +415,9 @@ function drawBackground(){
   // Staff stays in the lower reception nook; the wall and paintings remain unobstructed.
   ctx.fillStyle='#3a4b40';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
   ctx.fillText('受付・作品登録',240,302);
-  const npc=get('staff');if(npc)ctx.drawImage(npc,236,307,41,58);
+  const npc=get('staff');if(npc)ctx.drawImage(npc,236,307,41,51);
  }else{
-  const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,63);
+  const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,55);
   ctx.fillStyle='#e8d6b0';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
   ctx.fillText('展示スタッフ',300,233);
  }
@@ -534,7 +534,7 @@ function inspect(i){
  $('lift').onclick=()=>{carrying=a.id;carryOrigin=i;a.spot=null;close()};
  let inspectSwipeStart=null,inspectSwiped=false;
  const inspectPhoto=$('inspectPhoto');
- inspectPhoto.style.touchAction='pan-y';
+ inspectPhoto.style.touchAction='none';
  inspectPhoto.addEventListener('pointerdown',e=>{inspectSwipeStart={x:e.clientX,y:e.clientY};inspectSwiped=false;});
  inspectPhoto.addEventListener('pointerup',e=>{if(!inspectSwipeStart)return;const dx=e.clientX-inspectSwipeStart.x,dy=e.clientY-inspectSwipeStart.y;inspectSwipeStart=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3){inspectSwiped=true;const next=items.findIndex(w=>w.id===a.id)+(dx<0?1:-1);if(next>=0&&next<items.length){const target=works.find(w=>w.id===items[next].id);if(target?.spot!=null){close();inspect(target.spot);}}}});
  $('inspectPhoto').onclick=()=>{if(inspectSwiped){inspectSwiped=false;return;}close();window.A18Viewer.open({items,selectedId:a.id,onClose:(selectedId)=>{modal=false;const selected=works.find(w=>w.id===selectedId);if(selected?.spot!=null)inspect(selected.spot);}});modal=true;};
