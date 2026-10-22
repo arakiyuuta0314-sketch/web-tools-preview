@@ -225,15 +225,15 @@ function worldPoint(e){
          y:(e.clientY-b.top)*logicalH/b.height+cameraY};
 }
 // Collision and interaction are intentionally separate.
-// Exact rectangles for the displayed desks, stands and the upper wall.
+// Staff bodies and exhibition stands are solid; interaction is separate.
 // All interaction anchors are computed from the same room geometry.
 const wallFootLine=()=>scene==='entrance'?202:164;
 const northDoorway=()=>({x1:344,x2:387});
 function roomObstacles(){
- const desks=scene==='entrance'?[[180,305,358,395]]:[[262,338,246,285]];
+ const staffBody=scene==='entrance'?[236,277,307,358]:[275,320,184,239];
  const plinths=roomRects().filter(rect=>rect[1]>=220)
   .map(([left,top,right,bottom])=>[left-10,right+10,top-12,bottom+10]);
- return [...desks,...plinths];
+ return [staffBody,...plinths];
 }
 function safeMove(x,y){
  const m=src[scene];
@@ -304,8 +304,8 @@ function interactionCandidates(){
   };
  });
  const staff=galleryIndex===0
-  ?{type:'staff',x:247,y:420,enter:35,leave:40}
-  :{type:'staff',x:300,y:323,enter:35,leave:40};
+  ?{type:'staff',x:256,y:333,enter:49,leave:55}
+  :{type:'staff',x:297,y:211,enter:48,leave:54};
  return [...artworks,staff];
 }
 function interactionId(hit){return hit.type+':'+(hit.i??'')}
@@ -413,14 +413,11 @@ function drawBackground(){
  }
  if(scene==='entrance'){
   // Staff stays in the lower reception nook; the wall and paintings remain unobstructed.
-  ctx.fillStyle='#8f6745';ctx.fillRect(180,358,125,37);
-  ctx.fillStyle='#b78b58';ctx.fillRect(184,361,117,11);
   ctx.fillStyle='#3a4b40';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
   ctx.fillText('受付・作品登録',240,302);
   const npc=get('staff');if(npc)ctx.drawImage(npc,236,307,41,51);
  }else{
   const npc=get('staff');if(npc)ctx.drawImage(npc,275,184,45,55);
-  ctx.fillStyle='#9b7652';ctx.fillRect(262,246,76,38);
   ctx.fillStyle='#e8d6b0';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
   ctx.fillText('展示スタッフ',300,233);
  }
