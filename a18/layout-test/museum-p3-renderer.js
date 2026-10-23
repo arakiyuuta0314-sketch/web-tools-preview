@@ -68,8 +68,8 @@ function background(ctx,room,progression){
  const layers=manifest.galleryRooms[String(room)];
  ctx.fillStyle='#d6cdb8';ctx.fillRect(0,0,589,482);
  for(const layer of ORDER)ctx.drawImage(image(layers[layer]),0,0);
- // Future P5 increments belong between lighting and doors and behind works.
- // No missing P5 images are loaded or painted here.
+ // P5 cumulative overlay: lighting -> decor -> doors -> art/actors/UI.
+ window.A18P5Decorations.paint(ctx,room,progression);
  doors(ctx,room,progression);
  ctx.restore();
 }

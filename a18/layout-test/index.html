@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=1"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p4a"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=1"></script><script src="museum-p5-decorations.js?v=2"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p4a"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -404,7 +404,7 @@ async function getAlphaBounds(img){
 async function boot(){
  // Defer scripts (staff/photo modules) must finish before registration becomes playable.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
- if(!window.A18MuseumProgression||!window.A18Navigation||!window.A18Art||!window.A18Entrance||!window.A18P3Gallery||!P2||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
+ if(!window.A18MuseumProgression||!window.A18Navigation||!window.A18Art||!window.A18Entrance||!window.A18P3Gallery||!window.A18P5Decorations||!P2||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
  window.A18Navigation.validateGraph(ROOM_LINKS);
  let state=await P2.load();
  if(!state){
@@ -425,6 +425,7 @@ async function boot(){
  await window.A18Art.init(assetManifest);
  await window.A18Entrance.init();
  await window.A18P3Gallery.init();
+ await window.A18P5Decorations.init();
  // Reuse only the canonical approved 48 PNGs already decoded by A18Art.
  // Male retains the existing walking-frame crop; female follows the adopted main-preview crop.
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
@@ -613,6 +614,7 @@ function avatar(){
 function drawBackground(){
  if(scene==='entrance'){
   window.A18Entrance.background(ctx);
+  window.A18P5Decorations.paint(ctx,0,currentSave.progression);
   // Entrance v0.3 arch remains approved; P3 shutter overlays are driven by
   // exactly the same canTraverse predicate used by movement and changeScene.
   window.A18P3Gallery.doors(ctx,0,currentSave.progression,true);
