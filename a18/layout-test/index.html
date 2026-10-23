@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="gallery1-renderer.js?v=1"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p2a"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="gallery1-renderer.js?v=1"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p4a"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -168,7 +168,7 @@ async function commitChange(change,{event=true}={}){
   const result=P2.plan(currentSave,candidate);
   await P2.commit(result.expectedRevision,result.nextSave);
   applyCommitted(result.nextSave);
-  if(event&&result.transition?.eventId==='lv2-v1')showLv2Event();
+  if(event&&result.transition?.eventId)showProgressionEvent(result.transition.eventId);
   return true;
  }catch(e){saveError(e);return false}
  finally{saving=false}
@@ -182,30 +182,47 @@ function requestSave(){
    void commitChange(()=>{},{event:false});
  },450);
 }
-async function commitEventAction(action){
+async function commitEventAction(action,id=null){
  if(saving||saveBlocked)return false;
  saving=true;
  try{
-  const next=P2.eventAction(currentSave,'lv2-v1',action);
+  const eventId=id||currentSave.progression.events.find(e=>e.status==='queued')?.id;
+  if(!eventId)throw Error('E_EVENT_UNKNOWN');
+  const next=P2.eventAction(currentSave,eventId,action);
   await P2.commit(currentSave.revision,next);
   applyCommitted(next);return true;
  }catch(e){saveError(e);return false}
  finally{saving=false}
 }
-function showLv2Event(){
- if(showingEvent||modal||saveBlocked)return;
- const event=currentSave?.progression.events.find(e=>e.id==='lv2-v1');
- if(!event||event.status!=='queued')return;
+let p6Dialogues=null;
+function queuedProgressionEvent(){
+ return currentSave?.progression.events.find(e=>e.status==='queued'&&e.id!=='intro-v1')||null;
+}
+function showProgressionEvent(id=null){
+ if(showingEvent||modal||saveBlocked||!p6Dialogues)return;
+ const ev=id?currentSave?.progression.events.find(e=>e.id===id):queuedProgressionEvent();
+ if(!ev||ev.status!=='queued')return;
+ const data=p6Dialogues.events.find(e=>e.eventId===ev.id);
+ if(!data)throw Error('E_P6_EVENT_UNKNOWN');
  showingEvent=true;
- const honorific=window.A18Registration.honorific('butler',playerName,avatarGender);
- open('展示室02が開きました',
-  '<h3>館Lv.2　展示室02が開きました</h3>'+
-  '<p>爺や「おお、エントランスの額縁が三つとも埋まりましたな！」</p>'+
-  '<p>爺や「'+esc(honorific)+'、次の展示室もご用意できましたぞ。」</p>'+
-  '<p class="small">西の扉から、歩いて新しい展示室へ進めます。</p>'+
+ const isFinal=ev.id==='gallery06-complete-v1';
+ const actor=data.actors[0]==='butler'?'爺や':'展示室スタッフ';
+ const honorificRole=data.actors[0]==='butler'?'butler':'staff';
+ const playerHonorific=window.A18Registration.honorific(honorificRole,playerName,avatarGender);
+ const substitute=text=>text.replaceAll('{playerHonorific}',playerHonorific).replaceAll('{playerStaffName}',playerHonorific);
+ // Final commemorative wording is not approved: display event ID and a neutral placeholder only.
+ const body=isFinal
+  ?'<p>展示室06の5枠が完成しました。最終達成記録が保存されました。</p>'+
+   '<p class="small">正式な記念演出・台詞は監修待ちです。</p>'
+  :data.lines.map(line=>'<p>'+esc(actor)+'「'+esc(substitute(line))+'」</p>').join('');
+ open(isFinal?'展示室06が完成しました':ROOM_LABELS[data.openedRoomId]+'が開きました',
+  '<h3>'+esc(isFinal?'展示室06 完成（仮通知）':data.systemText)+'</h3>'+body+
+  (!isFinal?'<p class="small">館内を歩いて、開いた展示室へ進めます。</p>':'')+
   '<div class="row"><button id="p2EventFinish">ありがとう</button><button id="p2EventSkip" class="light">あとで読む</button></div>');
- for(const [id,action] of [['p2EventFinish','finish'],['p2EventSkip','skip']]){
-  $(id).onclick=async()=>{if(await commitEventAction(action)){showingEvent=false;close();}};
+ for(const [buttonId,action] of [['p2EventFinish','finish'],['p2EventSkip','skip']]){
+  $(buttonId).onclick=async()=>{
+   if(await commitEventAction(action,ev.id)){showingEvent=false;close();showProgressionEvent();}
+  };
  }
 }
 function butlerDialog(){staffDialog('butler');}
@@ -261,6 +278,11 @@ async function boot(){
   await P2.commit(null,state);
  }
  P2.validate(state);
+ const p6Response=await fetch('p6-event-dialogue-v1.json');
+ if(!p6Response.ok)throw Error('E_P6_DIALOGUE_LOAD');
+ p6Dialogues=await p6Response.json();
+ const eventIds=['intro-v1','lv2-v1','lv3-v1','lv4-v1','lv5-v1','lv6-v1','gallery06-complete-v1'];
+ if(p6Dialogues.version!=='1.0'||JSON.stringify(p6Dialogues.events.map(e=>e.eventId))!==JSON.stringify(eventIds))throw Error('E_P6_DIALOGUE_SCHEMA');
  applyCommitted(state);
  const response=await fetch('layout-assets-manifest.json?v=official1');
  if(!response.ok)throw Error('正式候補素材のmanifestを取得できません');
@@ -283,7 +305,7 @@ async function boot(){
   spriteBounds.set(femaleId,await getAlphaBounds(female));
  }
  loaded=true;resize();update();requestAnimationFrame(draw);
- if(!playerName)onboarding();else if(currentSave.progression.events.some(e=>e.id==='lv2-v1'&&e.status==='queued'))showLv2Event();
+ if(!playerName)onboarding();else showProgressionEvent();
 }
 function isPortraitGame(){return matchMedia('(orientation:portrait) and (max-width:850px)').matches;}
 function resize(){
@@ -699,7 +721,7 @@ function showFloorMap(){
 }
 $('act').onclick=action;
 $('cancel').onclick=()=>{void commitChange(s=>{s.carrying=null;});};
-overlay.onclick=e=>{if(e.target===overlay)close()};
+overlay.onclick=e=>{if(e.target===overlay&&!showingEvent)close()};
 canvas.onclick=e=>{if(modal)return;const h=nearby();if(h?.type==='art'){const pt=worldPoint(e),[x1,y1,x2,y2]=roomRects()[h.i-roomStart(galleryIndex)];if(pt.x>x1-28&&pt.x<x2+28&&pt.y>y1-31&&pt.y<y2+55)inspect(h.i);}};
 window.addEventListener('keydown',e=>{if(modal)return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
 window.addEventListener('keyup',e=>heldKeys.delete(e.key));

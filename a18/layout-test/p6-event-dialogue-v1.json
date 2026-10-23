@@ -1,0 +1,211 @@
+{
+  "title": "A18 P6 event dialogue data",
+  "version": "1.0",
+  "date": "2026-10-23",
+  "status": "proposal_not_approved_or_implemented",
+  "savingModel": "P1_decides",
+  "speakerRoles": {
+    "butler": "爺や",
+    "staff": "展示室スタッフ"
+  },
+  "honorificVariables": {
+    "playerHonorific": "A18Registration.honorific('butler',playerName,avatarGender)",
+    "playerStaffName": "A18Registration.honorific('staff',playerName,avatarGender)"
+  },
+  "roomLabels": [
+    "エントランス",
+    "展示室02",
+    "展示室03",
+    "展示室04",
+    "展示室05",
+    "展示室06"
+  ],
+  "requiresSuccessfulCommitBeforeEvent": true,
+  "events": [
+    {
+      "eventId": "intro-v1",
+      "kind": "opening",
+      "sourceRoomId": 0,
+      "completedRoomId": null,
+      "levelBefore": null,
+      "levelAfter": 1,
+      "openedRoomId": 0,
+      "actors": [
+        "butler"
+      ],
+      "trigger": "new_player_only",
+      "returnTo": "entrance_current_start_position",
+      "steps": [
+        {
+          "step": "O01",
+          "type": "dialogue",
+          "speaker": "butler",
+          "text": "ようこそ。お待ちしておりました。"
+        },
+        {
+          "step": "O02",
+          "type": "dialogue",
+          "speaker": "butler",
+          "text": "ここは、あなたの『とっておき』を飾る、小さな美術館でございます。"
+        },
+        {
+          "step": "O03",
+          "type": "dialogue",
+          "speaker": "butler",
+          "text": "どんな一枚でも、館長様が大切にしたいものなら、立派な展示品です。"
+        },
+        {
+          "step": "O04",
+          "type": "action",
+          "label": "館長になる",
+          "next": "mandatory_profile",
+          "skipTo": "mandatory_profile"
+        },
+        {
+          "step": "O05",
+          "type": "mandatory_profile",
+          "fields": [
+            "playerName",
+            "avatarGender",
+            "museumTitle"
+          ],
+          "saveBoundary": "delegated_to_P1"
+        },
+        {
+          "step": "O06",
+          "type": "dialogue",
+          "speaker": "butler",
+          "text": "{playerHonorific}、{museumTitle}へようこそ。"
+        },
+        {
+          "step": "O07",
+          "type": "dialogue",
+          "speaker": "butler",
+          "text": "新しい作品は、私がお預かりします。近くで『話しかける』を押してくださいませ。"
+        },
+        {
+          "step": "O08",
+          "type": "action",
+          "label": "はじめる",
+          "next": "free_roam_entrance",
+          "skipTo": "free_roam_entrance"
+        }
+      ]
+    },
+    {
+      "eventId": "lv2-v1",
+      "kind": "room_unlock",
+      "sourceRoomId": 0,
+      "completedRoomId": 0,
+      "levelBefore": 1,
+      "levelAfter": 2,
+      "openedRoomId": 1,
+      "actors": [
+        "butler"
+      ],
+      "trigger": "room_first_full_after_successful_commit",
+      "returnTo": "same_room_and_position",
+      "lines": [
+        "おお、エントランスの額縁が三つとも埋まりましたな！",
+        "{playerHonorific}、次の展示室もご用意できましたぞ。"
+      ],
+      "systemText": "館Lv.2　展示室02が開きました"
+    },
+    {
+      "eventId": "lv3-v1",
+      "kind": "room_unlock",
+      "sourceRoomId": 1,
+      "completedRoomId": 1,
+      "levelBefore": 2,
+      "levelAfter": 3,
+      "openedRoomId": 2,
+      "actors": [
+        "staff"
+      ],
+      "trigger": "room_first_full_after_successful_commit",
+      "returnTo": "same_room_and_position",
+      "lines": [
+        "{playerStaffName}、この部屋もいっぱいになったね！",
+        "次のお部屋も開いたよ。館内をもっと素敵にしていきたいな。"
+      ],
+      "systemText": "館Lv.3　展示室03が開きました"
+    },
+    {
+      "eventId": "lv4-v1",
+      "kind": "room_unlock",
+      "sourceRoomId": 2,
+      "completedRoomId": 2,
+      "levelBefore": 3,
+      "levelAfter": 4,
+      "openedRoomId": 3,
+      "actors": [
+        "staff"
+      ],
+      "trigger": "room_first_full_after_successful_commit",
+      "returnTo": "same_room_and_position",
+      "lines": [
+        "わあ、ここも完成だね！ {playerStaffName}、おめでとう！",
+        "展示室04も開いたよ。爺やさんにも知らせたいな。"
+      ],
+      "systemText": "館Lv.4　展示室04が開きました"
+    },
+    {
+      "eventId": "lv5-v1",
+      "kind": "room_unlock",
+      "sourceRoomId": 3,
+      "completedRoomId": 3,
+      "levelBefore": 4,
+      "levelAfter": 5,
+      "openedRoomId": 4,
+      "actors": [
+        "staff"
+      ],
+      "trigger": "room_first_full_after_successful_commit",
+      "returnTo": "same_room_and_position",
+      "lines": [
+        "{playerStaffName}、またひと部屋完成したね！",
+        "少しずつ、この美術館らしくなってきたよ。次は展示室05！"
+      ],
+      "systemText": "館Lv.5　展示室05が開きました"
+    },
+    {
+      "eventId": "lv6-v1",
+      "kind": "room_unlock",
+      "sourceRoomId": 4,
+      "completedRoomId": 4,
+      "levelBefore": 5,
+      "levelAfter": 6,
+      "openedRoomId": 5,
+      "actors": [
+        "staff"
+      ],
+      "trigger": "room_first_full_after_successful_commit",
+      "returnTo": "same_room_and_position",
+      "lines": [
+        "{playerStaffName}、おめでとう！　今日は小さなお祝いの日だね。",
+        "最後の展示室06も開いたよ。次はどんな一枚に出会えるかな？"
+      ],
+      "systemText": "館Lv.6　展示室06が開きました"
+    },
+    {
+      "eventId": "gallery06-complete-v1",
+      "kind": "completion",
+      "sourceRoomId": 5,
+      "completedRoomId": 5,
+      "levelBefore": 6,
+      "levelAfter": 6,
+      "openedRoomId": null,
+      "actors": [
+        "staff"
+      ],
+      "trigger": "room_first_full_after_successful_commit",
+      "returnTo": "same_room_and_position",
+      "lines": [
+        "{playerStaffName}、ここまで来たんだね。展示室06も完成だよ！",
+        "今日も、とっておきが増えました。……これからも、好きなものを飾っていこうね。"
+      ],
+      "systemText": "展示室06 完成記念　これからも、この美術館と。",
+      "status": "text_pending_approval"
+    }
+  ]
+}

@@ -78,8 +78,8 @@ function mapHTML(room,progression){
  const cells=[];
  for(let row=0;row<2;row++)for(let col=0;col<3;col++){
   const entry=Object.keys(POSITIONS).find(k=>POSITIONS[k][0]===col&&POSITIONS[k][1]===row);
-  const n=Number(entry),chosen=n===room,locked=n>=opened;
-  cells.push('<div class="a18-room-tile'+(chosen?' current':'')+(locked?' locked':'')+'" aria-label="'+NAMES[n]+(chosen?' 現在地':locked?' 施錠':'')+'"><strong>'+NAMES[n]+'</strong>'+(chosen?'<span>● いまここ</span>':locked?'<span>🔒 Lv.'+(n+1)+'で開放</span>':'<span>開放済み</span>')+'</div>');
+  const n=Number(entry),chosen=n===room,locked=n>=opened,notice=!locked&&progression.newRoomNotices.includes(n);
+  cells.push('<div class="a18-room-tile'+(chosen?' current':'')+(locked?' locked':'')+'" aria-label="'+NAMES[n]+(chosen?' 現在地':locked?' 施錠':'')+'"><strong>'+NAMES[n]+'</strong>'+(chosen?'<span>● いまここ</span>':locked?'<span>🔒 Lv.'+(n+1)+'で開放</span>':'<span>開放済み'+(notice?' · NEW':'')+'</span>')+'</div>');
  }
  return '<p class="a18-map-lead">扉に向かって歩くと、隣の部屋へ移動します。</p>'+
  '<div class="a18-floorplan" aria-label="美術館の全6部屋の配置">'+cells.join('')+'</div>'+

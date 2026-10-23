@@ -1,4 +1,4 @@
-/* A18 P2 isolated schema-v3 store. Never reads, upgrades or deletes schema-v2. */
+/* A18 P4 isolated schema-v3 store. Never reads, upgrades or deletes schema-v2. */
 (()=>{'use strict';
 const L=window.A18Layout;
 const DATABASE='a18-museum-p2-isolated-v3', STORE='states', KEY='museum', EVENTS=['intro-v1','lv2-v1','lv3-v1','lv4-v1','lv5-v1','lv6-v1','gallery06-complete-v1'];
@@ -90,14 +90,20 @@ function plan(before, candidate){
  if(candidate.revision!==before.revision||JSON.stringify(candidate.progression)!==JSON.stringify(before.progression))throw error('E_UNAUTHORIZED_PROGRESS');
  const next=copy(candidate),room=before.progression.unlockedThroughLevel-1;
  let transition=null;
- // P2 only: Lv2 -> Lv3 is intentionally outside scope.
- if(room===0&&!before.progression.awardedRoomIds.includes(0)
-   &&!isRoomComplete(0,before.fixtures,before.works)&&isRoomComplete(0,next.fixtures,next.works)){
-  next.progression.unlockedThroughLevel=2;
-  next.progression.awardedRoomIds.push(0);
-  next.progression.newRoomNotices.push(1);
-  next.progression.events.push({id:'lv2-v1',origin:'play',status:'queued'});
-  transition={completedRoomId:0,openedRoomId:1,eventId:'lv2-v1',kind:'level'};
+ // Progress only on first completion of the current frontier, up to six rooms.
+ if(!before.progression.awardedRoomIds.includes(room)
+   &&!isRoomComplete(room,before.fixtures,before.works)
+   &&isRoomComplete(room,next.fixtures,next.works)){
+  const isFinal=room===5,openedRoomId=isFinal?null:room+1;
+  const eventId=isFinal?'gallery06-complete-v1':'lv'+(room+2)+'-v1';
+  if(next.progression.events.some(e=>e.id===eventId))throw error('E_EVENT_DUPLICATE');
+  next.progression.awardedRoomIds.push(room);
+  if(!isFinal){
+   next.progression.unlockedThroughLevel=room+2;
+   next.progression.newRoomNotices.push(openedRoomId);
+  }
+  next.progression.events.push({id:eventId,origin:'play',status:'queued'});
+  transition={completedRoomId:room,openedRoomId,eventId,kind:isFinal?'final':'level'};
  }
  next.revision=before.revision+1;
  validate(next);
