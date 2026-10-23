@@ -499,9 +499,24 @@ function showSettings(){
  open('設定','<div class="a18-settings-content"><p class="small">館長の名前・性別・美術館の名前を変更できます。</p>'+profileFields()+
   '<p id="profileError" class="error" role="alert"></p><div class="row"><button id="saveProfile">変更を保存</button><button id="closeSettings" class="light">戻る</button></div>'+
   '<hr><h3>広告</h3><button id="adRemoval" type="button" disabled>広告を永久に削除　準備中</button>'+
-  '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p></div>');
+  '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p>'+ 
+  '<hr><h3>テスト用データ初期化</h3><p class="small">館Lv・展示・登録写真・備考・館長設定をすべて消して、最初から始めます。取り消せません。</p>'+ 
+  '<button id="resetMuseum" type="button" class="light">テストデータをすべてリセット</button><p id="resetMuseumError" class="error" role="alert"></p></div>');
  $('saveProfile').onclick=()=>{if(saveProfile())close();};
  $('closeSettings').onclick=close;
+ $('resetMuseum').onclick=()=>{
+  open('テストデータを初期化','<p>登録した写真（原本を含む）・作品情報・館長設定・館Lvをすべて削除します。</p><p><strong>元には戻せません。</strong> このブラウザのゲーム内データのみが対象で、iPhoneの写真アプリの画像は消えません。</p><div class="row"><button id="confirmMuseumReset">すべて削除して最初から</button><button id="cancelMuseumReset" class="light">キャンセル</button></div><p id="resetMuseumError" class="error" role="alert"></p>');
+  $('cancelMuseumReset').onclick=showSettings;
+  $('confirmMuseumReset').onclick=async()=>{
+   const button=$('confirmMuseumReset');button.disabled=true;
+   clearTimeout(saveTimer);saveTimer=null;
+   try{
+    await window.A18Storage.resetMuseum();
+    try{localStorage.removeItem(NAME_KEY)}catch(e){console.warn('館名キャッシュの削除に失敗',e)}
+    window.location.reload();
+   }catch(e){button.disabled=false;$('resetMuseumError').textContent='初期化に失敗しました：'+e.message;console.error(e)}
+  };
+ };
 }
 
 function open(title,contents,kind='standard'){

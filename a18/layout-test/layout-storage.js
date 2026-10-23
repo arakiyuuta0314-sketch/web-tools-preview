@@ -50,6 +50,19 @@ function save(data){
  writeChain=writeChain.catch(()=>{}).then(()=>rawSave(snapshot));
  return writeChain;
 }
+function resetMuseum(){
+ writeChain=writeChain.catch(()=>{}).then(async()=>{
+  const database=await db();
+  return new Promise((resolve,reject)=>{
+   const tx=database.transaction('states','readwrite');
+   tx.oncomplete=()=>resolve(true);
+   tx.onerror=()=>reject(tx.error||Error('初期化に失敗しました'));
+   tx.onabort=()=>reject(tx.error||Error('初期化が中断されました'));
+   tx.objectStore('states').delete('museum');
+  });
+ });
+ return writeChain;
+}
 function restoreWorks(records){
  return records.map(w=>{
   if(!w.originalBlob || !(w.originalBlob instanceof Blob))throw Error('作品「'+w.id+'」の原本画像が保存されていません');
@@ -57,5 +70,5 @@ function restoreWorks(records){
   return {...w,originalURL,displaySrc:w.displaySrc||originalURL};
  });
 }
-window.A18Storage={load,save,restoreWorks,serializable};
+window.A18Storage={load,save,resetMuseum,restoreWorks,serializable};
 })();
