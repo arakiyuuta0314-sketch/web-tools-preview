@@ -4,9 +4,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
 CHROME=r'C:\Program Files\Google\Chrome\Application\chrome.exe'
-ROOT=Path(r'G:\マイドライブ\06.アプリ開発\03.開発・テスト\A18_パズル美術館\10_P6_ストーリー統合実装')
+ROOT=Path(r'G:\マイドライブ\06.アプリ開発\03.開発・テスト\A18_パズル美術館\11_P3_全館美術統合実装\qa_runtime')
 ROOT.mkdir(parents=True,exist_ok=True)
-URL='http://127.0.0.1:8899/layout-test/index.html?p2-e2e=1'
+URL='http://127.0.0.1:8991/layout-test/index.html?p2-e2e=1'
 class WS:
  def __init__(self,url):
   p=urlparse(url);self.s=socket.create_connection((p.hostname,p.port),timeout=7);self.s.settimeout(20)

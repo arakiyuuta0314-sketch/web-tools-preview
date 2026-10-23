@@ -1,0 +1,134 @@
+{
+  "logicalSize": [
+    589,
+    482
+  ],
+  "galleryRooms": {
+    "1": {
+      "floor": "assets/p3/v1/gallery02/gallery02_floor_v02.png",
+      "wall": "assets/p3/v1/gallery02/gallery02_wall_v02.png",
+      "panel": "assets/p3/v1/gallery02/gallery02_panel_v02.png",
+      "trim": "assets/p3/v1/gallery02/gallery02_trim_v02.png",
+      "glow": "assets/p3/v1/gallery02/gallery02_glow_v02.png",
+      "light": "assets/p3/v1/gallery02/gallery02_light_v02.png"
+    },
+    "2": {
+      "floor": "assets/p3/v1/gallery03/gallery03_floor_v01.png",
+      "wall": "assets/p3/v1/gallery03/gallery03_wall_v01.png",
+      "panel": "assets/p3/v1/gallery03/gallery03_panel_v01.png",
+      "trim": "assets/p3/v1/gallery03/gallery03_trim_v01.png",
+      "glow": "assets/p3/v1/gallery03/gallery03_glow_v01.png",
+      "light": "assets/p3/v1/gallery03/gallery03_light_v01.png"
+    },
+    "3": {
+      "floor": "assets/p3/v1/gallery04/gallery04_floor_v01.png",
+      "wall": "assets/p3/v1/gallery04/gallery04_wall_v01.png",
+      "panel": "assets/p3/v1/gallery04/gallery04_panel_v01.png",
+      "trim": "assets/p3/v1/gallery04/gallery04_trim_v01.png",
+      "glow": "assets/p3/v1/gallery04/gallery04_glow_v01.png",
+      "light": "assets/p3/v1/gallery04/gallery04_light_v01.png"
+    },
+    "4": {
+      "floor": "assets/p3/v1/gallery05/gallery05_floor_v01.png",
+      "wall": "assets/p3/v1/gallery05/gallery05_wall_v01.png",
+      "panel": "assets/p3/v1/gallery05/gallery05_panel_v01.png",
+      "trim": "assets/p3/v1/gallery05/gallery05_trim_v01.png",
+      "glow": "assets/p3/v1/gallery05/gallery05_glow_v01.png",
+      "light": "assets/p3/v1/gallery05/gallery05_light_v01.png"
+    },
+    "5": {
+      "floor": "assets/p3/v1/gallery06/gallery06_floor_v01.png",
+      "wall": "assets/p3/v1/gallery06/gallery06_wall_v01.png",
+      "panel": "assets/p3/v1/gallery06/gallery06_panel_v01.png",
+      "trim": "assets/p3/v1/gallery06/gallery06_trim_v01.png",
+      "glow": "assets/p3/v1/gallery06/gallery06_glow_v01.png",
+      "light": "assets/p3/v1/gallery06/gallery06_light_v01.png"
+    }
+  },
+  "doors": {
+    "north": {
+      "open": "assets/p3/v1/shared_doors/door_north_open_v02.png",
+      "locked": "assets/p3/v1/shared_doors/door_north_locked_v02.png"
+    },
+    "south": {
+      "open": "assets/p3/v1/shared_doors/door_south_open_v02.png",
+      "locked": "assets/p3/v1/shared_doors/door_south_locked_v02.png"
+    },
+    "west": {
+      "open": "assets/p3/v1/shared_doors/door_west_open_v02.png",
+      "locked": "assets/p3/v1/shared_doors/door_west_locked_v02.png"
+    },
+    "east": {
+      "open": "assets/p3/v1/shared_doors/door_east_open_v02.png",
+      "locked": "assets/p3/v1/shared_doors/door_east_locked_v02.png"
+    }
+  },
+  "frames": {
+    "gold": "assets/p3/v1/shared_frames/gold_9slice_atlas_42_v02.png"
+  },
+  "entrance": {
+    "floor_base": "assets/entrance/v0.3/entrance_floor_base_v03.png",
+    "wall_base": "assets/entrance/v0.3/entrance_wall_base_v03.png",
+    "carpet": "assets/entrance/v0.3/entrance_carpet_v03.png",
+    "sidewalls": "assets/entrance/v0.3/entrance_sidewalls_v03.png",
+    "door_north": "assets/entrance/v0.3/entrance_door_north_v03.png",
+    "door_west": "assets/entrance/v0.3/entrance_door_west_v03.png",
+    "door_east": "assets/entrance/v0.3/entrance_door_east_v03.png",
+    "frame_9slice_atlas": "assets/entrance/v0.3/entrance_frame_9slice_atlas_v03.png",
+    "plant": "assets/entrance/v0.3/entrance_plant_v03.png",
+    "wall_light": "assets/entrance/v0.3/entrance_wall_light_v03.png",
+    "wall_glow": "assets/entrance/v0.3/entrance_wall_glow_v03.png"
+  },
+  "sourceHashes": {
+    "assets/p3/v1/gallery02/gallery02_floor_v02.png": "2a605dcc5e55326beefd09237e31f10c458141520c64159c08ebf0a487909ec1",
+    "assets/p3/v1/gallery02/gallery02_wall_v02.png": "9b332aff9b0cf705a296092a3146ec4a15b6884340836f88e37fb7a6dcb3fd80",
+    "assets/p3/v1/gallery02/gallery02_panel_v02.png": "ffcfe78c0a6c6255bcf1182a02ac286e9a11c14ec6675890e65419db1ef1e4b9",
+    "assets/p3/v1/gallery02/gallery02_trim_v02.png": "eab48b25e7069df1c1330f33bbcd169979a2dba74cbe10524bc8b1559fd09081",
+    "assets/p3/v1/gallery02/gallery02_glow_v02.png": "f2bc8fbd06f1afde1e0ed37925da50d93de5ead070c69eefb70b678793f2edd4",
+    "assets/p3/v1/gallery02/gallery02_light_v02.png": "7ba3b42a2019277ba8f0c84d24e465fc6aaf494ad2799ee34b57894f00b2c794",
+    "assets/p3/v1/gallery03/gallery03_floor_v01.png": "e7c55e2ded399ae66fb8262807289a57cc125eaa349112eee3c38d65036eae72",
+    "assets/p3/v1/gallery03/gallery03_wall_v01.png": "e858579c02e5a60621f71c1536c3511fadc990a2947e04d99cd3cb56ca258cf7",
+    "assets/p3/v1/gallery03/gallery03_panel_v01.png": "58e18df111b5114ca71ee456ff37e7a812cf9bdf159e8693345ae3723e78fc9f",
+    "assets/p3/v1/gallery03/gallery03_trim_v01.png": "dc442f79eecdc0f908378ebc8f107ad2e131f31005b52748a9b86e346bba40c6",
+    "assets/p3/v1/gallery03/gallery03_glow_v01.png": "bbde9fc4768a92f74f48e02906aa8fbf2c771e09b6997538cf565b71e4013e01",
+    "assets/p3/v1/gallery03/gallery03_light_v01.png": "58695eb232a4d7cb13e7be62579366568ebd8415434cdce4e1589303f12e9e36",
+    "assets/p3/v1/gallery04/gallery04_floor_v01.png": "a683878db0196f96108fb21d1a3527934920ace6af66fefe7133ea817f705308",
+    "assets/p3/v1/gallery04/gallery04_wall_v01.png": "287e73a6204b9b9f177e3dc51aea518a3c6100f6f91e09d01098809794a544d0",
+    "assets/p3/v1/gallery04/gallery04_panel_v01.png": "f09e8edf373a992fb60c5ad47c827220950b9384cdd965dde3335ae9db1ed70c",
+    "assets/p3/v1/gallery04/gallery04_trim_v01.png": "fcafcaa99806a39cbb78b2052954c5cf45ac1905aa082bf697935349db8aba1a",
+    "assets/p3/v1/gallery04/gallery04_glow_v01.png": "51a173a8648d6f3a3e42e4270bd236d6e17a6be28a91fef6fe494f03cd6e4f09",
+    "assets/p3/v1/gallery04/gallery04_light_v01.png": "ed1c3f23058be67ea4fb71c74e2d7d25bfec46021b697060ba3497f08ad2a82c",
+    "assets/p3/v1/gallery05/gallery05_floor_v01.png": "7f08e889a6918989fe4e050b4a7e6c4bb7686b9f81e5e3a96c81c5cb686b4695",
+    "assets/p3/v1/gallery05/gallery05_wall_v01.png": "457eb93b151ebb3147bf5db6c6b86bc0a639b816a457539ef302f697305cb61a",
+    "assets/p3/v1/gallery05/gallery05_panel_v01.png": "c9744a170c0bc800aff91b32ec8663277c342e5e590449a8db163cece47ea899",
+    "assets/p3/v1/gallery05/gallery05_trim_v01.png": "9e5c154713b990d8cca4a00bf9d30b7fd10eb9521a6ea8ec2f9cf0dd338d9cdf",
+    "assets/p3/v1/gallery05/gallery05_glow_v01.png": "447305dfc01ed36f14269392e7d7585863883e283fe1036c302785499cc69929",
+    "assets/p3/v1/gallery05/gallery05_light_v01.png": "518c7b15197e5a28f8d34deb4a42383bfcf0824693adc8e050cf57b2987830be",
+    "assets/p3/v1/gallery06/gallery06_floor_v01.png": "0e62d60e29f35f1bf4fc66fc015614a5deb14d067b0926d0947730667c2924ef",
+    "assets/p3/v1/gallery06/gallery06_wall_v01.png": "0c637094f97dc2d4be5aa9f13b0c619c655974b9b71ea5ae3feb51f0c690ed82",
+    "assets/p3/v1/gallery06/gallery06_panel_v01.png": "e363a93bbd6009e81e018ca046b0e1f79e06a4cabe764e770583a4755814dce1",
+    "assets/p3/v1/gallery06/gallery06_trim_v01.png": "fded019282f1e84aeac7efa8bc9349ae13df1aef7fb076154ff04d8e833bd02c",
+    "assets/p3/v1/gallery06/gallery06_glow_v01.png": "abc23c3b179d992be95fdb3a81aba946d6368ac76f655aa54618fd8d15166a75",
+    "assets/p3/v1/gallery06/gallery06_light_v01.png": "adf5cc95576f07f9132a820f88c992206b303920ddc03eb5b3b77ed3962980a2",
+    "assets/p3/v1/shared_doors/door_north_open_v02.png": "b4e7f1e9d8e9a58a138712503dec7675dd31f9773f1fe3218e3365fd717c2118",
+    "assets/p3/v1/shared_doors/door_north_locked_v02.png": "52f8e2d4450ae1e424731c1ccee0e75cd2f3966626aef3dabeed67bedd9d822c",
+    "assets/p3/v1/shared_doors/door_south_open_v02.png": "8bfe476d11b4defa813d43a8fd406a46fa064e63d2619045e6721274c1e6b28a",
+    "assets/p3/v1/shared_doors/door_south_locked_v02.png": "82b460cf6065c773d2585a60f974d79ae1f7b87a03763f81fbcadac66720b594",
+    "assets/p3/v1/shared_doors/door_west_open_v02.png": "c7ae0287ef54ce1f97e1b8281aee4ee76f9d274f79c5e3cf8c576843a1410047",
+    "assets/p3/v1/shared_doors/door_west_locked_v02.png": "46c375db2f205eda8b9a533361103c52fbce64bf64f7aa8a6f86f173e0782dc3",
+    "assets/p3/v1/shared_doors/door_east_open_v02.png": "9469ea993a90117dffad0e1dcad8d38f8af1b9fbc64b4219bab0b883db10406a",
+    "assets/p3/v1/shared_doors/door_east_locked_v02.png": "f39656795552d3c90cd88c72ebd0583cbd0ecbeaf84540059d1430304324e583",
+    "assets/p3/v1/shared_frames/gold_9slice_atlas_42_v02.png": "c06c3111456bf57f1c393bc323c47a6b57cbe346797ae879fb967e8deea8e232",
+    "assets/entrance/v0.3/entrance_floor_base_v03.png": "df32f1e24d6549b90e02907d1baec3b35cbdcf53fa96ca268a35a8ac76e953c6",
+    "assets/entrance/v0.3/entrance_wall_base_v03.png": "3495a305c684a7e0dcdac129ff4a1abcd658808b5780b12646776e256c864b9e",
+    "assets/entrance/v0.3/entrance_carpet_v03.png": "fb617b8f7bebbfdde63fdcf9cd2478052dc248558b163c21dbc21f40b6a1077e",
+    "assets/entrance/v0.3/entrance_sidewalls_v03.png": "dedfa89f82048f95bf6aebf9078bbe8a221ce10d6ea9395e4e1f63e790f8fba9",
+    "assets/entrance/v0.3/entrance_door_north_v03.png": "f1b6a4d2bff455e2e59516580f58c0f5b78481c80fdc975d5d8f0ef23469c34d",
+    "assets/entrance/v0.3/entrance_door_west_v03.png": "e0f0256951d8ea72b9f8dd0d9d2e8e1655d55d7f1e2b57d0f53a5d2a242eced2",
+    "assets/entrance/v0.3/entrance_door_east_v03.png": "e350a3dad9a0655a6923149d6720ae1631654f1582b7f60ee2645221c5b0718c",
+    "assets/entrance/v0.3/entrance_frame_9slice_atlas_v03.png": "c06c3111456bf57f1c393bc323c47a6b57cbe346797ae879fb967e8deea8e232",
+    "assets/entrance/v0.3/entrance_plant_v03.png": "cc78e42a7abdb4733717ecbad1e07a6367f34486cc52831a36136c0ffd300dc4",
+    "assets/entrance/v0.3/entrance_wall_light_v03.png": "47a2ad162410e78eb107c8f8dacdb767eb3b65afa221dfc7944cee2f07499dca",
+    "assets/entrance/v0.3/entrance_wall_glow_v03.png": "fa24aabacb1a200c668fdcdb0c85fbaa3136f3b3dc19801bcb287efe450ade03"
+  }
+}

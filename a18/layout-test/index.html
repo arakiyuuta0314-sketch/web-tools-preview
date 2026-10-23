@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="gallery1-renderer.js?v=1"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p4a"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=1"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p4a"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -404,7 +404,7 @@ async function getAlphaBounds(img){
 async function boot(){
  // Defer scripts (staff/photo modules) must finish before registration becomes playable.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
- if(!window.A18MuseumProgression||!window.A18Navigation||!window.A18Art||!window.A18Entrance||!P2||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
+ if(!window.A18MuseumProgression||!window.A18Navigation||!window.A18Art||!window.A18Entrance||!window.A18P3Gallery||!P2||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
  window.A18Navigation.validateGraph(ROOM_LINKS);
  let state=await P2.load();
  if(!state){
@@ -424,7 +424,7 @@ async function boot(){
  assetManifest=await response.json();
  await window.A18Art.init(assetManifest);
  await window.A18Entrance.init();
- await window.A18Gallery1.init();
+ await window.A18P3Gallery.init();
  // Reuse only the canonical approved 48 PNGs already decoded by A18Art.
  // Male retains the existing walking-frame crop; female follows the adopted main-preview crop.
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
@@ -587,7 +587,7 @@ async function changeScene(next,options={}){
 function paintArtwork(a,i){
  const f=L.roomFrames(fixtures,galleryIndex)[i];
  if(galleryIndex===0)window.A18Entrance.frame(ctx,f,artworkImage(a),a?.preferredShape||null);
- else window.A18Art.frame(ctx,f,artworkImage(a),L.roomFrames(fixtures,galleryIndex),a?.preferredShape||null);
+ else window.A18P3Gallery.frame(ctx,f,artworkImage(a),L.roomFrames(fixtures,galleryIndex),a?.preferredShape||null);
 }
 function avatar(){
  const dir=pos.dir==='up'?'back':pos.dir==='down'?'front':pos.dir;
@@ -611,24 +611,20 @@ function avatar(){
  }
 }
 function drawBackground(){
- if(scene==='entrance'){window.A18Entrance.background(ctx);return;}
- if(galleryIndex===1){window.A18Gallery1.background(ctx);const m=src[scene];window.A18MuseumProgression.draw(ctx,galleryIndex,wallFootLine(),m.w,m.h,unlockedRooms());const staff=L.STAFF_POSITIONS[galleryIndex];window.A18Art.npc(ctx,'staff',staff.x,staff.y+20);window.A18Navigation.drawDoors(ctx,{room:galleryIndex,scene,width:m.w,height:m.h,wallFoot:wallFootLine(),links:ROOM_LINKS,progression:currentSave.progression});return;}
- const m=src[scene],wallEnd=scene==='entrance'?187:151;
- // Functional art studio: floor first; final illustration/artwork is a separate phase.
- ctx.fillStyle='#d6cfbd';ctx.fillRect(0,0,m.w,m.h);
- ctx.fillStyle='#dfd5c1';ctx.fillRect(20,20,m.w-40,m.h-35);
- ctx.fillStyle='#bcaa91';ctx.fillRect(20,20,m.w-40,wallEnd-20);
- ctx.fillStyle='#efe6d4';ctx.fillRect(20,wallEnd,m.w-40,m.h-wallEnd-15);
- ctx.fillStyle='#a79277';ctx.fillRect(20,wallEnd-8,m.w-40,8);
- ctx.strokeStyle='#c9bca6';ctx.lineWidth=.6;
- for(let x=26;x<m.w-21;x+=42){ctx.beginPath();ctx.moveTo(x,wallEnd);ctx.lineTo(x,m.h-16);ctx.stroke()}
- for(let y=wallEnd;y<m.h-15;y+=42){ctx.beginPath();ctx.moveTo(21,y);ctx.lineTo(m.w-21,y);ctx.stroke()}
- window.A18MuseumProgression.draw(ctx,galleryIndex,wallFootLine(),m.w,m.h,unlockedRooms());
- // Exhibits now have their own movable Fixture sprites, not decorations baked into the floor.
- if(scene!=='entrance'){const s=L.STAFF_POSITIONS[galleryIndex];window.A18Art.npc(ctx,'staff',s.x,s.y+20);}
- // Render physical doorways and destination signs from the SAME portal geometry
- // used for collision and transitions. No independent fake green rectangles.
- window.A18Navigation.drawDoors(ctx,{room:galleryIndex,scene,width:m.w,height:m.h,wallFoot:wallFootLine(),links:ROOM_LINKS,progression:currentSave.progression});
+ if(scene==='entrance'){
+  window.A18Entrance.background(ctx);
+  // Entrance v0.3 arch remains approved; P3 shutter overlays are driven by
+  // exactly the same canTraverse predicate used by movement and changeScene.
+  window.A18P3Gallery.doors(ctx,0,currentSave.progression,true);
+  return;
+ }
+ window.A18P3Gallery.background(ctx,galleryIndex,currentSave.progression);
+}
+function drawGalleryStaff(){
+ if(galleryIndex===0)return;
+ const staff=L.STAFF_POSITIONS[galleryIndex];
+ if(!staff)throw Error('P3展示室のスタッフ位置がありません: '+galleryIndex);
+ window.A18Art.npc(ctx,'staff',staff.x,staff.y+20);
 }
 function decorate(){
  if(scene==='entrance'){window.A18Entrance.foreground(ctx);return;}
@@ -659,7 +655,7 @@ function draw(){
  ctx.setTransform(scale,0,0,scale,-cameraX*scale,-cameraY*scale);
  drawBackground();
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
- decorate();drawButler();
+ decorate();drawButler();drawGalleryStaff();
  const hit=nearby();
  if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i),[x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}
  avatar();ctx.restore();requestAnimationFrame(draw);
@@ -883,11 +879,12 @@ window.__A18_SCENE_STUDY__={
  validateLayout:room=>L.validatePlacement(fixtures,room),
   ready:()=>loaded,
   p2: P2.testMode?{
-   addSyntheticWork: async (id,blob,notes='合成テストの備考')=>commitChange(s=>{
+   addSyntheticWork: async (id,blob,notes='合成テストの備考',preferredShape='landscape')=>commitChange(s=>{
     if(!(blob instanceof Blob))throw Error('E_BLOB_MISSING');
+    if(!['landscape','portrait','square'].includes(preferredShape))throw Error('E_SHAPE_INVALID');
     if(s.carrying)throw Error('E_CARRY_CONFLICT');
     s.works.push({id,title:id,complete:'2026-10-23',registered:'2026-10-23',pieces:42,
-     preferredShape:'landscape',notes,fixtureId:null,thumbnail:null,originalBlob:blob,displaySrc:null});
+     preferredShape,notes,fixtureId:null,thumbnail:null,originalBlob:blob,displaySrc:null});
     s.carrying=id;
    }),
    injectFault:kind=>P2.setFault(kind),

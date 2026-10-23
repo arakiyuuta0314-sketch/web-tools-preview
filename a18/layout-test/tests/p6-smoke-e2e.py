@@ -1,13 +1,13 @@
 """P6 isolated Chrome CDP E2E, all photos synthetic; root is the P6 worktree."""
 import json,time,tempfile,subprocess,traceback
 from pathlib import Path
-ROOT=Path(r'G:\マイドライブ\06.アプリ開発\03.開発・テスト\A18_パズル美術館\10_P6_ストーリー統合実装')
+ROOT=Path(r'G:\マイドライブ\06.アプリ開発\03.開発・テスト\A18_パズル美術館\11_P3_全館美術統合実装\qa_runtime')
 ROOT.mkdir(parents=True,exist_ok=True)
 namespace={}
 lib=Path(__file__).with_name('p4-p2-regression-e2e.py').read_text('utf-8').split('all_results=[];failure=None')[0]
 exec(lib,namespace)
 WS,Runner,launch,attach,step_image=[namespace[k] for k in ('WS','Runner','launch','attach','step_image')]
-URL='http://127.0.0.1:8899/layout-test/index.html?p2-e2e=1'
+URL='http://127.0.0.1:8991/layout-test/index.html?p2-e2e=1'
 tests=[];errors=[]
 def snap(w,name):
  import base64
