@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const POSITIONS={0:[1,1],1:[0,1],2:[2,1],3:[0,0],4:[2,0],5:[1,0]};
 const REVERSE={west:'east',east:'west',north:'south',south:'north'};
-const NAMES=['エントランス','第2展示室','第3展示室','第4展示室','第5展示室','第6展示室'];
+const NAMES=['エントランス','展示室02','展示室03','展示室04','展示室05','展示室06'];
 const EDGES={
  entrance:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:501,x2:522,y1:345,y2:417},north:{x1:345,x2:383,y1:101,y2:118}},
  gallery:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},north:{x1:345,x2:385,y1:101,y2:118},south:{x1:265,x2:329,y1:452,y2:471}}
@@ -36,11 +36,12 @@ function arch(ctx,x,y,w,h){
  ctx.strokeStyle='#be9c67';ctx.lineWidth=2;
  ctx.strokeRect(x-5,y-5,w+10,h+10);
 }
-function drawDoors(ctx,{room,scene,width,height,wallFoot,links}){
+function drawDoors(ctx,{room,scene,width,height,wallFoot,links,progression}){
  const passages=links[room];
  // Path textures are visual guidance, never a new invisible collision wall.
  for(const edge of Object.keys(passages)){
   const rect=EDGES[scene][edge];
+  const locked=!window.A18P2Store.canTraverse(room,edge,progression);
   if(edge==='north'){
    const cx=(rect.x1+rect.x2)/2;
    // The real movement strip is x≈349..382 and the portal triggers at y=101..118.
@@ -48,13 +49,15 @@ function drawDoors(ctx,{room,scene,width,height,wallFoot,links}){
    ctx.fillStyle='#c09b68';ctx.fillRect(cx-18,wallFoot-2,36,3);
    arch(ctx,cx-23,78,46,70);
    ctx.fillStyle='#364e42';ctx.fillRect(cx-15,117,30,31);
-   drawArrow(ctx,'north',cx,105);
+   if(!locked)drawArrow(ctx,'north',cx,105);
+   else lockMark(ctx,cx,105);
   }else if(edge==='south'){
    const cx=(rect.x1+rect.x2)/2;
    ctx.fillStyle='#d1bd99';ctx.fillRect(cx-35,height-58,70,53);
    ctx.fillStyle='#bea276';ctx.fillRect(cx-35,height-34,70,4);
    arch(ctx,cx-34,height-19,68,35);
-   drawArrow(ctx,'south',cx,height-5);
+   if(!locked)drawArrow(ctx,'south',cx,height-5);
+   else lockMark(ctx,cx,height-14);
   }else{
    const left=edge==='west';
    const start=left?17:width-61;
@@ -62,16 +65,21 @@ function drawDoors(ctx,{room,scene,width,height,wallFoot,links}){
    ctx.fillStyle='#dac4a4';ctx.fillRect(left?31:width-93,cy-20,62,40);
    ctx.fillStyle='#cbb28e';ctx.fillRect(left?33:width-93,cy+14,60,5);
    arch(ctx,start,rect.y1-9,44,rect.y2-rect.y1+18);
-   drawArrow(ctx,edge,left?38:width-38,cy);
+   if(!locked)drawArrow(ctx,edge,left?38:width-38,cy);
+   else lockMark(ctx,left?38:width-38,cy);
   }
  }
 }
-function mapHTML(room){
+function lockMark(ctx,x,y){
+ ctx.save();ctx.fillStyle='#ead6a1';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 16px system-ui';ctx.fillText('🔒',x,y);ctx.restore();
+}
+function mapHTML(room,progression){
+ const opened=progression.unlockedThroughLevel;
  const cells=[];
  for(let row=0;row<2;row++)for(let col=0;col<3;col++){
   const entry=Object.keys(POSITIONS).find(k=>POSITIONS[k][0]===col&&POSITIONS[k][1]===row);
-  const n=Number(entry),chosen=n===room;
-  cells.push('<div class="a18-room-tile'+(chosen?' current':'')+'" aria-label="'+NAMES[n]+(chosen?' 現在地':'')+'"><strong>'+NAMES[n]+'</strong>'+(chosen?'<span>● いまここ</span>':'<span>　</span>')+'</div>');
+  const n=Number(entry),chosen=n===room,locked=n>=opened;
+  cells.push('<div class="a18-room-tile'+(chosen?' current':'')+(locked?' locked':'')+'" aria-label="'+NAMES[n]+(chosen?' 現在地':locked?' 施錠':'')+'"><strong>'+NAMES[n]+'</strong>'+(chosen?'<span>● いまここ</span>':locked?'<span>🔒 Lv.'+(n+1)+'で開放</span>':'<span>開放済み</span>')+'</div>');
  }
  return '<p class="a18-map-lead">扉に向かって歩くと、隣の部屋へ移動します。</p>'+
  '<div class="a18-floorplan" aria-label="美術館の全6部屋の配置">'+cells.join('')+'</div>'+

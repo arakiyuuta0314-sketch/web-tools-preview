@@ -167,7 +167,7 @@ function offer(ctx,entry){
  $('offerYes').onclick=()=>compare(ctx,entry);
  $('offerNo').onclick=()=>commit(ctx,entry,null);
 }
-function commit(ctx,entry,canvas){
+async function commit(ctx,entry,canvas){
  const {open,close,works,onRegistered}=ctx;
  function previewThumb(){
   const source=canvas||entry.image,w=source.width,h=source.height;
@@ -182,10 +182,13 @@ function commit(ctx,entry,canvas){
  const id='local-'+Date.now()+'-'+Math.floor(Math.random()*100000);
  const aspect=entry.image.naturalWidth/entry.image.naturalHeight;
  const preferredShape=aspect<.85?'portrait':aspect>1.15?'landscape':'square';
- works.push({id,preferredShape,title:entry.title,pieces:entry.pieces,complete:entry.complete,notes:entry.notes,
+ const newWork={id,preferredShape,title:entry.title,pieces:entry.pieces,complete:entry.complete,notes:entry.notes,
   registered:entry.registered,originalURL:entry.originalURL,originalBlob:entry.originalBlob,
   displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
-  thumbnail,fixtureId:null,source:null});
+  thumbnail,fixtureId:null};
+ // Durable registration and handover are a single revision-CAS commit.
+ const saved=await onRegistered(newWork);
+ if(!saved){open('保存失敗','<p>作品は登録されていません。画面を再読み込みして状態を確認してください。</p>');return;}
  open(activeRole==='butler'?'爺や｜作品のお渡し':'スタッフ｜作品のお渡し',
   '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.[activeRole==='butler'?'butler':'staff']?.portraitPath||'')+'" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">'+(activeRole==='butler'?'爺や':'展示室スタッフ')+'</span><p class="rpg-message">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
@@ -194,7 +197,7 @@ function commit(ctx,entry,canvas){
     ...doneLines.map(t=>t+' 作品をお渡ししますね。')
   ]))+'</p></div></div>'+
   '<div class="rpg-choices"><button id="receiveWork">作品を受け取る ▼</button></div>', 'rpg');
- $('receiveWork').onclick=()=>{close();onRegistered(id);};
+ $('receiveWork').onclick=()=>{close();};
 }
 function compare(ctx,entry){
  const full={x:0,y:0,w:entry.image.naturalWidth,h:entry.image.naturalHeight};

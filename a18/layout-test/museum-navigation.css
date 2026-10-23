@@ -13,3 +13,6 @@
 
 #statusText{right:auto;max-width:calc(100% - 144px);width:max-content;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:430px){#statusText{font-size:11px;padding:6px 7px;max-width:calc(100% - 133px)}.a18-map-button{font-size:12px;padding:6px 8px}}
+
+.a18-room-tile.locked{opacity:.60;filter:grayscale(.5);border-style:dashed}
+.a18-room-tile.locked span{font-size:11px}
