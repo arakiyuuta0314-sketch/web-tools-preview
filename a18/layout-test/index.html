@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="entrance-renderer.js?v=3"></script><script src="layout-storage.js?v=fixed1"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="gallery1-renderer.js?v=1"></script><script src="entrance-renderer.js?v=3"></script><script src="layout-storage.js?v=fixed1"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -230,6 +230,7 @@ async function boot(){
  assetManifest=await response.json();
  await window.A18Art.init(assetManifest);
  await window.A18Entrance.init();
+ await window.A18Gallery1.init();
  // Reuse only the canonical approved 48 PNGs already decoded by A18Art.
  // Male retains the existing walking-frame crop; female follows the adopted main-preview crop.
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
@@ -412,6 +413,7 @@ function avatar(){
 }
 function drawBackground(){
  if(scene==='entrance'){window.A18Entrance.background(ctx);return;}
+ if(galleryIndex===1){window.A18Gallery1.background(ctx);const m=src[scene];window.A18MuseumProgression.draw(ctx,galleryIndex,wallFootLine(),m.w,m.h,window.A18MuseumProgression.levelFor(works.length));const staff=L.STAFF_POSITIONS[galleryIndex];window.A18Art.npc(ctx,'staff',staff.x,staff.y+20);window.A18Navigation.drawDoors(ctx,{room:galleryIndex,scene,width:m.w,height:m.h,wallFoot:wallFootLine(),links:ROOM_LINKS});return;}
  const m=src[scene],wallEnd=scene==='entrance'?187:151;
  // Functional art studio: floor first; final illustration/artwork is a separate phase.
  ctx.fillStyle='#d6cfbd';ctx.fillRect(0,0,m.w,m.h);
