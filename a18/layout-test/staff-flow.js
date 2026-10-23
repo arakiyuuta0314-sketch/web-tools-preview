@@ -125,7 +125,7 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
  '<div class="registration-intro">'+staffPortrait(role==='butler'?activePlayer+'、大切な作品をお預かりいたします。':'新しい作品を預かるね！')+'</div>'+
  '<div class="registration-fields">'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：お気に入りの風景"></label>'+
- '<label>完成日（任意：不明なら今日を選択）<input id="date" type="date"></label>'+
+ '<label>完成日（任意・不明のまま登録できます）<input id="date" type="date"></label>'+
  '<div class="date-actions"><button type="button" id="dateClear" class="light">不明</button><button type="button" id="dateToday" class="light">今日</button></div>'+
  '<label>ピース数（任意）<input id="pieces" type="number" min="1" max="999999"></label>'+
  '<label>備考・思い出（任意）<textarea id="notes" maxlength="3000" rows="2" placeholder="作品にまつわる思い出を自由に残せます"></textarea></label>'+
@@ -137,18 +137,21 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
    const d=new Date();
    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
  };
- $('date').value=today();
+ $('date').value='';
  $('dateToday').onclick=()=>{$('date').value=today();};
  $('dateClear').onclick=()=>{$('date').value='';};
  $('close').onclick=close;
  $('save').onclick=()=>{
   const file=$('photo').files?.[0],name=$('name').value.trim();
   const complete=$('date').value||null;
+  const rawPieces=$('pieces').value.trim();
+  const pieces=rawPieces===''?null:Number(rawPieces);
   if(!name||!file){$('err').textContent='作品名と写真を選んでください';return}
+  if($('pieces').validity.badInput||(pieces!==null&&(!Number.isFinite(pieces)||pieces<=0))){$('err').textContent='ピース数は空欄、または0より大きい数値を入力してください';return}
   if(!file.type.startsWith('image/')){$('err').textContent='画像を選択してください';return}
   if(file.size>30*1024*1024){$('err').textContent='30MB以下の画像を選んでください';return}
   const originalURL=URL.createObjectURL(file),image=new Image();
-  const entry={title:name,pieces:Number($('pieces').value)||null,complete,
+  const entry={title:name,pieces,complete,
    notes:$('notes').value.trim(),registered:today(),fixtureId:null,image,originalURL,originalBlob:file};
   image.onload=()=>offer(ctx,entry);
   image.onerror=()=>{URL.revokeObjectURL(originalURL);$('err').textContent='写真を読み込めませんでした'};

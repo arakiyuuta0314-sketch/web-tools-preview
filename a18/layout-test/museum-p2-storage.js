@@ -77,8 +77,8 @@ function validate(s){
  for(const w of s.works){
   if(!(w.originalBlob instanceof Blob)||w.originalBlob.size===0)throw error('E_BLOB_MISSING',w.id);
   if(typeof w.id!=='string'||!w.id.trim()||typeof w.title!=='string'||!w.title.trim()
-   ||typeof w.notes!=='string'||typeof w.complete!=='string'||typeof w.registered!=='string'
-   ||!(Number.isFinite(w.pieces)&&w.pieces>0)
+   ||typeof w.notes!=='string'||(w.complete!==null&&typeof w.complete!=='string')||typeof w.registered!=='string'
+   ||(w.pieces!==null&&!(Number.isFinite(w.pieces)&&w.pieces>0))
    ||!['landscape','portrait','square'].includes(w.preferredShape)
    ||(w.thumbnail!=null&&typeof w.thumbnail!=='string')
    ||(w.displaySrc!=null&&typeof w.displaySrc!=='string')
