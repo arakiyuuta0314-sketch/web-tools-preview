@@ -88,9 +88,10 @@ function frameGeometry(f,img,preferredShape=null){
  // Coordinates remain anchored to the three existing frames, without
  // changing fixture geometry or persisted IDs.
  const shape=(preferredShape==='portrait'||preferredShape==='square')?preferredShape:window.A18Art.displayShape(f,img,preferredShape);
- let maxW=82,maxH=59;
- if(shape==='portrait'){maxW=82;maxH=104;}
- if(shape==='square'){maxW=72;maxH=72;}
+ // Enlarge only entrance wall displays by about 25%; gallery rooms stay unchanged.
+ let maxW=102,maxH=74;
+ if(shape==='portrait'){maxW=102;maxH=130;}
+ if(shape==='square'){maxW=90;maxH=90;}
  let innerW=maxW,innerH=maxH;
  const hasPhoto=img&&img.naturalWidth>0&&img.naturalHeight>0;
  if(hasPhoto){
