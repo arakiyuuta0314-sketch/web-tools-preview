@@ -66,7 +66,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
+</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
@@ -194,36 +194,170 @@ async function commitEventAction(action,id=null){
  }catch(e){saveError(e);return false}
  finally{saving=false}
 }
-let p6Dialogues=null;
+let p6Dialogues=null, storyBusy=false;
+function eventData(id){
+ const data=p6Dialogues?.events.find(e=>e.eventId===id);
+ if(!data)throw Error('E_P6_EVENT_UNKNOWN '+id);
+ return data;
+}
+function storyActor(data){
+ return data.actors[0]==='butler'?'butler':'staff';
+}
+function storyLine(line){
+ const butlerName=window.A18Registration.honorific('butler',playerName,avatarGender);
+ const staffName=window.A18Registration.honorific('staff',playerName,avatarGender);
+ return String(line).replaceAll('{playerHonorific}',butlerName)
+  .replaceAll('{playerStaffName}',staffName).replaceAll('{museumTitle}',museumTitle);
+}
+function storyPortrait(role,message){
+ const person=role==='butler'?'爺や':'展示室スタッフ';
+ const meta=window.A18Art.manifest?.[role];
+ if(!meta?.portraitPath)throw Error('E_P6_PORTRAIT_MISSING '+role);
+ return '<div class="rpg-chat p6-story-chat"><div class="rpg-portrait"><img src="'+esc(meta.portraitPath)+'" alt="'+esc(person)+'"></div>'+
+ '<div class="rpg-words"><span class="rpg-name">'+esc(person)+'</span><p class="rpg-message">'+esc(storyLine(message))+'</p></div></div>';
+}
+function storyFailure(){
+ const error=$('p6EventError');
+ if(error)error.textContent='保存できませんでした。会話の既読状態は更新していません。再読み込みして再開してください。';
+ const retry=$('p6Reload');
+ if(retry)retry.hidden=false;
+}
+function storySuccess(){
+ showingEvent=false;
+ close();
+ if(!saveBlocked)showProgressionEvent();
+}
+async function storyCommit(id,action,fromHistory=false){
+ if(storyBusy||saving||saveBlocked)return;
+ storyBusy=true;
+ try{
+  if(await commitEventAction(action,id)){
+   if(fromHistory){showingEvent=false;close();showStoryHistory();}
+   else storySuccess();
+  }else storyFailure();
+ }finally{storyBusy=false;}
+}
 function queuedProgressionEvent(){
  return currentSave?.progression.events.find(e=>e.status==='queued'&&e.id!=='intro-v1')||null;
 }
-function showProgressionEvent(id=null){
+function storySession(event,fromHistory=false){
+ const data=eventData(event.id),role=storyActor(data);
+ if(!Array.isArray(data.lines)||data.lines.length<1)throw Error('E_P6_LINES');
+ return {id:event.id,data,role,index:0,fromHistory};
+}
+function renderStoryPage(session){
+ const {id,data,role,index,fromHistory}=session;
+ const isFinal=id==='gallery06-complete-v1';
+ const header=isFinal?'展示室06 完成記念':data.systemText;
+ const mode=fromHistory?'会話の記録':'美術館のできごと';
+ const body='<div class="p6-story-meta">'+esc(mode)+'　'+(index+1)+' / '+data.lines.length+'</div>'+
+  '<h3 class="p6-story-title">'+esc(header)+'</h3>'+storyPortrait(role,data.lines[index])+
+  '<p id="p6EventError" class="error" role="alert"></p>'+
+  '<div class="p6-story-actions">'+
+  (index<data.lines.length-1?'<button id="p6Next" type="button">次の会話へ ▼</button>':'')+
+  '<button id="p2EventFinish" type="button">'+(fromHistory?'読み終える':'会話を終える')+'</button>'+
+  '<button id="p2EventSkip" type="button" class="light">'+(fromHistory?'一覧に戻る':'あとで読む')+'</button>'+
+  '<button id="p6Reload" type="button" class="light" hidden>再読み込みして復帰</button></div>';
+ open(fromHistory?'美術館の物語':header,body,'rpg');
+ if($('p6Next'))$('p6Next').onclick=()=>{
+  if(storyBusy||session.index>=session.data.lines.length-1)return;
+  session.index++;renderStoryPage(session);
+ };
+ $('p2EventFinish').onclick=()=>{
+  const event=currentSave.progression.events.find(e=>e.id===id);
+  if(fromHistory&&event.status==='seen'){showingEvent=false;showStoryHistory();return;}
+  void storyCommit(id,'finish',fromHistory);
+ };
+ $('p2EventSkip').onclick=()=>{
+  const event=currentSave.progression.events.find(e=>e.id===id);
+  if(fromHistory){showingEvent=false;showStoryHistory();return;}
+  if(event.status==='queued')void storyCommit(id,'skip');
+ };
+ $('p6Reload').onclick=()=>location.reload();
+}
+function showProgressionEvent(id=null,options={}){
  if(showingEvent||modal||saveBlocked||!p6Dialogues)return;
  const ev=id?currentSave?.progression.events.find(e=>e.id===id):queuedProgressionEvent();
- if(!ev||ev.status!=='queued')return;
- const data=p6Dialogues.events.find(e=>e.eventId===ev.id);
- if(!data)throw Error('E_P6_EVENT_UNKNOWN');
- showingEvent=true;
- const isFinal=ev.id==='gallery06-complete-v1';
- const actor=data.actors[0]==='butler'?'爺や':'展示室スタッフ';
- const honorificRole=data.actors[0]==='butler'?'butler':'staff';
- const playerHonorific=window.A18Registration.honorific(honorificRole,playerName,avatarGender);
- const substitute=text=>text.replaceAll('{playerHonorific}',playerHonorific).replaceAll('{playerStaffName}',playerHonorific);
- // Final commemorative wording is not approved: display event ID and a neutral placeholder only.
- const body=isFinal
-  ?'<p>展示室06の5枠が完成しました。最終達成記録が保存されました。</p>'+
-   '<p class="small">正式な記念演出・台詞は監修待ちです。</p>'
-  :data.lines.map(line=>'<p>'+esc(actor)+'「'+esc(substitute(line))+'」</p>').join('');
- open(isFinal?'展示室06が完成しました':ROOM_LABELS[data.openedRoomId]+'が開きました',
-  '<h3>'+esc(isFinal?'展示室06 完成（仮通知）':data.systemText)+'</h3>'+body+
-  (!isFinal?'<p class="small">館内を歩いて、開いた展示室へ進めます。</p>':'')+
-  '<div class="row"><button id="p2EventFinish">ありがとう</button><button id="p2EventSkip" class="light">あとで読む</button></div>');
- for(const [buttonId,action] of [['p2EventFinish','finish'],['p2EventSkip','skip']]){
-  $(buttonId).onclick=async()=>{
-   if(await commitEventAction(action,ev.id)){showingEvent=false;close();showProgressionEvent();}
-  };
+ if(!ev)return;
+ const fromHistory=options.replay===true;
+ if(!fromHistory&&ev.status!=='queued')return;
+ const data=eventData(ev.id);
+ // Automatic scene dialogue is allowed only in the actor's real source room.
+ if(!fromHistory&&galleryIndex!==data.sourceRoomId)return;
+ if(ev.id==='intro-v1'){
+  if(fromHistory){
+   showingEvent=true;
+   const lines=data.steps.filter(step=>step.type==='dialogue').map(step=>step.text);
+   renderStoryPage({id:ev.id,data:{...data,lines,systemText:'はじまりの物語'},role:'butler',index:0,fromHistory:true});
+  }else if(!playerName)showIntroOpening();
+  else showIntroAfterProfile();
+  return;
  }
+ showingEvent=true;
+ renderStoryPage(storySession(ev,fromHistory));
+}
+function showIntroOpening(){
+ if(showingEvent||modal||saveBlocked)return;
+ const intro=eventData('intro-v1');
+ if(!currentSave.progression.events.some(e=>e.id==='intro-v1'&&e.status==='queued'))return;
+ showingEvent=true;
+ let index=0;
+ function render(){
+  const steps=intro.steps.filter(step=>['O01','O02','O03'].includes(step.step));
+  open('とっておき美術館へ、ようこそ',
+   '<div class="p6-story-meta">はじまりの物語　'+(index+1)+' / '+steps.length+'</div>'+
+   storyPortrait('butler',steps[index].text)+
+   '<div class="p6-story-actions"><button id="introNext">'+(index===2?'館長になる':'次へ ▼')+'</button>'+
+   '<button id="introSkipOpening" class="light">オープニングをスキップ</button></div>','rpg');
+  function profile(){showingEvent=false;close();onboarding();}
+  $('introNext').onclick=()=>{if(index<2){index++;render();}else profile();};
+  $('introSkipOpening').onclick=profile;
+ }
+ render();
+}
+function showIntroAfterProfile(){
+ if(showingEvent||modal||saveBlocked||!playerName)return;
+ const ev=currentSave.progression.events.find(e=>e.id==='intro-v1');
+ if(!ev||ev.status!=='queued')return;
+ showingEvent=true;
+ const steps=eventData('intro-v1').steps.filter(step=>['O06','O07'].includes(step.step));
+ let index=0;
+ function render(){
+  open('ようこそ、館長',
+   '<div class="p6-story-meta">館長の登録が完了しました　'+(index+1)+' / '+steps.length+'</div>'+
+   storyPortrait('butler',steps[index].text)+
+   '<p id="p6EventError" class="error" role="alert"></p>'+
+   '<div class="p6-story-actions">'+(index===0?'<button id="introNext">次へ ▼</button>':'')+
+   '<button id="startTour">はじめる</button><button id="skipTour" class="light">案内をとばす</button>'+
+   '<button id="p6Reload" class="light" hidden>再読み込みして復帰</button></div>','rpg');
+  if($('introNext'))$('introNext').onclick=()=>{index=1;render();};
+  $('startTour').onclick=()=>{void storyCommit('intro-v1','finish');};
+  $('skipTour').onclick=()=>{void storyCommit('intro-v1','skip');};
+  $('p6Reload').onclick=()=>location.reload();
+ }
+ render();
+}
+function showStoryHistory(){
+ if(saveBlocked)return;
+ showingEvent=false;
+ const eventList=currentSave.progression.events;
+ const rows=eventList.map(ev=>{
+  const data=eventData(ev.id);
+  const name=ev.id==='intro-v1'?'はじまりの物語':
+   ev.id==='gallery06-complete-v1'?'展示室06 完成記念':
+   '館Lv.'+data.levelAfter+'　'+ROOM_LABELS[data.openedRoomId]+'開放';
+  const state=ev.status==='seen'?'既読':ev.status==='available'?'あとで読む':'未読';
+  return '<button class="p6-story-entry" type="button" data-p6-replay="'+esc(ev.id)+'"><span>'+esc(name)+'</span><small>'+state+'</small></button>';
+ }).join('');
+ open('美術館の物語','<div class="p6-history"><p class="small">これまでの会話を読み返せます。展示やレベルには影響しません。</p>'+
+  (rows||'<p>まだ物語はありません。</p>')+
+  '<button id="p6HistoryBack" type="button" class="light">設定に戻る</button></div>');
+ for(const item of document.querySelectorAll('[data-p6-replay]'))item.onclick=()=>{
+  const id=item.dataset.p6Replay;
+  close();
+  showProgressionEvent(id,{replay:true});
+ };
+ $('p6HistoryBack').onclick=()=>{close();showSettings();};
 }
 function butlerDialog(){staffDialog('butler');}
 
@@ -275,6 +409,7 @@ async function boot(){
  let state=await P2.load();
  if(!state){
   state=P2.initial();
+  state.progression.events.push({id:'intro-v1',origin:'play',status:'queued'});
   await P2.commit(null,state);
  }
  P2.validate(state);
@@ -305,7 +440,11 @@ async function boot(){
   spriteBounds.set(femaleId,await getAlphaBounds(female));
  }
  loaded=true;resize();update();requestAnimationFrame(draw);
- if(!playerName)onboarding();else showProgressionEvent();
+ if(!playerName){
+  if(currentSave.progression.events.some(e=>e.id==='intro-v1'&&e.status==='queued'))showIntroOpening();
+  else onboarding();
+ }else if(currentSave.progression.events.some(e=>e.id==='intro-v1'&&e.status==='queued'))showIntroAfterProfile();
+ else showProgressionEvent();
 }
 function isPortraitGame(){return matchMedia('(orientation:portrait) and (max-width:850px)').matches;}
 function resize(){
@@ -381,6 +520,7 @@ function checkPortal(){
  return false;
 }
 function walk(dir){
+ if(modal||showingEvent||saveBlocked)return false;
  if(modal||saving||saveBlocked)return;
  const dx=dir==='right'?MOVE_DISTANCE:dir==='left'?-MOVE_DISTANCE:0;
  const dy=dir==='down'?MOVE_DISTANCE:dir==='up'?-MOVE_DISTANCE:0;
@@ -439,6 +579,7 @@ async function changeScene(next,options={}){
  const location={west:[76,388],east:[m.w-76,388],north:[367,151],south:[296,426]}[options.arrivalFrom]||m.spawn;
  const direction={west:'right',east:'left',north:'down',south:'up'}[options.arrivalFrom]||'up';
  const arrival={x:location[0],y:location[1],dir:direction,stride:0};
+ if(modal||showingEvent||saveBlocked)return false;
  const ok=await commitChange(s=>{s.galleryIndex=room;s.pos=arrival;},{event:false});
  if(ok){activeInteraction=null;cameraX=0;cameraY=0;$('hint').hidden=true;}
  return ok;
@@ -536,28 +677,31 @@ async function saveProfile(){
  return await commitChange(s=>{s.playerName=name;s.museumTitle=title;s.avatarGender=gender;},{event:false});
 }
 function onboarding(){
- open('美術館へようこそ','<p>はじめに館長と美術館の名前を決めましょう。あとから設定で変更できます。</p>'+
+ if(showingEvent||saveBlocked)return;
+ open('あなたの美術館をはじめよう','<p>館長のお名前・姿・美術館名を決めましょう。必須の設定です。</p>'+
   profileFields()+'<p id="profileError" class="error" role="alert"></p>'+
-  '<div class="row"><button id="confirmName">美術館を開く</button></div>');
+  '<div class="row"><button id="confirmName">この設定ではじめる</button></div>');
  $('confirmName').onclick=async()=>{
-  if(!await saveProfile())return;
-  close();introDialog();
+  if(saving||saveBlocked)return;
+  if(!await saveProfile()){
+   if(saveBlocked)$('profileError').textContent='保存できませんでした。再読み込み後、プロフィールを確認してください。';
+   return;
+  }
+  close();
+  showIntroAfterProfile();
  };
 }
-function introDialog(){
- open('小さな美術館のはじまり','<p>'+esc(playerName)+'さん、今日からこの美術館の館長です。</p>'+
-  '<p>作品を預けるなら、エントランスの爺やに話しかけてください。館内を歩いて、お好きな額縁で作品を飾れます。</p>'+
-  '<div class="row"><button id="startTour">美術館へ</button><button id="skipTour" class="light">説明を閉じる</button></div>');
- for(const id of ['startTour','skipTour'])$(id).onclick=()=>{tutorialStep=id==='startTour'?1:0;close();if(tutorialStep){$('hint').textContent='爺やに話しかけて、作品を預けてみよう';$('hint').hidden=false;}};
-}
 function showSettings(){
+ if(showingEvent||saveBlocked)return;
  open('設定','<div class="a18-settings-content"><p class="small">館長の名前・性別・美術館の名前を変更できます。</p>'+profileFields()+
   '<p id="profileError" class="error" role="alert"></p><div class="row"><button id="saveProfile">変更を保存</button><button id="closeSettings" class="light">戻る</button></div>'+
+  '<hr><h3>物語</h3><button id="p6StoryHistory" type="button" class="light">美術館の物語</button>'+
   '<hr><h3>広告</h3><button id="adRemoval" type="button" disabled>広告を永久に削除　準備中</button>'+
   '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p>'+ 
   '<hr><p class="small">P2隔離試験版：旧保存データには触れません。初期化機能は無効です。</p></div>');
  $('saveProfile').onclick=async()=>{if(await saveProfile())close();};
  $('closeSettings').onclick=close;
+ $('p6StoryHistory').onclick=()=>{close();showStoryHistory();};
 
 }
 
@@ -569,6 +713,7 @@ function open(title,contents,kind='standard'){
 }
 function close(){modal=false;overlay.hidden=true;overlay.classList.remove('rpg-mode','art-inspect-mode');update();}
 function action(){
+ if(modal||showingEvent||saveBlocked)return;
  const h=nearby();if(!h)return;
  if(h.type==='staff'){staffDialog();return}
  if(h.type==='butler'){butlerDialog();return}
@@ -715,6 +860,7 @@ $('museumName').onclick=showSettings;
 $('settingsGear').onclick=showSettings;
 $('floorMapButton').onclick=()=>showFloorMap();
 function showFloorMap(){
+ if(modal||showingEvent||saveBlocked)return;
  open('館内図',window.A18Navigation.mapHTML(galleryIndex,currentSave.progression)+
   '<div class="row"><button id="closeFloorMap">歩いて戻る</button></div>');
  $('closeFloorMap').onclick=close;
@@ -732,7 +878,7 @@ for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventList
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
  state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
- move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,staffDialog,butlerDialog,checkPortal,portalEdges:PORTAL_EDGES,
+ move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:PORTAL_EDGES,
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');return commitChange(s=>{s.avatarGender=g;});},
  validateLayout:room=>L.validatePlacement(fixtures,room),
   ready:()=>loaded,

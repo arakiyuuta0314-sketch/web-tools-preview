@@ -1,0 +1,12 @@
+/* P6 narrative overlay: portrait from existing canonical manifest, never synthetic actors. */
+.p6-story-meta{font-size:12px;color:#566c5c;font-weight:750;letter-spacing:.04em;margin-bottom:5px}
+.p6-story-title{font-size:17px;line-height:1.5;color:#274c3b;margin:2px 0 12px;overflow-wrap:anywhere}
+.p6-story-chat .rpg-message{overflow-wrap:anywhere;white-space:pre-wrap}
+.p6-story-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.p6-story-actions button{flex:1 1 125px;min-width:0}
+.p6-history{display:grid;gap:8px}
+.p6-story-entry{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:#f1e8d2!important;color:#2c4c3d!important;border:1px solid #c6b689;min-height:52px;overflow-wrap:anywhere}
+.p6-story-entry span{min-width:0}
+.p6-story-entry small{font-size:12px;white-space:nowrap;color:#536a5c;border:1px solid #b1c2b1;border-radius:6px;padding:3px 5px}
+#p6EventError:empty{display:none}
+@media(max-width:420px){.p6-story-actions button{font-size:14px}.p6-story-chat .rpg-message{font-size:16px}}
