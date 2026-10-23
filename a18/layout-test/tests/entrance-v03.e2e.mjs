@@ -102,7 +102,7 @@ try{
   await sleep(700);
   assert((await state()).works[0].fixtureId==='frame-0-0','frame display failed');
   await cmd('Page.reload',{ignoreCache:true});
-  await poll(()=>evaluate('return window.__A18_SCENE_STUDY__?.ready()===true;'),200);
+  try{await poll(()=>evaluate('return window.__A18_SCENE_STUDY__?.ready()===true;'),200);}catch(e){const diag=await evaluate("return {url:location.href,ready:document.readyState,hint:document.getElementById('hint')?.textContent,hasStudy:!!window.__A18_SCENE_STUDY__,html:document.body?.innerText?.slice(0,300)};");throw Error('Reload diagnostic: '+JSON.stringify(diag)+' / '+e.message);}
   const s=await state();
   const r=await evaluate("const s=await window.A18Storage.load();return {size:s.works[0].originalBlob.size,notes:s.works[0].notes,player:s.playerName,pieces:s.works[0].pieces};");
   return assert(s.works[0].fixtureId==='frame-0-0'&&r.size>100&&r.notes==='忘れたくない思い出'&&r.player==='QA館長'&&r.pieces===500,JSON.stringify(r));

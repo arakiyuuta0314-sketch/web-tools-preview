@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const SHAPES={landscape:[100,76],portrait:[70,104],square:[88,88]};
 const BASE=[
- [[40,58,140,135],[200,58,300,135],[414,58,514,135]],
+ [[40,58,140,135],[184,58,284,135],[430,58,530,135]],
  [[42,58,140,134],[208,58,306,134],[418,58,516,134],[56,251,154,327],[405,251,503,327]],
  [[63,63,192,155],[217,63,317,139],[431,66,531,142],[62,235,154,309],[417,261,512,335]],
  [[37,75,134,153],[147,58,240,137],[256,55,326,135],[424,75,526,153],[60,261,166,335]],
@@ -183,7 +183,7 @@ function validatePlacement(fixtures,room){
   const b=r(f);
   if(f.installation==='wall'){
    if(f.kind!=='frame'&&f.type!=='tapestry')return {ok:false,reason:'壁掛けできない装飾です'};
-   if(b[0]<30||b[2]>m.w-30||b[1]<35||b[3]>m.wallFoot-4)return {ok:false,reason:'額縁が壁面の配置可能範囲を超えています'};
+   if(b[0]<(room===0?12:30)||b[2]>m.w-(room===0?12:30)||b[1]<35||b[3]>m.wallFoot-4)return {ok:false,reason:'額縁が壁面の配置可能範囲を超えています'};
    if(ROOM_LINKS[room].north!=null && overlaps(b,[340,70,397,m.wallFoot],4))return {ok:false,reason:'北側の扉を塞いでいます'};
   }else if(f.installation==='floor'){
    if(b[0]<32||b[2]>m.w-32||b[1]<m.wallFoot+18||b[3]>m.h-62)return {ok:false,reason:'床の配置可能範囲を超えています'};
