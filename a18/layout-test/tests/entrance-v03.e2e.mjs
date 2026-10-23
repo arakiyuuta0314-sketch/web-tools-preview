@@ -144,7 +144,7 @@ try{
   for(let room=1;room<6;room++){
    await evaluate("window.__A18_SCENE_STUDY__.changeScene("+room+");return true;");
    const s=await state();assert(s.galleryIndex===room&&s.frameRects.length===5,'gallery regression '+room);
-   if(room===1)await shot('pc_gallery2_regression.png');
+   if(room===1){await click('close');await sleep(200);await shot('pc_gallery1_v02_actual.png');}
   }
   await evaluate('window.__A18_SCENE_STUDY__.changeScene(0);return true;');
   return true;
