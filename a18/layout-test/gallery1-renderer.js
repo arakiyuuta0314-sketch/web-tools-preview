@@ -1,4 +1,4 @@
-/* A18 gallery 1 art v0.1; isolated from gameplay and save data. */
+/* A18 gallery one v0.2, isolated visual background. */
 (()=>{'use strict';
 let image=null;
 async function init(){
@@ -6,13 +6,13 @@ async function init(){
  image=await new Promise((resolve,reject)=>{
   const im=new Image();
   im.onload=()=>resolve(im);
-  im.onerror=()=>reject(Error('展示室1背景の読込に失敗しました'));
-  im.src='assets/gallery1/v0.1/gallery1_background_v01.png';
+  im.onerror=()=>reject(Error('Gallery one image load failed'));
+  im.src='assets/gallery1/v0.2/gallery1_background_v02.png';
  });
- if(image.naturalWidth!==589||image.naturalHeight!==482)throw Error('展示室1背景の寸法が不正です');
+ if(image.naturalWidth!==589||image.naturalHeight!==482)throw Error('Gallery one image dimensions invalid');
 }
 function background(ctx){
- if(!image)throw Error('展示室1背景が未初期化です');
+ if(!image)throw Error('Gallery one image not ready');
  ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(image,0,0);ctx.restore();
 }
 window.A18Gallery1={init,background};
