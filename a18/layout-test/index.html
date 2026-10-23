@@ -7,12 +7,12 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="layout-editor.css?v=2.2"><link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=classic1"></script><script src="museum-navigation.js?v=2"></script><script src="asset-renderer.js?v=larger2"></script><script src="layout-storage.js?v=2.0"></script><script src="layout-editor.js?v=2.2"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="layout-storage.js?v=fixed1"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
-<script src="staff-flow.js?v=1.17" defer></script>
-<title>パズル美術館｜額縁拡大・縦型対応 v2.5</title>
+<script src="staff-flow.js?v=fixed1" defer></script>
+<title>パズル美術館｜固定展示・館長設定 v2.6</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -66,13 +66,13 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"></head>
+</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.5 額縁縦型</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.6 固定展示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
-<div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
+<button id="settingsGear" class="a18-settings-gear" type="button" aria-label="設定を開く" title="設定">⚙</button><div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
 </div><div id="overlay" class="overlay" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true"></section></div>
 <section id="photoViewer" class="a18-viewer" hidden role="dialog" aria-modal="true" aria-label="作品を大きく鑑賞する">
@@ -94,7 +94,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
     <div class="a18-viewer-tip">ピンチで拡大・ドラッグで移動・ダブルタップで切替</div>
   </div>
 </section>
-<script src="viewer.js?v=1.15"></script>
+<script src="viewer.js?v=fixed1"></script>
 <script>
 (() => {
 'use strict';
@@ -122,13 +122,13 @@ let galleryIndex=0; // 0 = entrance, 1..5 = galleries 2..6.
 const L=window.A18Layout;
 const fixtures=L.defaults();
 L.restoreClassicFrameDimensions(fixtures);
+L.enforceFixedLayout(fixtures);
 const roomRects=()=>L.roomFrames(fixtures,galleryIndex).map(L.r);
 const frameCount=room=>L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
 const roomCapacity=room=>frameCount(room);
 const roomCount=()=>6;
 const unlockedRooms=()=>6;
-const AVAILABLE_SLOTS=L.defaults().filter(f=>f.kind==='frame').map(f=>f.id);
 const slotId=i=>L.legacyId(i);
 const fixtureRank=id=>{
  const f=fixtures.find(f=>f.id===id);
@@ -141,14 +141,14 @@ function artworkLocation(w){
  if(!f)throw Error('作品が存在しない設備を参照: '+w.id);
  return ROOM_LABELS[f.roomId]+'・枠'+(f.legacySlot-roomStart(f.roomId)+1);
 }
-const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',viewMode='overview';
+const NAME_KEY='a18-museum-name';let museumTitle='パズル美術館',playerName='',viewMode='overview';
 try{museumTitle=localStorage.getItem(NAME_KEY)||museumTitle;}catch(e){}
-let scene='entrance',pos={x:326,y:425,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraX=0,cameraY=0,logicalW=546,logicalH=483,frame=0,loaded=false,lastArrange=null,tutorialStep=0;
+let scene='entrance',pos={x:326,y:425,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraX=0,cameraY=0,logicalW=546,logicalH=483,frame=0,loaded=false,tutorialStep=0;
 const MOVE_DISTANCE=12,MOVE_REPEAT_MS=65,MOVE_SUBSTEP=3;
 let activeInteraction=null,avatarGender='male',assetManifest=null,saveTimer=null;
 function snapshot(){
  L.syncWorks(fixtures,works);
- return {fixtures,works,avatarGender,museumTitle,galleryIndex,pos,carrying};
+ return {fixtures,works,avatarGender,playerName,museumTitle,galleryIndex,pos,carrying};
 }
 function requestSave(){
  clearTimeout(saveTimer);
@@ -157,25 +157,7 @@ function requestSave(){
   catch(e){console.error('A18 persistence',e);$('hint').textContent='保存エラー：'+e.message;$('hint').hidden=false;}
  },120);
 }
-function chooseAvatar(){
- open('館長の姿を選ぶ','<p>男性館長と女性館長で歩く速さ・操作方法は同じです。男女とも正式採用されたキャラクター画像を使用しています。</p>'+
- '<div class="row"><button id="a18Male">男性館長'+(avatarGender==='male'?' ✓':'')+'</button><button id="a18Female">女性館長'+(avatarGender==='female'?' ✓':'')+'</button></div><div class="row"><button id="close" class="light">戻る</button></div>');
- for(const [id,gender] of [['a18Male','male'],['a18Female','female']]){
-  $(id).onclick=()=>{avatarGender=gender;requestSave();close();};
- }
- $('close').onclick=close;
-}
-function butlerDialog(){
- const chat=(body,actions='')=>'<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(assetManifest?.butler?.portraitPath||'')+'" alt="爺やの肖像"></div><div class="rpg-words"><span class="rpg-name">爺や</span><p class="rpg-message">'+body+'</p></div></div>'+actions;
- open('爺や','<button id="rpgAdvance" type="button" class="rpg-dialogue-advance">'+chat('館長、お呼びでしょうか？')+'<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
- $('rpgAdvance').onclick=()=>{
-  // Furniture / free layout editing is intentionally on hold.
-  // Do not delete layout fixtures or original pictures from stored museum data.
-  open('爺や',chat('館長のお姿でしたら、こちらで変更できますよ。','<div class="rpg-choices"><button id="a18SelectAvatar">館長の姿を選ぶ</button><button id="a18No" class="light">またあとで</button></div>'),'rpg');
-  $('a18SelectAvatar').onclick=chooseAvatar;
-  $('a18No').onclick=close;
- };
-}
+function butlerDialog(){staffDialog('butler');}
 
 const images=new Map(),spriteBounds=new Map(),movement={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',w:'up',a:'left',s:'down',d:'right'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -220,7 +202,7 @@ async function getAlphaBounds(img){
 async function boot(){
  // Defer scripts (staff/photo modules) must finish before registration becomes playable.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
- if(!window.A18Navigation||!window.A18LayoutEditor||!window.A18Art||!window.A18Storage||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
+ if(!window.A18MuseumProgression||!window.A18Navigation||!window.A18Art||!window.A18Storage||!window.A18Registration)throw Error('ゲーム機能の読込に失敗しました');
  window.A18Navigation.validateGraph(ROOM_LINKS);
  let restored=false;
  const state=await window.A18Storage.load();
@@ -230,10 +212,12 @@ async function boot(){
   L.migrateLegacy(restoredWorks);
   L.assertData(state.fixtures,restoredWorks);
   L.restoreClassicFrameDimensions(state.fixtures);
+  L.enforceFixedLayout(state.fixtures);
   for(let room=0;room<6;room++){const result=L.validatePlacement(state.fixtures,room);if(!result.ok)throw Error('保存した第'+(room+1)+'室の配置が不正：'+result.reason)}
   fixtures.splice(0,fixtures.length,...state.fixtures);
   works.splice(0,works.length,...restoredWorks);
   avatarGender=['male','female'].includes(state.avatarGender)?state.avatarGender:'male';
+  playerName=typeof state.playerName==='string'?state.playerName.trim():'';
   if(state.museumTitle)museumTitle=state.museumTitle;
   if(Number.isInteger(state.galleryIndex)&&state.galleryIndex>=0&&state.galleryIndex<6)galleryIndex=state.galleryIndex;
   scene=galleryIndex===0?'entrance':'gallery';
@@ -261,8 +245,7 @@ async function boot(){
  }
  loaded=true;resize();update();requestAnimationFrame(draw);
  $('museumName').textContent=museumTitle;
- let first=!restored;try{first=first&&!localStorage.getItem(NAME_KEY)}catch(e){}
- if(first)nameDialog(true);
+ if(!playerName)onboarding();
 }
 function isPortraitGame(){return matchMedia('(orientation:portrait) and (max-width:850px)').matches;}
 function resize(){
@@ -337,7 +320,7 @@ function checkPortal(){
  return false;
 }
 function walk(dir){
- if(modal||window.A18LayoutEditor?.isOpen())return;
+ if(modal)return;
  const dx=dir==='right'?MOVE_DISTANCE:dir==='left'?-MOVE_DISTANCE:0;
  const dy=dir==='down'?MOVE_DISTANCE:dir==='up'?-MOVE_DISTANCE:0;
  pos.dir=dir;
@@ -357,9 +340,12 @@ function interactionCandidates(){
   const a=L.anchor(f,galleryIndex);
   return {type:'art',i:L.slotFor(galleryIndex,i),x:a.x,y:a.y,enter:32,leave:38};
  });
- const staff=galleryIndex===0?{type:'staff',x:256,y:333,enter:49,leave:55}:{type:'staff',x:297,y:211,enter:48,leave:54};
- if(galleryIndex===0)artworks.push({type:'butler',x:185,y:335,enter:48,leave:54});
- return [...artworks,staff];
+ if(galleryIndex===0){
+  const p=L.npcAnchor('butler',0);
+  artworks.push({type:'butler',x:p.x,y:p.y,enter:46,leave:54});return artworks;
+ }
+ const p=L.npcAnchor('staff',galleryIndex);
+ return [...artworks,{type:'staff',x:p.x,y:p.y,enter:46,leave:54}];
 }
 function interactionId(hit){return hit.type+':'+(hit.i??'')}
 function nearby(){
@@ -376,10 +362,10 @@ function nearby(){
 }
 function update(){
  const displayed=works.filter(w=>w.fixtureId!=null&&fixtures.some(f=>f.id===w.fixtureId&&f.roomId===galleryIndex)).length;
- $('statusText').textContent=ROOM_LABELS[galleryIndex]+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
+ $('statusText').textContent=ROOM_LABELS[galleryIndex]+' Lv.'+window.A18MuseumProgression.levelFor(works.length)+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
  const hit=nearby();
  $('act').hidden=!hit;
- if(hit)$('act').textContent=hit.type==='staff'||hit.type==='butler'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'空の額縁';
+ if(hit)$('act').textContent=hit.type==='staff'||hit.type==='butler'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'額縁を調べる';
  $('cancel').hidden=!carrying;
  $('cancel').textContent='作品をしまう';
 }
@@ -433,14 +419,16 @@ function drawBackground(){
  ctx.strokeStyle='#c9bca6';ctx.lineWidth=.6;
  for(let x=26;x<m.w-21;x+=42){ctx.beginPath();ctx.moveTo(x,wallEnd);ctx.lineTo(x,m.h-16);ctx.stroke()}
  for(let y=wallEnd;y<m.h-15;y+=42){ctx.beginPath();ctx.moveTo(21,y);ctx.lineTo(m.w-21,y);ctx.stroke()}
+ window.A18MuseumProgression.draw(ctx,galleryIndex,wallFootLine(),m.w,m.h,window.A18MuseumProgression.levelFor(works.length));
  // Exhibits now have their own movable Fixture sprites, not decorations baked into the floor.
- if(scene==='entrance')window.A18Art.npc(ctx,'staff',257,353);
- else window.A18Art.npc(ctx,'staff',297,232);
+ if(scene!=='entrance'){const s=L.STAFF_POSITIONS[galleryIndex];window.A18Art.npc(ctx,'staff',s.x,s.y+20);}
  // Render physical doorways and destination signs from the SAME portal geometry
  // used for collision and transitions. No independent fake green rectangles.
  window.A18Navigation.drawDoors(ctx,{room:galleryIndex,scene,width:m.w,height:m.h,wallFoot:wallFootLine(),links:ROOM_LINKS});
 }
 function decorate(){
+ // Legacy player furniture stays stored but is not part of the curated layout.
+ return;
  const decor=fixtures.filter(f=>f.roomId===galleryIndex&&f.kind==='decor');
  for(const f of decor){
   if(window.A18Art.decoration(ctx,f))continue;
@@ -452,7 +440,7 @@ function decorate(){
 }
 function drawButler(){
  if(galleryIndex!==0)return;
- window.A18Art.npc(ctx,'butler',155,334);
+ window.A18Art.npc(ctx,'butler',L.BUTLER.x,L.BUTLER.footY);
 }
 function draw(){
  if(!loaded)return;
@@ -471,25 +459,43 @@ function draw(){
  if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i),[x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}
  avatar();ctx.restore();requestAnimationFrame(draw);
 }
-function nameDialog(first=false){
- open(first?'美術館の名前を決めよう':'美術館の名前を変更',
- '<p>あなたの美術館に名前を付けましょう。あとから変更できます。</p>'+
- '<label>美術館の名前<input id="newMuseumName" maxlength="24" value="'+esc(museumTitle)+'"></label>'+
- '<p id="nameError" class="error"></p><div class="row"><button id="confirmName">この名前で始める</button>'+
- (first?'':'<button id="close" class="light">キャンセル</button>')+'</div>');
+function profileFields(){
+ return '<label>館長の名前<input id="a18PlayerName" maxlength="24" autocomplete="off" value="'+esc(playerName)+'" placeholder="名前"></label>'+
+  '<label>館長の性別<select id="a18PlayerGender"><option value="male"'+(avatarGender==='male'?' selected':'')+'>男性館長</option>'+
+  '<option value="female"'+(avatarGender==='female'?' selected':'')+'>女性館長</option></select></label>'+
+  '<label>美術館の名前<input id="a18MuseumTitle" maxlength="24" value="'+esc(museumTitle)+'"></label>';
+}
+function saveProfile(){
+ const name=$('a18PlayerName').value.trim(),title=$('a18MuseumTitle').value.trim(),gender=$('a18PlayerGender').value;
+ if(!name||!title){$('profileError').textContent='館長の名前と美術館の名前を入力してください';return false;}
+ if(!['male','female'].includes(gender))throw Error('館長の性別が不正です');
+ playerName=name;museumTitle=title;avatarGender=gender;
+ $('museumName').textContent=title;
+ try{localStorage.setItem(NAME_KEY,title)}catch(e){}
+ requestSave();return true;
+}
+function onboarding(){
+ open('美術館へようこそ','<p>はじめに館長と美術館の名前を決めましょう。あとから設定で変更できます。</p>'+
+  profileFields()+'<p id="profileError" class="error" role="alert"></p>'+
+  '<div class="row"><button id="confirmName">美術館を開く</button></div>');
  $('confirmName').onclick=()=>{
-  const next=$('newMuseumName').value.trim();
-  if(!next){$('nameError').textContent='美術館の名前を入力してください';return;}
-  museumTitle=next;requestSave();$('museumName').textContent=next;$('museumName').title=next+'（タップで名前を変更）';
-  try{localStorage.setItem(NAME_KEY,next)}catch(e){}
-  close();
-  if(first)introDialog();
+  if(!saveProfile())return;
+  close();introDialog();
  };
- if(!first)$('close').onclick=close;
 }
 function introDialog(){
- open('小さな美術館のはじまり','<p>今日からあなたが、この美術館の館長です。</p><p>まだ展示品はありません。ひとつずつ、あなたの作品で満たしていきましょう。</p><p class="small">エントランスのスタッフに話しかける → 写真を預ける → 作品を受け取る → お好きな額縁に飾る、の順で操作を試せます。</p><div class="row"><button id="startTour">美術館へ</button><button id="skipTour" class="light">説明を閉じる</button></div>');
- for(const id of ['startTour','skipTour'])$(id).onclick=()=>{tutorialStep=id==='startTour'?1:0;close();if(tutorialStep){$('hint').textContent='まずは入口のスタッフに話しかけてみよう';$('hint').hidden=false;}};
+ open('小さな美術館のはじまり','<p>'+esc(playerName)+'さん、今日からこの美術館の館長です。</p>'+
+  '<p>作品を預けるなら、エントランスの爺やに話しかけてください。館内を歩いて、お好きな額縁で作品を飾れます。</p>'+
+  '<div class="row"><button id="startTour">美術館へ</button><button id="skipTour" class="light">説明を閉じる</button></div>');
+ for(const id of ['startTour','skipTour'])$(id).onclick=()=>{tutorialStep=id==='startTour'?1:0;close();if(tutorialStep){$('hint').textContent='爺やに話しかけて、作品を預けてみよう';$('hint').hidden=false;}};
+}
+function showSettings(){
+ open('設定','<div class="a18-settings-content"><p class="small">館長の名前・性別・美術館の名前を変更できます。</p>'+profileFields()+
+  '<p id="profileError" class="error" role="alert"></p><div class="row"><button id="saveProfile">変更を保存</button><button id="closeSettings" class="light">戻る</button></div>'+
+  '<hr><h3>広告</h3><button id="adRemoval" type="button" disabled>広告を永久に削除　準備中</button>'+
+  '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p></div>');
+ $('saveProfile').onclick=()=>{if(saveProfile())close();};
+ $('closeSettings').onclick=close;
 }
 
 function open(title,contents,kind='standard'){
@@ -555,6 +561,45 @@ function inspect(i){
  $('inspectPhoto').onclick=()=>{if(inspectSwiped){inspectSwiped=false;return;}close();window.A18Viewer.open({items,selectedId:a.id,onClose:(selectedId)=>{modal=false;const selected=works.find(w=>w.id===selectedId);if(selected?.fixtureId!=null)inspect(fixtureRank(selected.fixtureId));}});modal=true;};
  $('close').onclick=close;
 }
+function confirmDeleteWork(id){
+ const work=works.find(w=>w.id===id);
+ if(!work)throw Error('削除する作品がありません：'+id);
+ const loc=work.fixtureId!=null?artworkLocation(work):'保管中';
+ open('作品の破棄',
+  '<p><strong>「'+esc(work.title)+'」</strong>を完全に削除しますか？</p>'+
+  '<p class="small">'+esc(loc)+'。登録した写真の原本・展示用写真・備考も、この端末の美術館データから削除されます。元の写真アプリの画像は削除されません。</p>'+
+  '<p class="a18-delete-warning">この操作は取り消せません。</p>'+
+  '<p id="deleteError" class="error" role="alert"></p>'+
+  '<div class="row"><button id="confirmDelete" class="a18-danger">作品を完全に削除する</button><button id="cancelDelete" class="light">削除しない</button></div>');
+ $('cancelDelete').onclick=list;
+ $('confirmDelete').onclick=async()=>{
+  const btn=$('confirmDelete');btn.disabled=true;btn.textContent='削除しています…';
+  try{
+   const remaining=works.filter(w=>w.id!==id);
+   if(remaining.length!==works.length-1)throw Error('削除対象が重複しています');
+   const nextFixtures=L.clone(fixtures);
+   L.syncWorks(nextFixtures,remaining);
+   // Persist the complete next state BEFORE altering the active game. If the
+   // IndexedDB transaction aborts, the player keeps the original work.
+   clearTimeout(saveTimer);
+   await window.A18Storage.save({
+    ...snapshot(),fixtures:nextFixtures,works:remaining,
+    carrying:carrying===id?null:carrying
+   });
+   works.splice(0,works.length,...remaining);
+   fixtures.splice(0,fixtures.length,...nextFixtures);
+   if(carrying===id){carrying=null;carryOrigin=null;}
+   workImageCache.delete(id);
+   if(work.originalURL?.startsWith('blob:'))URL.revokeObjectURL(work.originalURL);
+   trimImageCache();
+   update();list();
+  }catch(error){
+   console.error('A18 work deletion failed',error);
+   $('deleteError').textContent='削除できませんでした。データは保持されています：'+error.message;
+   btn.disabled=false;btn.textContent='もう一度試す';
+  }
+ };
+}
 function list(){
  const displayed=[...works].sort((a,b)=>fixtureRank(a.fixtureId)-fixtureRank(b.fixtureId));
  const cards=displayed.map(a=>{
@@ -562,11 +607,15 @@ function list(){
   return '<div class="artitem">'+(img?'<img class="art-thumb" src="'+esc(img)+'" alt="">':'<span class="art-thumb blank-thumb" aria-hidden="true">額</span>')+
    '<span class="artitem-copy"><b>'+esc(a.title)+'</b><small>'+artworkLocation(a)+' ／ 完成日：'+esc(a.complete||'不明')+'</small>'+
  (a.notes?'<small class="art-memory">思い出：'+esc(a.notes.length>58?a.notes.slice(0,58)+'…':a.notes)+'</small>':'')+'</span>'+
-   '<button data-work="'+esc(a.id)+'">'+(a.fixtureId!=null?'作品を見る':'取り出す')+'</button></div>';
+   '<button data-work="'+esc(a.id)+'">'+(a.fixtureId!=null?'作品を見る':'取り出す')+'</button>'+
+   '<button class="a18-work-delete" data-delete-work="'+esc(a.id)+'" aria-label="'+esc(a.title)+'を削除">削除</button></div>';
  });
  open('作品一覧', '<p class="small">'+works.length+' / '+MAX_WORKS+'作品　写真から探して選べます。</p>'+
  (cards.length?'<div class="artlist">'+cards.join('')+'</div>':'<p class="empty-collection">登録された作品はまだありません。<br>エントランスのスタッフに写真を預けてみましょう。</p>')+
  '<div class="row"><button id="close" class="light">閉じる</button></div>');
+ document.querySelectorAll('[data-delete-work]').forEach(button=>{
+  button.onclick=()=>confirmDeleteWork(button.dataset.deleteWork);
+ });
  document.querySelectorAll('[data-work]').forEach(button=>button.onclick=()=>{
   const art=works.find(a=>a.id===button.dataset.work);if(!art)return;
   if(art.fixtureId!=null){
@@ -582,30 +631,17 @@ function list(){
  });
  $('close').onclick=close;
 }
-function staffDialog(){
- window.A18Registration.staffDialog({open,close,list,sortDialog,form,scene,carrying});
-}
-function sortDialog(){
- open('展示品の並べ替え','<label>並べ替えの基準<select id="sortKind"><option value="complete">完成日順</option><option value="registered">登録順</option></select></label><label>順序<select id="sortOrder"><option value="asc">古い順</option><option value="desc">新しい順</option></select></label><p class="small">完成日が不明な場合だけ、登録日を並べ替えに使用します。</p><div class="row"><button id="apply">並べ替える</button><button id="close" class="light">戻る</button></div>');
- $('apply').onclick=()=>{
-  const kind=$('sortKind').value,order=$('sortOrder').value;
-  lastArrange=works.map(w=>[w.id,w.fixtureId]);
-  const sorted=[...works].filter(a=>a.fixtureId!=null).sort((a,b)=>{
-   const da=kind==='registered'?a.registered:(a.complete||a.registered),db=kind==='registered'?b.registered:(b.complete||b.registered);
-   return order==='asc'?da.localeCompare(db):db.localeCompare(da);
-  });
-  sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw Error('展示枠不足');const target=AVAILABLE_SLOTS[i];if(a.fixtureId!==target)resetDisplayForWork(fixtures.find(f=>f.id===target).legacySlot,a);a.fixtureId=target});
-  requestSave();close();fade();trimImageCache();update();
- };
- $('close').onclick=staffDialog;
+function staffDialog(role='staff'){
+ window.A18Registration.staffDialog({open,close,list,form,carrying,role,playerName,gender:avatarGender,works});
 }
 function fade(){const fade=document.createElement('div');fade.style.cssText='position:fixed;z-index:19;inset:0;background:#102d27;opacity:1;transition:opacity .4s;pointer-events:none';document.body.appendChild(fade);requestAnimationFrame(()=>fade.style.opacity='0');setTimeout(()=>fade.remove(),440);}
-function form(spotNo=0,viaStaff=false){
- window.A18Registration.form({spotNo,viaStaff,open,close,slot,changeScene,works,maxWorks:MAX_WORKS,
+function form(spotNo=0,viaStaff=false,role=galleryIndex===0?'butler':'staff'){
+ window.A18Registration.form({spotNo,viaStaff,open,close,slot,changeScene,works,maxWorks:MAX_WORKS,role,playerName,gender:avatarGender,
   onRegistered:(id)=>{carrying=id;carryOrigin=null;update();requestSave();}});
 }
 const heldKeys=new Set();let pointerLoop=null;
-$('museumName').onclick=()=>nameDialog(false);
+$('museumName').onclick=showSettings;
+$('settingsGear').onclick=showSettings;
 $('floorMapButton').onclick=()=>showFloorMap();
 function showFloorMap(){
  open('館内図',window.A18Navigation.mapHTML(galleryIndex)+
@@ -616,27 +652,18 @@ $('act').onclick=action;
 $('cancel').onclick=()=>{carrying=null;carryOrigin=null;update();requestSave()};
 overlay.onclick=e=>{if(e.target===overlay)close()};
 canvas.onclick=e=>{if(modal)return;const h=nearby();if(h?.type==='art'){const pt=worldPoint(e),[x1,y1,x2,y2]=roomRects()[h.i-roomStart(galleryIndex)];if(pt.x>x1-28&&pt.x<x2+28&&pt.y>y1-31&&pt.y<y2+55)inspect(h.i);}};
-window.addEventListener('keydown',e=>{if(modal||window.A18LayoutEditor?.isOpen())return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
+window.addEventListener('keydown',e=>{if(modal)return;if(movement[e.key]){e.preventDefault();heldKeys.add(e.key);if(!e.repeat)walk(movement[e.key])}else if(e.key==='Enter'){e.preventDefault();action()}});
 window.addEventListener('keyup',e=>heldKeys.delete(e.key));
 window.addEventListener('blur',()=>heldKeys.clear());document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();clearInterval(pointerLoop)}});
-setInterval(()=>{if(!modal&&!window.A18LayoutEditor?.isOpen()&&heldKeys.size){const key=[...heldKeys].at(-1);walk(movement[key]);}},MOVE_REPEAT_MS);
+setInterval(()=>{if(!modal&&heldKeys.size){const key=[...heldKeys].at(-1);walk(movement[key]);}},MOVE_REPEAT_MS);
 for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInterval(pointerLoop);pointerLoop=null};b.onpointerdown=e=>{e.preventDefault();stop();walk(b.dataset.d);pointerLoop=setInterval(()=>walk(b.dataset.d),MOVE_REPEAT_MS);if(b.setPointerCapture)b.setPointerCapture(e.pointerId)};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,stop);}
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
- state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,viewMode,avatarGender,assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
- move:walk,canMove:safeMove,changeScene,inspect,form,showFloorMap,checkPortal,portalEdges:PORTAL_EDGES,
- openEditor:()=>window.A18LayoutEditor.open({fixtures:()=>fixtures,works:()=>works,onCommit:next=>{fixtures.splice(0,fixtures.length,...next);requestSave();update()},onClose:update}),
+ state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:window.A18MuseumProgression.levelFor(works.length),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
+ move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,staffDialog,butlerDialog,checkPortal,portalEdges:PORTAL_EDGES,
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');avatarGender=g;requestSave();},
  validateLayout:room=>L.validatePlacement(fixtures,room),
- sort:(kind='complete',order='asc')=>{
-  lastArrange=works.map(a=>[a.id,a.fixtureId]);
-  const sorted=[...works].filter(a=>a.fixtureId!=null).sort((a,b)=>{
-   const aa=kind==='registered'?a.registered:(a.complete||a.registered),bb=kind==='registered'?b.registered:(b.complete||b.registered);
-   return order==='asc'?aa.localeCompare(bb):bb.localeCompare(aa)});
-  sorted.forEach((a,i)=>{if(i>=AVAILABLE_SLOTS.length)throw Error('展示枠不足');const target=AVAILABLE_SLOTS[i];if(a.fixtureId!==target)resetDisplayForWork(fixtures.find(f=>f.id===target).legacySlot,a);a.fixtureId=target});requestSave();
- },
- restore:()=>{if(lastArrange)for(const [id,fixtureId]of lastArrange){const a=works.find(a=>a.id===id);if(a)a.fixtureId=fixtureId;}requestSave()},
  ready:()=>loaded
 };
 boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});

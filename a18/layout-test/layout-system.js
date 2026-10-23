@@ -17,6 +17,33 @@ const PORTALS={
  3:{south:[296,420],east:[513,388]},4:{south:[296,420],west:[76,388]},
  5:{south:[296,420],west:[76,388],east:[513,388]}
 };
+// Fixed staffing locations: floor-side, clear of display frames and door corridors.
+const STAFF_POSITIONS={
+ 1:{x:225,y:349},2:{x:248,y:349},3:{x:232,y:357},
+ 4:{x:345,y:349},5:{x:253,y:352}
+};
+const BUTLER={x:155,footY:334};
+// Exact approved source alpha bounds are staff (8,6)-(51,72),
+// butler (8,4)-(51,72) on a 60x77 sprite, drawn at 43x55.
+const NPC_SPRITES={staff:{alpha:[8,6,51,72],canvas:[60,77],size:[43,55]},
+ butler:{alpha:[8,4,51,72],canvas:[60,77],size:[43,55]}};
+function npcBounds(role,room){
+ const sprite=NPC_SPRITES[role];
+ if(!sprite)throw Error('不明なNPC：'+role);
+ const p=role==='butler'?BUTLER:STAFF_POSITIONS[room];
+ if(!p)throw Error('この部屋にNPCはいません：'+room);
+ const [sw,sh]=sprite.canvas,[dw,dh]=sprite.size,[l,t,rr,bb]=sprite.alpha;
+ const footY=role==='butler'?p.footY:p.y+20;
+ const originX=p.x-dw/2,originY=footY-dh*(72/sh);
+ const rect=[originX+l*dw/sw,originX+rr*dw/sw,
+   originY+t*dh/sh,originY+bb*dh/sh];
+ return rect; // [left, right, top, bottom]: identical to gameplay collision format
+}
+const staffBlock=room=>npcBounds('staff',room);
+function npcAnchor(role,room){
+ const b=npcBounds(role,room);
+ return {x:(b[0]+b[1])/2,y:(b[2]+b[3])/2};
+}
 const TYPES={sofa:[84,44],bench:[84,35],table:[62,55],plant:[35,35],vase:[28,45],lamp:[30,45],rug:[95,48],rope:[75,60],sign:[42,55],clock:[32,75],cabinet:[75,78],pedestal:[55,96],easel:[70,91],column:[42,82],statue:[55,84],stool:[42,48],tapestry:[42,49],pedestalSquare:[55,57]};
 const LABELS={sofa:'ソファ',bench:'ベンチ',table:'テーブル',plant:'観葉植物',vase:'花瓶',lamp:'照明',rug:'カーペット',rope:'ロープ柵',sign:'案内板',clock:'時計',cabinet:'キャビネット',pedestal:'丸い展示台',easel:'イーゼル',column:'石柱',statue:'胸像',stool:'スツール',tapestry:'タペストリー',pedestalSquare:'四角い展示台'};
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -56,6 +83,24 @@ function defaults(){
    assetKey:null,legacySlot:slotFor(room,index)});
  }));
  return result;
+}
+// The exhibition floor plan is now curated, not user-editable. Preserve
+// IDs, photo associations, original works and any legacy decoration records.
+function enforceFixedLayout(fixtures){
+ let corrected=0;
+ for(const f of fixtures.filter(f=>f.kind==='frame')){
+  const r=BASE[f.roomId]?.[Number(f.id.split('-')[2])];
+  if(!r)throw Error('固定展示位置の定義がありません：'+f.id);
+  const [x1,y1,x2,y2]=r,next={
+   x:(x1+x2)/2,y:(y1+y2)/2,width:x2-x1,height:y2-y1,
+   installation:y1>=220?'floor':'wall'
+  };
+  if(Object.entries(next).some(([k,v])=>f[k]!==v)){
+   Object.assign(f,next);corrected++;
+  }
+  f.sizingVersion=3;
+ }
+ return corrected;
 }
 const frameOf=(fixtures,room,index)=>fixtures.find(f=>f.id===fixtureId(room,index));
 const roomFrames=(fixtures,room)=>BASE[room].map((_,i)=>{const f=frameOf(fixtures,room,i);if(!f)throw Error('展示枠欠損 '+room+':'+i);return f;});
@@ -107,10 +152,8 @@ function migrateLegacy(works){
  }
 }
 function obstacles(fixtures,room){
- const staticBody=room===0?[236,277,307,358]:[275,320,184,239];
- const result=[staticBody];
- if(room===0)result.push([137,173,287,321]); // Butler: approachable from the front.
- for(const f of fixtures)if(f.roomId===room&&f.installation==='floor'&&f.type!=='rug'){
+ const result=room===0?[npcBounds('butler',room)]:[staffBlock(room)];
+ for(const f of fixtures)if(f.roomId===room&&f.kind==='frame'&&f.installation==='floor'){
   const [l,t,rr,b]=r(f);
   result.push([l-10,rr+10,t-12,b+10]);
  }
@@ -135,7 +178,7 @@ function validatePlacement(fixtures,room){
  // assertData without works is only valid if all workId are empty; structural checks below instead.
  if(!String(e.message).includes('紐付け'))return {ok:false,reason:e.message};
  }
- const m=ROOM_SIZE[room],rs=fixtures.filter(f=>f.roomId===room);
+ const m=ROOM_SIZE[room],rs=fixtures.filter(f=>f.roomId===room&&f.kind==='frame');
  for(const f of rs){
   const b=r(f);
   if(f.installation==='wall'){
@@ -151,7 +194,8 @@ function validatePlacement(fixtures,room){
     return {ok:false,reason:'別の設備と重なっています'};
   }
   if(f.installation==='floor'){
-   const staticBlocks=room===0?[[236,307,277,358],[137,287,173,321]]:[[275,184,320,239]];
+   const nb=room===0?npcBounds('butler',room):staffBlock(room);
+   const staticBlocks=[[nb[0],nb[2],nb[1],nb[3]]];
    if(staticBlocks.some(s=>overlaps(b,s,10)))return {ok:false,reason:'スタッフや爺やの位置を塞いでいます'};
    for(const [x,y] of Object.values(PORTALS[room])){
     if(overlaps(b,[x-31,y-36,x+31,y+36],4))return {ok:false,reason:'部屋の出入口を塞いでいます'};
@@ -173,7 +217,8 @@ function validatePlacement(fixtures,room){
   const [x,y]=queue[i];
   tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);
  }
- const points=[...Object.values(PORTALS[room]),room===0?[256,333]:[297,211],...rs.filter(f=>f.kind==='frame').map(f=>{const a=anchor(f,room);return [a.x,a.y]})];
+ const npc=room===0?npcAnchor('butler',room):npcAnchor('staff',room);
+ const points=[...Object.values(PORTALS[room]),[npc.x,npc.y],...rs.filter(f=>f.kind==='frame').map(f=>{const a=anchor(f,room);return [a.x,a.y]})];
  if(room===0)points.push([186,330]);
  for(const [px,py]of points){
   let found=false;
@@ -196,5 +241,5 @@ function newDecor(room,type,x=120,y=300){
   roomId:room,kind:'decor',type,installation:type==='tapestry'?'wall':'floor',x,y,width:TYPES[type][0],height:TYPES[type][1],
   shape:'square',design:'classic',assetKey:type,workId:null};
 }
-window.A18Layout={BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,restoreClassicFrameDimensions};
+window.A18Layout={BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,STAFF_POSITIONS,BUTLER,npcBounds,npcAnchor,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,enforceFixedLayout,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,restoreClassicFrameDimensions};
 })();

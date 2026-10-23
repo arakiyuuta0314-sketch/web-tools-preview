@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 import urllib.request,subprocess,json,base64,os,socket,struct,time,html
 from urllib.parse import urlparse
 CHROME=r'C:\Program Files\Google\Chrome\Application\chrome.exe'
-URL='http://127.0.0.1:8770/a18/layout-test/tests/layout-smoke.html'
+URL=os.environ.get('A18_TEST_URL','http://127.0.0.1:8772/a18/layout-test/tests/layout-smoke.html')
 class WS:
  def __init__(self,url):
   p=urlparse(url);self.s=socket.create_connection((p.hostname,p.port),timeout=5);self.s.settimeout(6)

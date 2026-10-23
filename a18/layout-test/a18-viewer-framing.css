@@ -1,0 +1,26 @@
+/* Frame follows the edges of the actual photograph, not the screen. */
+#photoViewer.a18-viewer .a18-viewer-image-zone{
+ padding:15px!important;box-sizing:border-box;
+}
+#photoViewer.a18-viewer .a18-art-frame{
+ box-sizing:border-box!important;flex:none!important;display:flex!important;
+ border:9px ridge #d5b16b!important;outline:2px solid #79542d!important;
+ outline-offset:-3px!important;border-radius:0!important;
+ box-shadow:0 0 0 3px #5d4220,0 0 0 6px #b99557,0 8px 24px #000a!important;
+ padding:0!important;max-width:none!important;max-height:none!important;
+ background:#ead5ae!important;
+}
+#photoViewer.a18-viewer .a18-art-frame .a18-viewer-image{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+ min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+}
+@media(max-width:400px){
+ #photoViewer.a18-viewer .a18-viewer-image-zone{padding:11px!important}
+ #photoViewer.a18-viewer .a18-art-frame{border-width:7px!important}
+}
+
+/* The viewport itself has NO frame; the rim belongs to #photoFrame only. */
+#photoViewer.a18-viewer .a18-viewer-image-zone::after{content:none!important;border:0!important;box-shadow:none!important}
+
+#photoViewer.a18-viewer .a18-viewer-image-zone::after{content:none!important;border:0!important;box-shadow:none!important}
+#photoViewer.a18-viewer .a18-viewer-image-zone::before{content:none!important;border:0!important;box-shadow:none!important}

@@ -17,9 +17,9 @@ function fetchImage(path){
 async function init(candidate){
  if(!candidate?.officialCharacterFiles||candidate.officialCharacterFiles.length!==48)
   throw Error('正式採用48キャラクターの定義が欠損しています');
- if(!candidate?.allCandidateFiles||candidate.allCandidateFiles.length!==24)
-  throw Error('既存の仮展示設備24素材が不足しています');
- const files=[...candidate.officialCharacterFiles,...candidate.allCandidateFiles];
+ // Experimental furniture and frame PNGs are archived, but are not loaded
+ // in a fixed-layout production preview. The approved characters alone run.
+ const files=[...candidate.officialCharacterFiles];
  const ids=new Set(files.map(f=>f.path));
  if(ids.size!==files.length)throw Error('素材manifestに重複パスがあります');
  // Avoid dozens of simultaneous decodes on mobile Safari and local preview servers.
@@ -71,7 +71,12 @@ function frameBounds(f,img,allFrames=[],preferredShape=null){
  let w,h;
  if(mode==='portrait'){
   h=Math.min(126,Math.max(120,f.height*1.22));
-  w=Math.min(f.width*1.14,h*.71);
+  // A photograph's actual aspect ratio defines its inner aperture. The old
+  // constant .71 created blank strips beside narrower portrait photos.
+  const ratio=img?.naturalWidth>0&&img?.naturalHeight>0
+   ?img.naturalWidth/img.naturalHeight
+   :preferredShape==='portrait'?.67:.71;
+  w=h*Math.max(.22,Math.min(.87,ratio));
  }else if(mode==='square'){
   const size=Math.min(118,Math.max(f.width,f.height)*1.14);
   w=size;h=size;
@@ -99,12 +104,16 @@ function frameBounds(f,img,allFrames=[],preferredShape=null){
  }
  // Allow at most the drawable width between allocated boundaries.
  // Unlike fixed fixture coordinates, a smaller footprint does not change saves.
- w=Math.min(w,2*(f.x-leftLimit),2*(rightLimit-f.x));
- if(!Number.isFinite(w)||w<18)throw Error('額縁の表示領域が不正です：'+f.id);
+ const allowedW=Math.min(w,2*(f.x-leftLimit),2*(rightLimit-f.x));
+ if(!Number.isFinite(allowedW)||allowedW<18)throw Error('額縁の表示領域が不正です：'+f.id);
+ if(mode==='portrait'&&allowedW<w){h*=allowedW/w;}
+ w=allowedW;
  let cx=f.x,cy=f.y;
  if(f.installation==='wall'){
   const top=34,bottom=room.wallFoot-3;
-  h=Math.min(h,bottom-top);
+  const allowedH=Math.min(h,bottom-top);
+  if(mode==='portrait'&&allowedH<h)w*=allowedH/h;
+  h=allowedH;
   cy=Math.max(top+h/2,Math.min(bottom-h/2,cy));
   // Don't grow into the actual north doorway.
   const north=L?.ROOM_LINKS?.[f.roomId]?.north;
@@ -112,7 +121,7 @@ function frameBounds(f,img,allFrames=[],preferredShape=null){
    const leftSpace=338-(cx-w/2),rightSpace=(cx+w/2)-398;
    const maxRight=2*(338-cx),maxLeft=2*(cx-398);
    const safeWidth=Math.max(maxRight,maxLeft);
-   if(safeWidth>0)w=Math.min(w,safeWidth);
+   if(safeWidth>0&&safeWidth<w){if(mode==='portrait')h*=safeWidth/w;w=safeWidth;}
   }
  }else{
   cx=Math.max(32+w/2,Math.min(room.w-32-w/2,cx));

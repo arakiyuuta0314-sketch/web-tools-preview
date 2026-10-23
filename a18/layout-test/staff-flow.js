@@ -32,54 +32,97 @@ function pick(tag,arr){
  if(i===previous&&arr.length>1)i=(i+1+Math.floor(Math.random()*(arr.length-1)))%arr.length;
  last.set(tag,i);return arr[i];
 }
-function staffPortrait(message,person='館スタッフ'){
- return '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.staff?.portraitPath||'assets/staff-front.png')+'" alt="スタッフ"></div>'+
- '<div class="rpg-words"><span class="rpg-name">'+esc(person)+'</span>'+
+let activeRole='staff',activePlayer='館長';
+function honorific(role,playerName,gender){
+ const n=(playerName||'館長').trim();
+ if(role==='butler')return n+(gender==='female'?'お嬢様':'様');
+ return n+'さん';
+}
+function portrait(message,role=activeRole){
+ const butler=role==='butler',meta=window.A18Art?.manifest?.[butler?'butler':'staff'];
+ return '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(meta?.portraitPath||'')+'" alt="'+(butler?'爺や':'スタッフ')+'"></div>'+
+ '<div class="rpg-words"><span class="rpg-name">'+(butler?'爺や':'展示室スタッフ')+'</span>'+
  '<p class="rpg-message">'+esc(message)+'</p></div></div>';
 }
+function staffPortrait(message){return portrait(message);}
 function reviewLayout(message,media,choices){
  return '<div class="rpg-review">'+
  '<section class="rpg-attachment" aria-label="写真と展示前の確認">'+media+'</section>'+
- '<section class="rpg-review-dialogue">'+staffPortrait(message)+
+ '<section class="rpg-review-dialogue">'+portrait(message)+
  '<div class="rpg-choices">'+choices+'</div></section></div>';
 }
-function staffDialog({open,close,list,sortDialog,form,scene,carrying}){
- const gallery=scene==='gallery';
- const title=gallery?'展示室スタッフ':'エントランススタッフ';
- const nextText='さて、館長。今日はどのようなご用件でしょうか？';
- function speaker(message,more=''){
-  return '<div class="rpg-chat">'+
-   '<div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.staff?.portraitPath||'assets/staff-front.png')+'" alt="スタッフ"></div>'+
-   '<div class="rpg-words"><span class="rpg-name">'+esc(title)+'</span>'+
-   '<p class="rpg-message">'+esc(message)+'</p></div></div>'+more;
- }
+const CHAT_BUTLER=[
+ '{name}、本日も素晴らしい美術館でございますね。',
+ 'こちらの美術館は、{name}の大切な思い出で満ちております。',
+ '作品を一枚ずつ飾られるお姿に、私も誇らしい気持ちになります。',
+ '{title}、実に見事な作品でございます。館内を明るくしてくれますね。',
+ '{title}には、{name}ならではの素敵な思い出が込められておりますね。'
+];
+const CHAT_STAFF=[
+ '{name}、今日も来てくれてうれしいです！',
+ 'どの作品も素敵で、見ているだけで楽しくなっちゃいます。',
+ '新しい作品が増えるたび、この展示室がもっと好きになります！',
+ '「{title}」って、素敵な名前ですね！',
+ '「{title}」、つい何度も見に行っちゃいます。大好きです！'
+];
+function chatText(role,playerName,gender,works){
+ const list=role==='butler'?CHAT_BUTLER:CHAT_STAFF;
+ const choices=works?.length?list:list.filter(t=>!t.includes('{title}'));
+ const text=pick('chat-'+role,choices),name=honorific(role,playerName,gender);
+ const title=works?.length?works[Math.floor(Math.random()*works.length)].title:'';
+ const line=text.replaceAll('{name}',name).replaceAll('{title}',title);
+ return line.includes(name)?line:name+'、'+line;
+}
+function staffDialog({open,close,list,form,carrying,role='staff',playerName='館長',gender='male',works=[]}){
+ const butler=role==='butler',title=butler?'爺や':'展示室スタッフ';
+ const name=honorific(role,playerName,gender);
+ activeRole=role;activePlayer=name;
+ const intro=butler
+  ?name+'、お呼びでございますか。何なりとお申し付けください。'
+  :name+'、おかえりなさい！ 今日はどうする？';
+ function speak(text,choices=''){return portrait(text,role)+choices;}
  function menu(){
-  open(title,speaker(nextText,
-   '<div class="rpg-choices">'+
+  open(title,speak(intro,'<div class="rpg-choices">'+
    '<button id="staffRegister">新しい作品を預ける</button>'+
    '<button id="all">作品の一覧を見る</button>'+
-   '<button id="sort">展示順を並べ替える</button>'+
+   '<button id="staffChat">世間話</button>'+
    '<button id="close" class="light">またあとで</button></div>'),'rpg');
   $('staffRegister').onclick=()=>{
    if(carrying){
-    open(title,speaker('館長、いま作品をお持ちですね。飾るか保管してから、またお預かりいたします。',
-     '<div class="rpg-choices"><button id="returnMenu">わかりました</button><button id="close" class="light">戻る</button></div>'),'rpg');
+    open(title,speak(butler
+      ?name+'、お持ちの作品を飾るか保管されましたら、次の一枚も喜んでお預かりいたします。'
+      :name+'、その作品もすごく素敵！ 飾るか保管したら次の一枚も見せてね。',
+      '<div class="rpg-choices"><button id="returnMenu">わかりました</button><button id="close" class="light">戻る</button></div>'),'rpg');
     $('returnMenu').onclick=menu;$('close').onclick=close;return;
    }
-   form(0,true);
+   form(0,true,role);
   };
-  $('all').onclick=list;$('sort').onclick=sortDialog;$('close').onclick=close;
+  $('all').onclick=list;
+  $('staffChat').onclick=()=>{
+   open(title,speak(chatText(role,playerName,gender,works),
+    '<div class="rpg-choices"><button id="staffChatAgain">もっと話す</button><button id="returnMenu">用件を選ぶ</button><button id="close" class="light">またあとで</button></div>'),'rpg');
+   $('staffChatAgain').onclick=()=>$('staffChat').onclick();
+   $('returnMenu').onclick=menu;$('close').onclick=close;
+  };
+  $('close').onclick=close;
  }
  open(title,'<button type="button" id="rpgAdvance" class="rpg-dialogue-advance" aria-label="次の会話へ進む">'+
-   speaker(pick('hello',hellos))+
-   '<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
+  speak(butler?pick('butler-hi',[
+   name+'、本日もお目にかかれて光栄でございます。',
+   name+'、館内のご案内は私にお任せください。'
+  ]):pick('staff-hi',[
+   name+'、いらっしゃい！ 今日も楽しんでいってね。',
+   name+'、会えてうれしい！ 作品を見せてくれる？'
+  ]))+
+  '<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
  $('rpgAdvance').onclick=menu;
 }
-function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50}){
+function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50,role='staff',playerName='館長',gender='male'}){
+ activeRole=role;activePlayer=honorific(role,playerName,gender);
  const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
  if(works.length>=maxWorks){open('作品の登録上限','<p>'+maxWorks+'作品に達しました。別フロアへの増築は今後のアップデートで検討します。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
- open('スタッフ｜作品のお預かり',
- '<div class="registration-intro">'+staffPortrait('新しい作品をお預かりしますね。')+'</div>'+
+ open(role==='butler'?'爺や｜作品のお預かり':'スタッフ｜作品のお預かり',
+ '<div class="registration-intro">'+staffPortrait(role==='butler'?activePlayer+'、大切な作品をお預かりいたします。':'新しい作品を預かるね！')+'</div>'+
  '<div class="registration-fields">'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：お気に入りの風景"></label>'+
  '<label>完成日（任意：不明なら今日を選択）<input id="date" type="date"></label>'+
@@ -117,8 +160,8 @@ function offer(ctx,entry){
  const attachments=
   '<div class="prep-pair"><div class="prep-preview" style="grid-column:1/-1"><strong>お預かりした写真</strong><img id="offerOriginal" alt="元の写真" src="'+esc(entry.originalURL)+'"></div></div>'+
   '<p class="prep-warn">必要な範囲だけ調整をご提案します。元の写真はそのまま残し、仕上がりを確認してから選べます。</p>';
- open('館スタッフ｜展示前のご相談',
-  reviewLayout(pick('praise',compliments)+' 私の方で、余白や明るさ、色味を整えてもよろしいですか？',
+ open(activeRole==='butler'?'爺や｜展示前のご相談':'スタッフ｜展示前のご相談',
+  reviewLayout(pick('praise',compliments)+(activeRole==='butler'?' よろしければ、私が額装に向けて整えましょう。':' ちょっとだけ色味を整えてみてもいい？'),
    attachments,
    '<button id="offerYes">仕上がりを見たい</button><button id="offerNo" class="light">元の写真を使う</button>'),'rpg');
  $('offerYes').onclick=()=>compare(ctx,entry);
@@ -143,8 +186,8 @@ function commit(ctx,entry,canvas){
   registered:entry.registered,originalURL:entry.originalURL,originalBlob:entry.originalBlob,
   displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
   thumbnail,fixtureId:null,source:null});
- open('スタッフ｜作品のお渡し',
-  '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.staff?.portraitPath||'assets/staff-front.png')+'" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">館スタッフ</span><p class="rpg-message">'+esc(pick('done',[
+ open(activeRole==='butler'?'爺や｜作品のお渡し':'スタッフ｜作品のお渡し',
+  '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.[activeRole==='butler'?'butler':'staff']?.portraitPath||'')+'" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">'+(activeRole==='butler'?'爺や':'展示室スタッフ')+'</span><p class="rpg-message">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
     '今回の新作、お預かりしました。額縁までは館長にお願いしてもよろしいですか？',
     '美しく仕上がりました。ぜひ館長ご自身の手で飾ってください。',
@@ -179,8 +222,8 @@ function compare(ctx,entry){
   '<p class="prep-warn">トリムの目安：'+(cropIsUseful?'約'+retained+'%の面積を維持':'候補なし')+
   '。大切な部分が切れたり、色が不自然でないか見比べてください。反射・遠近の歪みを完全に除去するものではありません。</p>'+
   '<p id="prepError" class="error" role="status"></p>';
- ctx.open('館スタッフ｜自動仕上げの確認',
-  reviewLayout('こちらが仕上がりのご提案です。元のお写真と比べて、お好きな方をお選びください。',
+ ctx.open(activeRole==='butler'?'爺や｜自動仕上げの確認':'スタッフ｜自動仕上げの確認',
+  reviewLayout(activeRole==='butler'?'こちらが仕上がりのご提案でございます。お好みの方をお選びください。':'仕上がりを見比べてみてね！ 好きな方を選んで大丈夫。',
    attachment,'<button id="acceptFinish">この仕上がりで展示</button><button id="acceptOriginal" class="light">元の写真で展示</button>'),'rpg');
  let result=null,previewVersion=0;
  const refresh=()=>{
@@ -201,5 +244,5 @@ function compare(ctx,entry){
  $('acceptOriginal').onclick=()=>commit(ctx,entry,null);
  refresh();
 }
-window.A18Registration={staffDialog,form};
+window.A18Registration={staffDialog,form,honorific,chatText};
 })();

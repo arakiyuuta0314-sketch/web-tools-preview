@@ -24,7 +24,7 @@ async function load(){
  });
 }
 function serializable(data){
- const result={schemaVersion:2,fixtures:data.fixtures,avatarGender:data.avatarGender,museumTitle:data.museumTitle,
+ const result={schemaVersion:2,fixtures:data.fixtures,avatarGender:data.avatarGender,playerName:data.playerName||'',museumTitle:data.museumTitle,
   galleryIndex:data.galleryIndex,pos:data.pos,carrying:data.carrying,works:data.works.map(w=>({
    id:w.id,title:w.title,complete:w.complete,registered:w.registered,pieces:w.pieces,preferredShape:w.preferredShape||null,
    notes:w.notes,fixtureId:w.fixtureId,thumbnail:w.thumbnail,

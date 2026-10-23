@@ -19,8 +19,12 @@
     const bounds=area();
     const iw=photo.naturalWidth||1,ih=photo.naturalHeight||1;
     // The entire image is visible at 100%, surrounded by a real gold frame.
-    const fit=Math.min(Math.max(1,bounds.width)/iw,Math.max(1,bounds.height)/ih);
-    const frameW=iw*fit,frameH=ih*fit;
+    // Reserve the real gold rim and its shadow INSIDE the viewport. Otherwise
+    // the border appears to wrap the full screen rather than the photograph.
+    const edge=window.innerWidth<=400?32:42;
+    const availableW=Math.max(1,bounds.width-edge),availableH=Math.max(1,bounds.height-edge);
+    const fit=Math.min(availableW/iw,availableH/ih);
+    const frameW=iw*fit+18,frameH=ih*fit+18;
     frame.style.width=frameW+'px';frame.style.height=frameH+'px';
     const maxX=Math.max(0,(frameW*scale-bounds.width)/2);
     const maxY=Math.max(0,(frameH*scale-bounds.height)/2);
