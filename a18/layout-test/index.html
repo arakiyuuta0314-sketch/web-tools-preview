@@ -2,17 +2,17 @@
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="パズル美術館">
+<meta name="apple-mobile-web-app-title" content="とっておき美術館">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=1"></script><script src="museum-p5-decorations.js?v=2"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=p4a"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=1"></script><script src="museum-p5-decorations.js?v=2"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=release-v3"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
 <script src="staff-flow.js?v=fixed1" defer></script>
-<title>パズル美術館｜固定展示・館長設定 v2.6</title>
+<title>とっておき美術館｜館長の美術館</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
 *{box-sizing:border-box}body{margin:0;overflow:hidden}button,input,select{font:inherit}
@@ -70,7 +70,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
-<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>ART STUDY</strong> · v2.6 固定展示</div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
+<main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>とっておき美術館</strong></div><div class="hint" id="hint">館長を歩かせて、額縁に近づこう</div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
 <button id="settingsGear" class="a18-settings-gear" type="button" aria-label="設定を開く" title="設定">⚙</button><div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
@@ -151,9 +151,19 @@ function applyCommitted(save){
  for(const url of old)URL.revokeObjectURL(url);
 }
 function saveError(e){
+ clearTimeout(saveTimer);
  saveBlocked=true;
- console.error('A18 P2 commit halted:',e);
- $('hint').textContent='保存できませんでした（'+(e.code||e.name||'ERROR')+'）。これ以上編集せず再読み込みしてください。';
+ // Discard transient movement/scene changes. Only committed state may remain displayed.
+ if(currentSave){
+  galleryIndex=currentSave.galleryIndex;
+  scene=galleryIndex===0?'entrance':'gallery';
+  pos={...currentSave.pos};
+  carrying=currentSave.carrying;
+  if(loaded){resize();update();}
+ }
+ heldKeys.clear();
+ console.error('A18 v3 storage halted:',e);
+ $('hint').textContent='保存できませんでした（'+(e.code||e.name||'ERROR')+'）。データを変更せず停止しました。再読み込みしてください。';
  $('hint').hidden=false;
 }
 async function commitChange(change,{event=true}={}){
@@ -408,8 +418,8 @@ async function boot(){
  window.A18Navigation.validateGraph(ROOM_LINKS);
  let state=await P2.load();
  if(!state){
-  state=P2.initial();
-  state.progression.events.push({id:'intro-v1',origin:'play',status:'queued'});
+  state=P2.makeInitialV3();
+  P2.validate(state);
   await P2.commit(null,state);
  }
  P2.validate(state);
@@ -696,7 +706,7 @@ function showSettings(){
   '<hr><h3>物語</h3><button id="p6StoryHistory" type="button" class="light">美術館の物語</button>'+
   '<hr><h3>広告</h3><button id="adRemoval" type="button" disabled>広告を永久に削除　準備中</button>'+
   '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p>'+ 
-  '<hr><p class="small">P2隔離試験版：旧保存データには触れません。初期化機能は無効です。</p></div>');
+  '<hr><p class="small">作品と原本写真は、このブラウザの美術館データに保存されます。アプリからの全データ初期化はできません。</p></div>');
  $('saveProfile').onclick=async()=>{if(await saveProfile())close();};
  $('closeSettings').onclick=close;
  $('p6StoryHistory').onclick=()=>{close();showStoryHistory();};
@@ -880,21 +890,8 @@ window.__A18_SCENE_STUDY__={
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');return commitChange(s=>{s.avatarGender=g;});},
  validateLayout:room=>L.validatePlacement(fixtures,room),
   ready:()=>loaded,
-  p2: P2.testMode?{
-   addSyntheticWork: async (id,blob,notes='合成テストの備考',preferredShape='landscape')=>commitChange(s=>{
-    if(!(blob instanceof Blob))throw Error('E_BLOB_MISSING');
-    if(!['landscape','portrait','square'].includes(preferredShape))throw Error('E_SHAPE_INVALID');
-    if(s.carrying)throw Error('E_CARRY_CONFLICT');
-    s.works.push({id,title:id,complete:'2026-10-23',registered:'2026-10-23',pieces:42,
-     preferredShape,notes,fixtureId:null,thumbnail:null,originalBlob:blob,displaySrc:null});
-    s.carrying=id;
-   }),
-   injectFault:kind=>P2.setFault(kind),
-   persistent:()=>P2.copy(currentSave),
-   blocked:()=>saveBlocked,
-   eventFinish:action=>commitEventAction(action)
-  }:null
+  storage:()=>({database:P2.DATABASE,revision:currentSave?.revision??null,blocked:saveBlocked})
 };
-boot().catch(e=>{$('hint').textContent=e.message;console.error(e)});
+boot().catch(e=>{saveError(e);console.error('A18 v3 startup blocked',e)});
 })();
 </script></body></html>
