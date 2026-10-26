@@ -1,0 +1,462 @@
+{
+  "status": "PASS",
+  "result": {
+    "background": {
+      "width": 1322,
+      "height": 1190,
+      "complete": true
+    },
+    "assetCount": 5,
+    "geometry": {
+      "outer": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "inner": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "shape": "landscape"
+    },
+    "sceneReady": true
+  },
+  "profile": {
+    "afterProfile": "QA鬯｢・ｨ鬮滂ｽｷ",
+    "avatar": "female",
+    "beforePosition": {
+      "x": 326,
+      "y": 425,
+      "dir": "up",
+      "stride": 0
+    },
+    "afterPosition": {
+      "x": 314,
+      "y": 425,
+      "dir": "left",
+      "stride": 1
+    },
+    "save": {
+      "database": "a18-totteoki-museum-v3",
+      "revision": 2,
+      "blocked": false
+    }
+  },
+  "artworkSeed": {
+    "revision": 4,
+    "blobs": [
+      3614,
+      3616
+    ]
+  },
+  "artColors": {
+    "initial": [
+      [
+        255,
+        53,
+        204,
+        255
+      ],
+      [
+        17,
+        238,
+        170,
+        255
+      ]
+    ],
+    "final": [
+      [
+        255,
+        53,
+        204,
+        255
+      ],
+      [
+        17,
+        238,
+        170,
+        255
+      ]
+    ],
+    "newUrls": 0,
+    "revokes": 0,
+    "saveRevisions": [
+      4,
+      7
+    ],
+    "viewport": {
+      "logicalW": 445,
+      "logicalH": 717.7051282051282,
+      "cameraX": 79.50000000001367,
+      "cameraY": -117.35256410256407,
+      "backingWidth": 1170,
+      "backingHeight": 1887,
+      "portrait": true,
+      "entrancePaintCount": 30
+    }
+  },
+  "reloadedArt": {
+    "count": 2,
+    "revision": 7,
+    "colors": [
+      [
+        255,
+        53,
+        204,
+        255
+      ],
+      [
+        17,
+        238,
+        170,
+        255
+      ]
+    ]
+  },
+  "collision": {
+    "anchors": [
+      {
+        "type": "art",
+        "i": 0,
+        "x": 116,
+        "y": 237,
+        "enter": 32,
+        "leave": 38
+      },
+      {
+        "type": "art",
+        "i": 1,
+        "x": 439,
+        "y": 237,
+        "enter": 32,
+        "leave": 38
+      },
+      {
+        "type": "butler",
+        "x": 138.64166666666668,
+        "y": 341.71428571428567,
+        "enter": 46,
+        "leave": 54
+      }
+    ],
+    "obstacles": [
+      [
+        129,
+        149,
+        361,
+        368
+      ]
+    ],
+    "wallFoot": 210,
+    "west": {
+      "x": 38,
+      "y": 425,
+      "room": 0
+    },
+    "east": {
+      "x": 482,
+      "y": 425,
+      "room": 0
+    },
+    "right": {
+      "type": "art",
+      "i": 1,
+      "x": 439,
+      "y": 237,
+      "enter": 32,
+      "leave": 38
+    },
+    "left": {
+      "type": "art",
+      "i": 0,
+      "x": 116,
+      "y": 237,
+      "enter": 32,
+      "leave": 38
+    },
+    "finalPosition": {
+      "x": 110,
+      "y": 245,
+      "dir": "left",
+      "stride": 4
+    },
+    "probes": [
+      "old_left_wall",
+      "old_right_wall",
+      "old_front_frame",
+      "solid_rear_wall",
+      "solid_rear_wall_edge",
+      "rear_wall_floor",
+      "pass_behind_butler",
+      "butler_feet",
+      "space_before_butler"
+    ]
+  },
+  "rearWalk": {
+    "original": {
+      "x": 110,
+      "y": 245,
+      "dir": "left",
+      "stride": 4
+    },
+    "beforeCross": {
+      "x": 110,
+      "y": 329,
+      "dir": "down",
+      "stride": 1
+    },
+    "crossing": {
+      "x": 134,
+      "y": 329,
+      "dir": "right",
+      "stride": 3
+    },
+    "room": 0
+  },
+  "persisted": {
+    "name": "QA鬯｢・ｨ鬮滂ｽｷ",
+    "pos": {
+      "x": 134,
+      "y": 329,
+      "dir": "right",
+      "stride": 3
+    },
+    "scene": "entrance",
+    "storage": {
+      "database": "a18-totteoki-museum-v3",
+      "revision": 8,
+      "blocked": false
+    }
+  },
+  "display": {
+    "client": {
+      "width": 390,
+      "height": 844,
+      "dpr": 3,
+      "visualViewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    "display": {
+      "stage": {
+        "x": 0,
+        "y": 51,
+        "w": 390,
+        "h": 793
+      },
+      "canvas": {
+        "x": 0,
+        "y": 51,
+        "w": 390,
+        "h": 629
+      },
+      "app": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 844
+      }
+    },
+    "backing": [
+      1170,
+      1887
+    ],
+    "viewport": {
+      "logicalW": 445,
+      "logicalH": 717.7051282051282,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "backingWidth": 1170,
+      "backingHeight": 1887,
+      "portrait": true,
+      "entrancePaintCount": 13
+    },
+    "imageOriginal": [
+      1322,
+      1190
+    ],
+    "sourceGame": [
+      546,
+      483
+    ],
+    "samples": [
+      {
+        "at": 1193.5,
+        "cameraX": 79.49999369538922,
+        "cameraY": -117.35254686997258,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1340.199999988079,
+        "cameraX": 79.49999990401639,
+        "cameraY": -117.35256384020904,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1476.5,
+        "cameraX": 79.49999999853871,
+        "cameraY": -117.3525640985699,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1621.1000000238419,
+        "cameraX": 79.49999999997776,
+        "cameraY": -117.35256410250328,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1760.1000000238419,
+        "cameraX": 79.49999999999966,
+        "cameraY": -117.35256410256316,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1906.5,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2062,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2202.300000011921,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2359.600000023842,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2501.100000023842,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2641.699999988079,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2776,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2824506,
+        "paintCount": 13,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      }
+    ]
+  },
+  "stableResize": {
+    "samePixels": true,
+    "sameSize": true,
+    "viewport": {
+      "logicalW": 445,
+      "logicalH": 717.7051282051282,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "backingWidth": 1170,
+      "backingHeight": 1887,
+      "portrait": true,
+      "entrancePaintCount": 13
+    }
+  },
+  "jsExceptions": [],
+  "networkErrors": [],
+  "server": "local loopback isolated Chrome"
+}

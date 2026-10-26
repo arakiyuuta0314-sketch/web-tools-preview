@@ -143,16 +143,29 @@ let scene='entrance',pos={x:326,y:425,dir:'up',stride:0},carrying=null,carryOrig
 const MOVE_DISTANCE=12,MOVE_REPEAT_MS=65,MOVE_SUBSTEP=3;
 let activeInteraction=null,avatarGender='male',assetManifest=null,saveTimer=null;
 let currentSave=null, saving=false, saveBlocked=false, showingEvent=false;
-function applyCommitted(save){
- const old=works.map(w=>w.originalURL).filter(u=>u?.startsWith('blob:'));
+function applyCommitted(save,{preservePhotoURLs=false}={}){
+ // A position-only save cannot invalidate browser Blob URLs for displayed art.
+ // It was causing both paintings to unload/redecode after each stop walking.
+ if(preservePhotoURLs &&
+    (save.works.length!==works.length || save.works.some((w,i)=>
+      w.id!==works[i].id || w.fixtureId!==works[i].fixtureId ||
+      w.title!==works[i].title || w.originalBlob?.size!==works[i].originalBlob?.size ||
+      w.originalBlob?.type!==works[i].originalBlob?.type)))
+  throw Error('E_WALK_PHOTO_SET_CHANGED');
+ const old=preservePhotoURLs?[]:works.map(w=>w.originalURL).filter(u=>u?.startsWith('blob:'));
  currentSave=save;
  fixtures.splice(0,fixtures.length,...P2.copy(save.fixtures));
- works.splice(0,works.length,...P2.hydrate(save.works));
+ if(!preservePhotoURLs){
+  works.splice(0,works.length,...P2.hydrate(save.works));
+  // Old cache entries must not point at just-revoked photo Blob URLs.
+  workImageCache.clear();
+ }
  avatarGender=save.avatarGender;playerName=save.playerName;museumTitle=save.museumTitle;
  galleryIndex=save.galleryIndex;scene=galleryIndex===0?'entrance':'gallery';
  pos={...save.pos};carrying=save.carrying;carryOrigin=null;
  $('museumName').textContent=museumTitle;
- trimImageCache();if(loaded){resize();update();}
+ if(!preservePhotoURLs)trimImageCache();
+ if(loaded){resize();update();}
  for(const url of old)URL.revokeObjectURL(url);
 }
 function saveError(e){
@@ -171,7 +184,7 @@ function saveError(e){
  $('hint').textContent='保存できませんでした（'+(e.code||e.name||'ERROR')+'）。データを変更せず停止しました。再読み込みしてください。';
  $('hint').hidden=false;
 }
-async function commitChange(change,{event=true}={}){
+async function commitChange(change,{event=true,preservePhotoURLs=false}={}){
  if(saving||saveBlocked||!currentSave)return false;
  saving=true;
  try{
@@ -187,7 +200,7 @@ async function commitChange(change,{event=true}={}){
    window.A18P5Decorations.prepare(result.nextSave.galleryIndex,result.nextSave.progression)
   ]);
   await P2.commit(result.expectedRevision,result.nextSave);
-  applyCommitted(result.nextSave);
+  applyCommitted(result.nextSave,{preservePhotoURLs});
   if(event&&result.transition?.eventId)showProgressionEvent(result.transition.eventId);
   return true;
  }catch(e){saveError(e);return false}
@@ -199,7 +212,7 @@ function requestSave(){
  saveTimer=setTimeout(()=>{
   if(saving||saveBlocked)return;
   if(currentSave.galleryIndex!==galleryIndex||JSON.stringify(currentSave.pos)!==JSON.stringify(pos))
-   void commitChange(()=>{},{event:false});
+   void commitChange(()=>{},{event:false,preservePhotoURLs:true});
  },450);
 }
 async function commitEventAction(action,id=null){

@@ -1,0 +1,211 @@
+{
+  "client": {
+    "width": 390,
+    "height": 844,
+    "dpr": 3,
+    "visualViewport": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "display": {
+    "stage": {
+      "x": 0,
+      "y": 51,
+      "w": 390,
+      "h": 793
+    },
+    "canvas": {
+      "x": 0,
+      "y": 51,
+      "w": 390,
+      "h": 629
+    },
+    "app": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    }
+  },
+  "backing": [
+    1170,
+    1887
+  ],
+  "viewport": {
+    "logicalW": 445,
+    "logicalH": 717.7051282051282,
+    "cameraX": 79.49999999999999,
+    "cameraY": -117.35256410256407,
+    "backingWidth": 1170,
+    "backingHeight": 1887,
+    "portrait": true,
+    "entrancePaintCount": 13
+  },
+  "imageOriginal": [
+    1322,
+    1190
+  ],
+  "sourceGame": [
+    546,
+    483
+  ],
+  "samples": [
+    {
+      "at": 1193.5,
+      "cameraX": 79.49999369538922,
+      "cameraY": -117.35254686997258,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 1340.199999988079,
+      "cameraX": 79.49999990401639,
+      "cameraY": -117.35256384020904,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 1476.5,
+      "cameraX": 79.49999999853871,
+      "cameraY": -117.3525640985699,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 1621.1000000238419,
+      "cameraX": 79.49999999997776,
+      "cameraY": -117.35256410250328,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 1760.1000000238419,
+      "cameraX": 79.49999999999966,
+      "cameraY": -117.35256410256316,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 1906.5,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 2062,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 2202.300000011921,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 2359.600000023842,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 2501.100000023842,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 2641.699999988079,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    },
+    {
+      "at": 2776,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "canvasLength": 2824506,
+      "paintCount": 13,
+      "player": {
+        "x": 302,
+        "y": 425,
+        "dir": "left",
+        "stride": 4
+      }
+    }
+  ]
+}
