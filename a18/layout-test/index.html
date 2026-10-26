@@ -11,7 +11,8 @@
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js?v=frame-photo-hq2-20261027" defer></script>
-<script src="staff-flow.js?v=finish-hq-20261027" defer></script>
+<script src="photo-editor.js?v=editor-v2-20261027" defer></script>
+<script src="staff-flow.js?v=editor-v2-20261027" defer></script>
 <title>とっておき美術館｜館長の美術館</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
@@ -66,7 +67,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
+</style><link rel="stylesheet" href="art-inspect.css?v=editor-v2-20261027"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
@@ -863,6 +864,58 @@ function editMemo(a){
  };
  $('cancelMemo').onclick=()=>{if(a.fixtureId!=null)inspect(fixtureRank(a.fixtureId));else list();};
 }
+async function editArtPhoto(id){
+ if(saving||saveBlocked)return;
+ const art=works.find(w=>w.id===id);
+ if(!art||!(art.originalBlob instanceof Blob))throw Error('E_EDIT_ART_MISSING');
+ const returnToArt=()=>{
+  const current=works.find(w=>w.id===id);
+  if(current?.fixtureId!=null)inspect(fixtureRank(current.fixtureId));
+  else list();
+ };
+ open('展示写真を調整','<p class="small">原本写真を読み込んでいます……</p><button id="editArtCancel" class="light">戻る</button>');
+ $('editArtCancel').onclick=returnToArt;
+ try{
+  const img=await window.A18PhotoEditor.load(art.originalURL);
+  if(!modal||!works.some(w=>w.id===id))return;
+  window.A18PhotoEditor.ui({
+   originalURL:art.originalURL,img,recipe:art.editRecipe||null,
+   renderDialog:(attachment,actions)=>open('作品「'+art.title+'」の写真調整',
+    '<p class="small">原本は保持されます。登録時と同じ画質調整を何度でもやり直せます。</p>'+attachment+
+    '<div class="row">'+actions+'</div>'),
+   labels:{save:'仕上げを保存',original:'原本に戻す'},onCancel:returnToArt,
+   onFinish:async({recipe,canvas})=>{
+    const displaySrc=canvas.toDataURL('image/jpeg',.98);
+    const thumbnail=window.A18PhotoEditor.thumbnail(canvas);
+    if(!displaySrc.startsWith('data:image/jpeg')||displaySrc.length<100)
+     throw Error('E_REEDIT_EXPORT');
+    const ok=await commitChange(s=>{
+     const work=s.works.find(w=>w.id===id);
+     if(!work)throw Error('E_REEDIT_NOT_FOUND');
+     work.editRecipe=recipe;work.displaySrc=displaySrc;work.thumbnail=thumbnail;
+    });
+    if(ok)returnToArt();
+    return ok;
+   },
+   onOriginal:async()=>{
+    const ok=await commitChange(s=>{
+     const work=s.works.find(w=>w.id===id);
+     if(!work)throw Error('E_REEDIT_NOT_FOUND');
+     work.editRecipe=null;work.displaySrc=null;work.thumbnail=null;
+    });
+    if(ok)returnToArt();
+    return ok;
+   }
+  });
+ }catch(error){
+  console.error('A18 work photo editor failed',error);
+  if(modal){
+   open('写真を調整できませんでした','<p class="small">'+esc(error.message)+'</p>'+
+    '<button id="editArtReturn" class="light">作品に戻る</button>');
+   $('editArtReturn').onclick=returnToArt;
+  }
+ }
+}
 function resetDisplayForWork(slotIndex,work){
  const f=fixtureAt(slotIndex);
  if(!f||!work)throw Error('展示設備または作品がありません');
@@ -899,8 +952,9 @@ function inspect(i){
  open(a.title,'<div class="inspect-shell"><div class="inspect-top"><h2>'+esc(a.title)+'</h2><p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered||'不明')+'　ピース：'+esc(a.pieces||'未登録')+'</p></div>'+
  '<button id="inspectPhoto" class="inspect-photo" type="button" aria-label="写真をフルサイズで鑑賞する">'+(img?'<img src="'+esc(img)+'" alt="'+esc(a.title)+'">':'<span>写真を読み込めませんでした</span>')+'<span class="inspect-tap">タップで大きく鑑賞</span></button>'+
  '<div class="inspect-memory"><strong>備考・思い出</strong><p>'+esc(a.notes||'まだ記録されていません')+'</p></div>'+
- '<div class="inspect-bottom"><button id="lift">持ち上げる</button><button id="editNote">備考を編集</button><button id="close">閉じる</button></div></div>','art-inspect');
+ '<div class="inspect-bottom"><button id="lift">持ち上げる</button><button id="editArtPhoto">写真を再調整</button><button id="editNote">備考を編集</button><button id="close">閉じる</button></div></div>','art-inspect');
  $('editNote').onclick=()=>editMemo(a);
+ $('editArtPhoto').onclick=()=>{void editArtPhoto(a.id)};
  $('lift').onclick=async()=>{if(await commitChange(s=>{s.works.find(w=>w.id===a.id).fixtureId=null;s.carrying=a.id;}))close();};
  let inspectSwipeStart=null,inspectSwiped=false;
  const inspectPhoto=$('inspectPhoto');

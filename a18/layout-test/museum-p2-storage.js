@@ -85,6 +85,20 @@ function validate(s){
    ||(w.fixtureId!=null&&typeof w.fixtureId!=='string')
    ||Object.hasOwn(w,'originalURL')||Object.hasOwn(w,'image')||Object.hasOwn(w,'source'))
     throw error('E_WORK_LINK','work-fields-'+w.id);
+  // Optional recipe is backward-compatible with existing v3 saved works.
+  if(w.editRecipe!=null){
+   const r=w.editRecipe,c=r?.crop,p=r?.toneProfile;
+   const natural=n=>Number.isSafeInteger(n)&&n>0;
+   const offset=n=>Number.isSafeInteger(n)&&n>=0;
+   if(!r||r.version!==1||!natural(r.sourceWidth)||!natural(r.sourceHeight)||
+    !c||!offset(c.x)||!offset(c.y)||!natural(c.w)||!natural(c.h)||
+    c.x+c.w>r.sourceWidth||c.y+c.h>r.sourceHeight||
+    typeof r.cropEnabled!=='boolean'||typeof r.toneEnabled!=='boolean'||
+    typeof r.sharpEnabled!=='boolean'||!p||!Array.isArray(p.whiteBalance)||
+    p.whiteBalance.length!==3||
+    ![...p.whiteBalance,p.gamma,p.shadows,p.highlights,p.contrast,p.saturation,p.sharpness].every(Number.isFinite))
+    throw error('E_WORK_RECIPE_INVALID',w.id);
+  }
  }
  if(s.carrying!=null){
   const held=s.works.find(w=>w.id===s.carrying);

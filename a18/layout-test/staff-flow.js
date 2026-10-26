@@ -170,7 +170,7 @@ function offer(ctx,entry){
  $('offerYes').onclick=()=>compare(ctx,entry);
  $('offerNo').onclick=()=>commit(ctx,entry,null);
 }
-async function commit(ctx,entry,canvas){
+async function commit(ctx,entry,canvas,editRecipe=null){
  const {open,close,works,onRegistered}=ctx;
  function previewThumb(){
   const source=canvas||entry.image,w=source.width,h=source.height;
@@ -188,10 +188,10 @@ async function commit(ctx,entry,canvas){
  const newWork={id,preferredShape,title:entry.title,pieces:entry.pieces,complete:entry.complete,notes:entry.notes,
   registered:entry.registered,originalURL:entry.originalURL,originalBlob:entry.originalBlob,
   displaySrc:canvas?canvas.toDataURL('image/jpeg',.98):entry.originalURL,
-  thumbnail,fixtureId:null};
+  editRecipe,thumbnail,fixtureId:null};
  // Durable registration and handover are a single revision-CAS commit.
  const saved=await onRegistered(newWork);
- if(!saved){open('保存失敗','<p>作品は登録されていません。画面を再読み込みして状態を確認してください。</p>');return;}
+ if(!saved){open('保存失敗','<p>作品は登録されていません。画面を再読み込みして状態を確認してください。</p>');return false;}
  // Registration created a temporary preview URL. The durable work now owns
  // its own hydrated URL, so release only this temporary handle.
  URL.revokeObjectURL(entry.originalURL);
@@ -204,54 +204,20 @@ async function commit(ctx,entry,canvas){
   ]))+'</p></div></div>'+
   '<div class="rpg-choices"><button id="receiveWork">作品を受け取る ▼</button></div>', 'rpg');
  $('receiveWork').onclick=()=>{close();};
+ return true;
 }
 function compare(ctx,entry){
- const full={x:0,y:0,w:entry.image.naturalWidth,h:entry.image.naturalHeight};
- let candidate=full,retained=100,confidence='未検出';
- try{
-  const edge=window.A18SmartFrame.analyze(entry.image);
-  if(edge&&edge.retained>=.55&&edge.retained<.99&&edge.edgeCount>=3){
-   candidate=edge.rect;retained=Math.round(edge.retained*100);confidence=edge.confidence;
-  }else{
-   const original=window.A18PhotoPrep.cropSuggestion(entry.image);
-   const ratio=(original.w*original.h)/(full.w*full.h);
-   if(ratio>=.65&&ratio<.99){candidate=original;retained=Math.round(ratio*100);confidence='補助推定';}
-  }
- }catch(err){console.warn('トリム候補が未検出のため元画像を維持',err)}
- // Cropping remains a suggestion. Uncertain boundaries default to OFF.
- const suggested=confidence==='medium'&&retained>=86&&retained<99;
- const tone=window.A18PhotoFinish.profile(entry.image);
- const cropIsUseful=candidate!==full;
- const attachment=
-  '<div class="prep-pair"><div class="prep-preview"><strong>元の写真</strong><img id="previewBefore" alt="補正前" src="'+esc(entry.originalURL)+'"></div>'+
-  '<div class="prep-preview"><strong>展示用の仕上がり</strong><img id="previewAfter" alt="自動補正後のプレビュー"></div></div>'+
-  '<label class="prep-check"><input type="checkbox" id="autoCrop" '+(suggested?'checked':'')+' '+(!cropIsUseful?'disabled':'')+'>周囲の余白をトリム'+(!cropIsUseful?'（候補なし）':'')+'</label>'+
-  '<label class="prep-check"><input type="checkbox" id="autoTone" checked>明るさ・色味・コントラストを調整</label>'+
-  '<label class="prep-check"><input type="checkbox" id="autoDetail" checked>細部を自然にくっきり見せる</label>'+
-  '<p class="prep-warn">トリムの目安：'+(cropIsUseful?'約'+retained+'%の面積を維持':'候補なし')+
-  '。大切な部分が切れたり、色が不自然でないか見比べてください。反射・遠近の歪みを完全に除去するものではありません。</p>'+
-  '<p id="prepError" class="error" role="status"></p>';
- ctx.open(activeRole==='butler'?'爺や｜自動仕上げの確認':'スタッフ｜自動仕上げの確認',
-  reviewLayout(activeRole==='butler'?'こちらが仕上がりのご提案でございます。お好みの方をお選びください。':'仕上がりを見比べてみてね！ 好きな方を選んで大丈夫。',
-   attachment,'<button id="acceptFinish">この仕上がりで展示</button><button id="acceptOriginal" class="light">元の写真で展示</button>'),'rpg');
- let result=null,previewVersion=0;
- const refresh=()=>{
-  const version=++previewVersion;
-  $('prepError').textContent='仕上がりを調整しています……';
-  setTimeout(()=>{
-   if(version!==previewVersion||!$('previewAfter'))return;
-   try{
-    const rect=$('autoCrop').checked?candidate:full,enhance=$('autoTone').checked;
-    result=window.A18PhotoFinish.render(entry.image,rect,enhance,{tone,sharp:enhance&&$('autoDetail').checked,maxSize:3000});
-    $('previewAfter').src=result.toDataURL('image/jpeg',.91);
-    $('prepError').textContent='';
-   }catch(err){result=null;$('prepError').textContent='補正できなかったため、元の写真で展示できます';console.error(err)}
-  },15);
- };
- for(const id of ['autoCrop','autoTone','autoDetail'])$(id).onchange=refresh;
- $('acceptFinish').onclick=()=>{if(result)commit(ctx,entry,result);else $('prepError').textContent='処理が終わるまでお待ちください';};
- $('acceptOriginal').onclick=()=>commit(ctx,entry,null);
- refresh();
+ window.A18PhotoEditor.ui({
+  originalURL:entry.originalURL,img:entry.image,recipe:null,
+  renderDialog:(attachment,actions)=>ctx.open(
+   activeRole==='butler'?'爺や｜自動仕上げの確認':'スタッフ｜自動仕上げの確認',
+   reviewLayout(activeRole==='butler'
+     ?'こちらが仕上がりのご提案でございます。お好みの方をお選びください。'
+     :'仕上がりを見比べてみてね！ 好きな方を選んで大丈夫。',
+    attachment,actions),'rpg'),
+  onFinish:async({recipe,canvas})=>commit(ctx,entry,canvas,recipe),
+  onOriginal:async()=>commit(ctx,entry,null,null)
+ });
 }
 window.A18Registration={staffDialog,form,honorific,chatText};
 })();
