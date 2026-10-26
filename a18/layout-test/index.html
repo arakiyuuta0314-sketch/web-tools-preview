@@ -115,10 +115,13 @@ let galleryIndex=0; // roomId 0 = entrance, 1 = gallery 02.
 const fixtures=L.defaults();
 L.restoreClassicFrameDimensions(fixtures);
 L.enforceFixedLayout(fixtures);
+// Keep all 28 fixture records and existing artworks intact. Only two rear
+// entrance frames physically exist while we rebuild this room.
+const entranceVisibleFrames=()=>L.roomFrames(fixtures,0).slice(0,2);
 const roomRects=()=>galleryIndex===0
- ?L.roomFrames(fixtures,0).map((f,i)=>{const work=slot(i);const {outer}=window.A18Entrance.frameGeometry(f,artworkImage(work),work?.preferredShape);return [outer.x,outer.y,outer.x+outer.w,outer.y+outer.h];})
+ ?entranceVisibleFrames().map((f,i)=>{const work=slot(i);const {outer}=window.A18Entrance.frameGeometry(f,artworkImage(work),work?.preferredShape);return [outer.x,outer.y,outer.x+outer.w,outer.y+outer.h];})
  :L.roomFrames(fixtures,galleryIndex).map(L.r);
-const frameCount=room=>L.roomFrames(fixtures,room).length;
+const frameCount=room=>room===0?2:L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
 const roomCapacity=room=>frameCount(room);
 const roomCount=()=>6;
@@ -536,10 +539,10 @@ function worldPoint(e){
  return {x:(e.clientX-b.left)*logicalW/b.width+cameraX,
          y:(e.clientY-b.top)*logicalH/b.height+cameraY};
 }
-// Collision and interaction are intentionally separate.
-// Staff bodies and exhibition stands are solid; interaction is separate.
-// All interaction anchors are computed from the same room geometry.
-const wallFootLine=()=>scene==='entrance'?202:164;
+// Entrance-only rebuild: rear wall and butler are solid; two rear exhibit spots
+// remain interaction-only. Physical obstacles and inspection anchors are separate.
+// Gallery layouts are preserved for later reinstatement.
+const wallFootLine=()=>L.ROOM_SIZE[galleryIndex].wallFoot;
 const northDoorway=()=>scene==='entrance'?{x1:260,x2:312}:{x1:344,x2:387};
 function roomObstacles(){return L.obstacles(fixtures,galleryIndex);}
 function safeMove(x,y){
@@ -548,6 +551,8 @@ function safeMove(x,y){
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
  // The wall cannot be walked through. Only the actual north doorway forms a corridor.
  if(y<wallFootLine()){
+  // The approved entrance architecture is a continuous wall with no travel.
+  if(galleryIndex===0)return false;
   const door=northDoorway();
   if(!P2.canTraverse(galleryIndex,'north',currentSave.progression)||x<door.x1+radius/2||x>door.x2-radius/2)return false;
  }
@@ -560,17 +565,7 @@ function safeMove(x,y){
 }
 const PORTAL_EDGES=window.A18Navigation.EDGES;
 function checkPortal(){
- for(const [edge,target] of Object.entries(ROOM_LINKS[galleryIndex])){
-  const rect=PORTAL_EDGES[scene][edge];
-  if(!rect)throw new Error('Door edge definition missing: '+scene+' '+edge);
-  if(pos.x>=rect.x1&&pos.x<=rect.x2&&pos.y>=rect.y1&&pos.y<=rect.y2){
-   const reverse={west:'east',east:'west',north:'south',south:'north'}[edge];
-   if(!P2.canTraverse(galleryIndex,edge,currentSave.progression))return false;
-   if(saving||saveBlocked)return false;
-   void changeScene(target,{arrivalFrom:reverse}).then(ok=>{if(ok)fade()});
-   return true;
-  }
- }
+ // No transitions until the entrance and its independent foreground layers are ready.
  return false;
 }
 function walk(dir){
@@ -591,7 +586,8 @@ function walk(dir){
  update();
 }
 function interactionCandidates(){
- const artworks=L.roomFrames(fixtures,galleryIndex).map((f,i)=>{
+ const visible=galleryIndex===0?entranceVisibleFrames():L.roomFrames(fixtures,galleryIndex);
+ const artworks=visible.map((f,i)=>{
   const a=L.anchor(f,galleryIndex);
   return {type:'art',i:L.slotFor(galleryIndex,i),x:a.x,y:a.y,enter:32,leave:38};
  });
@@ -616,7 +612,8 @@ function nearby(){
  return activeInteraction=closest;
 }
 function update(){
- const displayed=works.filter(w=>w.fixtureId!=null&&fixtures.some(f=>f.id===w.fixtureId&&f.roomId===galleryIndex)).length;
+ const visibleIds=new Set((galleryIndex===0?entranceVisibleFrames():L.roomFrames(fixtures,galleryIndex)).map(f=>f.id));
+ const displayed=works.filter(w=>w.fixtureId!=null&&visibleIds.has(w.fixtureId)).length;
  $('statusText').textContent=ROOM_LABELS[galleryIndex]+' Lv.'+unlockedRooms()+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
  const hit=nearby();
  $('act').hidden=!hit;
@@ -625,19 +622,8 @@ function update(){
  $('cancel').textContent='作品をしまう';
 }
 async function changeScene(next,options={}){
- const room=Number.isInteger(next)?next:(next==='entrance'?0:next==='gallery'?1:NaN);
- if(!Number.isInteger(room)||room<0||room>5)throw Error('E_ROOM_ID');
- const edge=Object.keys(ROOM_LINKS[galleryIndex]).find(dir=>ROOM_LINKS[galleryIndex][dir]===room);
- if(!edge||!P2.canTraverse(galleryIndex,edge,currentSave.progression))throw Error('E_ROOM_LOCKED');
- const targetScene=room===0?'entrance':'gallery',m=src[targetScene];
- const arrivalMap=room===0?{west:[76,453],east:[470,453],north:[284,230],south:[296,426]}:{west:[76,388],east:[m.w-76,388],north:[367,151],south:[296,426]};
- const location=arrivalMap[options.arrivalFrom]||m.spawn;
- const direction={west:'right',east:'left',north:'down',south:'up'}[options.arrivalFrom]||'up';
- const arrival={x:location[0],y:location[1],dir:direction,stride:0};
- if(modal||showingEvent||saveBlocked)return false;
- const ok=await commitChange(s=>{s.galleryIndex=room;s.pos=arrival;},{event:false});
- if(ok){activeInteraction=null;cameraX=0;cameraY=0;$('hint').hidden=true;}
- return ok;
+ // Preserve room/save definitions for future work, but do not navigate yet.
+ return false;
 }
 function paintArtwork(a,i){
  const f=L.roomFrames(fixtures,galleryIndex)[i];
@@ -665,28 +651,12 @@ function avatar(){
  if(sample){const r=Math.min(34/sample.width,24/sample.height);ctx.drawImage(sample,pos.x-sample.width*r/2,pos.y-h-31+(24-sample.height*r)/2,sample.width*r,sample.height*r);}
  }
 }
-function drawEntranceExitHints(){
- const p=currentSave?.progression;
- if(!p)return;
- ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
- for(const [direction,x,arrow,needed] of [['west',62,'←',2],['east',484,'→',3]]){
-  const open=P2.canTraverse(0,direction,p);
-  ctx.globalAlpha=open?.93:.63;
-  ctx.fillStyle='#163b31';ctx.beginPath();ctx.roundRect(x-25,428,50,35,8);ctx.fill();
-  ctx.strokeStyle='#d7b975';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#fff1c5';ctx.font='bold 18px system-ui';
-  ctx.fillText(open?arrow:'🔒',x,441);
-  ctx.font='bold 8px system-ui';ctx.fillText(open?'通路':'Lv.'+needed,x,456);
- }
- ctx.restore();
-}
 function drawBackground(){
  if(scene==='entrance'){
   window.A18Entrance.background(ctx);
   // User-approved initial background; counter and middle partitions await independent foreground assets.
   // Old P5 entrance decorations and P3 shutters are not part of this architectural baseline.
   // Logical progression and collision gates are still enforced by P2 / navigation.
-  drawEntranceExitHints();
   return;
  }
  window.A18P3Gallery.background(ctx,galleryIndex,currentSave.progression);
@@ -954,7 +924,10 @@ function form(spotNo=0,viaStaff=false,role=galleryIndex===0?'butler':'staff'){
 const heldKeys=new Set();let pointerLoop=null;
 $('museumName').onclick=showSettings;
 $('settingsGear').onclick=showSettings;
-$('floorMapButton').onclick=()=>showFloorMap();
+// Area map and its entrance travel affordances are hidden for this stage.
+ $('floorMapButton').hidden=true;
+ $('floorMapButton').style.display='none';
+ $('floorMapButton').onclick=()=>showFloorMap();
 function showFloorMap(){
  if(modal||showingEvent||saveBlocked)return;
  open('館内図',window.A18Navigation.mapHTML(galleryIndex,currentSave.progression)+
