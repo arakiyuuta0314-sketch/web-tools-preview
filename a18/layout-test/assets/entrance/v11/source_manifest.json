@@ -1,42 +1,40 @@
 {
-  "status": "draft_only_not_main_not_released",
-  "source_kind": "full_scene_new_image_generation_not_old_v09_patch",
-  "canvas": [
-    546,
-    483
-  ],
+  "status": "approved_image_pending_game_QA",
+  "source_kind": "user_approved_image_generated_20261027",
   "source_file": "art-sources/entrance_clean_redraw_master_20261027.png",
-  "source_sha256": "d78786ef232cd2876a931e8331734a07504bc983b5644a401783929e5d1b0d0a",
-  "game_file": "layout-test/assets/entrance/v11/entrance_clean_redraw_546x483.png",
-  "game_sha256": "bd112e7646b4f37085b886d415520b312ac1941aba1e16bbbaa9499abdb4a301",
+  "source_sha256": "fc49d29a1dd108c4b23f37624ada25232be6234f763b7039a49e3e3c113b618c",
   "source_resolution": [
     1334,
     1179
   ],
-  "open_issues": [
-    "central door light remains part of the newly drawn architecture",
-    "review portrait frame fit and the 3D wall image projection in actual browser"
+  "canvas": [
+    546,
+    483
   ],
-  "approved": false,
+  "game_file": "layout-test/assets/entrance/v11/entrance_clean_redraw_546x483.png",
+  "game_sha256": "f6203488b10fe33cc9359b3ae653cdde1e27074d1bd91f4918b5731402df2296",
+  "old_draft_sha_is_rejected": true,
+  "approved_image": true,
+  "browser_qa": "pending",
   "front_mask_file": "layout-test/assets/entrance/v11/front_photo_mask_v11.png",
-  "front_mask_sha256": "c58f3082dc88c111be6c460fffb6f08663dd139b08675c7a7f73a660dac98a94",
-  "front_mask_nonzero_pixels": 12213,
+  "front_mask_sha256": "39067b183112932ea9329919f01ccce2df4a9d2b819c6bae51981fe2d9c229ad",
+  "front_mask_nonzero_pixels": 15517,
   "front_quad": [
     [
-      419,
-      168
+      420,
+      169
     ],
     [
-      505,
+      509,
       194
     ],
     [
-      504,
-      343
+      507,
+      387
     ],
     [
-      419,
-      285
+      415,
+      294
     ]
   ],
   "front_source_corners": [
@@ -59,20 +57,19 @@
   ],
   "front_inverse_homography": [
     [
-      2.216924002295637,
-      -0.007588637919303665,
-      -830.1781549075595
+      2.9412403187270155,
+      0.15345278364903225,
+      -1153.425568796187
     ],
     [
-      -0.015016830300470565,
-      0.8098809352560739,
-      -59.00931708526596
+      0.1808077458630981,
+      0.9209708406139855,
+      -153.27901561368597
     ],
     [
-      0.0037950319523461914,
-      -9.034092761076227e-05,
-      -0.4149636016721955
+      0.0070065869497342856,
+      0.0007064917029887853,
+      -1.7784864082905736
     ]
-  ],
-  "browser_qa": "not_run"
+  ]
 }
