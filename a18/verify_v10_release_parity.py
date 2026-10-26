@@ -15,6 +15,16 @@ for rel,sha in items.items():
  assert src.is_file() and dest.is_file(), 'missing release file '+rel
  src_bytes=src.read_bytes()
  dest_bytes=dest.read_bytes()
- assert hashlib.sha256(src_bytes).hexdigest()==sha,'source drift '+rel
- assert hashlib.sha256(dest_bytes).hexdigest()==sha,'release mismatch '+rel
+ # Windows Git worktrees may normalize LF to CRLF on checkout.
+ # Compare canonical Git-style text bytes; binary PNGs remain byte-exact.
+ def digest(blob):return hashlib.sha256(blob).hexdigest()
+ if src.suffix.lower() in ('.js','.html','.json','.css','.md'):
+  s_norm=src_bytes.replace(b'\r\n',b'\n')
+  d_norm=dest_bytes.replace(b'\r\n',b'\n')
+  assert s_norm==d_norm,'text differs '+rel
+  assert sha in (digest(src_bytes),digest(s_norm)),'source drift '+rel
+  assert sha in (digest(dest_bytes),digest(d_norm)),'release mismatch '+rel
+ else:
+  assert src_bytes==dest_bytes,'binary differs '+rel
+  assert digest(src_bytes)==sha,'binary source drift '+rel
 print('A18_SOURCE_RELEASE_BYTES_MATCH',len(items),'sha256 files')
