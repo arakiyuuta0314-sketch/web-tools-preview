@@ -1,10 +1,10 @@
-/* A18 v16 QA candidate, geometry-locked v10: canonical v09 background + ratio-aware frames + HQ photo rendering.
-   No save writes; canonical artwork assets are immutable. */
+/* A18 approved initial architectural background (2026-10-27).
+   Keep the approved PNG intact; only draw it with aspect-ratio-preserving crop.
+   Legacy independent foreground sprites await art review; no save writes. */
 (()=>{'use strict';
 const ROOT='assets/entrance/v09/',PW=768,PH=576;
 const FILES={
- background:['assets/entrance/v16/entrance_background_clean_v16_2184x1932.png',2184,1932],
- wall:[ROOT+'entrance_rear_clear_v10.png',546,483],
+ background:['assets/entrance/approved_initial_20261027/entrance_background_initial_approved.png',1322,1190],
  rear_left:[ROOT+'rear_left_photo_mask_v09.png',546,483],
  rear_right:[ROOT+'rear_right_photo_mask_v09.png',546,483],
  front:[ROOT+'front_photo_mask_v09.png',546,483],
@@ -45,7 +45,18 @@ async function init(){
  }
  ready=true;
 }
-function background(ctx){check();ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(imgs.get('background'),0,0,546,483);ctx.restore();}
+function backgroundCrop(){
+ const im=imgs.get('background');
+ const h=im.naturalWidth*483/546;
+ if(h>im.naturalHeight)throw Error('E_ENTRANCE_APPROVED_BG_RATIO');
+ return {sourceY:(im.naturalHeight-h)/2,sourceH:h};
+}
+function background(ctx){
+ check();const im=imgs.get('background'),{sourceY,sourceH}=backgroundCrop();
+ ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ ctx.drawImage(im,0,sourceY,im.naturalWidth,sourceH,0,0,546,483);
+ ctx.restore();
+}
 function foreground(ctx){check();}
 function panel(f){
  if(f?.roomId!==0)throw Error('E_ENTRANCE_V10_ROOM');
@@ -82,7 +93,9 @@ function nineSlice(ctx,r){
 }
 function rear(ctx,p,f,img,preferred){
  const {outer,inner}=frameGeometry(f,img,preferred),[x0,y0,x1,y1]=p.patch;
- ctx.drawImage(imgs.get('wall'),x0,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0);
+ const im=imgs.get('background'),{sourceY,sourceH}=backgroundCrop();
+ ctx.drawImage(im,x0*im.naturalWidth/546,sourceY+y0*sourceH/483,
+  (x1-x0)*im.naturalWidth/546,(y1-y0)*sourceH/483,x0,y0,x1-x0,y1-y0);
  ctx.fillStyle='rgba(18,15,12,.54)';ctx.fillRect(outer.x+2,outer.y+3,outer.w,outer.h);
  ctx.fillStyle='#a99675';ctx.fillRect(outer.x+5,outer.y+5,outer.w-10,outer.h-10);
  const sw=img.naturalWidth,sh=img.naturalHeight,mode=f.imageMode||'cover';
