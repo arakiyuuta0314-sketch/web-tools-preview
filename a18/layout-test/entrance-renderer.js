@@ -7,8 +7,7 @@ const FILES={
  background:['assets/entrance/approved_initial_20261027/entrance_background_initial_approved.png',1322,1190],
  rear_left:[ROOT+'rear_left_photo_mask_v09.png',546,483],
  rear_right:[ROOT+'rear_right_photo_mask_v09.png',546,483],
- front:[ROOT+'front_photo_mask_v09.png',546,483],
- atlas:['assets/entrance/v0.3/entrance_frame_9slice_atlas_v03.png',42,42]
+ front:[ROOT+'front_photo_mask_v09.png',546,483]
 };
 const PANELS=[
  {name:'rear_left',rect:[43,64,189,143],patch:[38,58,195,151],center:[116,105]},
@@ -80,14 +79,25 @@ function frameGeometry(f,img,preferred=null){
  if(x<27||x+outerW>522||y<40||y+outerH>184)throw Error('E_ENTRANCE_V10_BOUNDS '+f.id);
  return {outer:{x,y,w:outerW,h:outerH},inner:{x:x+8,y:y+8,w,h},shape:sh};
 }
-function nineSlice(ctx,r){
- const atlas=imgs.get('atlas'),b=8,s=14;
- const dx=[r.x,r.x+b,r.x+r.w-b],dy=[r.y,r.y+b,r.y+r.h-b];
- const w=[b,r.w-2*b,b],h=[b,r.h-2*b,b];
- ctx.save();ctx.imageSmoothingEnabled=false;
- for(let y=0;y<3;y++)for(let x=0;x<3;x++){
-  if(x===1&&y===1)continue;
-  ctx.drawImage(atlas,x*s,y*s,s,s,dx[x],dy[y],w[x],h[y]);
+function drawHighResolutionFrame(ctx,r){
+ // The legacy 42px 9-slice used a pale inner lip which looked white
+ // around even uniform-color artwork. Draw its wood/gold bands at native
+ // device resolution instead, keeping the existing 8px frame geometry.
+ const bands=[
+  '#322216', // outer dark wood silhouette
+  '#926136', // warm brass / wood
+  '#bd8951',
+  '#a06c35',
+  '#cf9b57', // restrained gold light on the external molding
+  '#86562f',
+  '#49301f',
+  '#281f18'  // inner recess: deliberately never cream or white
+ ];
+ ctx.save();
+ // Outline only: never paint over the photo's center.
+ for(let i=0;i<bands.length;i++){
+  ctx.strokeStyle=bands[i];ctx.lineWidth=1;
+  ctx.strokeRect(r.x+i-.5,r.y+i-.5,r.w-2*i+1,r.h-2*i+1);
  }
  ctx.restore();
 }
@@ -109,8 +119,11 @@ function rear(ctx,p,f,img,preferred){
  const oy=mode==='custom'?(inner.h-dh)*(f.imageY??0)/2:0;
  ctx.save();ctx.beginPath();ctx.rect(inner.x,inner.y,inner.w,inner.h);ctx.clip();
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ // Gentle display-only contrast: improves perceived separation of fine puzzle
+ // details, does not alter or re-encode the user's original saved photo.
+ ctx.filter='contrast(1.055) saturate(1.02)';
  ctx.drawImage(img,inner.x+(inner.w-dw)/2+ox,inner.y+(inner.h-dh)/2+oy,dw,dh);
- ctx.restore();nineSlice(ctx,outer);
+ ctx.restore();drawHighResolutionFrame(ctx,outer);
 }
 function front(img,f){
  const c=blank(PW,PH),cc=c.getContext('2d',{willReadFrequently:true});

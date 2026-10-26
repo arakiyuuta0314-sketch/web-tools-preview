@@ -26,13 +26,15 @@ function profile(img){
   whiteBalance:wb,sharpness:edges/n>26?.04:.09};
 }
 function render(img,rect,enhance=true,opt={}){
- const max=opt.maxSize||1800,ratio=Math.min(1,max/Math.max(rect.w,rect.h));
+ const max=opt.maxSize||3000,ratio=Math.min(1,max/Math.max(rect.w,rect.h));
  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(rect.w*ratio));c.height=Math.max(1,Math.round(rect.h*ratio));
  const t=c.getContext('2d',{willReadFrequently:true});t.imageSmoothingQuality='high';
  t.drawImage(img,rect.x,rect.y,rect.w,rect.h,0,0,c.width,c.height);
  if(!enhance)return c;
  const tone=opt.tone||profile(img),frame=t.getImageData(0,0,c.width,c.height),a=frame.data;
  const raw=opt.sharp===false?null:new Uint8ClampedArray(a),width=c.width,height=c.height;
+ const clarity=bound(opt.clarity??.27,0,.36);
+ const luminance=(j)=>.2126*raw[j]+.7152*raw[j+1]+.0722*raw[j+2];
  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
   const i=(y*width+x)*4;let r=a[i]/255,g=a[i+1]/255,b=a[i+2]/255;
   r=bound(r*tone.whiteBalance[0],0,1);g=bound(g*tone.whiteBalance[1],0,1);b=bound(b*tone.whiteBalance[2],0,1);
@@ -41,12 +43,15 @@ function render(img,rect,enhance=true,opt={}){
   r=tune(r);g=tune(g);b=tune(b);
   const L=.213*r+.715*g+.072*b;
   r=bound(L+(r-L)*tone.saturation,0,1);g=bound(L+(g-L)*tone.saturation,0,1);b=bound(L+(b-L)*tone.saturation,0,1);
-  if(raw&&x>0&&x<width-1&&y>0&&y<height-1){
-   const offsets=[-4,4,-width*4,width*4];const v=[r,g,b];
-   for(let k=0;k<3;k++){
-    const diff=raw[i+k]-offsets.reduce((tot,off)=>tot+raw[i+off+k],0)/4;
-    if(Math.abs(diff)>5&&Math.abs(diff)<70)v[k]=bound(v[k]+bound(diff*tone.sharpness,-6,6)/255,0,1);
-   }[r,g,b]=v;
+  if(raw&&clarity>0&&x>1&&x<width-2&&y>1&&y<height-2){
+   // Sharpen fine luminance structure while preserving the pixel's hue.
+   // Reject tiny compression noise and large high-contrast halos.
+   const diff=luminance(i)-(luminance(i-4)+luminance(i+4)+
+     luminance(i-width*4)+luminance(i+width*4))*.25;
+   if(Math.abs(diff)>=7&&Math.abs(diff)<=85){
+    const lift=bound(diff*clarity,-14,14)/255;
+    r=bound(r+lift,0,1);g=bound(g+lift,0,1);b=bound(b+lift,0,1);
+   }
   }
   a[i]=r*255;a[i+1]=g*255;a[i+2]=b*255;
  }
