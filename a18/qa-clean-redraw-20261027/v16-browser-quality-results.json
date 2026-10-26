@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "result": {
+    "background": {
+      "width": 2184,
+      "height": 1932,
+      "complete": true
+    },
+    "assetCount": 6,
+    "geometry": {
+      "outer": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "inner": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "shape": "landscape"
+    },
+    "sceneReady": true
+  },
+  "jsExceptions": [],
+  "networkErrors": [],
+  "server": "local loopback isolated Chrome"
+}

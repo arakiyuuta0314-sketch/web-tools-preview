@@ -1,0 +1,19 @@
+{
+  "status": "art candidate not game-integrated",
+  "source_geometry": "v10 546x483 approved source",
+  "upscaled_dimensions": [
+    2184,
+    1932
+  ],
+  "master_texture_dimensions": [
+    1334,
+    1179
+  ],
+  "original_v10_sha256": "5604d749256a3a11db7da00e905a4bc49fc5b477e761673a6b6236cd01a032ea",
+  "new_sha256": "e8bafa15a776298765b7543a6cced5b3552560d5d3893bee38721e0ca848608c",
+  "back_wall_and_door_pixel_identical_to_v14": true,
+  "all_changes_in_verified_floor_mask": true,
+  "changed_pixels": 1411659,
+  "display_photo_mask_unmodified": true,
+  "needs_visual_approval": true
+}

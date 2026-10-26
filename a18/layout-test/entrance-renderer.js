@@ -1,24 +1,25 @@
-/* A18 clean entrance redraw — independently generated blank architectural base.
-   Preserve saved fixture IDs, adaptive frames, and original-resolution photo path.
-   This is isolated artwork QA only until explicitly adopted on main. */
+/* A18 v16 QA candidate, geometry-locked v10: canonical v09 background + ratio-aware frames + HQ photo rendering.
+   No save writes; canonical artwork assets are immutable. */
 (()=>{'use strict';
-const ROOT='assets/entrance/v11/',PW=768,PH=576;
+const ROOT='assets/entrance/v09/',PW=768,PH=576;
 const FILES={
- background:[ROOT+'entrance_clean_redraw_546x483.png',546,483],
- front:[ROOT+'front_photo_mask_v11.png',546,483],
+ background:['assets/entrance/v16/entrance_background_clean_v16_2184x1932.png',2184,1932],
+ wall:[ROOT+'entrance_rear_clear_v10.png',546,483],
+ rear_left:[ROOT+'rear_left_photo_mask_v09.png',546,483],
+ rear_right:[ROOT+'rear_right_photo_mask_v09.png',546,483],
+ front:[ROOT+'front_photo_mask_v09.png',546,483],
  atlas:['assets/entrance/v0.3/entrance_frame_9slice_atlas_v03.png',42,42]
 };
 const PANELS=[
- {name:'rear_left',rect:[49,37,188,137],center:[116,86]},
- {name:'rear_right',rect:[370,37,506,137],center:[440,86]},
- {name:'front',rect:[419,168,506,344]}
+ {name:'rear_left',rect:[43,64,189,143],patch:[38,58,195,151],center:[116,105]},
+ {name:'rear_right',rect:[374,64,506,143],patch:[369,58,511,151],center:[440,105]},
+ {name:'front',rect:[421,195,494,326]}
 ];
 const FRONT_INV=[
- [2.216924002295637,-0.007588637919303665,-830.1781549075595],
- [-0.015016830300470565,0.8098809352560739,-59.00931708526596],
- [0.0037950319523461914,-0.00009034092761076227,-0.4149636016721955]
+ [2.2582576554692726,-0.02449889664425458,-854.9873467700153],
+ [-0.2933780477833784,1.015847991558277,-7.050709650349285],
+ [0.0032571841573975214,-0.000467047182836571,-0.18282765194690226]
 ];
-const FRONT_QUAD=[[419,168],[505,194],[504,343],[419,285]];
 const imgs=new Map(),masks=new Map(),cache=new WeakMap();
 let ready=false;
 function blank(w=546,h=483){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
@@ -33,16 +34,18 @@ async function init(){
   if(im.naturalWidth!==width||im.naturalHeight!==height)throw Error('E_ENTRANCE_V10_DIM '+path);
   imgs.set(key,im);
  }
- const c=blank(),cx=c.getContext('2d',{willReadFrequently:true});
- cx.drawImage(imgs.get('front'),0,0);
- const d=cx.getImageData(0,0,546,483).data,m=new Uint8Array(546*483);
- let count=0;
- for(let i=0;i<m.length;i++){m[i]=d[i*4];if(m[i])count++;}
- if(count<8000||count>15000)throw Error('E_ENTRANCE_V11_FRONT_MASK '+count);
- masks.set('front',m);
+ for(const p of PANELS){
+  const c=blank(),cx=c.getContext('2d',{willReadFrequently:true});
+  cx.drawImage(imgs.get(p.name),0,0);
+  const d=cx.getImageData(0,0,546,483).data,m=new Uint8Array(546*483);
+  let count=0;
+  for(let i=0;i<m.length;i++){m[i]=d[i*4];if(m[i])count++;}
+  if(count<5000||count>20000)throw Error('E_ENTRANCE_V10_MASK '+p.name);
+  masks.set(p.name,m);
+ }
  ready=true;
 }
-function background(ctx){check();ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(imgs.get('background'),0,0);ctx.restore();}
+function background(ctx){check();ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(imgs.get('background'),0,0,546,483);ctx.restore();}
 function foreground(ctx){check();}
 function panel(f){
  if(f?.roomId!==0)throw Error('E_ENTRANCE_V10_ROOM');
@@ -60,10 +63,10 @@ function frameGeometry(f,img,preferred=null){
  const p=panel(f),r=p.rect;
  if(p.name==='front'||!img?.naturalWidth)return {outer:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},inner:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},shape:'landscape'};
  const ratio=img.naturalWidth/img.naturalHeight,sh=shapeOf(f,img,preferred);
- const caps=sh==='portrait'?[94,95]:sh==='square'?[94,94]:[140,81];
+ const caps=sh==='portrait'?[98,111]:sh==='square'?[100,100]:[133,85];
  const factor=Math.min(caps[0]/ratio,caps[1]),w=ratio*factor,h=factor;
  const outerW=w+16,outerH=h+16,x=p.center[0]-outerW/2,y=p.center[1]-outerH/2;
- if(x<27||x+outerW>522||y<28||y+outerH>142)throw Error('E_ENTRANCE_V11_BOUNDS '+f.id);
+ if(x<27||x+outerW>522||y<40||y+outerH>184)throw Error('E_ENTRANCE_V10_BOUNDS '+f.id);
  return {outer:{x,y,w:outerW,h:outerH},inner:{x:x+8,y:y+8,w,h},shape:sh};
 }
 function nineSlice(ctx,r){
@@ -78,8 +81,8 @@ function nineSlice(ctx,r){
  ctx.restore();
 }
 function rear(ctx,p,f,img,preferred){
- const {outer,inner}=frameGeometry(f,img,preferred);
- // Blank walls are part of the new redraw; no old matte/repair overlay is used.
+ const {outer,inner}=frameGeometry(f,img,preferred),[x0,y0,x1,y1]=p.patch;
+ ctx.drawImage(imgs.get('wall'),x0,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0);
  ctx.fillStyle='rgba(18,15,12,.54)';ctx.fillRect(outer.x+2,outer.y+3,outer.w,outer.h);
  ctx.fillStyle='#a99675';ctx.fillRect(outer.x+5,outer.y+5,outer.w-10,outer.h-10);
  const sw=img.naturalWidth,sh=img.naturalHeight,mode=f.imageMode||'cover';
@@ -138,21 +141,13 @@ function frame(ctx,f,img,preferred=null){
   m.set(key,c);
  }
  ctx.drawImage(m.get(key),0,0);
- if(p.name==='front'){
-  ctx.save();ctx.beginPath();
-  ctx.moveTo(FRONT_QUAD[0][0],FRONT_QUAD[0][1]);
-  for(let i=1;i<4;i++)ctx.lineTo(FRONT_QUAD[i][0],FRONT_QUAD[i][1]);
-  ctx.closePath();ctx.strokeStyle='#5b3418';ctx.lineWidth=5;ctx.stroke();
-  ctx.strokeStyle='#c49a56';ctx.lineWidth=2;ctx.stroke();ctx.restore();
- }
 }
 function markSlot(ctx,f,img=null,preferred=null){
  check();const p=panel(f),r=p.rect;
  ctx.save();ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.beginPath();
  if(p.name==='front'){
-  ctx.moveTo(FRONT_QUAD[0][0],FRONT_QUAD[0][1]);
-  for(let i=1;i<4;i++)ctx.lineTo(FRONT_QUAD[i][0],FRONT_QUAD[i][1]);
-  ctx.closePath();
+  ctx.moveTo(421.62,194.73);ctx.lineTo(493.79,228.73);
+  ctx.lineTo(489.88,325.87);ctx.lineTo(421.00,277.57);ctx.closePath();
  }else{
   const {outer}=frameGeometry(f,img,preferred);
   ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);

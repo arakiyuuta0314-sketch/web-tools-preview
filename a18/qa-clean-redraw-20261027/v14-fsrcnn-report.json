@@ -1,0 +1,18 @@
+{
+  "source_sha256": "5604d749256a3a11db7da00e905a4bc49fc5b477e761673a6b6236cd01a032ea",
+  "model_filename": "FSRCNN_x4.pb",
+  "source": "https://github.com/Saafke/FSRCNN_Tensorflow",
+  "source_dimensions": [
+    546,
+    483
+  ],
+  "output_dimensions": [
+    2184,
+    1932
+  ],
+  "elapsed_seconds": 1.6605184078216553,
+  "output_sha256": "36d4e2d8a5f54e1720ddbf84915c4d2cfbc996c17aee1c526407fc82d5483d83",
+  "original_image_unchanged": true,
+  "architecture_coordinates_unchanged": true,
+  "quality_status": "candidate; must inspect for synthetic ringing, smoothness and fidelity"
+}
