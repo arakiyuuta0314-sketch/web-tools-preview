@@ -187,11 +187,14 @@ async function commit(ctx,entry,canvas){
  const preferredShape=aspect<.85?'portrait':aspect>1.15?'landscape':'square';
  const newWork={id,preferredShape,title:entry.title,pieces:entry.pieces,complete:entry.complete,notes:entry.notes,
   registered:entry.registered,originalURL:entry.originalURL,originalBlob:entry.originalBlob,
-  displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
+  displaySrc:canvas?canvas.toDataURL('image/jpeg',.98):entry.originalURL,
   thumbnail,fixtureId:null};
  // Durable registration and handover are a single revision-CAS commit.
  const saved=await onRegistered(newWork);
  if(!saved){open('保存失敗','<p>作品は登録されていません。画面を再読み込みして状態を確認してください。</p>');return;}
+ // Registration created a temporary preview URL. The durable work now owns
+ // its own hydrated URL, so release only this temporary handle.
+ URL.revokeObjectURL(entry.originalURL);
  open(activeRole==='butler'?'爺や｜作品のお渡し':'スタッフ｜作品のお渡し',
   '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.[activeRole==='butler'?'butler':'staff']?.portraitPath||'')+'" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">'+(activeRole==='butler'?'爺や':'展示室スタッフ')+'</span><p class="rpg-message">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
@@ -239,7 +242,7 @@ function compare(ctx,entry){
    if(version!==previewVersion||!$('previewAfter'))return;
    try{
     const rect=$('autoCrop').checked?candidate:full,enhance=$('autoTone').checked;
-    result=window.A18PhotoFinish.render(entry.image,rect,enhance,{tone,sharp:enhance&&$('autoDetail').checked,maxSize:1800});
+    result=window.A18PhotoFinish.render(entry.image,rect,enhance,{tone,sharp:enhance&&$('autoDetail').checked,maxSize:3000});
     $('previewAfter').src=result.toDataURL('image/jpeg',.91);
     $('prepError').textContent='';
    }catch(err){result=null;$('prepError').textContent='補正できなかったため、元の写真で展示できます';console.error(err)}

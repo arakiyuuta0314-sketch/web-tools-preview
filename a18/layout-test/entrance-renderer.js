@@ -97,10 +97,12 @@ function rear(ctx,p,f,img,preferred){
  ctx.drawImage(im,x0*im.naturalWidth/546,sourceY+y0*sourceH/483,
   (x1-x0)*im.naturalWidth/546,(y1-y0)*sourceH/483,x0,y0,x1-x0,y1-y0);
  ctx.fillStyle='rgba(18,15,12,.54)';ctx.fillRect(outer.x+2,outer.y+3,outer.w,outer.h);
- ctx.fillStyle='#a99675';ctx.fillRect(outer.x+5,outer.y+5,outer.w-10,outer.h-10);
+ // Dark recessed inner rim, not a white or beige photographic mat.
+ ctx.fillStyle='#3c2d21';ctx.fillRect(outer.x+5,outer.y+5,outer.w-10,outer.h-10);
  const sw=img.naturalWidth,sh=img.naturalHeight,mode=f.imageMode||'cover';
  if(!['cover','contain','custom'].includes(mode))throw Error('E_ENTRANCE_V10_MODE');
- const fit=mode==='contain'?Math.min(inner.w/sw,inner.h/sh):Math.max(inner.w/sw,inner.h/sh);
+ // Even portrait works fill the measured artwork opening: no white gutters.
+ const fit=Math.max(inner.w/sw,inner.h/sh);
  const zoom=mode==='custom'?(f.imageScale??1):1;
  const dw=sw*fit*zoom,dh=sh*fit*zoom;
  const ox=mode==='custom'?(inner.w-dw)*(f.imageX??0)/2:0;
@@ -146,13 +148,15 @@ function front(img,f){
 function frame(ctx,f,img,preferred=null){
  check();const p=panel(f);
  if(!img?.naturalWidth)return;
+ if(p.name!=='front'){
+  // Draw directly to the device-pixel-ratio canvas. The previous 546px
+  // intermediate bitmap blurred photo detail when scaled on Retina iPhone.
+  rear(ctx,p,f,img,preferred);
+  return;
+ }
  const key=[f.id,preferred,f.imageMode,f.imageScale,f.imageX,f.imageY].join('|');
  let m=cache.get(img);if(!m){m=new Map();cache.set(img,m);}
- if(!m.has(key)){
-  const c=p.name==='front'?front(img,f):blank();
-  if(p.name!=='front')rear(c.getContext('2d'),p,f,img,preferred);
-  m.set(key,c);
- }
+ if(!m.has(key))m.set(key,front(img,f));
  ctx.drawImage(m.get(key),0,0);
 }
 function markSlot(ctx,f,img=null,preferred=null){
