@@ -1,0 +1,166 @@
+{
+  "status": "PASS",
+  "result": {
+    "background": {
+      "width": 1322,
+      "height": 1190,
+      "complete": true
+    },
+    "assetCount": 5,
+    "geometry": {
+      "outer": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "inner": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "shape": "landscape"
+    },
+    "sceneReady": true
+  },
+  "profile": {
+    "afterProfile": "QA館長",
+    "avatar": "female",
+    "beforePosition": {
+      "x": 326,
+      "y": 425,
+      "dir": "up",
+      "stride": 0
+    },
+    "afterPosition": {
+      "x": 314,
+      "y": 425,
+      "dir": "left",
+      "stride": 1
+    },
+    "save": {
+      "database": "a18-totteoki-museum-v3",
+      "revision": 2,
+      "blocked": false
+    }
+  },
+  "collision": {
+    "anchors": [
+      {
+        "type": "art",
+        "i": 0,
+        "x": 116,
+        "y": 237,
+        "enter": 32,
+        "leave": 38
+      },
+      {
+        "type": "art",
+        "i": 1,
+        "x": 439,
+        "y": 237,
+        "enter": 32,
+        "leave": 38
+      },
+      {
+        "type": "butler",
+        "x": 138.64166666666668,
+        "y": 341.71428571428567,
+        "enter": 46,
+        "leave": 54
+      }
+    ],
+    "obstacles": [
+      [
+        129,
+        149,
+        361,
+        368
+      ]
+    ],
+    "wallFoot": 210,
+    "west": {
+      "x": 50,
+      "y": 425,
+      "room": 0
+    },
+    "east": {
+      "x": 494,
+      "y": 425,
+      "room": 0
+    },
+    "right": {
+      "type": "art",
+      "i": 1,
+      "x": 439,
+      "y": 237,
+      "enter": 32,
+      "leave": 38
+    },
+    "left": {
+      "type": "art",
+      "i": 0,
+      "x": 116,
+      "y": 237,
+      "enter": 32,
+      "leave": 38
+    },
+    "finalPosition": {
+      "x": 122,
+      "y": 245,
+      "dir": "left",
+      "stride": 1
+    },
+    "probes": [
+      "old_left_wall",
+      "old_right_wall",
+      "old_front_frame",
+      "solid_rear_wall",
+      "solid_rear_wall_edge",
+      "rear_wall_floor",
+      "pass_behind_butler",
+      "butler_feet",
+      "space_before_butler"
+    ]
+  },
+  "rearWalk": {
+    "original": {
+      "x": 122,
+      "y": 245,
+      "dir": "left",
+      "stride": 1
+    },
+    "beforeCross": {
+      "x": 122,
+      "y": 329,
+      "dir": "down",
+      "stride": 3
+    },
+    "crossing": {
+      "x": 146,
+      "y": 329,
+      "dir": "right",
+      "stride": 0
+    },
+    "room": 0
+  },
+  "persisted": {
+    "name": "QA館長",
+    "pos": {
+      "x": 146,
+      "y": 329,
+      "dir": "right",
+      "stride": 0
+    },
+    "scene": "entrance",
+    "storage": {
+      "database": "a18-totteoki-museum-v3",
+      "revision": 3,
+      "blocked": false
+    }
+  },
+  "jsExceptions": [],
+  "networkErrors": [],
+  "server": "local loopback isolated Chrome"
+}

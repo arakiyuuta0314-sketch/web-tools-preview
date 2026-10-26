@@ -696,10 +696,15 @@ function draw(){
  ctx.setTransform(scale,0,0,scale,-cameraX*scale,-cameraY*scale);
  drawBackground();
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
- decorate();drawButler();drawGalleryStaff();
+ decorate();
+ // Draw the curator behind the butler when walking beyond his feet.
+ // Collision is foot-based; keep the same visual depth ordering.
+ const behindButler=galleryIndex===0&&pos.y<L.BUTLER.footY;
+ if(behindButler)avatar();
+ drawButler();drawGalleryStaff();
  const hit=nearby();
  if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i);if(galleryIndex===0){const carried=works.find(w=>w.id===carrying);if(!carried)throw Error('E_ENTRANCE_CARRIED_WORK');window.A18Entrance.markSlot(ctx,f,artworkImage(carried),carried.preferredShape);}else{const [x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}}
- avatar();ctx.restore();requestAnimationFrame(draw);
+ if(!behindButler)avatar();ctx.restore();requestAnimationFrame(draw);
 }
 function profileFields(){
  return '<label>館長の名前<input id="a18PlayerName" maxlength="24" autocomplete="off" value="'+esc(playerName)+'" placeholder="名前"></label>'+

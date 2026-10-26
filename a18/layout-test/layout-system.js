@@ -152,10 +152,10 @@ function migrateLegacy(works){
  }
 }
 function obstacles(fixtures,room){
- // Entrance reconstruction: only the butler is a freestanding physical obstacle.
- // The rear wall is handled by wallFoot; old partitions / the third floor frame
- // are absent from approved entrance artwork and must not block walking.
- if(room===0)return [npcBounds('butler',0)];
+ // Entrance: collide at the butler's feet, not his full 49px-tall sprite.
+ // The floor behind his body must be walkable; rear wall remains separate.
+ // NPC visual bounds / interaction anchor remain unchanged.
+ if(room===0)return [[BUTLER.x-10,BUTLER.x+10,BUTLER.footY-5,BUTLER.footY+2]];
  const result=[staffBlock(room)];
  for(const f of fixtures)if(f.roomId===room&&f.kind==='frame'&&f.installation==='floor'){
   const [l,t,rr,b]=r(f);
