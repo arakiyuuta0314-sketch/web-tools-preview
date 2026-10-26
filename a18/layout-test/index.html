@@ -509,24 +509,35 @@ function resize(){
  if(isPortraitGame()){
   const availableHeight=Math.max(1,Math.round(b.height-164));
   const pixelRatio=Math.min(3,Math.max(1,window.devicePixelRatio||1));
-  canvas.width=Math.max(1,Math.round(b.width*pixelRatio));
-  canvas.height=Math.max(1,Math.round(availableHeight*pixelRatio));
+  const targetWidth=Math.max(1,Math.round(b.width*pixelRatio));
+  const targetHeight=Math.max(1,Math.round(availableHeight*pixelRatio));
+  // iPhone Safari repeatedly fires resize as the toolbar changes.
+  // Setting identical canvas dimensions still clears the bitmap.
+  if(canvas.width!==targetWidth)canvas.width=targetWidth;
+  if(canvas.height!==targetHeight)canvas.height=targetHeight;
   canvas.style.width=b.width+'px';canvas.style.height=availableHeight+'px';
   canvas.style.position='absolute';canvas.style.left='0px';canvas.style.top='0px';
-  logicalW=Math.min(m.w,445);
-  logicalH=canvas.height*logicalW/canvas.width;
+  // Fit the approved entrance vertically; pan horizontally as the player walks.
+  // Other rooms retain their established camera sizing.
+  logicalW=galleryIndex===0?Math.min(m.w,Math.max(295,m.h*b.width/availableHeight)):Math.min(m.w,445);
+  logicalH=availableHeight*logicalW/b.width;
   $('stage').classList.remove('overview');
  }else if(viewMode==='overview'){
   const scale=Math.min(b.width/m.w,b.height/m.h);
   const dw=Math.max(1,Math.floor(m.w*scale)),dh=Math.max(1,Math.floor(m.h*scale));
   const pixelRatio=Math.min(3,Math.max(1,window.devicePixelRatio||1));
-  canvas.width=Math.max(1,Math.round(dw*pixelRatio));canvas.height=Math.max(1,Math.round(dh*pixelRatio));canvas.style.width=dw+'px';canvas.style.height=dh+'px';
+  const targetWidth=Math.max(1,Math.round(dw*pixelRatio)),targetHeight=Math.max(1,Math.round(dh*pixelRatio));
+  if(canvas.width!==targetWidth)canvas.width=targetWidth;
+  if(canvas.height!==targetHeight)canvas.height=targetHeight;
+  canvas.style.width=dw+'px';canvas.style.height=dh+'px';
   canvas.style.position='';canvas.style.left='';canvas.style.top='';
   $('stage').classList.add('overview');$('stage').style.setProperty('--side-width',Math.max(0,(b.width-dw)/2)+'px');
   logicalW=m.w;logicalH=m.h;cameraX=0;cameraY=0;
  }else{
   const pixelRatio=Math.min(3,Math.max(1,window.devicePixelRatio||1));
-  canvas.width=Math.max(1,Math.round(b.width*pixelRatio));canvas.height=Math.max(1,Math.round(b.height*pixelRatio));
+  const targetWidth=Math.max(1,Math.round(b.width*pixelRatio)),targetHeight=Math.max(1,Math.round(b.height*pixelRatio));
+  if(canvas.width!==targetWidth)canvas.width=targetWidth;
+  if(canvas.height!==targetHeight)canvas.height=targetHeight;
   canvas.style.width='100%';canvas.style.height='100%';
   canvas.style.position='';canvas.style.left='';canvas.style.top='';
   $('stage').classList.remove('overview');
@@ -684,8 +695,13 @@ function drawButler(){
  if(galleryIndex!==0)return;
  window.A18Art.npc(ctx,'butler',L.BUTLER.x,L.BUTLER.footY);
 }
-function draw(){
+let lastPaintTime=0;
+function draw(time=0){
  if(!loaded)return;
+ // Cap heavy high-DPI redraws to 30 fps; movement itself retains its timing.
+ // This leaves Safari more time to compose the stable background and UI.
+ if(galleryIndex===0 && time && time-lastPaintTime<1000/30){requestAnimationFrame(draw);return;}
+ if(time)lastPaintTime=time;
  const m=src[scene],maxY=Math.max(0,m.h-logicalH),maxX=Math.max(0,m.w-logicalW);
  const targetY=logicalH>=m.h?(m.h-logicalH)/2:Math.max(0,Math.min(maxY,pos.y-logicalH*.55));
  const targetX=logicalW>=m.w?(m.w-logicalW)/2:Math.max(0,Math.min(maxX,pos.x-logicalW*.50));
@@ -693,7 +709,11 @@ function draw(){
  else{cameraX+=Math.max(-22,Math.min(22,(targetX-cameraX)*.45));cameraY+=Math.max(-22,Math.min(22,(targetY-cameraY)*.45));}
  ctx.clearRect(0,0,canvas.width,canvas.height);
  ctx.save();const scale=canvas.width/logicalW;
- ctx.setTransform(scale,0,0,scale,-cameraX*scale,-cameraY*scale);
+ // Snap camera to the physical display-pixel grid to prevent shimmering
+ // of the marble seams during fractional-pixel camera interpolation.
+ const pixelCameraX=galleryIndex===0?Math.round(cameraX*scale):cameraX*scale;
+ const pixelCameraY=galleryIndex===0?Math.round(cameraY*scale):cameraY*scale;
+ ctx.setTransform(scale,0,0,scale,-pixelCameraX,-pixelCameraY);
  drawBackground();
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
  decorate();

@@ -1,0 +1,198 @@
+{
+  "client": {
+    "width": 390,
+    "height": 844,
+    "dpr": 3,
+    "visualViewport": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "display": {
+    "stage": {
+      "x": 0,
+      "y": 51,
+      "w": 390,
+      "h": 793
+    },
+    "canvas": {
+      "x": 0,
+      "y": 51,
+      "w": 390,
+      "h": 629
+    },
+    "app": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    }
+  },
+  "backing": [
+    1170,
+    1887
+  ],
+  "viewport": {
+    "logicalW": 299.47535771065185,
+    "logicalH": 483,
+    "cameraX": 164.26232114467453,
+    "cameraY": 0,
+    "backingWidth": 1170,
+    "backingHeight": 1887,
+    "portrait": true
+  },
+  "imageOriginal": [
+    1322,
+    1190
+  ],
+  "sourceGame": [
+    546,
+    483
+  ],
+  "samples": [
+    {
+      "at": 1874.5,
+      "cameraX": 164.26416373819066,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2022.199999988079,
+      "cameraX": 164.2626277061704,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2183.699999988079,
+      "cameraX": 164.262349196967,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2333.600000023842,
+      "cameraX": 164.26232581187432,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2483.800000011921,
+      "cameraX": 164.26232192117953,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2633.600000023842,
+      "cameraX": 164.26232127386515,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2783.600000023842,
+      "cameraX": 164.26232116616825,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 2942.100000023842,
+      "cameraX": 164.26232115117605,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 3100.300000011921,
+      "cameraX": 164.26232114526906,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 3267.5,
+      "cameraX": 164.26232114477307,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 3417.199999988079,
+      "cameraX": 164.26232114469056,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    },
+    {
+      "at": 3572.100000023842,
+      "cameraX": 164.26232114467905,
+      "cameraY": 0,
+      "canvasLength": 3765514,
+      "player": {
+        "x": 314,
+        "y": 425,
+        "dir": "left",
+        "stride": 1
+      }
+    }
+  ]
+}
