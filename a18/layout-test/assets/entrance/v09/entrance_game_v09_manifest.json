@@ -1,0 +1,49 @@
+{
+  "version": "a18-entrance-game-v09-v1",
+  "canvas": [
+    546,
+    483
+  ],
+  "source_v09_OFF": "entrance-plain-master-v09-right-mat/entrance_OFF.png",
+  "source_sha256": "1cf45e2d2edca55f142af07b28e15b8d2cfe05fd4f4de421facd6b3b5f5dfc1c",
+  "old_character_free_source": "entrance-wood-onoff-v01-20261026/entrance_OFF_no_characters.png",
+  "front_mask_original": "entrance-wall-plane-v07-20261026/right_front_shared_window_mask.png",
+  "char_pixels_replaced": 1934,
+  "changed_pixels_outside_characters": 0,
+  "masks": {
+    "rear_left": {
+      "rect": [
+        43,
+        64,
+        189,
+        143
+      ],
+      "pixels": 11310
+    },
+    "rear_right": {
+      "rect": [
+        374,
+        64,
+        506,
+        143
+      ],
+      "pixels": 10220
+    },
+    "front": {
+      "rect": [
+        421,
+        195,
+        494,
+        326
+      ],
+      "pixels": 6595
+    }
+  },
+  "derived_files": {
+    "entrance_architecture_v09.png": "565c990b0b4a1d91a7d07310c7ae20566edae1fb3ea31943371b573601e01aca",
+    "front_photo_mask_v09.png": "8a7cc27eed8053f905eda06066f8863c0cd9d7a011da59d5a23df41869ec67ed",
+    "rear_left_photo_mask_v09.png": "c60ada926629bf1ab4297fd90a79941c7fe9af44c255dd81e7e999e0a74796fb",
+    "rear_right_photo_mask_v09.png": "eefd9c1d203d045dd65374f69147475f5ef7e21a1c83df361a17245ce7f952e9"
+  },
+  "status": "isolated_integration_staging_not_released"
+}

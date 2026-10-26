@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=fixed1"></script><script src="museum-navigation.js?v=2"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=1"></script><script src="museum-p5-decorations.js?v=2"></script><script src="entrance-renderer.js?v=3"></script><script src="museum-p2-storage.js?v=release-v3"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=entrance-v09-save-20261026"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=10-hq-20261026"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js" defer></script>
@@ -115,7 +115,9 @@ let galleryIndex=0; // roomId 0 = entrance, 1 = gallery 02.
 const fixtures=L.defaults();
 L.restoreClassicFrameDimensions(fixtures);
 L.enforceFixedLayout(fixtures);
-const roomRects=()=>L.roomFrames(fixtures,galleryIndex).map(L.r);
+const roomRects=()=>galleryIndex===0
+ ?L.roomFrames(fixtures,0).map((f,i)=>{const work=slot(i);const {outer}=window.A18Entrance.frameGeometry(f,artworkImage(work),work?.preferredShape);return [outer.x,outer.y,outer.x+outer.w,outer.y+outer.h];})
+ :L.roomFrames(fixtures,galleryIndex).map(L.r);
 const frameCount=room=>L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
 const roomCapacity=room=>frameCount(room);
@@ -176,6 +178,11 @@ async function commitChange(change,{event=true}={}){
   change(candidate);
   L.syncWorks(candidate.fixtures,candidate.works);
   const result=P2.plan(currentSave,candidate);
+  // Fail before persisting if the destination gallery is not renderable.
+  if(result.nextSave.galleryIndex>0)await Promise.all([
+   window.A18P3Gallery.prepare(result.nextSave.galleryIndex),
+   window.A18P5Decorations.prepare(result.nextSave.galleryIndex,result.nextSave.progression)
+  ]);
   await P2.commit(result.expectedRevision,result.nextSave);
   applyCommitted(result.nextSave);
   if(event&&result.transition?.eventId)showProgressionEvent(result.transition.eventId);
@@ -199,6 +206,10 @@ async function commitEventAction(action,id=null){
   const eventId=id||currentSave.progression.events.find(e=>e.status==='queued')?.id;
   if(!eventId)throw Error('E_EVENT_UNKNOWN');
   const next=P2.eventAction(currentSave,eventId,action);
+  if(next.galleryIndex>0)await Promise.all([
+   window.A18P3Gallery.prepare(next.galleryIndex),
+   window.A18P5Decorations.prepare(next.galleryIndex,next.progression)
+  ]);
   await P2.commit(currentSave.revision,next);
   applyCommitted(next);return true;
  }catch(e){saveError(e);return false}
@@ -377,7 +388,7 @@ const slot=i=>works.find(w=>w.fixtureId===slotId(i))||null;
 const workImageCache=new Map();
 function artworkImage(work){
  if(!work)return null;
- const source=work.displaySrc||work.originalURL;
+ const source=galleryIndex===0?work.originalURL:(work.displaySrc||work.originalURL);
  if(!source)return null;
  let entry=workImageCache.get(work.id);
  if(entry?.source!==source){
@@ -411,6 +422,30 @@ async function getAlphaBounds(img){
  if(x1<=x0||y1<=y0)throw Error('正式館長の透過範囲が空です');
  return {x:x0,y:y0,w:x1-x0,h:y1-y0};
 }
+// Earlier v3 saves retain v0.3 entrance fixture rectangles. The new v09
+// background uses different apertures, so reconcile only the three immutable
+// entrance fixture positions, preserving every work ID, Blob and progression.
+async function alignSavedEntranceFixtures(save){
+ const canonical=L.defaults().filter(f=>f.roomId===0);
+ const next=P2.copy(save);
+ let changed=0;
+ for(const design of canonical){
+  const f=next.fixtures.find(x=>x.id===design.id);
+  if(!f)throw Error('E_ENTRANCE_SAVED_FIXTURE_MISSING '+design.id);
+  for(const field of ['x','y','width','height','installation']){
+   if(f[field]!==design[field]){f[field]=design[field];changed++;}
+  }
+ }
+ if(!changed)return save;
+ // If the old player position overlaps the new museum wall, move only the
+ // player back to the entrance floor; preserve all collection data.
+ if(next.galleryIndex===0&&!L.walkable(next.pos.x,next.pos.y,next.fixtures,0))
+  next.pos={x:326,y:425,dir:next.pos.dir,stride:0};
+ next.revision=save.revision+1;
+ P2.validate(next);
+ await P2.commit(save.revision,next); // CAS; never overwrite a concurrent save
+ return next;
+}
 async function boot(){
  // Defer scripts (staff/photo modules) must finish before registration becomes playable.
  if(document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
@@ -423,6 +458,7 @@ async function boot(){
   await P2.commit(null,state);
  }
  P2.validate(state);
+ state=await alignSavedEntranceFixtures(state);
  const p6Response=await fetch('p6-event-dialogue-v1.json');
  if(!p6Response.ok)throw Error('E_P6_DIALOGUE_LOAD');
  p6Dialogues=await p6Response.json();
@@ -432,10 +468,16 @@ async function boot(){
  const response=await fetch('layout-assets-manifest.json?v=official1');
  if(!response.ok)throw Error('正式候補素材のmanifestを取得できません');
  assetManifest=await response.json();
- await window.A18Art.init(assetManifest);
- await window.A18Entrance.init();
- await window.A18P3Gallery.init();
- await window.A18P5Decorations.init();
+ await Promise.all([
+  window.A18Art.init(assetManifest),
+  window.A18Entrance.init(),
+  window.A18P3Gallery.init(),
+  window.A18P5Decorations.init()
+ ]);
+ if(galleryIndex>0)await Promise.all([
+  window.A18P3Gallery.prepare(galleryIndex),
+  window.A18P5Decorations.prepare(galleryIndex,currentSave.progression)
+ ]);
  // Reuse only the canonical approved 48 PNGs already decoded by A18Art.
  // Male retains the existing walking-frame crop; female follows the adopted main-preview crop.
  for(const dir of ['front','back','left','right'])for(let i=0;i<5;i++){
@@ -498,7 +540,7 @@ function worldPoint(e){
 // Staff bodies and exhibition stands are solid; interaction is separate.
 // All interaction anchors are computed from the same room geometry.
 const wallFootLine=()=>scene==='entrance'?202:164;
-const northDoorway=()=>({x1:344,x2:387});
+const northDoorway=()=>scene==='entrance'?{x1:260,x2:312}:{x1:344,x2:387};
 function roomObstacles(){return L.obstacles(fixtures,galleryIndex);}
 function safeMove(x,y){
  const m=src[scene];
@@ -524,6 +566,7 @@ function checkPortal(){
   if(pos.x>=rect.x1&&pos.x<=rect.x2&&pos.y>=rect.y1&&pos.y<=rect.y2){
    const reverse={west:'east',east:'west',north:'south',south:'north'}[edge];
    if(!P2.canTraverse(galleryIndex,edge,currentSave.progression))return false;
+   if(saving||saveBlocked)return false;
    void changeScene(target,{arrivalFrom:reverse}).then(ok=>{if(ok)fade()});
    return true;
   }
@@ -587,7 +630,8 @@ async function changeScene(next,options={}){
  const edge=Object.keys(ROOM_LINKS[galleryIndex]).find(dir=>ROOM_LINKS[galleryIndex][dir]===room);
  if(!edge||!P2.canTraverse(galleryIndex,edge,currentSave.progression))throw Error('E_ROOM_LOCKED');
  const targetScene=room===0?'entrance':'gallery',m=src[targetScene];
- const location={west:[76,388],east:[m.w-76,388],north:[367,151],south:[296,426]}[options.arrivalFrom]||m.spawn;
+ const arrivalMap=room===0?{west:[76,453],east:[470,453],north:[284,230],south:[296,426]}:{west:[76,388],east:[m.w-76,388],north:[367,151],south:[296,426]};
+ const location=arrivalMap[options.arrivalFrom]||m.spawn;
  const direction={west:'right',east:'left',north:'down',south:'up'}[options.arrivalFrom]||'up';
  const arrival={x:location[0],y:location[1],dir:direction,stride:0};
  if(modal||showingEvent||saveBlocked)return false;
@@ -621,13 +665,28 @@ function avatar(){
  if(sample){const r=Math.min(34/sample.width,24/sample.height);ctx.drawImage(sample,pos.x-sample.width*r/2,pos.y-h-31+(24-sample.height*r)/2,sample.width*r,sample.height*r);}
  }
 }
+function drawEntranceExitHints(){
+ const p=currentSave?.progression;
+ if(!p)return;
+ ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
+ for(const [direction,x,arrow,needed] of [['west',62,'←',2],['east',484,'→',3]]){
+  const open=P2.canTraverse(0,direction,p);
+  ctx.globalAlpha=open?.93:.63;
+  ctx.fillStyle='#163b31';ctx.beginPath();ctx.roundRect(x-25,428,50,35,8);ctx.fill();
+  ctx.strokeStyle='#d7b975';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='#fff1c5';ctx.font='bold 18px system-ui';
+  ctx.fillText(open?arrow:'🔒',x,441);
+  ctx.font='bold 8px system-ui';ctx.fillText(open?'通路':'Lv.'+needed,x,456);
+ }
+ ctx.restore();
+}
 function drawBackground(){
  if(scene==='entrance'){
   window.A18Entrance.background(ctx);
-  window.A18P5Decorations.paint(ctx,0,currentSave.progression);
-  // Entrance v0.3 arch remains approved; P3 shutter overlays are driven by
-  // exactly the same canTraverse predicate used by movement and changeScene.
-  window.A18P3Gallery.doors(ctx,0,currentSave.progression,true);
+  // New frame-OFF architecture is the accepted interim visual baseline.
+  // Old P5 entrance decorations and P3 shutters are incompatible with v09 coordinates.
+  // Logical progression and collision gates are still enforced by P2 / navigation.
+  drawEntranceExitHints();
   return;
  }
  window.A18P3Gallery.background(ctx,galleryIndex,currentSave.progression);
@@ -669,7 +728,7 @@ function draw(){
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
  decorate();drawButler();drawGalleryStaff();
  const hit=nearby();
- if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i),[x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}
+ if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i);if(galleryIndex===0){const carried=works.find(w=>w.id===carrying);if(!carried)throw Error('E_ENTRANCE_CARRIED_WORK');window.A18Entrance.markSlot(ctx,f,artworkImage(carried),carried.preferredShape);}else{const [x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}}
  avatar();ctx.restore();requestAnimationFrame(draw);
 }
 function profileFields(){
@@ -706,11 +765,40 @@ function showSettings(){
   '<hr><h3>物語</h3><button id="p6StoryHistory" type="button" class="light">美術館の物語</button>'+
   '<hr><h3>広告</h3><button id="adRemoval" type="button" disabled>広告を永久に削除　準備中</button>'+
   '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p>'+ 
-  '<hr><p class="small">作品と原本写真は、このブラウザの美術館データに保存されます。アプリからの全データ初期化はできません。</p></div>');
+  '<hr><h3>ゲームのリセット</h3><p class="small">テスト中の作品と展示を削除できます。削除した写真は復元できません。</p>'+
+  '<div class="row"><button id="resetWorksOnly" type="button" class="light">作品だけ削除（レベル維持）</button><button id="resetAllProgress" type="button" class="a18-danger">最初からやり直す（Lv.1）</button></div>'+
+  '<p class="small">写真原本はこのブラウザの美術館データに保存されます。リセットは取り消せません。</p></div>');
  $('saveProfile').onclick=async()=>{if(await saveProfile())close();};
  $('closeSettings').onclick=close;
  $('p6StoryHistory').onclick=()=>{close();showStoryHistory();};
-
+ $('resetWorksOnly').onclick=()=>confirmMuseumReset('works');
+ $('resetAllProgress').onclick=()=>confirmMuseumReset('all');
+}
+function confirmMuseumReset(mode){
+ if(saving||saveBlocked||showingEvent)return;
+ const all=mode==='all';
+ open('ゲームのリセット',
+  '<p><strong>'+(all?'Lv.1からやり直しますか？':'作品だけ削除しますか？')+'</strong></p>'+
+  '<p class="small">'+(all?'所蔵作品・写真原本・展示・レベル・物語・館長設定を初期化します。':'所蔵作品・写真原本・展示を削除します。現在のレベル、開放済みの部屋、物語の記録は維持します。')+'</p>'+
+  '<p class="small">この操作は取り消せません。</p><p id="resetError" class="error" role="alert"></p>'+
+  '<div class="row"><button id="executeMuseumReset" type="button" class="a18-danger">削除して'+(all?'最初から開始':'レベルを維持')+'</button><button id="cancelMuseumReset" type="button" class="light">キャンセル</button></div>');
+ $('cancelMuseumReset').onclick=()=>{close();showSettings();};
+ $('executeMuseumReset').onclick=async()=>{
+  if(saving||saveBlocked)return;
+  saving=true;
+  $('executeMuseumReset').disabled=true;
+  try{
+   clearTimeout(saveTimer);
+   const next=P2.resetState(currentSave,mode);
+   await P2.commit(currentSave.revision,next);
+   applyCommitted(next);
+   close();
+   if(all)location.reload();
+  }catch(e){
+   $('resetError').textContent='リセットできませんでした。データは変更されていません。'+(e.code||e.message);
+   saveError(e);
+  }finally{saving=false;}
+ };
 }
 
 function open(title,contents,kind='standard'){

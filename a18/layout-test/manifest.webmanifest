@@ -1,11 +1,1 @@
-{
-  "name": "パズル美術館｜操作検証版",
-  "short_name": "パズル美術館",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "landscape",
-  "background_color": "#17362f",
-  "theme_color": "#17362f",
-  "description": "A18 パズル美術館の開発用プレビュー。"
-}
+{"name":"\u3068\u3063\u3066\u304a\u304d\u7f8e\u8853\u9928","short_name":"\u3068\u3063\u3066\u304a\u304d","start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait","background_color":"#17362f","theme_color":"#17362f","description":"A18 Totteoki Museum web playtest."}

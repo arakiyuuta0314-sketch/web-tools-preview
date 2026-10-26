@@ -1,0 +1,29 @@
+{
+  "baseline_sha256": "565c990b0b4a1d91a7d07310c7ae20566edae1fb3ea31943371b573601e01aca",
+  "background_file": "entrance_architecture_v10.png",
+  "background_sha256": "5604d749256a3a11db7da00e905a4bc49fc5b477e761673a6b6236cd01a032ea",
+  "counter_floor_repair_pixels": 879,
+  "counter_region": [
+    84,
+    307,
+    100,
+    340
+  ],
+  "rear_wall_file": "entrance_rear_clear_v10.png",
+  "rear_wall_sha256": "aa6f12beb6a87c8a0582119d549b1f0812859f4345e323dcb16431a96960c2af",
+  "rear_wall_regions": {
+    "rear_left": [
+      38,
+      58,
+      195,
+      151
+    ],
+    "rear_right": [
+      369,
+      58,
+      511,
+      151
+    ]
+  },
+  "background_unchanged_outside_repair": true
+}

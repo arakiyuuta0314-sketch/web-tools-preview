@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const SHAPES={landscape:[100,76],portrait:[70,104],square:[88,88]};
 const BASE=[
- [[40,58,140,135],[184,58,284,135],[430,58,530,135]],
+ [[43,64,189,143],[374,64,506,143],[420,228,499,343]],
  [[42,58,140,134],[208,58,306,134],[418,58,516,134],[56,251,154,327],[405,251,503,327]],
  [[63,63,192,155],[217,63,317,139],[431,66,531,142],[62,235,154,309],[417,261,512,335]],
  [[37,75,134,153],[147,58,240,137],[256,55,326,135],[424,75,526,153],[60,261,166,335]],
@@ -12,7 +12,7 @@ const BASE=[
 const ROOM_SIZE=Array.from({length:6},(_,i)=>({w:i===0?546:589,h:i===0?483:482,wallFoot:i===0?202:164}));
 const ROOM_LINKS={0:{west:1,east:2,north:5},1:{east:0,north:3},2:{west:0,north:4},3:{south:1,east:5},4:{south:2,west:5},5:{south:0,west:3,east:4}};
 const PORTALS={
- 0:{west:[70,388],east:[476,388],north:[367,220]},
+ 0:{west:[39,454],east:[505,454],north:[283,207]},
  1:{east:[513,388],north:[367,183]},2:{west:[76,388],north:[367,183]},
  3:{south:[296,420],east:[513,388]},4:{south:[296,420],west:[76,388]},
  5:{south:[296,420],west:[76,388],east:[513,388]}
@@ -22,7 +22,7 @@ const STAFF_POSITIONS={
  1:{x:225,y:349},2:{x:248,y:349},3:{x:232,y:357},
  4:{x:345,y:349},5:{x:253,y:352}
 };
-const BUTLER={x:155,footY:334};
+const BUTLER={x:139,footY:366};
 // Exact approved source alpha bounds are staff (8,6)-(51,72),
 // butler (8,4)-(51,72) on a 60x77 sprite, drawn at 43x55.
 const NPC_SPRITES={staff:{alpha:[8,6,51,72],canvas:[60,77],size:[43,55]},
@@ -152,7 +152,7 @@ function migrateLegacy(works){
  }
 }
 function obstacles(fixtures,room){
- const result=room===0?[npcBounds('butler',room)]:[staffBlock(room)];
+ const result=room===0?[npcBounds('butler',room),[399,540,158,410],[0,115,321,411],[0,104,172,315]]:[staffBlock(room)];
  for(const f of fixtures)if(f.roomId===room&&f.kind==='frame'&&f.installation==='floor'){
   const [l,t,rr,b]=r(f);
   result.push([l-10,rr+10,t-12,b+10]);
@@ -162,7 +162,7 @@ function obstacles(fixtures,room){
 function walkable(x,y,fixtures,room){
  const m=ROOM_SIZE[room],radius=9,fy=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
- if(y<m.wallFoot && (ROOM_LINKS[room].north==null||x<349||x>382))return false;
+ if(y<m.wallFoot && (ROOM_LINKS[room].north==null||(room===0?(x<260||x>312):(x<349||x>382))))return false;
  for(const [l,rr,t,b] of obstacles(fixtures,room)){
   const cx=Math.max(l,Math.min(x,rr)),cy=Math.max(t,Math.min(fy,b));
   if(Math.hypot(x-cx,fy-cy)<radius)return false;
@@ -171,6 +171,7 @@ function walkable(x,y,fixtures,room){
 }
 function anchor(f,room){
  if(f.kind!=='frame')return null;
+ if(room===0){const n=Number(f.id.split('-')[2]);const points=[[150,227],[368,228],[382,358]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
  return {x:f.x,y:f.installation==='wall'?ROOM_SIZE[room].wallFoot+18:f.y+f.height/2+29};
 }
 function validatePlacement(fixtures,room){
@@ -184,7 +185,7 @@ function validatePlacement(fixtures,room){
   if(f.installation==='wall'){
    if(f.kind!=='frame'&&f.type!=='tapestry')return {ok:false,reason:'壁掛けできない装飾です'};
    if(b[0]<(room===0?12:30)||b[2]>m.w-(room===0?12:30)||b[1]<35||b[3]>m.wallFoot-4)return {ok:false,reason:'額縁が壁面の配置可能範囲を超えています'};
-   if(ROOM_LINKS[room].north!=null && overlaps(b,[340,70,397,m.wallFoot],4))return {ok:false,reason:'北側の扉を塞いでいます'};
+   if(ROOM_LINKS[room].north!=null && overlaps(b,room===0?[241,70,330,m.wallFoot]:[340,70,397,m.wallFoot],4))return {ok:false,reason:'北側の扉を塞いでいます'};
   }else if(f.installation==='floor'){
    if(b[0]<32||b[2]>m.w-32||b[1]<m.wallFoot+18||b[3]>m.h-62)return {ok:false,reason:'床の配置可能範囲を超えています'};
   }else return {ok:false,reason:'不明な設置方式'};

@@ -1,0 +1,42 @@
+{
+  "before": {
+    "revision": 7,
+    "id": "old-photo-1793027465045",
+    "blobSize": 6691,
+    "storedLeftX": 90,
+    "works": 1
+  },
+  "after": {
+    "revision": 8,
+    "left": 116,
+    "right": 440,
+    "front": 459.5,
+    "firstWorkId": "old-photo-1793027465045",
+    "workId": "old-photo-1793027465045",
+    "notes": "old content must survive",
+    "blobSize": 6691,
+    "workCount": 1,
+    "roomRects": [
+      [
+        64.69811320754718,
+        54.5,
+        167.30188679245282,
+        155.5
+      ],
+      [
+        374,
+        64,
+        506,
+        143
+      ],
+      [
+        421,
+        195,
+        494,
+        326
+      ]
+    ],
+    "status": true
+  },
+  "errors": []
+}

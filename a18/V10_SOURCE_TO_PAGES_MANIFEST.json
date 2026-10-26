@@ -1,0 +1,26 @@
+{
+  "dev_source_base": "f5ce0c7a544600db00199b785ba931fc64b860bd",
+  "published_v09_fix_base": "0ff123d37a6ef50033427e4fc204de55393e131d",
+  "goal": "source-authoritative P7C with published v09 gameplay continuity + v10 ratio/quality patch",
+  "copies": {
+    "entrance-renderer.js": "bcd2b645b2fdb0695e6fc016ae4a28fe50958f389421480a73b191c5e96c029c",
+    "index.html": "675c8e63822825b54bbc47c22eba83647c1633866eeee739efd8b3442cbc66a4",
+    "layout-system.js": "4ef4238041b9d51be2c40977f0776950ee37dcf6c3a7d6dd89a2c23c37545466",
+    "manifest.webmanifest": "c3b4667811bbb5f4508abb9622ffe539797c9630ec62743fac02bd826ece1098",
+    "museum-navigation.js": "0af8a2c6ed110da9dd20af78b795ce8742a13142d072380e1602f7450855953f",
+    "museum-p2-storage.js": "e3d95c3788e17ff007d960ea93a29504b56f3039a93b82fdfebbed5b3b8378e6",
+    "museum-p3-renderer.js": "6aa05d997e0e04400c7844d1b6eb122b259d47552042b0e98ed07ec3cac29749",
+    "museum-p5-decorations.js": "7923f8de7b850be5961e6968ec49c224df8320195a5747e12adf421846b6394c",
+    "assets/entrance/v09/entrance_architecture_v09.png": "565c990b0b4a1d91a7d07310c7ae20566edae1fb3ea31943371b573601e01aca",
+    "assets/entrance/v09/entrance_architecture_v10.png": "5604d749256a3a11db7da00e905a4bc49fc5b477e761673a6b6236cd01a032ea",
+    "assets/entrance/v09/entrance_game_v09_manifest.json": "f5f0e3cec1cb070c26dd7609e452771ab57a321735ff6bb51023d2538bd8c501",
+    "assets/entrance/v09/entrance_rear_clear_v10.png": "aa6f12beb6a87c8a0582119d549b1f0812859f4345e323dcb16431a96960c2af",
+    "assets/entrance/v09/front_photo_mask_v09.png": "8a7cc27eed8053f905eda06066f8863c0cd9d7a011da59d5a23df41869ec67ed",
+    "assets/entrance/v09/rear_left_photo_mask_v09.png": "c60ada926629bf1ab4297fd90a79941c7fe9af44c255dd81e7e999e0a74796fb",
+    "assets/entrance/v09/rear_right_photo_mask_v09.png": "eefd9c1d203d045dd65374f69147475f5ef7e21a1c83df361a17245ce7f952e9",
+    "assets/entrance/v09/v10_visual_manifest.json": "994cc1452652701051e3b5d9171b8ac8d2b7eaeb5311dc61954fa232f83694f5",
+    "assets/p5/v0.2/p5-manifest.json": "f4ef0798d59ac8a2382cd6159ff67305a5e1982c3ad1de2cabae969759ec13bf"
+  },
+  "approval": "PASS: source Chrome 390x844 image quality/portrait/frame/original Blob, old save migration, Lv2/Lv3 actual side passage, 17 SHA256 parity",
+  "release_location": "a18-totteoki-museum/layout-test"
+}

@@ -1,142 +1,158 @@
-/* A18 entrance v0.3: isolated visual layers; gameplay coordinates and stores are unchanged. */
+/* A18 v10: canonical v09 background + ratio-aware frames + HQ photo rendering.
+   No save writes; canonical artwork assets are immutable. */
 (()=>{'use strict';
-const ROOT='assets/entrance/v0.3/';
-const ITEMS={
- floor:['entrance_floor_base_v03.png',546,483],
- wall:['entrance_wall_base_v03.png',546,483],
- carpet:['entrance_carpet_v03.png',546,483],
- sidewalls:['entrance_sidewalls_v03.png',546,483],
- north:['entrance_door_north_v03.png',76,170],
- west:['entrance_door_west_v03.png',64,112],
- east:['entrance_door_east_v03.png',64,112],
- frame:['entrance_frame_horizontal_v03.png',100,77],
- portraitDemo:['entrance_frame_portrait_demo_v03.png',62,122],
- squareDemo:['entrance_frame_square_demo_v03.png',90,90],
- atlas:['entrance_frame_9slice_atlas_v03.png',42,42],
- plant:['entrance_plant_v03.png',65,98],
- light:['entrance_wall_light_v03.png',26,38],
- glow:['entrance_wall_glow_v03.png',546,483],
- plaque:['entrance_plaque_blank_v03.png',101,23]
+const ROOT='assets/entrance/v09/',PW=768,PH=576;
+const FILES={
+ background:[ROOT+'entrance_architecture_v10.png',546,483],
+ wall:[ROOT+'entrance_rear_clear_v10.png',546,483],
+ rear_left:[ROOT+'rear_left_photo_mask_v09.png',546,483],
+ rear_right:[ROOT+'rear_right_photo_mask_v09.png',546,483],
+ front:[ROOT+'front_photo_mask_v09.png',546,483],
+ atlas:['assets/entrance/v0.3/entrance_frame_9slice_atlas_v03.png',42,42]
 };
-const images=new Map();
+const PANELS=[
+ {name:'rear_left',rect:[43,64,189,143],patch:[38,58,195,151],center:[116,105]},
+ {name:'rear_right',rect:[374,64,506,143],patch:[369,58,511,151],center:[440,105]},
+ {name:'front',rect:[421,195,494,326]}
+];
+const FRONT_INV=[
+ [2.2582576554692726,-0.02449889664425458,-854.9873467700153],
+ [-0.2933780477833784,1.015847991558277,-7.050709650349285],
+ [0.0032571841573975214,-0.000467047182836571,-0.18282765194690226]
+];
+const imgs=new Map(),masks=new Map(),cache=new WeakMap();
 let ready=false;
+function blank(w=546,h=483){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
+function check(){if(!ready)throw Error('E_ENTRANCE_V10_NOT_READY');}
 async function init(){
  if(ready)return;
- // A missing asset is a fatal, visible boot error, never a silent placeholder.
- for(const [key,[filename,width,height]] of Object.entries(ITEMS)){
-  const im=await new Promise((resolve,reject)=>{
-   const image=new Image();
-   image.onload=()=>resolve(image);
-   image.onerror=()=>reject(Error('エントランスv0.3素材を読み込めません：'+ROOT+filename));
-   image.src=ROOT+filename;
+ for(const [key,[path,width,height]] of Object.entries(FILES)){
+  const im=await new Promise((res,rej)=>{
+   const x=new Image();x.onload=()=>res(x);
+   x.onerror=()=>rej(Error('E_ENTRANCE_V10_IMAGE '+path));x.src=path;
   });
-  if(im.naturalWidth!==width||im.naturalHeight!==height)
-   throw Error('エントランスv0.3素材の寸法が不正：'+filename);
-  images.set(key,im);
+  if(im.naturalWidth!==width||im.naturalHeight!==height)throw Error('E_ENTRANCE_V10_DIM '+path);
+  imgs.set(key,im);
+ }
+ for(const p of PANELS){
+  const c=blank(),cx=c.getContext('2d',{willReadFrequently:true});
+  cx.drawImage(imgs.get(p.name),0,0);
+  const d=cx.getImageData(0,0,546,483).data,m=new Uint8Array(546*483);
+  let count=0;
+  for(let i=0;i<m.length;i++){m[i]=d[i*4];if(m[i])count++;}
+  if(count<5000||count>20000)throw Error('E_ENTRANCE_V10_MASK '+p.name);
+  masks.set(p.name,m);
  }
  ready=true;
 }
-function requireReady(){
- if(!ready)throw Error('エントランスv0.3画像の読み込みが未完了');
+function background(ctx){check();ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(imgs.get('background'),0,0);ctx.restore();}
+function foreground(ctx){check();}
+function panel(f){
+ if(f?.roomId!==0)throw Error('E_ENTRANCE_V10_ROOM');
+ const i=Number(f.id?.split('-')[2]);
+ if(!Number.isInteger(i)||i<0||i>2||f.id!=='frame-0-'+i)throw Error('E_ENTRANCE_V10_FRAME '+f.id);
+ return PANELS[i];
 }
-function place(ctx,key,x,y){
- const im=images.get(key);
- if(!im)throw Error('未定義のエントランス素材：'+key);
- ctx.drawImage(im,x,y);
+function shapeOf(f,img,preferred){
+ if(['portrait','square','landscape'].includes(preferred))return preferred;
+ if(f.shape==='portrait'||f.shape==='square')return f.shape;
+ const ratio=img.naturalWidth/img.naturalHeight;
+ return ratio<.88?'portrait':ratio<1.15?'square':'landscape';
 }
-function background(ctx){
- requireReady();
- ctx.save();
- ctx.imageSmoothingEnabled=false;
- ctx.fillStyle='#d4c6ad';ctx.fillRect(0,0,546,483);
- place(ctx,'floor',0,0);
- place(ctx,'wall',0,0);
- place(ctx,'carpet',0,0);
- place(ctx,'sidewalls',0,0);
- place(ctx,'north',328,69);
- place(ctx,'west',0,326);
- place(ctx,'east',482,326);
- place(ctx,'glow',0,0);
- place(ctx,'light',168,90);
- ctx.restore();
+function frameGeometry(f,img,preferred=null){
+ const p=panel(f),r=p.rect;
+ if(p.name==='front'||!img?.naturalWidth)return {outer:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},inner:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},shape:'landscape'};
+ const ratio=img.naturalWidth/img.naturalHeight,sh=shapeOf(f,img,preferred);
+ const caps=sh==='portrait'?[98,111]:sh==='square'?[100,100]:[133,85];
+ const factor=Math.min(caps[0]/ratio,caps[1]),w=ratio*factor,h=factor;
+ const outerW=w+16,outerH=h+16,x=p.center[0]-outerW/2,y=p.center[1]-outerH/2;
+ if(x<27||x+outerW>522||y<40||y+outerH>184)throw Error('E_ENTRANCE_V10_BOUNDS '+f.id);
+ return {outer:{x,y,w:outerW,h:outerH},inner:{x:x+8,y:y+8,w,h},shape:sh};
 }
-function foreground(ctx){
- requireReady();
+function nineSlice(ctx,r){
+ const atlas=imgs.get('atlas'),b=8,s=14;
+ const dx=[r.x,r.x+b,r.x+r.w-b],dy=[r.y,r.y+b,r.y+r.h-b];
+ const w=[b,r.w-2*b,b],h=[b,r.h-2*b,b];
  ctx.save();ctx.imageSmoothingEnabled=false;
- place(ctx,'plant',422,205);
- ctx.restore();
-}
-// The atlas is 3 x 3 patches, each exactly 14 px.
-// Nine-slice destinations are 9 px on each side, so the transparent central
-// window is precisely aligned to the photographed rectangle.
-function nineSlice(ctx,outer){
- const atlas=images.get('atlas');
- if(!atlas)throw Error('9-sliceの額縁素材がありません');
- const b=9,s=14;
- const dx=[outer.x,outer.x+b,outer.x+outer.w-b];
- const dy=[outer.y,outer.y+b,outer.y+outer.h-b];
- const dw=[b,outer.w-2*b,b],dh=[b,outer.h-2*b,b];
- if(dw[1]<0||dh[1]<0)throw Error('額縁の表示寸法が小さすぎます');
- ctx.save();ctx.imageSmoothingEnabled=false;
- for(let iy=0;iy<3;iy++)for(let ix=0;ix<3;ix++){
-  if(ix===1&&iy===1)continue; // full transparency for the work
-  ctx.drawImage(atlas,ix*s,iy*s,s,s,dx[ix],dy[iy],dw[ix],dh[iy]);
+ for(let y=0;y<3;y++)for(let x=0;x<3;x++){
+  if(x===1&&y===1)continue;
+  ctx.drawImage(atlas,x*s,y*s,s,s,dx[x],dy[y],w[x],h[y]);
  }
  ctx.restore();
 }
-function frameGeometry(f,img,preferredShape=null){
- // Coordinates remain anchored to the three existing frames, without
- // changing fixture geometry or persisted IDs.
- const shape=(preferredShape==='portrait'||preferredShape==='square')?preferredShape:window.A18Art.displayShape(f,img,preferredShape);
- // Enlarge only entrance wall displays by about 25%; gallery rooms stay unchanged.
- let maxW=102,maxH=74;
- if(shape==='portrait'){maxW=102;maxH=130;}
- if(shape==='square'){maxW=90;maxH=90;}
- let innerW=maxW,innerH=maxH;
- const hasPhoto=img&&img.naturalWidth>0&&img.naturalHeight>0;
- if(hasPhoto){
-  const ratio=img.naturalWidth/img.naturalHeight;
-  // Size the photo window to the actual original aspect ratio for every shape.
-  // This avoids off-ratio matting and unnecessary cropping, even in cover mode.
-  const size=Math.min(maxW/ratio,maxH);
-  innerW=size*ratio;innerH=size;
- }
- // Protect the 40 x 40 minimum frame without inserting white padding.
- const outerW=Math.max(40,innerW+18),outerH=Math.max(40,innerH+18);
- // The left/right frame windows can be tall, but must remain within the wall.
- const x=f.x-outerW/2;
- const y=Math.max(34,Math.min(199-outerH,f.y-outerH/2));
- const outer={x,y,w:outerW,h:outerH};
- return {outer,inner:{x:x+(outerW-innerW)/2,y:y+(outerH-innerH)/2,w:innerW,h:innerH},shape};
+function rear(ctx,p,f,img,preferred){
+ const {outer,inner}=frameGeometry(f,img,preferred),[x0,y0,x1,y1]=p.patch;
+ ctx.drawImage(imgs.get('wall'),x0,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0);
+ ctx.fillStyle='rgba(18,15,12,.54)';ctx.fillRect(outer.x+2,outer.y+3,outer.w,outer.h);
+ ctx.fillStyle='#a99675';ctx.fillRect(outer.x+5,outer.y+5,outer.w-10,outer.h-10);
+ const sw=img.naturalWidth,sh=img.naturalHeight,mode=f.imageMode||'cover';
+ if(!['cover','contain','custom'].includes(mode))throw Error('E_ENTRANCE_V10_MODE');
+ const fit=mode==='contain'?Math.min(inner.w/sw,inner.h/sh):Math.max(inner.w/sw,inner.h/sh);
+ const zoom=mode==='custom'?(f.imageScale??1):1;
+ const dw=sw*fit*zoom,dh=sh*fit*zoom;
+ const ox=mode==='custom'?(inner.w-dw)*(f.imageX??0)/2:0;
+ const oy=mode==='custom'?(inner.h-dh)*(f.imageY??0)/2:0;
+ ctx.save();ctx.beginPath();ctx.rect(inner.x,inner.y,inner.w,inner.h);ctx.clip();
+ ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ ctx.drawImage(img,inner.x+(inner.w-dw)/2+ox,inner.y+(inner.h-dh)/2+oy,dw,dh);
+ ctx.restore();nineSlice(ctx,outer);
 }
-function frame(ctx,f,img,preferredShape=null){
- requireReady();
- const {outer,inner}=frameGeometry(f,img,preferredShape);
- // The shadow is BEHIND the art. Never darken the photograph with a mat overlay.
- ctx.save();
- ctx.fillStyle='#271f17a0';
- ctx.fillRect(outer.x+2,outer.y+3,outer.w,outer.h);
- ctx.fillStyle='#b9a783';
- ctx.fillRect(outer.x+9,outer.y+9,outer.w-18,outer.h-18);
- if(img&&img.naturalWidth>0){
-  const sw=img.naturalWidth,sh=img.naturalHeight,mode=f.imageMode||'cover';
-  const fit=mode==='contain'?Math.min(inner.w/sw,inner.h/sh):Math.max(inner.w/sw,inner.h/sh);
-  const scale=fit*(mode==='custom'?(f.imageScale||1):1);
-  const dw=sw*scale,dh=sh*scale;
-  const ox=mode==='custom'?(inner.w-dw)*(f.imageX||0)/2:0;
-  const oy=mode==='custom'?(inner.h-dh)*(f.imageY||0)/2:0;
-  ctx.beginPath();ctx.rect(inner.x,inner.y,inner.w,inner.h);ctx.clip();
-  ctx.imageSmoothingEnabled=true;
-  ctx.drawImage(img,inner.x+(inner.w-dw)/2+ox,inner.y+(inner.h-dh)/2+oy,dw,dh);
- }else if(!f.workId){
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillStyle='#826e4c';ctx.font='bold 22px serif';
-  ctx.fillText('+',inner.x+inner.w/2,inner.y+inner.h/2);
+function front(img,f){
+ const c=blank(PW,PH),cc=c.getContext('2d',{willReadFrequently:true});
+ cc.fillStyle='#dcc7a3';cc.fillRect(0,0,PW,PH);
+ const w=img.naturalWidth,h=img.naturalHeight,mode=f.imageMode||'cover';
+ if(!['cover','contain','custom'].includes(mode))throw Error('E_ENTRANCE_V10_MODE');
+ const fit=(mode==='contain'||w/h<.95)?Math.min(PW/w,PH/h):Math.max(PW/w,PH/h);
+ const zoom=mode==='custom'?(f.imageScale??1):1,dw=w*fit*zoom,dh=h*fit*zoom;
+ const ox=mode==='custom'?(PW-dw)*(f.imageX??0)/2:0;
+ const oy=mode==='custom'?(PH-dh)*(f.imageY??0)/2:0;
+ cc.imageSmoothingEnabled=true;cc.imageSmoothingQuality='high';
+ cc.drawImage(img,(PW-dw)/2+ox,(PH-dh)/2+oy,dw,dh);
+ const src=cc.getImageData(0,0,PW,PH).data,alpha=masks.get('front');
+ const result=blank(),rc=result.getContext('2d'),image=rc.createImageData(546,483),dst=image.data,r=PANELS[2].rect,inv=FRONT_INV;
+ // Direct bilinear sampling — previous 220x166 + Math.floor loop caused aliasing.
+ for(let y=r[1];y<r[3];y++)for(let x=r[0];x<r[2];x++){
+  const idx=y*546+x,a=alpha[idx];if(!a)continue;
+  const px=x+.5,py=y+.5,div=inv[2][0]*px+inv[2][1]*py+inv[2][2];
+  if(Math.abs(div)<1e-10)continue;
+  const sx=(inv[0][0]*px+inv[0][1]*py+inv[0][2])/div;
+  const sy=(inv[1][0]*px+inv[1][1]*py+inv[1][2])/div;
+  const u=(sx-84)/110,v=(sy-61)/83;if(u<0||u>=1||v<0||v>=1)continue;
+  const fx=Math.max(0,Math.min(PW-1,u*PW-.5)),fy=Math.max(0,Math.min(PH-1,v*PH-.5));
+  const x0=Math.floor(fx),y0=Math.floor(fy),x1=Math.min(PW-1,x0+1),y1=Math.min(PH-1,y0+1);
+  const ax=fx-x0,ay=fy-y0,k=idx*4;
+  for(let c=0;c<3;c++){
+   const a0=src[(y0*PW+x0)*4+c],a1=src[(y0*PW+x1)*4+c];
+   const b0=src[(y1*PW+x0)*4+c],b1=src[(y1*PW+x1)*4+c];
+   dst[k+c]=Math.round((1-ay)*((1-ax)*a0+ax*a1)+ay*((1-ax)*b0+ax*b1));
+  }
+  dst[k+3]=a;
+ }
+ rc.putImageData(image,0,0);return result;
+}
+function frame(ctx,f,img,preferred=null){
+ check();const p=panel(f);
+ if(!img?.naturalWidth)return;
+ const key=[f.id,preferred,f.imageMode,f.imageScale,f.imageX,f.imageY].join('|');
+ let m=cache.get(img);if(!m){m=new Map();cache.set(img,m);}
+ if(!m.has(key)){
+  const c=p.name==='front'?front(img,f):blank();
+  if(p.name!=='front')rear(c.getContext('2d'),p,f,img,preferred);
+  m.set(key,c);
+ }
+ ctx.drawImage(m.get(key),0,0);
+}
+function markSlot(ctx,f,img=null,preferred=null){
+ check();const p=panel(f),r=p.rect;
+ ctx.save();ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.beginPath();
+ if(p.name==='front'){
+  ctx.moveTo(421.62,194.73);ctx.lineTo(493.79,228.73);
+  ctx.lineTo(489.88,325.87);ctx.lineTo(421.00,277.57);ctx.closePath();
  }else{
-  ctx.fillStyle='#45372c';ctx.fillRect(inner.x,inner.y,inner.w,inner.h);
+  const {outer}=frameGeometry(f,img,preferred);
+  ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);
  }
- ctx.restore();
- nineSlice(ctx,outer);
+ ctx.stroke();ctx.restore();
 }
-window.A18Entrance={init,background,foreground,frame,frameGeometry,assetCount:()=>images.size,ready:()=>ready};
+window.A18Entrance={init,background,foreground,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
 })();

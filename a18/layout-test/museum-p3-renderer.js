@@ -7,39 +7,56 @@ const ORDER=['floor','wall','panel','trim','glow','light'];
 const imgs=new Map();
 let manifest=null,ready=false;
 const image=(path)=>{const im=imgs.get(path);if(!ready||!im)throw Error('P3画像が準備されていません: '+path);return im;};
+const loading=new Map(),preparedRooms=new Set();
+function dim(path){
+ if(path===manifest.frames.gold)return [42,42];
+ if(path.includes('shared_doors'))return path.includes('north')?[76,170]:path.includes('south')?[76,71]:[64,112];
+ return [589,482];
+}
+async function loadImage(path){
+ if(imgs.has(path))return;
+ if(loading.has(path))return loading.get(path);
+ const promise=(async()=>{
+  const im=await new Promise((resolve,reject)=>{
+   const v=new Image();v.onload=()=>resolve(v);
+   v.onerror=()=>reject(Error('E_P3_ASSET_LOAD '+path));v.src=path;
+  });
+  const [w,h]=dim(path);
+  if(im.naturalWidth!==w||im.naturalHeight!==h)throw Error('E_P3_ASSET_DIM '+path);
+  imgs.set(path,im);
+ })();
+ loading.set(path,promise);
+ try{await promise;}finally{loading.delete(path);}
+}
 async function init(){
  if(ready)return;
  const r=await fetch('p3-architecture-manifest.json');
- if(!r.ok)throw Error('P3素材マニフェストの取得に失敗');
+ if(!r.ok)throw Error('E_P3_MANIFEST_FETCH');
  const data=await r.json();
- const files=new Set();
  for(let i=1;i<=5;i++){
   const layers=data.galleryRooms[String(i)];
-  if(!layers||ORDER.some(x=>!layers[x]))throw Error('P3展示室レイヤー欠損: '+i);
-  ORDER.forEach(k=>files.add(layers[k]));
+  if(!layers||ORDER.some(x=>!layers[x]))throw Error('E_P3_GALLERY_MANIFEST '+i);
  }
  for(const dir of ['north','south','east','west']){
-  if(!data.doors[dir]?.open||!data.doors[dir]?.locked)throw Error('P3扉の定義が不正: '+dir);
-  files.add(data.doors[dir].open);files.add(data.doors[dir].locked);
+  if(!data.doors[dir]?.open||!data.doors[dir]?.locked)throw Error('E_P3_DOOR_MANIFEST '+dir);
  }
- if(!data.frames?.gold)throw Error('P3額縁がありません');
- files.add(data.frames.gold);
- const dim=(path)=>{
-  if(path===data.frames.gold)return [42,42];
-  if(path.includes('shared_doors'))return path.includes('north')?[76,170]:path.includes('south')?[76,71]:[64,112];
-  return [589,482];
- };
- // Fail-fast for asset corruptions. Fetches are sequential to avoid Safari decode surges.
- for(const path of files){
-  const im=await new Promise((resolve,reject)=>{
-   const v=new Image();v.onload=()=>resolve(v);
-   v.onerror=()=>reject(Error('P3素材を読み込めません: '+path));v.src=path;
-  });
-  const [w,h]=dim(path);
-  if(im.naturalWidth!==w||im.naturalHeight!==h)throw Error('P3素材寸法不正: '+path);
-  imgs.set(path,im);
+ if(!data.frames?.gold)throw Error('E_P3_FRAME_MANIFEST');
+ manifest=data;
+ await loadImage(data.frames.gold);
+ ready=true;
+}
+async function prepare(room){
+ if(!ready)throw Error('E_P3_NOT_READY');
+ if(!Number.isInteger(room)||room<1||room>5)throw Error('E_P3_ROOM '+room);
+ if(preparedRooms.has(room))return;
+ const files=new Set(ORDER.map(x=>manifest.galleryRooms[String(room)][x]));
+ for(const dir of Object.keys(window.A18Layout.ROOM_LINKS[room])){
+  files.add(manifest.doors[dir].open);
+  files.add(manifest.doors[dir].locked);
  }
- manifest=data;ready=true;
+ const batch=[...files];
+ for(let i=0;i<batch.length;i+=4)await Promise.all(batch.slice(i,i+4).map(loadImage));
+ preparedRooms.add(room);
 }
 function locked(room,dir,progression){
  if(!progression)throw Error('P3扉判定の進行状態が欠損');
@@ -62,6 +79,7 @@ function doors(ctx,room,progression,entrance=false){
  }
 }
 function background(ctx,room,progression){
+ if(!preparedRooms.has(room))throw Error('E_P3_ROOM_NOT_PREPARED '+room);
  if(room<1||room>5)throw Error('P3背景の部屋IDが不正: '+room);
  if(!ready)throw Error('P3が未初期化');
  ctx.save();ctx.imageSmoothingEnabled=false;
@@ -117,7 +135,7 @@ function frame(ctx,f,photo,allFrames,shape){
 function states(room,progression){
  return Object.fromEntries(Object.keys(window.A18Layout.ROOM_LINKS[room]).map(dir=>[dir,locked(room,dir,progression)?'LOCKED':'OPEN']));
 }
-window.A18P3Gallery={init,background,doors,frame,states,ready:()=>ready,assetCount:()=>imgs.size,
+window.A18P3Gallery={init,prepare,background,doors,frame,states,ready:()=>ready,assetCount:()=>imgs.size,
  // Explicit contract only; not an attempt to load P5 before delivery.
  p5Slot:{after:'lighting',before:'doors',behind:['photographs','frames','actors','UI']}};
 })();

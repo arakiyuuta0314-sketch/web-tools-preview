@@ -220,9 +220,21 @@ async function commit(expected,next){
   tx.onerror=()=>{};
  });
 }
+function resetState(before,mode){
+ validate(before);
+ if(!['works','all'].includes(mode))throw error('E_RESET_MODE');
+ const next=mode==='all'?makeInitialV3():copy(before);
+ next.revision=before.revision+1;
+ next.works=[];
+ next.carrying=null;
+ next.fixtures=L.defaults();
+ L.syncWorks(next.fixtures,next.works);
+ validate(next);
+ return next;
+}
 function hydrate(records){return records.map(w=>{if(!(w.originalBlob instanceof Blob))throw error('E_BLOB_MISSING',w.id);
  const originalURL=URL.createObjectURL(w.originalBlob);
  return {...w,originalURL,displaySrc:w.displaySrc||originalURL};
 });}
-window.A18P2Store={DATABASE,initial:makeInitialV3,makeInitialV3,validate,canTraverse,isRoomComplete,plan,eventAction,load,commit,persisted,hydrate,copy};
+window.A18P2Store={DATABASE,initial:makeInitialV3,makeInitialV3,validate,canTraverse,isRoomComplete,plan,eventAction,resetState,load,commit,persisted,hydrate,copy};
 })();

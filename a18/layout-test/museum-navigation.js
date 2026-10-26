@@ -4,7 +4,7 @@ const POSITIONS={0:[1,1],1:[0,1],2:[2,1],3:[0,0],4:[2,0],5:[1,0]};
 const REVERSE={west:'east',east:'west',north:'south',south:'north'};
 const NAMES=['エントランス','展示室02','展示室03','展示室04','展示室05','展示室06'];
 const EDGES={
- entrance:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:501,x2:522,y1:345,y2:417},north:{x1:345,x2:383,y1:101,y2:118}},
+ entrance:{west:{x1:24,x2:77,y1:425,y2:467},east:{x1:469,x2:522,y1:425,y2:467},north:{x1:260,x2:311,y1:160,y2:196}},
  gallery:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},north:{x1:345,x2:385,y1:101,y2:118},south:{x1:265,x2:329,y1:452,y2:471}}
 };
 function validateGraph(links){
