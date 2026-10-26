@@ -3,7 +3,7 @@
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 const $=id=>document.getElementById(id);
 const MAX_EDGE=4096,PREVIEW_EDGE=960;
-const full=img=>({x:0,y:0,w:img.naturalWidth,h:img.naturalHeight});
+const full=img=>({x:0,y:0,w:img.naturalWidth||img.width,h:img.naturalHeight||img.height});
 const same=(a,b)=>a.x===b.x&&a.y===b.y&&a.w===b.w&&a.h===b.h;
 function bounds(img,rect){
  if(!img?.naturalWidth||!img?.naturalHeight)throw Error('E_PHOTO_IMAGE');
@@ -29,11 +29,14 @@ function recommend(img){
  const enabled=confidence==='medium'&&retained>=.86&&retained<.99;
  return {candidate,enabled,retained,confidence};
 }
-function makeRecipe(img,{crop=null,cropEnabled=false,toneEnabled=true,sharpEnabled=true,toneProfile=null}={}){
+function makeRecipe(img,{crop=null,cropEnabled=false,toneEnabled=true,sharpEnabled=true,toneProfile=null,perspectiveEnabled=false,quad=null}={}){
  const basis=full(img),box=bounds(img,crop||basis),tone=toneProfile||window.A18PhotoFinish.profile(img);
  if(!tone||!Array.isArray(tone.whiteBalance)||tone.whiteBalance.length!==3)throw Error('E_PHOTO_TONE');
+ const corners=quad||window.A18PhotoPerspective.initial(img,cropEnabled?box:null);
+ if(perspectiveEnabled)window.A18PhotoPerspective.validate(img.naturalWidth,img.naturalHeight,corners);
  return {version:1,sourceWidth:img.naturalWidth,sourceHeight:img.naturalHeight,
-  crop:box,cropEnabled:Boolean(cropEnabled&&!same(box,basis)),
+  crop:box,cropEnabled:Boolean(!perspectiveEnabled&&cropEnabled&&!same(box,basis)),
+  perspectiveEnabled:Boolean(perspectiveEnabled),quad:corners.map(p=>({x:p.x,y:p.y})),
   toneEnabled:Boolean(toneEnabled),sharpEnabled:Boolean(sharpEnabled),
   toneProfile:{whiteBalance:[...tone.whiteBalance],gamma:tone.gamma,
    shadows:tone.shadows,highlights:tone.highlights,contrast:tone.contrast,
@@ -45,6 +48,14 @@ function verify(img,r){
   typeof r.toneEnabled!=='boolean'||typeof r.sharpEnabled!=='boolean')
   throw Error('E_PHOTO_RECIPE');
  bounds(img,r.crop);
+ if(r.perspectiveEnabled!==undefined&&typeof r.perspectiveEnabled!=='boolean')
+  throw Error('E_PHOTO_PERSPECTIVE_FLAG');
+ if(r.quad!==undefined)
+  window.A18PhotoPerspective.validate(img.naturalWidth,img.naturalHeight,r.quad);
+ if(r.perspectiveEnabled){
+  if(r.quad===undefined||r.cropEnabled)throw Error('E_PHOTO_PERSPECTIVE_RECIPE');
+  window.A18PhotoPerspective.validate(img.naturalWidth,img.naturalHeight,r.quad);
+ }
  const profile=r.toneProfile;
  if(!profile||!Array.isArray(profile.whiteBalance)||profile.whiteBalance.length!==3||
   ![...profile.whiteBalance,profile.gamma,profile.shadows,profile.highlights,
@@ -55,8 +66,10 @@ function verify(img,r){
 function render(img,r,maxEdge=MAX_EDGE){
  verify(img,r);
  if(!Number.isInteger(maxEdge)||maxEdge<1||maxEdge>MAX_EDGE)throw Error('E_PHOTO_EDGE_LIMIT');
- const rect=r.cropEnabled?r.crop:full(img),adjust=r.toneEnabled||r.sharpEnabled;
- return window.A18PhotoFinish.render(img,rect,adjust,{
+ const corrected=r.perspectiveEnabled?window.A18PhotoPerspective.render(img,r.quad,maxEdge):img;
+ const rect=r.perspectiveEnabled?full(corrected):(r.cropEnabled?r.crop:full(img));
+ const adjust=r.toneEnabled||r.sharpEnabled;
+ return window.A18PhotoFinish.render(corrected,rect,adjust,{
   tone:r.toneEnabled?r.toneProfile:{whiteBalance:[1,1,1],gamma:1,
    shadows:0,highlights:0,contrast:1,saturation:1,sharpness:0},
   sharp:r.sharpEnabled,maxSize:maxEdge,clarity:.27
@@ -90,6 +103,19 @@ function ui({originalURL,img,recipe=null,renderDialog,onFinish,onOriginal,onCanc
   '<label class="prep-check"><input type="checkbox" id="autoCrop"'+(initial.cropEnabled?' checked':'')+
    (!hasProposal&&!initial.cropEnabled?' disabled':'')+'>周囲の余白をトリム'+
    (!hasProposal&&!initial.cropEnabled?'（候補なし）':'')+'</label>'+
+  '<label class="prep-check"><input type="checkbox" id="autoPerspective"'+(initial.perspectiveEnabled?' checked':'')+
+    '>撮影角度を補正（写真の四隅を調整）</label>'+
+  '<div id="perspectiveEditor" hidden style="margin:12px 0;padding:10px;border:1px solid #ac956b;border-radius:12px">'+
+   '<strong>残したい絵柄の四隅に丸印を合わせてください</strong>'+
+   '<p class="small">角を指で動かして、斜めに撮ったパズルを正面向きに補正します。枠の外の白い余白も取り除けます。</p>'+
+   '<div id="perspectiveStage" style="position:relative;width:100%;touch-action:pan-y">'+
+   '<img id="perspectiveSource" src="'+esc(originalURL)+'" alt="四隅を指定する元写真" style="display:block;width:100%;height:auto">'+
+   '<svg id="perspectiveGuide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">'+
+   '<polygon id="perspectivePolygon" points="" stroke="#ffda55" stroke-width=".55" fill="rgba(255,218,85,.12)" vector-effect="non-scaling-stroke"></polygon></svg>'+
+   [0,1,2,3].map((i)=>'<button type="button" class="perspectiveHandle" data-point="'+i+'" aria-label="'+
+    ['左上','右上','右下','左下'][i]+'の角" style="position:absolute;width:38px;height:38px;min-width:38px;min-height:38px;border-radius:50%;border:2px solid #fff;background:#315d4c;color:#fff;touch-action:none;transform:translate(-50%,-50%);z-index:2;font-weight:bold">'+(i+1)+'</button>').join('')+
+   '</div><button type="button" id="resetPerspective" class="light" style="margin-top:8px">四隅を初期位置に戻す</button>'+
+   '<p class="small">写真の中央に写った光の反射そのものは角度補正では消えません。</p></div>'+
   '<label class="prep-check"><input type="checkbox" id="autoTone"'+(initial.toneEnabled?' checked':'')+'>明るさ・色味・コントラストを整える</label>'+
   '<label class="prep-check"><input type="checkbox" id="autoDetail"'+(initial.sharpEnabled?' checked':'')+'>輪郭・細部を自然にくっきり</label>'+
   '<p class="prep-warn">'+(legacyNoRecipe?'原本から仕上げます。':'前回の設定を引き継ぎました。')+
@@ -100,7 +126,72 @@ function ui({originalURL,img,recipe=null,renderDialog,onFinish,onOriginal,onCanc
   '<button id="acceptOriginal" class="light">'+esc(labels.original||'元の写真で展示')+'</button>'+
   (onCancel?'<button id="editorCancel" class="light">戻る</button>':'');
  renderDialog(content,actions);
- const fields=()=>[ 'autoCrop','autoTone','autoDetail' ].map($);
+ const fields=()=>[ 'autoCrop','autoPerspective','autoTone','autoDetail' ].map($);
+ const sourceWidth=img.naturalWidth,sourceHeight=img.naturalHeight;
+ let corners=(initial.quad||window.A18PhotoPerspective.initial(img,initial.cropEnabled?initial.crop:null))
+  .map(p=>({x:p.x,y:p.y}));
+ let restoreCrop=$('autoCrop').checked;
+ const redrawCorners=()=>{
+  const handles=[...document.querySelectorAll('.perspectiveHandle')];
+  if(handles.length!==4)throw Error('E_PERSPECTIVE_HANDLES');
+  for(let n=0;n<4;n++){
+   handles[n].style.left=(corners[n].x/sourceWidth*100)+'%';
+   handles[n].style.top=(corners[n].y/sourceHeight*100)+'%';
+  }
+  $('perspectivePolygon').setAttribute('points',
+   corners.map(p=>(p.x/sourceWidth*100)+','+(p.y/sourceHeight*100)).join(' '));
+ };
+ const togglePerspective=()=>{
+  const enabled=$('autoPerspective').checked;
+  $('perspectiveEditor').hidden=!enabled;
+  if(enabled){
+   restoreCrop=$('autoCrop').checked;
+   $('autoCrop').checked=false;$('autoCrop').disabled=true;
+  }else{
+   $('autoCrop').disabled=!hasProposal&&!initial.cropEnabled;
+   $('autoCrop').checked=restoreCrop;
+  }
+  redrawCorners();
+ };
+ togglePerspective();
+ const dragged=[...document.querySelectorAll('.perspectiveHandle')];
+ for(const handle of dragged){
+  const index=Number(handle.dataset.point);
+  handle.onpointerdown=e=>{
+   e.preventDefault();handle.setPointerCapture(e.pointerId);
+  };
+  handle.onpointermove=e=>{
+   if(!handle.hasPointerCapture(e.pointerId))return;
+   const b=$('perspectiveStage').getBoundingClientRect();
+   const x=Math.max(.01,Math.min(.99,(e.clientX-b.left)/b.width));
+   const y=Math.max(.01,Math.min(.99,(e.clientY-b.top)/b.height));
+   corners[index]={x:x*(sourceWidth-1),y:y*(sourceHeight-1)};
+   redrawCorners();
+  };
+  handle.onpointerup=e=>{
+   if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);
+   preview();
+  };
+  handle.onpointercancel=e=>{
+   if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);
+   preview();
+  };
+  handle.onkeydown=e=>{
+   const steps={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+   if(!steps[e.key])return;
+   e.preventDefault();
+   const delta=e.shiftKey?.02:.005;
+   corners[index]={x:Math.max(0,Math.min(sourceWidth-1,corners[index].x+steps[e.key][0]*sourceWidth*delta)),
+    y:Math.max(0,Math.min(sourceHeight-1,corners[index].y+steps[e.key][1]*sourceHeight*delta))};
+   redrawCorners();preview();
+  };
+ }
+ $('resetPerspective').onclick=()=>{
+  corners=window.A18PhotoPerspective.initial(img).map(p=>({x:p.x,y:p.y}));
+  redrawCorners();preview();
+ };
+ $('autoPerspective').onchange=()=>{togglePerspective();preview();};
+ $('autoCrop').onchange=()=>{restoreCrop=$('autoCrop').checked;preview();};
  let enlarged=false;
  $('editorPreviewZoom').onclick=()=>{
   enlarged=!enlarged;
@@ -125,7 +216,8 @@ function ui({originalURL,img,recipe=null,renderDialog,onFinish,onOriginal,onCanc
    if(id!==ticket||!$('previewAfter'))return;
    try{
     current=makeRecipe(img,{crop:recipe?.cropEnabled?recipe.crop:guess.candidate,
-     cropEnabled:$('autoCrop').checked,toneEnabled:$('autoTone').checked,
+     cropEnabled:$('autoCrop').checked,perspectiveEnabled:$('autoPerspective').checked,
+     quad:corners,toneEnabled:$('autoTone').checked,
      sharpEnabled:$('autoDetail').checked,toneProfile:initial.toneProfile});
     const sample=render(img,current,PREVIEW_EDGE);
     $('previewAfter').src=sample.toDataURL('image/jpeg',.95);
@@ -134,7 +226,7 @@ function ui({originalURL,img,recipe=null,renderDialog,onFinish,onOriginal,onCanc
    }catch(e){console.error('A18 photo preview',e);$('prepError').textContent='プレビューに失敗：'+e.message;}
   },30);
  };
- for(const f of fields())f.onchange=preview;
+ for(const f of ['autoTone','autoDetail'])$(f).onchange=preview;
  const run=async(mode)=>{
   if(busy)return;
   if(mode==='finish'&&!previewReady){$('prepError').textContent='プレビューが完了していません';return;}

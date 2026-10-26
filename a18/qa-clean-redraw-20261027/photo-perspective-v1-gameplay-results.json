@@ -1,0 +1,628 @@
+{
+  "editor": {
+    "id": "local-1793056261826-63675",
+    "originalBytes": 11857,
+    "recipe": {
+      "version": 1,
+      "sourceWidth": 800,
+      "sourceHeight": 600,
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 800,
+        "h": 600
+      },
+      "cropEnabled": false,
+      "perspectiveEnabled": false,
+      "quad": [
+        {
+          "x": 32,
+          "y": 24
+        },
+        {
+          "x": 768,
+          "y": 24
+        },
+        {
+          "x": 768,
+          "y": 576
+        },
+        {
+          "x": 32,
+          "y": 576
+        }
+      ],
+      "toneEnabled": false,
+      "sharpEnabled": true,
+      "toneProfile": {
+        "whiteBalance": [
+          1,
+          1,
+          1
+        ],
+        "gamma": 0.9,
+        "shadows": 0,
+        "highlights": 0,
+        "contrast": 1.055,
+        "saturation": 1.035,
+        "sharpness": 0.09
+      }
+    },
+    "beforeRevision": 9,
+    "afterRevision": 11,
+    "works": 3
+  },
+  "restore": {
+    "revision": 12,
+    "editRecipe": null,
+    "displaySrc": null,
+    "originalBlobSize": 11857,
+    "workCount": 3
+  },
+  "legacy": {
+    "workId": "qa-art-0",
+    "editRecipeVersion": 1,
+    "originalBytes": 3614,
+    "editedImageBytes": 1991,
+    "legacySchemaCompatible": true,
+    "invalidRecipeRejected": true
+  },
+  "perspective": {
+    "dims": [
+      384,
+      283
+    ],
+    "samples": [
+      [
+        20,
+        180,
+        60,
+        255
+      ],
+      [
+        20,
+        180,
+        60,
+        255
+      ],
+      [
+        20,
+        180,
+        60,
+        255
+      ],
+      [
+        20,
+        180,
+        60,
+        255
+      ],
+      [
+        20,
+        180,
+        60,
+        255
+      ]
+    ],
+    "rejected": true,
+    "quad": [
+      {
+        "x": 18,
+        "y": 12
+      },
+      {
+        "x": 384,
+        "y": 12
+      },
+      {
+        "x": 384,
+        "y": 288
+      },
+      {
+        "x": 16,
+        "y": 288
+      }
+    ],
+    "originalBytes": 3614,
+    "sourceWasUnmodified": true,
+    "editorSize": {
+      "w": 314,
+      "h": 235.5
+    },
+    "savedRevision": 14
+  },
+  "perspectiveRestored": {
+    "quadPersisted": true,
+    "originalRestored": true,
+    "revision": 15
+  },
+  "status": "PASS",
+  "result": {
+    "background": {
+      "width": 1322,
+      "height": 1190,
+      "complete": true
+    },
+    "assetCount": 4,
+    "geometry": {
+      "outer": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "inner": {
+        "x": 421,
+        "y": 195,
+        "w": 73,
+        "h": 131
+      },
+      "shape": "landscape"
+    },
+    "sceneReady": true
+  },
+  "profile": {
+    "afterProfile": "QA鬯｢・ｨ鬮滂ｽｷ",
+    "avatar": "female",
+    "beforePosition": {
+      "x": 326,
+      "y": 425,
+      "dir": "up",
+      "stride": 0
+    },
+    "afterPosition": {
+      "x": 314,
+      "y": 425,
+      "dir": "left",
+      "stride": 1
+    },
+    "save": {
+      "database": "a18-totteoki-museum-v3",
+      "revision": 2,
+      "blocked": false
+    }
+  },
+  "artworkSeed": {
+    "revision": 4,
+    "blobs": [
+      3614,
+      3616
+    ]
+  },
+  "artColors": {
+    "initial": [
+      [
+        255,
+        47,
+        210,
+        255
+      ],
+      [
+        6,
+        245,
+        172,
+        255
+      ]
+    ],
+    "final": [
+      [
+        255,
+        47,
+        210,
+        255
+      ],
+      [
+        6,
+        245,
+        172,
+        255
+      ]
+    ],
+    "newUrls": 0,
+    "revokes": 0,
+    "saveRevisions": [
+      4,
+      7
+    ],
+    "viewport": {
+      "logicalW": 445,
+      "logicalH": 717.7051282051282,
+      "cameraX": 79.50000000000001,
+      "cameraY": -117.35256410256407,
+      "backingWidth": 1170,
+      "backingHeight": 1887,
+      "portrait": true,
+      "entrancePaintCount": 30
+    }
+  },
+  "registration": {
+    "created": 2,
+    "revoked": 1,
+    "preExisting": [
+      [
+        255,
+        47,
+        210,
+        255
+      ],
+      [
+        6,
+        245,
+        172,
+        255
+      ]
+    ],
+    "newImage": [
+      255,
+      200,
+      0,
+      255
+    ],
+    "works": 3,
+    "carrying": "qa-art-1",
+    "third": "local-1793056261826-63675",
+    "fixtureRight": "local-1793056261826-63675",
+    "preparedSourceIsJpeg": true
+  },
+  "reloadedArt": {
+    "count": 3,
+    "revision": 9,
+    "colors": [
+      [
+        255,
+        47,
+        210,
+        255
+      ],
+      [
+        255,
+        200,
+        0,
+        255
+      ]
+    ]
+  },
+  "collision": {
+    "anchors": [
+      {
+        "type": "art",
+        "i": 0,
+        "x": 116,
+        "y": 237,
+        "enter": 32,
+        "leave": 38
+      },
+      {
+        "type": "art",
+        "i": 1,
+        "x": 439,
+        "y": 237,
+        "enter": 32,
+        "leave": 38
+      },
+      {
+        "type": "butler",
+        "x": 138.64166666666668,
+        "y": 341.71428571428567,
+        "enter": 46,
+        "leave": 54
+      }
+    ],
+    "obstacles": [
+      [
+        129,
+        149,
+        361,
+        368
+      ]
+    ],
+    "wallFoot": 210,
+    "west": {
+      "x": 38,
+      "y": 425,
+      "room": 0
+    },
+    "east": {
+      "x": 482,
+      "y": 425,
+      "room": 0
+    },
+    "right": {
+      "type": "art",
+      "i": 1,
+      "x": 439,
+      "y": 237,
+      "enter": 32,
+      "leave": 38
+    },
+    "left": {
+      "type": "art",
+      "i": 0,
+      "x": 116,
+      "y": 237,
+      "enter": 32,
+      "leave": 38
+    },
+    "finalPosition": {
+      "x": 110,
+      "y": 245,
+      "dir": "left",
+      "stride": 4
+    },
+    "probes": [
+      "old_left_wall",
+      "old_right_wall",
+      "old_front_frame",
+      "solid_rear_wall",
+      "solid_rear_wall_edge",
+      "rear_wall_floor",
+      "pass_behind_butler",
+      "butler_feet",
+      "space_before_butler"
+    ]
+  },
+  "rearWalk": {
+    "original": {
+      "x": 110,
+      "y": 245,
+      "dir": "left",
+      "stride": 4
+    },
+    "beforeCross": {
+      "x": 110,
+      "y": 329,
+      "dir": "down",
+      "stride": 1
+    },
+    "crossing": {
+      "x": 134,
+      "y": 329,
+      "dir": "right",
+      "stride": 3
+    },
+    "room": 0
+  },
+  "persisted": {
+    "name": "QA鬯｢・ｨ鬮滂ｽｷ",
+    "pos": {
+      "x": 134,
+      "y": 329,
+      "dir": "right",
+      "stride": 3
+    },
+    "scene": "entrance",
+    "storage": {
+      "database": "a18-totteoki-museum-v3",
+      "revision": 16,
+      "blocked": false
+    }
+  },
+  "display": {
+    "client": {
+      "width": 390,
+      "height": 844,
+      "dpr": 3,
+      "visualViewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    "display": {
+      "stage": {
+        "x": 0,
+        "y": 72,
+        "w": 390,
+        "h": 793
+      },
+      "canvas": {
+        "x": 0,
+        "y": 72,
+        "w": 390,
+        "h": 629
+      },
+      "app": {
+        "x": 0,
+        "y": 21,
+        "w": 390,
+        "h": 844
+      }
+    },
+    "backing": [
+      1170,
+      1887
+    ],
+    "viewport": {
+      "logicalW": 445,
+      "logicalH": 717.7051282051282,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "backingWidth": 1170,
+      "backingHeight": 1887,
+      "portrait": true,
+      "entrancePaintCount": 15
+    },
+    "imageOriginal": [
+      1322,
+      1190
+    ],
+    "sourceGame": [
+      546,
+      483
+    ],
+    "samples": [
+      {
+        "at": 1526.1000000238419,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1681.9000000357628,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1821.1000000238419,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 1960.5,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2103.300000011921,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2245.400000035763,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2394.400000035763,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2539.7000000476837,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2677.5,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2822.800000011921,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 2978.2000000476837,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      },
+      {
+        "at": 3122.7000000476837,
+        "cameraX": 79.49999999999999,
+        "cameraY": -117.35256410256407,
+        "canvasLength": 2823806,
+        "paintCount": 15,
+        "player": {
+          "x": 302,
+          "y": 425,
+          "dir": "left",
+          "stride": 4
+        }
+      }
+    ]
+  },
+  "stableResize": {
+    "samePixels": true,
+    "sameSize": true,
+    "viewport": {
+      "logicalW": 445,
+      "logicalH": 717.7051282051282,
+      "cameraX": 79.49999999999999,
+      "cameraY": -117.35256410256407,
+      "backingWidth": 1170,
+      "backingHeight": 1887,
+      "portrait": true,
+      "entrancePaintCount": 15
+    }
+  },
+  "jsExceptions": [],
+  "networkErrors": [],
+  "server": "local loopback isolated Chrome"
+}
