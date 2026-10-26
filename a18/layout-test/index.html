@@ -398,6 +398,9 @@ function artworkImage(work){
    const img=new Image();
    entry={source,img};
    workImageCache.set(work.id,entry);
+    // A loaded artwork must invalidate the static entrance compositor.
+    img.onload=()=>{entranceImageRevision++;};
+    img.onerror=()=>{entranceImageRevision++;};
    img.src=source;
  }
  return entry.img.complete&&entry.img.naturalWidth>0?entry.img:null;
@@ -517,10 +520,10 @@ function resize(){
   if(canvas.height!==targetHeight)canvas.height=targetHeight;
   canvas.style.width=b.width+'px';canvas.style.height=availableHeight+'px';
   canvas.style.position='absolute';canvas.style.left='0px';canvas.style.top='0px';
-  // Fit the approved entrance vertically; pan horizontally as the player walks.
-  // Other rooms retain their established camera sizing.
-  logicalW=galleryIndex===0?Math.min(m.w,Math.max(295,m.h*b.width/availableHeight)):Math.min(m.w,445);
-  logicalH=availableHeight*logicalW/b.width;
+  // Restore the approved pre-zoom portrait framing. Do not enlarge the
+  // 1322px architectural source past the scale used in the prior playtest.
+  logicalW=Math.min(m.w,445);
+  logicalH=canvas.height*logicalW/canvas.width;
   $('stage').classList.remove('overview');
  }else if(viewMode==='overview'){
   const scale=Math.min(b.width/m.w,b.height/m.h);
@@ -695,24 +698,30 @@ function drawButler(){
  if(galleryIndex!==0)return;
  window.A18Art.npc(ctx,'butler',L.BUTLER.x,L.BUTLER.footY);
 }
-let lastPaintTime=0;
-function draw(time=0){
+let lastEntrancePaintSignature=null,entrancePaintCount=0,entranceImageRevision=0;
+function draw(){
  if(!loaded)return;
- // Cap heavy high-DPI redraws to 30 fps; movement itself retains its timing.
- // This leaves Safari more time to compose the stable background and UI.
- if(galleryIndex===0 && time && time-lastPaintTime<1000/30){requestAnimationFrame(draw);return;}
- if(time)lastPaintTime=time;
  const m=src[scene],maxY=Math.max(0,m.h-logicalH),maxX=Math.max(0,m.w-logicalW);
  const targetY=logicalH>=m.h?(m.h-logicalH)/2:Math.max(0,Math.min(maxY,pos.y-logicalH*.55));
  const targetX=logicalW>=m.w?(m.w-logicalW)/2:Math.max(0,Math.min(maxX,pos.x-logicalW*.50));
  if(!isPortraitGame()&&viewMode==='overview'){cameraX=0;cameraY=0;}
  else{cameraX+=Math.max(-22,Math.min(22,(targetX-cameraX)*.45));cameraY+=Math.max(-22,Math.min(22,(targetY-cameraY)*.45));}
- ctx.clearRect(0,0,canvas.width,canvas.height);
- ctx.save();const scale=canvas.width/logicalW;
+ const scale=canvas.width/logicalW;
  // Snap camera to the physical display-pixel grid to prevent shimmering
  // of the marble seams during fractional-pixel camera interpolation.
  const pixelCameraX=galleryIndex===0?Math.round(cameraX*scale):cameraX*scale;
  const pixelCameraY=galleryIndex===0?Math.round(cameraY*scale):cameraY*scale;
+ if(galleryIndex===0){
+  // Static entrance scenes should not clear and re-rasterize the marble
+  // floor 60 times a second on mobile Safari. Repaint only when pixels change.
+  const sig=[canvas.width,canvas.height,pixelCameraX,pixelCameraY,
+   pos.x,pos.y,pos.dir,pos.stride,avatarGender,carrying,
+   currentSave?.revision??-1,entranceImageRevision,works.length].join('|');
+  if(lastEntrancePaintSignature===sig){requestAnimationFrame(draw);return;}
+  lastEntrancePaintSignature=sig;entrancePaintCount++;
+ }
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.save();
  ctx.setTransform(scale,0,0,scale,-pixelCameraX,-pixelCameraY);
  drawBackground();
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
@@ -971,7 +980,7 @@ for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInter
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
- state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame()},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
+ state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame(),entrancePaintCount},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
  move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:PORTAL_EDGES,
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');return commitChange(s=>{s.avatarGender=g;});},
  validateLayout:room=>L.validatePlacement(fixtures,room),
