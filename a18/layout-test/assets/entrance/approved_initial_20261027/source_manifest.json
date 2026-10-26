@@ -1,0 +1,19 @@
+{
+  "application": "A18 とっておき美術館",
+  "asset_type": "entrance/background/base-architecture",
+  "approval": "User approved as entrance initial background material on 2026-10-27",
+  "source": "Original generated image immediately preceding user approval",
+  "source_file": "大理石床の古典的な空間.png",
+  "file": "A18_entrance_initial_background_approved_20261027.png",
+  "source_version_lineage": "v17.2 design iteration followed by architectural column correction; version numeral for this exact approved image not yet independently assigned",
+  "dimensions": [
+    1322,
+    1190
+  ],
+  "sha256": "cc4bca9821242facbee3984d1df7034514845195205c2b30cc94ef4628a469cf",
+  "contains": "unfurnished architectural lobby with central double doors and symmetrical columns; empty rear panels, tiled floor",
+  "excludes": "counter, foreground left and right partition walls, plinths, furnishings, carpets, lamps and lighting effects",
+  "requirements": "No recomposition or change to columns/dimensions/door without explicit user approval. Foreground objects must be independent sprites on separate layers.",
+  "integration_status": "approved art baseline, NOT integrated into game, no gameplay or collision QA performed",
+  "branch_commit": "not yet integrated"
+}
