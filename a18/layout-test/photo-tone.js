@@ -30,9 +30,16 @@ function render(img,rect,enhance=true,opt={}){
  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(rect.w*ratio));c.height=Math.max(1,Math.round(rect.h*ratio));
  const t=c.getContext('2d',{willReadFrequently:true});t.imageSmoothingQuality='high';
  t.drawImage(img,rect.x,rect.y,rect.w,rect.h,0,0,c.width,c.height);
- if(!enhance)return c;
- const tone=opt.tone||profile(img),frame=t.getImageData(0,0,c.width,c.height),a=frame.data;
+ if(!enhance && opt.sharp===false)return c;
+ const tone=enhance?(opt.tone||profile(img)):{
+  whiteBalance:[1,1,1],gamma:1,shadows:0,highlights:0,contrast:1,saturation:1
+ };
+ const frame=t.getImageData(0,0,c.width,c.height),a=frame.data;
  const raw=opt.sharp===false?null:new Uint8ClampedArray(a),width=c.width,height=c.height;
+ // Stronger luminance-only sharpening at the original image pixels.
+ // Same adjustment on RGB avoids chroma fringes; bounded halos/noise amplification.
+ const detail=Math.max(0,Math.min(0.6,opt.sharpStrength??.20));
+ const luminance=(j)=>raw[j]*.2126+raw[j+1]*.7152+raw[j+2]*.0722;
  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
   const i=(y*width+x)*4;let r=a[i]/255,g=a[i+1]/255,b=a[i+2]/255;
   r=bound(r*tone.whiteBalance[0],0,1);g=bound(g*tone.whiteBalance[1],0,1);b=bound(b*tone.whiteBalance[2],0,1);
@@ -41,12 +48,15 @@ function render(img,rect,enhance=true,opt={}){
   r=tune(r);g=tune(g);b=tune(b);
   const L=.213*r+.715*g+.072*b;
   r=bound(L+(r-L)*tone.saturation,0,1);g=bound(L+(g-L)*tone.saturation,0,1);b=bound(L+(b-L)*tone.saturation,0,1);
-  if(raw&&x>0&&x<width-1&&y>0&&y<height-1){
-   const offsets=[-4,4,-width*4,width*4];const v=[r,g,b];
-   for(let k=0;k<3;k++){
-    const diff=raw[i+k]-offsets.reduce((tot,off)=>tot+raw[i+off+k],0)/4;
-    if(Math.abs(diff)>5&&Math.abs(diff)<70)v[k]=bound(v[k]+bound(diff*tone.sharpness,-6,6)/255,0,1);
-   }[r,g,b]=v;
+  if(raw&&detail>0&&x>1&&x<width-2&&y>1&&y<height-2){
+   const center=luminance(i);
+   const neighbor=(luminance(i-4)+luminance(i+4)+luminance(i-width*4)+luminance(i+width*4))*.25;
+   const diff=center-neighbor;
+   // Reject JPEG speckles (<8) and harsh transitions (>85).
+   if(Math.abs(diff)>=8&&Math.abs(diff)<=85){
+    const boost=bound(diff*detail,-14,14)/255;
+    r=bound(r+boost,0,1);g=bound(g+boost,0,1);b=bound(b+boost,0,1);
+   }
   }
   a[i]=r*255;a[i+1]=g*255;a[i+2]=b*255;
  }

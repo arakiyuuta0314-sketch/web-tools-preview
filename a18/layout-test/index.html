@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=butler-foot-v2-20261027"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=art-hq-20261027"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
-<script src="photo-tone.js" defer></script>
+<script src="photo-tone.js?v=retouch-hq-20261027" defer></script>
 <script src="staff-flow.js?v=finish-hq-20261027" defer></script>
 <title>とっておき美術館｜館長の美術館</title>
 <style>
@@ -66,7 +66,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="art-inspect.css?v=1.9"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
+</style><link rel="stylesheet" href="art-inspect.css?v=1.10"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
@@ -869,6 +869,102 @@ function resetDisplayForWork(slotIndex,work){
  f.imageMode=work.preferredShape==='portrait'?'contain':'cover';
  f.imageScale=1;f.imageX=0;f.imageY=0;
 }
+// Non-destructive retouch for already-registered artwork.
+// No metadata/schema change: originalBlob remains the immutable source.
+// Only the selected work's displaySrc and list thumbnail are changed.
+function retouchWork(id){
+ if(saving||saveBlocked)return;
+ const work=works.find(w=>w.id===id);
+ if(!work||!(work.originalBlob instanceof Blob))throw Error('E_RETOUCH_SOURCE');
+ const originalURL=work.originalURL;
+ open('作品写真の仕上げを調整',
+  '<p class="small">白い線や撮影時の枠が写っている写真は、周囲を少し切り取ると目立たなくできます。原本は保存したままです。</p>'+
+  '<div class="prep-preview"><strong>仕上がりプレビュー（端の白い線も確認できます）</strong><img id="retouchPreview" alt="補正後の写真" style="width:100%;height:min(36dvh,300px);object-fit:contain;background:#202b27"></div>'+
+  '<details><summary>元の写真と比較</summary><img id="retouchOriginal" alt="元の写真" src="'+esc(originalURL)+'" style="max-width:100%;max-height:180px;object-fit:contain"></details>'+
+  '<label for="retouchTrim">四辺のトリミング：<strong id="retouchTrimValue">8%</strong></label>'+
+  '<input id="retouchTrim" type="range" min="0" max="20" step="1" value="8" style="width:100%;touch-action:pan-x">'+
+  '<p class="small">パズルの絵まで切れない範囲で調整してください。四辺を同じ割合で切り取ります。</p>'+
+  '<label class="prep-check"><input id="retouchTone" type="checkbox" checked>色味・明暗・コントラストを自然に補正</label>'+
+  '<label class="prep-check"><input id="retouchSharp" type="checkbox" checked>輪郭や細部を鮮明にする</label>'+
+  '<p id="retouchStatus" role="status" class="small">写真を読み込んでいます…</p>'+
+  '<div class="row"><button id="retouchSave" disabled>この仕上がりを保存</button><button id="retouchReset" class="light">原本に戻す</button><button id="retouchCancel" class="light">キャンセル</button></div>');
+ const e=n=>$(n),img=new Image();
+ let ready=false,previewVersion=0;
+ const status=e('retouchStatus'),save=e('retouchSave');
+ function selection(){
+  if(!img.naturalWidth)throw Error('E_RETOUCH_NOT_LOADED');
+  const inset=Number(e('retouchTrim').value)/100;
+  const x=Math.floor(img.naturalWidth*inset),y=Math.floor(img.naturalHeight*inset);
+  const rect={x,y,w:img.naturalWidth-2*x,h:img.naturalHeight-2*y};
+  if(rect.w<2||rect.h<2)throw Error('E_RETOUCH_CROP');
+  return rect;
+ }
+ function render(size){
+  return window.A18PhotoFinish.render(img,selection(),e('retouchTone').checked,{
+   maxSize:size,sharp:e('retouchSharp').checked,
+   sharpStrength:0.27
+  });
+ }
+ function thumb(source){
+  const c=document.createElement('canvas');c.width=176;c.height=132;
+  const cx=c.getContext('2d');cx.fillStyle='#d7c8b1';cx.fillRect(0,0,176,132);
+  const s=Math.min(c.width/source.width,c.height/source.height);
+  cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';
+  cx.drawImage(source,(176-source.width*s)/2,(132-source.height*s)/2,source.width*s,source.height*s);
+  return c.toDataURL('image/jpeg',.92);
+ }
+ const update=()=>{
+  const version=++previewVersion;
+  e('retouchTrimValue').textContent=e('retouchTrim').value+'%';
+  save.disabled=true;
+  status.textContent='仕上がりを確認しています…';
+  setTimeout(()=>{
+   if(version!==previewVersion||!e('retouchPreview'))return;
+   try{
+    const canvas=render(950);
+    e('retouchPreview').src=canvas.toDataURL('image/jpeg',.96);
+    status.textContent='プレビューです。保存時は原本から高精細に処理します。';
+    save.disabled=false;
+   }catch(err){console.error(err);status.textContent='プレビューに失敗しました：'+err.message;}
+  },40);
+ };
+ img.onload=()=>{if(!e('retouchTrim'))return;ready=true;update();};
+ img.onerror=()=>{if(e('retouchStatus'))status.textContent='原本写真を読み込めませんでした';};
+ img.src=originalURL;
+ for(const id of ['retouchTrim','retouchTone','retouchSharp'])e(id).oninput=()=>{if(ready)update();};
+ e('retouchCancel').onclick=close;
+ e('retouchSave').onclick=async()=>{
+  if(!ready||saving||saveBlocked)return;
+  save.disabled=true;status.textContent='高画質で写真を仕上げています…';
+  // Let Safari paint the status before a CPU-intensive conversion.
+  await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
+  try{
+   const rendered=render(3200);
+   const data=rendered.toDataURL('image/jpeg',.98),thumbnail=thumb(rendered);
+   if(!data.startsWith('data:image/jpeg')||data.length<100)throw Error('E_RETOUCH_EXPORT');
+   const ok=await commitChange(s=>{
+    const item=s.works.find(w=>w.id===id);
+    if(!item)throw Error('E_RETOUCH_MISSING');
+    item.displaySrc=data;item.thumbnail=thumbnail;
+   });
+   if(ok){const updated=works.find(w=>w.id===id);if(updated?.fixtureId!=null)inspect(fixtureRank(updated.fixtureId));else list();}
+  }catch(err){
+   console.error('A18 retouch failed',err);status.textContent='処理できませんでした：'+err.message;
+   save.disabled=false;
+  }
+ };
+ e('retouchReset').onclick=async()=>{
+  if(saving||saveBlocked)return;
+  e('retouchReset').disabled=true;status.textContent='原本の表示に戻しています…';
+  const ok=await commitChange(s=>{
+   const item=s.works.find(w=>w.id===id);
+   if(!item)throw Error('E_RETOUCH_MISSING');
+   item.displaySrc=null;item.thumbnail=null;
+  });
+  if(ok){const updated=works.find(w=>w.id===id);if(updated?.fixtureId!=null)inspect(fixtureRank(updated.fixtureId));else list();}
+  else e('retouchReset').disabled=false;
+ };
+}
 function inspect(i){
  if(saving||saveBlocked)return;
  if(carrying){
@@ -899,8 +995,9 @@ function inspect(i){
  open(a.title,'<div class="inspect-shell"><div class="inspect-top"><h2>'+esc(a.title)+'</h2><p>完成日：'+esc(a.complete||'不明')+'　登録日：'+esc(a.registered||'不明')+'　ピース：'+esc(a.pieces||'未登録')+'</p></div>'+
  '<button id="inspectPhoto" class="inspect-photo" type="button" aria-label="写真をフルサイズで鑑賞する">'+(img?'<img src="'+esc(img)+'" alt="'+esc(a.title)+'">':'<span>写真を読み込めませんでした</span>')+'<span class="inspect-tap">タップで大きく鑑賞</span></button>'+
  '<div class="inspect-memory"><strong>備考・思い出</strong><p>'+esc(a.notes||'まだ記録されていません')+'</p></div>'+
- '<div class="inspect-bottom"><button id="lift">持ち上げる</button><button id="editNote">備考を編集</button><button id="close">閉じる</button></div></div>','art-inspect');
+ '<div class="inspect-bottom"><button id="lift">持ち上げる</button><button id="retouchPhoto">写真の白い部分・画質を調整</button><button id="editNote">備考を編集</button><button id="close">閉じる</button></div></div>','art-inspect');
  $('editNote').onclick=()=>editMemo(a);
+ $('retouchPhoto').onclick=()=>retouchWork(a.id);
  $('lift').onclick=async()=>{if(await commitChange(s=>{s.works.find(w=>w.id===a.id).fixtureId=null;s.carrying=a.id;}))close();};
  let inspectSwipeStart=null,inspectSwiped=false;
  const inspectPhoto=$('inspectPhoto');
