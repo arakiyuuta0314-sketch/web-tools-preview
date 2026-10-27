@@ -1,0 +1,168 @@
+{
+  "status": "visual candidate v11; user approval pending",
+  "wall_asset": "partition_left_light_oak_v09_candidate.png",
+  "wall_game_bounds": [
+    -6,
+    215,
+    215,
+    122
+  ],
+  "counter_game_bounds": [
+    -10,
+    333,
+    233,
+    107
+  ],
+  "right_wall_bounds": [
+    363,
+    243,
+    188,
+    133
+  ],
+  "draw_order": "back-to-front",
+  "separate_transparent_sprites": true,
+  "papers": [
+    {
+      "key": "sage",
+      "file": "reception_collage_sage_v11.png",
+      "pixels": [
+        246,
+        180
+      ],
+      "position": [
+        23,
+        246,
+        61.5,
+        45.0
+      ],
+      "rotation_degrees": 7,
+      "color_rgb": [
+        201,
+        211,
+        176
+      ],
+      "attachment": "tape",
+      "layer": 0,
+      "sha256": "fa6191da1fbe98bf712710ce55e448b1742f4e5be9cbab42ed6abdf3351a6c5f"
+    },
+    {
+      "key": "blue",
+      "file": "reception_collage_blue_v11.png",
+      "pixels": [
+        178,
+        178
+      ],
+      "position": [
+        98,
+        243,
+        44.5,
+        44.5
+      ],
+      "rotation_degrees": -8,
+      "color_rgb": [
+        192,
+        212,
+        215
+      ],
+      "attachment": "clip",
+      "layer": 1,
+      "sha256": "80cbc0ffa010a464002a5366874b9a23bfa02bd971ca5e4cc2e18304b6135f31"
+    },
+    {
+      "key": "ochre",
+      "file": "reception_collage_ochre_v11.png",
+      "pixels": [
+        174,
+        138
+      ],
+      "position": [
+        133,
+        238,
+        43.5,
+        34.5
+      ],
+      "rotation_degrees": -10,
+      "color_rgb": [
+        233,
+        197,
+        139
+      ],
+      "attachment": "pin",
+      "layer": 2,
+      "sha256": "c0975f1140b2dcf7fe5f4955c9b0c2e2f39171b8392656eb6413a6cacfe0f825"
+    },
+    {
+      "key": "notice",
+      "file": "reception_collage_notice_v11.png",
+      "pixels": [
+        282,
+        212
+      ],
+      "position": [
+        45,
+        232,
+        70.5,
+        53.0
+      ],
+      "rotation_degrees": -4,
+      "color_rgb": [
+        246,
+        233,
+        202
+      ],
+      "attachment": "pin",
+      "layer": 3,
+      "sha256": "cf8a5d266e33a2880f607e26eb2b9d74e97b8377d2086ee9133d53030b7634f2"
+    },
+    {
+      "key": "rose",
+      "file": "reception_collage_rose_v11.png",
+      "pixels": [
+        146,
+        128
+      ],
+      "position": [
+        133,
+        264,
+        36.5,
+        32.0
+      ],
+      "rotation_degrees": 11,
+      "color_rgb": [
+        230,
+        185,
+        173
+      ],
+      "attachment": "tape",
+      "layer": 4,
+      "sha256": "458b92d84573a372ef3fcedbf156b0187299a6138ec5394e8605886514592a3d"
+    }
+  ],
+  "overlaps": [
+    [
+      "sage",
+      "notice",
+      1540.5
+    ],
+    [
+      "blue",
+      "ochre",
+      280.2
+    ],
+    [
+      "blue",
+      "notice",
+      735.0
+    ],
+    [
+      "blue",
+      "rose",
+      223.2
+    ],
+    [
+      "ochre",
+      "rose",
+      310.2
+    ]
+  ]
+}

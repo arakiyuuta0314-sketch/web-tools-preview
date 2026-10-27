@@ -177,7 +177,7 @@ function walkable(x,y,fixtures,room){
 }
 function anchor(f,room){
  if(f.kind!=='frame')return null;
- if(room===0){const n=Number(f.id.split('-')[2]);const points=[[116,237],[439,237],[382,358]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
+ if(room===0){const n=Number(f.id.split('-')[2]);const points=[[116,237],[439,237],[447,406]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
  return {x:f.x,y:f.installation==='wall'?ROOM_SIZE[room].wallFoot+18:f.y+f.height/2+29};
 }
 function validatePlacement(fixtures,room){

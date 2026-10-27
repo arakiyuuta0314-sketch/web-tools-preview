@@ -2,24 +2,29 @@
    Keep the approved PNG intact; only draw it with aspect-ratio-preserving crop.
    Legacy independent foreground sprites await art review; no save writes. */
 (()=>{'use strict';
-const ROOT='assets/entrance/v09/',PW=768,PH=576;
+const ROOT='assets/entrance/v09/';
 const FILES={
  background:['assets/entrance/approved_initial_20261027/entrance_background_initial_approved.png',1322,1190],
+ counter:['assets/entrance/counter_candidate_20261028/reception_lshape_lv1_approved_v11.webp',936,428],
+ partition:['assets/entrance/counter_candidate_20261028/partition_left_oak_lv1_approved_v11.png',860,488],
+ right_partition:['assets/entrance/counter_candidate_20261028/partition_right_lv1_approved_v11.png',860,488],
+ sage:['assets/entrance/counter_candidate_20261028/reception_collage_sage_v11.png',246,180],
+ blue:['assets/entrance/counter_candidate_20261028/reception_collage_blue_v11.png',178,178],
+ ochre:['assets/entrance/counter_candidate_20261028/reception_collage_ochre_v11.png',174,138],
+ notice:['assets/entrance/counter_candidate_20261028/reception_collage_notice_v11.png',282,212],
+ rose:['assets/entrance/counter_candidate_20261028/reception_collage_rose_v11.png',146,128],
  rear_left:[ROOT+'rear_left_photo_mask_v09.png',546,483],
- rear_right:[ROOT+'rear_right_photo_mask_v09.png',546,483],
- front:[ROOT+'front_photo_mask_v09.png',546,483]
+ rear_right:[ROOT+'rear_right_photo_mask_v09.png',546,483]
 };
 const PANELS=[
  {name:'rear_left',rect:[43,64,189,143],patch:[38,58,195,151],center:[116,105]},
  {name:'rear_right',rect:[374,64,506,143],patch:[369,58,511,151],center:[440,105]},
- {name:'front',rect:[421,195,494,326]}
+ // Rect is centered on the actual right partition's visible teal inset
+ // (sprite inset x=135..790, y=59..333 -> game center approximately 464,296).
+ // Keep photo size 136x74 and move it +11x/-4y relative to former art position.
+ {name:'front',rect:[396,259,532,333]}
 ];
-const FRONT_INV=[
- [2.2582576554692726,-0.02449889664425458,-854.9873467700153],
- [-0.2933780477833784,1.015847991558277,-7.050709650349285],
- [0.0032571841573975214,-0.000467047182836571,-0.18282765194690226]
-];
-const imgs=new Map(),masks=new Map(),cache=new WeakMap();
+const imgs=new Map(),masks=new Map();
 let ready=false;
 function blank(w=546,h=483){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
 function check(){if(!ready)throw Error('E_ENTRANCE_V10_NOT_READY');}
@@ -33,7 +38,7 @@ async function init(){
   if(im.naturalWidth!==width||im.naturalHeight!==height)throw Error('E_ENTRANCE_V10_DIM '+path);
   imgs.set(key,im);
  }
- for(const p of PANELS){
+ for(const p of PANELS.filter(x=>x.name!=='front')){
   const c=blank(),cx=c.getContext('2d',{willReadFrequently:true});
   cx.drawImage(imgs.get(p.name),0,0);
   const d=cx.getImageData(0,0,546,483).data,m=new Uint8Array(546*483);
@@ -57,6 +62,22 @@ function background(ctx){
  ctx.restore();
 }
 function foreground(ctx){check();}
+// Visual review candidate: original counter illustration, no changes to approved background.
+// Requested provisional placement: original counter image moved 15 px down, no scaling.
+function counter(ctx){check();ctx.drawImage(imgs.get('counter'),-10,333,233,107);}
+// Keep the accepted v09 wood intact and translate the whole independent wall down 15 px.
+function partition(ctx){check();ctx.drawImage(imgs.get('partition'),-6,215,215,122);}
+// Five individual paper layers: overlap, different tilts/stock and a natural collage.
+// Rearmost paper first; neither timber nor its position is ever changed.
+const PAPER_POSITIONS=[
+ ['sage',23,246,61.5,45],
+ ['blue',98,243,44.5,44.5],
+ ['ochre',133,238,43.5,34.5],
+ ['notice',45,232,70.5,53],
+ ['rose',133,264,36.5,32]
+];
+function papers(ctx){check();for(const [key,x,y,w,h] of PAPER_POSITIONS)ctx.drawImage(imgs.get(key),x,y,w,h);}
+function partitionRight(ctx){check();ctx.drawImage(imgs.get('right_partition'),363,243,188,133);}
 function panel(f){
  if(f?.roomId!==0)throw Error('E_ENTRANCE_V10_ROOM');
  const i=Number(f.id?.split('-')[2]);
@@ -125,64 +146,43 @@ function rear(ctx,p,f,img,preferred,woodFrame){
  ctx.drawImage(img,inner.x+(inner.w-dw)/2+ox,inner.y+(inner.h-dh)/2+oy,dw,dh);
  ctx.restore();if(woodFrame)drawHighResolutionFrame(ctx,outer);
 }
-function front(img,f){
- const c=blank(PW,PH),cc=c.getContext('2d',{willReadFrequently:true});
- cc.fillStyle='#dcc7a3';cc.fillRect(0,0,PW,PH);
- const w=img.naturalWidth,h=img.naturalHeight,mode=f.imageMode||'cover';
- if(!['cover','contain','custom'].includes(mode))throw Error('E_ENTRANCE_V10_MODE');
- const fit=(mode==='contain'||w/h<.95)?Math.min(PW/w,PH/h):Math.max(PW/w,PH/h);
- const zoom=mode==='custom'?(f.imageScale??1):1,dw=w*fit*zoom,dh=h*fit*zoom;
- const ox=mode==='custom'?(PW-dw)*(f.imageX??0)/2:0;
- const oy=mode==='custom'?(PH-dh)*(f.imageY??0)/2:0;
- cc.imageSmoothingEnabled=true;cc.imageSmoothingQuality='high';
- cc.drawImage(img,(PW-dw)/2+ox,(PH-dh)/2+oy,dw,dh);
- const src=cc.getImageData(0,0,PW,PH).data,alpha=masks.get('front');
- const result=blank(),rc=result.getContext('2d'),image=rc.createImageData(546,483),dst=image.data,r=PANELS[2].rect,inv=FRONT_INV;
- // Direct bilinear sampling — previous 220x166 + Math.floor loop caused aliasing.
- for(let y=r[1];y<r[3];y++)for(let x=r[0];x<r[2];x++){
-  const idx=y*546+x,a=alpha[idx];if(!a)continue;
-  const px=x+.5,py=y+.5,div=inv[2][0]*px+inv[2][1]*py+inv[2][2];
-  if(Math.abs(div)<1e-10)continue;
-  const sx=(inv[0][0]*px+inv[0][1]*py+inv[0][2])/div;
-  const sy=(inv[1][0]*px+inv[1][1]*py+inv[1][2])/div;
-  const u=(sx-84)/110,v=(sy-61)/83;if(u<0||u>=1||v<0||v>=1)continue;
-  const fx=Math.max(0,Math.min(PW-1,u*PW-.5)),fy=Math.max(0,Math.min(PH-1,v*PH-.5));
-  const x0=Math.floor(fx),y0=Math.floor(fy),x1=Math.min(PW-1,x0+1),y1=Math.min(PH-1,y0+1);
-  const ax=fx-x0,ay=fy-y0,k=idx*4;
-  for(let c=0;c<3;c++){
-   const a0=src[(y0*PW+x0)*4+c],a1=src[(y0*PW+x1)*4+c];
-   const b0=src[(y1*PW+x0)*4+c],b1=src[(y1*PW+x1)*4+c];
-   dst[k+c]=Math.round((1-ay)*((1-ax)*a0+ax*a1)+ay*((1-ax)*b0+ax*b1));
-  }
-  dst[k+3]=a;
- }
- rc.putImageData(image,0,0);return result;
+function rightPartitionPhoto(ctx,f,img){
+ const r=PANELS[2].rect, x=r[0],y=r[1],w=r[2]-r[0],h=r[3]-r[1];
+ const iw=img.naturalWidth,ih=img.naturalHeight;
+ if(!(iw>0&&ih>0))throw Error('E_RIGHT_WALL_PHOTO_INVALID');
+ const mode=f.imageMode||'cover';
+ if(!['cover','contain','custom'].includes(mode))throw Error('E_RIGHT_WALL_PHOTO_MODE');
+ const aspect=iw/ih, fit=(mode==='contain'||aspect<.9)?Math.min(w/iw,h/ih):Math.max(w/iw,h/ih);
+ const zoom=mode==='custom'?(f.imageScale??1):1, dw=iw*fit*zoom,dh=ih*fit*zoom;
+ const dx=x+(w-dw)/2+(mode==='custom'?(w-dw)*(f.imageX??0)/2:0);
+ const dy=y+(h-dh)/2+(mode==='custom'?(h-dh)*(f.imageY??0)/2:0);
+ ctx.save();
+ // A narrow dark-wood raised lip, no backing board or cream mat.
+ ctx.fillStyle='rgba(29,20,14,.36)';ctx.fillRect(x+3,y+4,w,h);
+ ctx.fillStyle='#54341d';ctx.fillRect(x-3,y-3,w+6,h+6);
+ ctx.fillStyle='#a47846';ctx.fillRect(x-1,y-1,w+2,h+2);
+ ctx.fillStyle='#1a322c';ctx.fillRect(x,y,w,h);
+ ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+ ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ ctx.drawImage(img,dx,dy,dw,dh);
+ ctx.restore();
 }
 function frame(ctx,f,img,preferred=null,woodFrame=true){
  check();const p=panel(f);
  if(!img?.naturalWidth)return;
- if(p.name!=='front'){
-  // Draw directly to the device-pixel-ratio canvas. The previous 546px
-  // intermediate bitmap blurred photo detail when scaled on Retina iPhone.
-  rear(ctx,p,f,img,preferred,woodFrame);
-  return;
- }
- const key=[f.id,preferred,f.imageMode,f.imageScale,f.imageX,f.imageY].join('|');
- let m=cache.get(img);if(!m){m=new Map();cache.set(img,m);}
- if(!m.has(key))m.set(key,front(img,f));
- ctx.drawImage(m.get(key),0,0);
+ if(p.name==='front'){rightPartitionPhoto(ctx,f,img);return;}
+ rear(ctx,p,f,img,preferred,woodFrame);
 }
 function markSlot(ctx,f,img=null,preferred=null){
  check();const p=panel(f),r=p.rect;
  ctx.save();ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.beginPath();
  if(p.name==='front'){
-  ctx.moveTo(421.62,194.73);ctx.lineTo(493.79,228.73);
-  ctx.lineTo(489.88,325.87);ctx.lineTo(421.00,277.57);ctx.closePath();
+  ctx.rect(r[0]-3,r[1]-3,r[2]-r[0]+6,r[3]-r[1]+6);
  }else{
   const {outer}=frameGeometry(f,img,preferred);
   ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);
  }
  ctx.stroke();ctx.restore();
 }
-window.A18Entrance={init,background,foreground,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
+window.A18Entrance={init,background,foreground,counter,partition,papers,partitionRight,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
 })();

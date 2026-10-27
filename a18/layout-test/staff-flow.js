@@ -162,9 +162,9 @@ function staffDialog({open,close,list,form,carrying,role='staff',playerName='館
   '<span class="rpg-tap-next">▼ タップでつづく</span></button>','rpg');
  $('rpgAdvance').onclick=menu;
 }
-function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50,role='staff',playerName='館長',gender='male'}){
+function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene,maxWorks=50,role='staff',playerName='館長',gender='male',placeDirectly=false}){
  activeRole=role;activePlayer=honorific(role,playerName,gender);
- const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene};
+ const ctx={spotNo,viaStaff,open,close,works,onRegistered,changeScene,placeDirectly};
  if(works.length>=maxWorks){open('作品の登録上限','<p>'+maxWorks+'作品に達しました。別フロアへの増築は今後のアップデートで検討します。</p><div class="row"><button id="close">閉じる</button></div>');$('close').onclick=close;return;}
  open(role==='butler'?'爺や｜作品のお預かり':'スタッフ｜作品のお預かり',
  '<div class="registration-intro">'+staffPortrait(role==='butler'?activePlayer+'、大切な作品をお預かりいたします。':'新しい作品を預かるね！')+'</div>'+
@@ -232,6 +232,10 @@ async function commit(ctx,entry,canvas,editRecipe=null){
  // Registration created a temporary preview URL. The durable work now owns
  // its own hydrated URL, so release only this temporary handle.
  URL.revokeObjectURL(entry.originalURL);
+ if(ctx.placeDirectly){
+  open('右の仕切り壁｜展示しました','<p>写真を右の仕切り壁に登録し、展示しました。</p><div class="row"><button id="receiveWork">展示を確認する</button></div>');
+  $('receiveWork').onclick=close;return true;
+ }
  open(activeRole==='butler'?'爺や｜作品のお渡し':'スタッフ｜作品のお渡し',
   '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.[activeRole==='butler'?'butler':'staff']?.portraitPath||'')+'" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">'+(activeRole==='butler'?'爺や':'展示室スタッフ')+'</span><p class="rpg-message">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',

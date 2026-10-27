@@ -7,13 +7,13 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=butler-foot-v2-20261027"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=frame-photo-hq2-20261027"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-lv1-v11-20261028"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=a18-lv1-v11-20261028"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js?v=frame-photo-hq2-20261027" defer></script>
 <script src="photo-perspective.js?v=perspective-v1-20261027" defer></script>
 <script src="photo-editor.js?v=perspective-v1-20261027" defer></script>
-<script src="staff-flow.js?v=butler-level-dialogue-20261027" defer></script>
+<script src="staff-flow.js?v=a18-lv1-v11-20261028" defer></script>
 <title>とっておき美術館｜館長の美術館</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#f8f2e6;background:#152822}
@@ -119,13 +119,13 @@ let galleryIndex=0; // roomId 0 = entrance, 1 = gallery 02.
 const fixtures=L.defaults();
 L.restoreClassicFrameDimensions(fixtures);
 L.enforceFixedLayout(fixtures);
-// Keep all 28 fixture records and existing artworks intact. Only two rear
-// entrance frames physically exist while we rebuild this room.
-const entranceVisibleFrames=()=>L.roomFrames(fixtures,0).slice(0,2);
+// Keep all 28 fixture IDs and associations intact. Third entrance slot is
+// reused for the right freestanding screen instead of creating a new save key.
+const entranceVisibleFrames=()=>L.roomFrames(fixtures,0).slice(0,3);
 const roomRects=()=>galleryIndex===0
  ?entranceVisibleFrames().map((f,i)=>{const work=slot(i);const {outer}=window.A18Entrance.frameGeometry(f,artworkImage(work),work?.preferredShape);return [outer.x,outer.y,outer.x+outer.w,outer.y+outer.h];})
  :L.roomFrames(fixtures,galleryIndex).map(L.r);
-const frameCount=room=>room===0?2:L.roomFrames(fixtures,room).length;
+const frameCount=room=>room===0?3:L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
 const roomCapacity=room=>frameCount(room);
 const roomCount=()=>6;
@@ -810,7 +810,7 @@ function avatar(){
 function drawBackground(){
  if(scene==='entrance'){
   window.A18Entrance.background(ctx);
-  // User-approved initial background; counter and middle partitions await independent foreground assets.
+  // Keep the approved architectural background intact; the separate candidate counter is drawn in depth order below.
   // Old P5 entrance decorations and P3 shutters are not part of this architectural baseline.
   // Logical progression and collision gates are still enforced by P2 / navigation.
   return;
@@ -866,16 +866,24 @@ function draw(){
  ctx.save();
  ctx.setTransform(scale,0,0,scale,-pixelCameraX,-pixelCameraY);
  drawBackground();
+ if(galleryIndex===0)window.A18Entrance.partitionRight(ctx);
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
  decorate();
  // Draw the curator behind the butler when walking beyond his feet.
  // Collision is foot-based; keep the same visual depth ordering.
  const behindButler=galleryIndex===0&&pos.y<L.BUTLER.footY;
- if(behindButler)avatar();
+ const behindPartition=galleryIndex===0&&pos.y<337;
+ if(behindPartition)avatar();
+ if(galleryIndex===0){window.A18Entrance.partition(ctx);window.A18Entrance.papers(ctx);}
+ if(behindButler&&!behindPartition)avatar();
  drawButler();drawGalleryStaff();
+ // The counter is in front of the butler but behind a curator standing at its customer edge.
+ if(galleryIndex===0&&pos.y>=410)window.A18Entrance.counter(ctx);
  const hit=nearby();
  if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i);if(galleryIndex===0){const carried=works.find(w=>w.id===carrying);if(!carried)throw Error('E_ENTRANCE_CARRIED_WORK');window.A18Entrance.markSlot(ctx,f,artworkImage(carried),carried.preferredShape);}else{const [x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}}
- if(!behindButler)avatar();ctx.restore();requestAnimationFrame(draw);
+ if(!behindButler)avatar();
+ if(galleryIndex===0&&pos.y<410)window.A18Entrance.counter(ctx);
+ ctx.restore();requestAnimationFrame(draw);
 }
 function profileFields(){
  return '<label>館長の名前<input id="a18PlayerName" maxlength="24" autocomplete="off" value="'+esc(playerName)+'" placeholder="名前"></label>'+
@@ -1059,7 +1067,15 @@ function inspect(i){
   return;
  }
  const a=slot(i);
- if(!a){open('空の額縁','<p>スタッフから新しい作品を受け取り、この額縁まで運んできましょう。</p><div class="row"><button id="close">わかった</button></div>');$('close').onclick=close;return}
+ if(!a){
+  if(i===2){
+   open('右の仕切り壁','<p>この仕切り壁に好きな写真を登録して展示できます。</p><div class="row"><button id="registerRightPhoto">写真を登録する</button><button id="fromCollection">登録済みの作品から選ぶ</button><button id="close">閉じる</button></div>');
+   $('registerRightPhoto').onclick=()=>form(2,false,'butler',true);
+   $('fromCollection').onclick=list;
+   $('close').onclick=close;return;
+  }
+  open('空の額縁','<p>スタッフから新しい作品を受け取り、この額縁まで運んできましょう。</p><div class="row"><button id="close">わかった</button></div>');$('close').onclick=close;return;
+ }
  const img=a.displaySrc||a.originalURL||'';
  const items=[...works].filter(w=>w.fixtureId!=null).sort((x,y)=>fixtureRank(x.fixtureId)-fixtureRank(y.fixtureId)).map(w=>({id:w.id,title:w.title,registered:w.registered,notes:w.notes||'',src:w.displaySrc||w.originalURL||'',originalSrc:w.originalURL||''}));
  open(a.title,'<div class="inspect-shell"><div class="inspect-top"><h2>'+esc(a.title)+'</h2><p>登録日：'+esc(a.registered||'不明')+'</p></div>'+
@@ -1142,13 +1158,15 @@ function staffDialog(role='staff'){
  window.A18Registration.staffDialog({open,close,list,form,carrying,role,playerName,gender:avatarGender,works,museumLevel:unlockedRooms()});
 }
 function fade(){const fade=document.createElement('div');fade.style.cssText='position:fixed;z-index:19;inset:0;background:#102d27;opacity:1;transition:opacity .4s;pointer-events:none';document.body.appendChild(fade);requestAnimationFrame(()=>fade.style.opacity='0');setTimeout(()=>fade.remove(),440);}
-function form(spotNo=0,viaStaff=false,role=galleryIndex===0?'butler':'staff'){
- window.A18Registration.form({spotNo,viaStaff,open,close,slot,changeScene,works,maxWorks:MAX_WORKS,role,playerName,gender:avatarGender,
+function form(spotNo=0,viaStaff=false,role=galleryIndex===0?'butler':'staff',placeDirectly=false){
+ window.A18Registration.form({spotNo,viaStaff,open,close,slot,changeScene,works,maxWorks:MAX_WORKS,role,playerName,gender:avatarGender,placeDirectly,
   onRegistered:async(work)=>commitChange(s=>{
    if(s.works.length>=MAX_WORKS)throw Error('E_WORK_LIMIT');
    if(s.works.some(w=>w.id===work.id))throw Error('E_WORK_DUPLICATE');
-   s.works.push(P2.persisted({...s,works:[work]}).works[0]);
-   s.carrying=work.id;
+   const destination=placeDirectly?slotId(2):null;
+   if(placeDirectly&&s.works.some(w=>w.fixtureId===destination))throw Error('E_RIGHT_WALL_ALREADY_OCCUPIED');
+   s.works.push(P2.persisted({...s,works:[{...work,fixtureId:destination}]}).works[0]);
+   s.carrying=placeDirectly?null:work.id;
   })});
 }
 const heldKeys=new Set();let pointerLoop=null;
