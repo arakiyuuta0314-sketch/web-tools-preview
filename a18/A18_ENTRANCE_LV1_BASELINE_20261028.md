@@ -16,7 +16,7 @@
 | 左壁の掲示物5枚 | v11のmanifestを参照 |  |  |  | `reception_collage_*_v11.png` |
 
 掲示物は生成り・淡緑・水色・黄土・薄桃の**5枚をそれぞれ独立した透過PNG**で重ねる。並び／傾き／留め具は
-`a18/layout-test/experiments/entrance_2d_assets_20261028/reception_collage_v11_manifest.json` に履歴保存。
+`a18/A18_ENTRANCE_LV1_V11_PAPERS_MANIFEST.json` に履歴保存。
 一枚絵に合成してしまわず、ゲームの`A18Entrance.papers`で個別スプライトを描画する。
 
 右壁は既存の `frame-0-2` を再利用して作品登録・保存・再起動後の表示ができる。全28展示設備IDは不変で、エントランス表示枠は3（背面2＋右仕切り壁1）。
