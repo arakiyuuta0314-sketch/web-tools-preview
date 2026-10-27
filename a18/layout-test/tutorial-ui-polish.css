@@ -1,0 +1,19 @@
+/* A18 2026-10-27: conversation legibility and nonintrusive tutorial hints. */
+.rpg-message{line-break:strict;word-break:normal;overflow-wrap:anywhere}
+.p6-story-chat .rpg-message{white-space:pre-line}
+.a18-speaker-honorific{display:inline-block;max-width:100%;white-space:nowrap}
+.a18-intro-museum-dialogue .rpg-chat{align-items:center}
+.a18-intro-museum-dialogue .rpg-message{line-height:1.55}
+.a18-intro-museum-form{margin-top:10px}
+.a18-intro-museum-form label{display:block;margin-top:2px}
+.a18-intro-museum-form input{min-height:45px}
+.a18-intro-museum-form .error:empty{display:none}
+@media (orientation:portrait) and (max-width:850px){
+  .stage:not(.overview)>.hint{
+    top:auto!important;bottom:176px!important;left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+    width:max-content;max-width:calc(100% - 24px);
+    padding:7px 11px;line-height:1.45;font-size:13px;text-align:center;
+    pointer-events:none;
+  }
+}

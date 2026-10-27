@@ -9,7 +9,7 @@ const BASE=[
  [[77,56,207,154],[407,56,534,154],[56,244,153,319],[177,244,264,319],[412,262,512,336]],
  [[39,63,151,153],[215,48,320,147],[418,63,537,153],[66,257,179,338],[403,239,516,316]]
 ];
-const ROOM_SIZE=Array.from({length:6},(_,i)=>({w:i===0?546:589,h:i===0?483:482,wallFoot:i===0?202:164}));
+const ROOM_SIZE=Array.from({length:6},(_,i)=>({w:i===0?546:589,h:i===0?483:482,wallFoot:i===0?210:164}));
 const ROOM_LINKS={0:{west:1,east:2,north:5},1:{east:0,north:3},2:{west:0,north:4},3:{south:1,east:5},4:{south:2,west:5},5:{south:0,west:3,east:4}};
 const PORTALS={
  0:{west:[39,454],east:[505,454],north:[283,207]},
@@ -152,7 +152,11 @@ function migrateLegacy(works){
  }
 }
 function obstacles(fixtures,room){
- const result=room===0?[npcBounds('butler',room),[399,540,158,410],[0,115,321,411],[0,104,172,315]]:[staffBlock(room)];
+ // Entrance: collide at the butler's feet, not his full 49px-tall sprite.
+ // The floor behind his body must be walkable; rear wall remains separate.
+ // NPC visual bounds / interaction anchor remain unchanged.
+ if(room===0)return [[BUTLER.x-10,BUTLER.x+10,BUTLER.footY-5,BUTLER.footY+2]];
+ const result=[staffBlock(room)];
  for(const f of fixtures)if(f.roomId===room&&f.kind==='frame'&&f.installation==='floor'){
   const [l,t,rr,b]=r(f);
   result.push([l-10,rr+10,t-12,b+10]);
@@ -162,7 +166,9 @@ function obstacles(fixtures,room){
 function walkable(x,y,fixtures,room){
  const m=ROOM_SIZE[room],radius=9,fy=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
- if(y<m.wallFoot && (ROOM_LINKS[room].north==null||(room===0?(x<260||x>312):(x<349||x>382))))return false;
+ // No doorway through the entrance's approved solid rear wall.
+ if(room===0 && y<m.wallFoot)return false;
+ if(room!==0 && y<m.wallFoot && (ROOM_LINKS[room].north==null||(x<349||x>382)))return false;
  for(const [l,rr,t,b] of obstacles(fixtures,room)){
   const cx=Math.max(l,Math.min(x,rr)),cy=Math.max(t,Math.min(fy,b));
   if(Math.hypot(x-cx,fy-cy)<radius)return false;
@@ -171,7 +177,7 @@ function walkable(x,y,fixtures,room){
 }
 function anchor(f,room){
  if(f.kind!=='frame')return null;
- if(room===0){const n=Number(f.id.split('-')[2]);const points=[[150,227],[368,228],[382,358]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
+ if(room===0){const n=Number(f.id.split('-')[2]);const points=[[116,237],[439,237],[382,358]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
  return {x:f.x,y:f.installation==='wall'?ROOM_SIZE[room].wallFoot+18:f.y+f.height/2+29};
 }
 function validatePlacement(fixtures,room){
@@ -219,7 +225,9 @@ function validatePlacement(fixtures,room){
   tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);
  }
  const npc=room===0?npcAnchor('butler',room):npcAnchor('staff',room);
- const points=[...Object.values(PORTALS[room]),[npc.x,npc.y],...rs.filter(f=>f.kind==='frame').map(f=>{const a=anchor(f,room);return [a.x,a.y]})];
+ const activeFrames=room===0?rs.filter(f=>f.id==='frame-0-0'||f.id==='frame-0-1'):rs;
+ // Closed entrance: no portal route or absent third frame is required.
+ const points=[...(room===0?[]:Object.values(PORTALS[room])),[npc.x,npc.y],...activeFrames.map(f=>{const a=anchor(f,room);return [a.x,a.y]})];
  if(room===0)points.push([186,330]);
  for(const [px,py]of points){
   let found=false;

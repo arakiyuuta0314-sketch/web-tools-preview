@@ -1,0 +1,112 @@
+{
+  "verified_main_at_audit": "c8454df8194d5b36708ed358879cd14d04d4e0a6",
+  "classification": "Pre-sync historical feature/fix. Do not treat a branch as approved merely from age/name; review file-level provenance.",
+  "feature_branches": [
+    {
+      "branch": "feature/a18-dpad-qa-exit-20261023",
+      "commit": "5242e9fd18868b8ce3108b980046284c4a3d0a10",
+      "not_in_prior_main": 1,
+      "worktree_folder": "web-tools-preview-a18-dpad-qa",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-entrance-approved-art-20261024",
+      "commit": "241fcb7c7406740cc9fa5c621cfc579f11c0db63",
+      "not_in_prior_main": 6,
+      "worktree_folder": "web-tools-preview-a18-approved-art",
+      "dirty_or_untracked_count": 8,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-entrance-clean-redraw-20261027",
+      "commit": "dff04efaaa1f4515c9462e9491c74fae80563c44",
+      "not_in_prior_main": 16,
+      "worktree_folder": "web-tools-preview-a18-clean-redraw-20261027",
+      "dirty_or_untracked_count": 2,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-gallery1-v01",
+      "commit": "85d4822175aab64d7af0e3d36bdd7462f488c8e2",
+      "not_in_prior_main": 0,
+      "worktree_folder": "web-tools-preview-a18-gallery1",
+      "dirty_or_untracked_count": 3,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-layout-editor-20261023",
+      "commit": "c7aa5aa7d34ef17c0844bae57e4d7cf7d68e74db",
+      "not_in_prior_main": 4,
+      "worktree_folder": "web-tools-preview-a18-layout",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-p5-c-browser-compare-20261023",
+      "commit": "947551de0525827df79f404cab7dbb4680d64377",
+      "not_in_prior_main": 1,
+      "worktree_folder": "web-tools-preview-a18-p5-c-browser",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-p7a-web-qa-20261023",
+      "commit": "575ce7f28ae2e42c6608f2413d8fae755ec5849a",
+      "not_in_prior_main": 1,
+      "worktree_folder": "web-tools-preview-a18-p7a-qa",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-p7b-web-release-20261023",
+      "commit": "0af33631ba6c55639441c738969a38800642e7b1",
+      "not_in_prior_main": 1,
+      "worktree_folder": "web-tools-preview-a18-p7b-release",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-photo-editor-v2-20261027",
+      "commit": "a187677e96447647430c45dcc2e4c3dad39197c4",
+      "not_in_prior_main": 16,
+      "worktree_folder": "web-tools-preview-a18-photo-editor-v2-20261027",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-photo-perspective-20261027",
+      "commit": "bfbcd71c067c74a67e717f5aef407de38097a0b0",
+      "not_in_prior_main": 17,
+      "worktree_folder": "web-tools-preview-a18-photo-perspective-20261027",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-reset-ui-20261024",
+      "commit": "14eb9c567e8096ca12eb524af9b7bb35f9a1fb78",
+      "not_in_prior_main": 1,
+      "worktree_folder": "web-tools-preview-a18-reset",
+      "dirty_or_untracked_count": 23,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "feature/a18-side-post-only-20261024",
+      "commit": "14eb9c567e8096ca12eb524af9b7bb35f9a1fb78",
+      "not_in_prior_main": 1,
+      "worktree_folder": "web-tools-preview-a18-side-post-only",
+      "dirty_or_untracked_count": 23,
+      "decision": "retain_unmerged_or_untracked"
+    },
+    {
+      "branch": "fix/a18-entrance-frame-photo-hq-20261027",
+      "commit": "d7cf3270912c08a8b16e06089b932493236534bb",
+      "not_in_prior_main": 15,
+      "worktree_folder": "web-tools-preview-a18-frame-photo-hq-20261027",
+      "dirty_or_untracked_count": 0,
+      "decision": "retain_unmerged_or_untracked"
+    }
+  ],
+  "safe_candidate_count": 0,
+  "protected_count": 13
+}

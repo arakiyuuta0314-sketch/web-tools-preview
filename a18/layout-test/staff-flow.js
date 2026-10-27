@@ -26,6 +26,45 @@ const doneLines=[
  '館長、作品のご用意が整いました。大切にお渡しします。',
  'お預かりした作品の仕上げが終わりました。いよいよ展示ですね。'
 ];
+// Butler greetings are keyed by the museum's confirmed unlocked level.
+// Add a level's dialogue here; do not silently reuse another level's lines.
+const BUTLER_GREETINGS_BY_LEVEL={
+ 1:[
+  '{name}、本日もお目にかかれて光栄でございます。',
+  '{name}、館内のご案内は私にお任せください。',
+  '{name}、ようこそお越しくださいました。どうぞごゆっくり。',
+  '{name}、お待ちしておりました。今日もごゆっくりお過ごしください。',
+  '{name}、またお会いできてうれしゅうございます。',
+  '{name}、今日もこの館で素敵な時間をお過ごしくださいませ。',
+  '{name}、何かございましたら、いつでもお声がけくださいませ。',
+  '{name}、こうしてお迎えできるのが、私の楽しみでございます。'
+ ],
+ 2:[
+  '{name}、新しい展示室の扉が開きましたな。',
+  '{name}、新たな仲間も加わり、館内が少しにぎやかになりましたな。',
+  '{name}、新しく開いた展示室も、ぜひご覧くださいませ。'
+ ],
+ 3:[
+  '{name}、また一つ展示室が増えましたな。',
+  '{name}、館内を歩く楽しみが、また増えましたな。',
+  '{name}、この館も、少しずつ立派になってまいりました。'
+ ],
+ 4:[
+  '{name}、展示室を巡るたび、館の歩みを感じますな。',
+  '{name}、新しい展示室もご案内できるようになりましたぞ。',
+  '{name}、これからどんな一枚に出会えるか、楽しみでございます。'
+ ],
+ 5:[
+  '{name}、館内もずいぶんと広くなりましたな。',
+  '{name}、作品を大切に飾ってまいりましょう。',
+  '{name}、館の変化を拝見するのも、私の楽しみの一つでございます。'
+ ],
+ 6:[
+  '{name}、この館も大きく育ちましたな。',
+  '{name}、どの展示室にも、まだ新しい一枚を迎えられそうでございます。',
+  '{name}、これからもご一緒できれば、うれしゅうございます。'
+ ]
+};
 const last=new Map();
 function pick(tag,arr){
  const previous=last.get(tag);let i=Math.floor(Math.random()*arr.length);
@@ -40,9 +79,12 @@ function honorific(role,playerName,gender){
 }
 function portrait(message,role=activeRole){
  const butler=role==='butler',meta=window.A18Art?.manifest?.[butler?'butler':'staff'];
+ let text=esc(message);
+ if(activePlayer&&activePlayer!=='館長')
+  text=text.replaceAll(esc(activePlayer),'<span class="a18-speaker-honorific">'+esc(activePlayer)+'</span>');
  return '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(meta?.portraitPath||'')+'" alt="'+(butler?'爺や':'スタッフ')+'"></div>'+
  '<div class="rpg-words"><span class="rpg-name">'+(butler?'爺や':'展示室スタッフ')+'</span>'+
- '<p class="rpg-message">'+esc(message)+'</p></div></div>';
+ '<p class="rpg-message">'+text+'</p></div></div>';
 }
 function staffPortrait(message){return portrait(message);}
 function reviewLayout(message,media,choices){
@@ -73,12 +115,18 @@ function chatText(role,playerName,gender,works){
  const line=text.replaceAll('{name}',name).replaceAll('{title}',title);
  return line.includes(name)?line:name+'、'+line;
 }
-function staffDialog({open,close,list,form,carrying,role='staff',playerName='館長',gender='male',works=[]}){
+function butlerGreeting(museumLevel,name){
+ const lines=BUTLER_GREETINGS_BY_LEVEL[museumLevel];
+ if(!Number.isInteger(museumLevel)||!lines?.length)
+  throw Error('E_BUTLER_GREETING_LEVEL: '+museumLevel);
+ return pick('butler-hi-lv'+museumLevel,lines).replaceAll('{name}',name);
+}
+function staffDialog({open,close,list,form,carrying,role='staff',playerName='館長',gender='male',works=[],museumLevel}){
  const butler=role==='butler',title=butler?'爺や':'展示室スタッフ';
  const name=honorific(role,playerName,gender);
  activeRole=role;activePlayer=name;
  const intro=butler
-  ?name+'、お呼びでございますか。何なりとお申し付けください。'
+  ?'お呼びでございますか。何なりとお申し付けください。'
   :name+'、おかえりなさい！ 今日はどうする？';
  function speak(text,choices=''){return portrait(text,role)+choices;}
  function menu(){
@@ -107,10 +155,7 @@ function staffDialog({open,close,list,form,carrying,role='staff',playerName='館
   $('close').onclick=close;
  }
  open(title,'<button type="button" id="rpgAdvance" class="rpg-dialogue-advance" aria-label="次の会話へ進む">'+
-  speak(butler?pick('butler-hi',[
-   name+'、本日もお目にかかれて光栄でございます。',
-   name+'、館内のご案内は私にお任せください。'
-  ]):pick('staff-hi',[
+  speak(butler?butlerGreeting(museumLevel,name):pick('staff-hi',[
    name+'、いらっしゃい！ 今日も楽しんでいってね。',
    name+'、会えてうれしい！ 作品を見せてくれる？'
   ]))+
@@ -125,9 +170,7 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
  '<div class="registration-intro">'+staffPortrait(role==='butler'?activePlayer+'、大切な作品をお預かりいたします。':'新しい作品を預かるね！')+'</div>'+
  '<div class="registration-fields">'+
  '<label>作品名<input id="name" maxlength="80" placeholder="例：お気に入りの風景"></label>'+
- '<label>完成日（任意・不明のまま登録できます）<input id="date" type="date"></label>'+
- '<div class="date-actions"><button type="button" id="dateClear" class="light">不明</button><button type="button" id="dateToday" class="light">今日</button></div>'+
- '<label>ピース数（任意）<input id="pieces" type="number" min="1" max="999999"></label>'+
+
  '<label>備考・思い出（任意）<textarea id="notes" maxlength="3000" rows="2" placeholder="作品にまつわる思い出を自由に残せます"></textarea></label>'+
  '<label>写真<input id="photo" type="file" accept="image/*"></label></div>'+
  '<p class="prep-warn">この端末のブラウザに保存します。原本写真は変更しません。ブラウザのデータ消去やプライベートモードでは失われる場合があります。</p>'+
@@ -137,21 +180,15 @@ function form({spotNo=0,viaStaff=false,open,close,works,onRegistered,changeScene
    const d=new Date();
    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
  };
- $('date').value='';
- $('dateToday').onclick=()=>{$('date').value=today();};
- $('dateClear').onclick=()=>{$('date').value='';};
  $('close').onclick=close;
  $('save').onclick=()=>{
   const file=$('photo').files?.[0],name=$('name').value.trim();
-  const complete=$('date').value||null;
-  const rawPieces=$('pieces').value.trim();
-  const pieces=rawPieces===''?null:Number(rawPieces);
   if(!name||!file){$('err').textContent='作品名と写真を選んでください';return}
-  if($('pieces').validity.badInput||(pieces!==null&&(!Number.isFinite(pieces)||pieces<=0))){$('err').textContent='ピース数は空欄、または0より大きい数値を入力してください';return}
   if(!file.type.startsWith('image/')){$('err').textContent='画像を選択してください';return}
   if(file.size>30*1024*1024){$('err').textContent='30MB以下の画像を選んでください';return}
   const originalURL=URL.createObjectURL(file),image=new Image();
-  const entry={title:name,pieces,complete,
+  // Legacy v3 storage still requires these two keys. New artwork no longer uses them.
+  const entry={title:name,pieces:null,complete:null,
    notes:$('notes').value.trim(),registered:today(),fixtureId:null,image,originalURL,originalBlob:file};
   image.onload=()=>offer(ctx,entry);
   image.onerror=()=>{URL.revokeObjectURL(originalURL);$('err').textContent='写真を読み込めませんでした'};
@@ -170,7 +207,7 @@ function offer(ctx,entry){
  $('offerYes').onclick=()=>compare(ctx,entry);
  $('offerNo').onclick=()=>commit(ctx,entry,null);
 }
-async function commit(ctx,entry,canvas){
+async function commit(ctx,entry,canvas,editRecipe=null){
  const {open,close,works,onRegistered}=ctx;
  function previewThumb(){
   const source=canvas||entry.image,w=source.width,h=source.height;
@@ -187,68 +224,37 @@ async function commit(ctx,entry,canvas){
  const preferredShape=aspect<.85?'portrait':aspect>1.15?'landscape':'square';
  const newWork={id,preferredShape,title:entry.title,pieces:entry.pieces,complete:entry.complete,notes:entry.notes,
   registered:entry.registered,originalURL:entry.originalURL,originalBlob:entry.originalBlob,
-  displaySrc:canvas?canvas.toDataURL('image/jpeg',.94):entry.originalURL,
-  thumbnail,fixtureId:null};
+  displaySrc:canvas?canvas.toDataURL('image/jpeg',.98):entry.originalURL,
+  editRecipe,thumbnail,fixtureId:null};
  // Durable registration and handover are a single revision-CAS commit.
  const saved=await onRegistered(newWork);
- if(!saved){open('保存失敗','<p>作品は登録されていません。画面を再読み込みして状態を確認してください。</p>');return;}
+ if(!saved){open('保存失敗','<p>作品は登録されていません。画面を再読み込みして状態を確認してください。</p>');return false;}
+ // Registration created a temporary preview URL. The durable work now owns
+ // its own hydrated URL, so release only this temporary handle.
+ URL.revokeObjectURL(entry.originalURL);
  open(activeRole==='butler'?'爺や｜作品のお渡し':'スタッフ｜作品のお渡し',
   '<div class="rpg-chat"><div class="rpg-portrait"><img src="'+esc(window.A18Art?.manifest?.[activeRole==='butler'?'butler':'staff']?.portraitPath||'')+'" alt="スタッフ"></div><div class="rpg-words"><span class="rpg-name">'+(activeRole==='butler'?'爺や':'展示室スタッフ')+'</span><p class="rpg-message">'+esc(pick('done',[
     '丁寧に仕上げました。どうぞ、館長。お好きな場所へ飾ってください！',
     '今回の新作、お預かりしました。額縁までは館長にお願いしてもよろしいですか？',
     '美しく仕上がりました。ぜひ館長ご自身の手で飾ってください。',
     ...doneLines.map(t=>t+' 作品をお渡ししますね。')
-  ]))+'</p></div></div>'+
+  ]).replaceAll('館長',activePlayer))+'</p></div></div>'+
   '<div class="rpg-choices"><button id="receiveWork">作品を受け取る ▼</button></div>', 'rpg');
  $('receiveWork').onclick=()=>{close();};
+ return true;
 }
 function compare(ctx,entry){
- const full={x:0,y:0,w:entry.image.naturalWidth,h:entry.image.naturalHeight};
- let candidate=full,retained=100,confidence='未検出';
- try{
-  const edge=window.A18SmartFrame.analyze(entry.image);
-  if(edge&&edge.retained>=.55&&edge.retained<.99&&edge.edgeCount>=3){
-   candidate=edge.rect;retained=Math.round(edge.retained*100);confidence=edge.confidence;
-  }else{
-   const original=window.A18PhotoPrep.cropSuggestion(entry.image);
-   const ratio=(original.w*original.h)/(full.w*full.h);
-   if(ratio>=.65&&ratio<.99){candidate=original;retained=Math.round(ratio*100);confidence='補助推定';}
-  }
- }catch(err){console.warn('トリム候補が未検出のため元画像を維持',err)}
- // Cropping remains a suggestion. Uncertain boundaries default to OFF.
- const suggested=confidence==='medium'&&retained>=86&&retained<99;
- const tone=window.A18PhotoFinish.profile(entry.image);
- const cropIsUseful=candidate!==full;
- const attachment=
-  '<div class="prep-pair"><div class="prep-preview"><strong>元の写真</strong><img id="previewBefore" alt="補正前" src="'+esc(entry.originalURL)+'"></div>'+
-  '<div class="prep-preview"><strong>展示用の仕上がり</strong><img id="previewAfter" alt="自動補正後のプレビュー"></div></div>'+
-  '<label class="prep-check"><input type="checkbox" id="autoCrop" '+(suggested?'checked':'')+' '+(!cropIsUseful?'disabled':'')+'>周囲の余白をトリム'+(!cropIsUseful?'（候補なし）':'')+'</label>'+
-  '<label class="prep-check"><input type="checkbox" id="autoTone" checked>明るさ・色味・コントラストを調整</label>'+
-  '<label class="prep-check"><input type="checkbox" id="autoDetail" checked>細部を自然にくっきり見せる</label>'+
-  '<p class="prep-warn">トリムの目安：'+(cropIsUseful?'約'+retained+'%の面積を維持':'候補なし')+
-  '。大切な部分が切れたり、色が不自然でないか見比べてください。反射・遠近の歪みを完全に除去するものではありません。</p>'+
-  '<p id="prepError" class="error" role="status"></p>';
- ctx.open(activeRole==='butler'?'爺や｜自動仕上げの確認':'スタッフ｜自動仕上げの確認',
-  reviewLayout(activeRole==='butler'?'こちらが仕上がりのご提案でございます。お好みの方をお選びください。':'仕上がりを見比べてみてね！ 好きな方を選んで大丈夫。',
-   attachment,'<button id="acceptFinish">この仕上がりで展示</button><button id="acceptOriginal" class="light">元の写真で展示</button>'),'rpg');
- let result=null,previewVersion=0;
- const refresh=()=>{
-  const version=++previewVersion;
-  $('prepError').textContent='仕上がりを調整しています……';
-  setTimeout(()=>{
-   if(version!==previewVersion||!$('previewAfter'))return;
-   try{
-    const rect=$('autoCrop').checked?candidate:full,enhance=$('autoTone').checked;
-    result=window.A18PhotoFinish.render(entry.image,rect,enhance,{tone,sharp:enhance&&$('autoDetail').checked,maxSize:1800});
-    $('previewAfter').src=result.toDataURL('image/jpeg',.91);
-    $('prepError').textContent='';
-   }catch(err){result=null;$('prepError').textContent='補正できなかったため、元の写真で展示できます';console.error(err)}
-  },15);
- };
- for(const id of ['autoCrop','autoTone','autoDetail'])$(id).onchange=refresh;
- $('acceptFinish').onclick=()=>{if(result)commit(ctx,entry,result);else $('prepError').textContent='処理が終わるまでお待ちください';};
- $('acceptOriginal').onclick=()=>commit(ctx,entry,null);
- refresh();
+ window.A18PhotoEditor.ui({
+  originalURL:entry.originalURL,img:entry.image,recipe:null,
+  renderDialog:(attachment,actions)=>ctx.open(
+   activeRole==='butler'?'爺や｜自動仕上げの確認':'スタッフ｜自動仕上げの確認',
+   reviewLayout(activeRole==='butler'
+     ?'こちらが仕上がりのご提案でございます。お好みの方をお選びください。'
+     :'仕上がりを見比べてみてね！ 好きな方を選んで大丈夫。',
+    attachment,actions),'rpg'),
+  onFinish:async({recipe,canvas})=>commit(ctx,entry,canvas,recipe),
+  onOriginal:async()=>commit(ctx,entry,null,null)
+ });
 }
 window.A18Registration={staffDialog,form,honorific,chatText};
 })();

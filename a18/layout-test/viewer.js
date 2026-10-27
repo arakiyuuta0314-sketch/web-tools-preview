@@ -50,11 +50,10 @@
     showOriginal=false;reset();
     title.textContent=entry.title||'無題の作品';
     counter.textContent=(index+1)+' / '+items.length+' 作品';
-    const date=entry.complete||'不明',pieces=entry.pieces ? entry.pieces.toLocaleString('ja-JP')+'ピース':'ピース数未登録';
     const registered=entry.registered||'不明';
     const note=(entry.notes||'').trim();
     details.classList.toggle('has-memory',!!note);
-    details.textContent=pieces+'　｜　完成日 '+date+'　｜　登録日 '+registered+(note?'\n備考・思い出：'+note:'');
+    details.textContent='登録日 '+registered+(note?'\n備考・思い出：'+note:'');
     $('photoPrev').disabled=index<=0;$('photoNext').disabled=index>=items.length-1;
     photo.hidden=!entry.src;frame.hidden=!entry.src;empty.hidden=!!entry.src;
     photo.alt=(entry.title||'作品')+'の全体写真';

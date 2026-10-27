@@ -85,6 +85,43 @@ function validate(s){
    ||(w.fixtureId!=null&&typeof w.fixtureId!=='string')
    ||Object.hasOwn(w,'originalURL')||Object.hasOwn(w,'image')||Object.hasOwn(w,'source'))
     throw error('E_WORK_LINK','work-fields-'+w.id);
+  // Optional recipe is backward-compatible with existing v3 saved works.
+  if(w.editRecipe!=null){
+   const r=w.editRecipe,c=r?.crop,p=r?.toneProfile;
+   const natural=n=>Number.isSafeInteger(n)&&n>0;
+   const offset=n=>Number.isSafeInteger(n)&&n>=0;
+   if(!r||r.version!==1||!natural(r.sourceWidth)||!natural(r.sourceHeight)||
+    !c||!offset(c.x)||!offset(c.y)||!natural(c.w)||!natural(c.h)||
+    c.x+c.w>r.sourceWidth||c.y+c.h>r.sourceHeight||
+    typeof r.cropEnabled!=='boolean'||typeof r.toneEnabled!=='boolean'||
+    typeof r.sharpEnabled!=='boolean'||!p||!Array.isArray(p.whiteBalance)||
+    p.whiteBalance.length!==3||
+    ![...p.whiteBalance,p.gamma,p.shadows,p.highlights,p.contrast,p.saturation,p.sharpness].every(Number.isFinite))
+    throw error('E_WORK_RECIPE_INVALID',w.id);
+   if(r.perspectiveEnabled!==undefined && typeof r.perspectiveEnabled!=='boolean')
+    throw error('E_WORK_RECIPE_PERSPECTIVE',w.id);
+   if(r.perspectiveEnabled&&!Array.isArray(r.quad))
+    throw error('E_WORK_RECIPE_PERSPECTIVE',w.id);
+   if(r.quad!==undefined){
+    const points=r.quad;
+    if(!Array.isArray(points)||points.length!==4||
+     points.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||
+      p.x<0||p.x>r.sourceWidth-1||p.y<0||p.y>r.sourceHeight-1))
+     throw error('E_WORK_RECIPE_PERSPECTIVE',w.id);
+    const area=points.reduce((sum,p,i)=>{
+     const n=points[(i+1)%4];return sum+p.x*n.y-n.x*p.y;
+    },0);
+    const cross=points.map((p,i)=>{
+     const b=points[(i+1)%4],c=points[(i+2)%4];
+     return (b.x-p.x)*(c.y-b.y)-(b.y-p.y)*(c.x-b.x);
+    });
+    if(area<r.sourceWidth*r.sourceHeight*.003 ||
+       cross.some(v=>v<=r.sourceWidth*r.sourceHeight*.0002))
+     throw error('E_WORK_RECIPE_PERSPECTIVE',w.id);
+   }
+   if(r.perspectiveEnabled&&r.cropEnabled)
+    throw error('E_WORK_RECIPE_PERSPECTIVE',w.id);
+  }
  }
  if(s.carrying!=null){
   const held=s.works.find(w=>w.id===s.carrying);
