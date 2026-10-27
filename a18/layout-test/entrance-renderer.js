@@ -64,9 +64,9 @@ function background(ctx){
 function foreground(ctx){check();}
 // Visual review candidate: original counter illustration, no changes to approved background.
 // Requested provisional placement: original counter image moved 15 px down, no scaling.
-function counter(ctx){check();ctx.drawImage(imgs.get('counter'),-10,333,233,107);}
+function counter(ctx){check();ctx.drawImage(imgs.get('counter'),...window.A18Layout.ENTRANCE_LV1.counter.image);}
 // Keep the accepted v09 wood intact and translate the whole independent wall down 15 px.
-function partition(ctx){check();ctx.drawImage(imgs.get('partition'),-6,215,215,122);}
+function partition(ctx){check();ctx.drawImage(imgs.get('partition'),...window.A18Layout.ENTRANCE_LV1.leftWall.image);}
 // Five individual paper layers: overlap, different tilts/stock and a natural collage.
 // Rearmost paper first; neither timber nor its position is ever changed.
 const PAPER_POSITIONS=[
@@ -77,7 +77,7 @@ const PAPER_POSITIONS=[
  ['rose',133,264,36.5,32]
 ];
 function papers(ctx){check();for(const [key,x,y,w,h] of PAPER_POSITIONS)ctx.drawImage(imgs.get(key),x,y,w,h);}
-function partitionRight(ctx){check();ctx.drawImage(imgs.get('right_partition'),363,243,188,133);}
+function partitionRight(ctx){check();ctx.drawImage(imgs.get('right_partition'),...window.A18Layout.ENTRANCE_LV1.rightWall.image);}
 function panel(f){
  if(f?.roomId!==0)throw Error('E_ENTRANCE_V10_ROOM');
  const i=Number(f.id?.split('-')[2]);
@@ -92,7 +92,26 @@ function shapeOf(f,img,preferred){
 }
 function frameGeometry(f,img,preferred=null){
  const p=panel(f),r=p.rect;
- if(p.name==='front'||!img?.naturalWidth)return {outer:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},inner:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},shape:'landscape'};
+ if(p.name==='front'){
+  // Artwork determines the whole mounted frame, not just the pixels inside a
+  // permanently landscape-shaped slot. Preserve the approved landscape bounds.
+  const shape=img?.naturalWidth?shapeOf(f,img,preferred):(preferred||'landscape');
+  if(!['portrait','landscape','square'].includes(shape))throw Error('E_RIGHT_WALL_FRAME_SHAPE');
+  let w=r[2]-r[0],h=r[3]-r[1];
+  if(shape==='portrait'){
+   const ratio=img?.naturalWidth?img.naturalWidth/img.naturalHeight:0.7;
+   if(!(ratio>0&&Number.isFinite(ratio)))throw Error('E_RIGHT_WALL_FRAME_RATIO');
+   // Thin frame follows image aspect while staying within the right partition.
+   const iw=Math.min(90,102*ratio);
+   w=iw+10;h=112;
+  }else if(shape==='square'){w=100;h=100;}
+  const cx=(r[0]+r[2])/2,cy=shape==='landscape'?(r[1]+r[3])/2:303;
+  const outer={x:cx-w/2,y:cy-h/2,w,h};
+  const inner={x:outer.x+5,y:outer.y+5,w:w-10,h:h-10};
+  if(outer.x<386||outer.x+outer.w>541||outer.y<240||outer.y+outer.h>367)throw Error('E_RIGHT_WALL_FRAME_BOUNDS');
+  return {outer,inner,shape};
+ }
+ if(!img?.naturalWidth)return {outer:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},inner:{x:r[0],y:r[1],w:r[2]-r[0],h:r[3]-r[1]},shape:'landscape'};
  const ratio=img.naturalWidth/img.naturalHeight,sh=shapeOf(f,img,preferred);
  const caps=sh==='portrait'?[98,111]:sh==='square'?[100,100]:[133,85];
  const factor=Math.min(caps[0]/ratio,caps[1]),w=ratio*factor,h=factor;
@@ -146,23 +165,24 @@ function rear(ctx,p,f,img,preferred,woodFrame){
  ctx.drawImage(img,inner.x+(inner.w-dw)/2+ox,inner.y+(inner.h-dh)/2+oy,dw,dh);
  ctx.restore();if(woodFrame)drawHighResolutionFrame(ctx,outer);
 }
-function rightPartitionPhoto(ctx,f,img){
- const r=PANELS[2].rect, x=r[0],y=r[1],w=r[2]-r[0],h=r[3]-r[1];
+function rightPartitionPhoto(ctx,f,img,preferred){
+ const {outer,inner}=frameGeometry(f,img,preferred);
+ const {x,y,w,h}=outer;
  const iw=img.naturalWidth,ih=img.naturalHeight;
  if(!(iw>0&&ih>0))throw Error('E_RIGHT_WALL_PHOTO_INVALID');
  const mode=f.imageMode||'cover';
  if(!['cover','contain','custom'].includes(mode))throw Error('E_RIGHT_WALL_PHOTO_MODE');
- const aspect=iw/ih, fit=(mode==='contain'||aspect<.9)?Math.min(w/iw,h/ih):Math.max(w/iw,h/ih);
+ const fit=Math.max(inner.w/iw,inner.h/ih);
  const zoom=mode==='custom'?(f.imageScale??1):1, dw=iw*fit*zoom,dh=ih*fit*zoom;
- const dx=x+(w-dw)/2+(mode==='custom'?(w-dw)*(f.imageX??0)/2:0);
- const dy=y+(h-dh)/2+(mode==='custom'?(h-dh)*(f.imageY??0)/2:0);
+ const dx=inner.x+(inner.w-dw)/2+(mode==='custom'?(inner.w-dw)*(f.imageX??0)/2:0);
+ const dy=inner.y+(inner.h-dh)/2+(mode==='custom'?(inner.h-dh)*(f.imageY??0)/2:0);
  ctx.save();
  // A narrow dark-wood raised lip, no backing board or cream mat.
  ctx.fillStyle='rgba(29,20,14,.36)';ctx.fillRect(x+3,y+4,w,h);
  ctx.fillStyle='#54341d';ctx.fillRect(x-3,y-3,w+6,h+6);
  ctx.fillStyle='#a47846';ctx.fillRect(x-1,y-1,w+2,h+2);
- ctx.fillStyle='#1a322c';ctx.fillRect(x,y,w,h);
- ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+ ctx.fillStyle='#1a322c';ctx.fillRect(inner.x,inner.y,inner.w,inner.h);
+ ctx.beginPath();ctx.rect(inner.x,inner.y,inner.w,inner.h);ctx.clip();
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  ctx.drawImage(img,dx,dy,dw,dh);
  ctx.restore();
@@ -170,18 +190,14 @@ function rightPartitionPhoto(ctx,f,img){
 function frame(ctx,f,img,preferred=null,woodFrame=true){
  check();const p=panel(f);
  if(!img?.naturalWidth)return;
- if(p.name==='front'){rightPartitionPhoto(ctx,f,img);return;}
+ if(p.name==='front'){rightPartitionPhoto(ctx,f,img,preferred);return;}
  rear(ctx,p,f,img,preferred,woodFrame);
 }
 function markSlot(ctx,f,img=null,preferred=null){
  check();const p=panel(f),r=p.rect;
  ctx.save();ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.beginPath();
- if(p.name==='front'){
-  ctx.rect(r[0]-3,r[1]-3,r[2]-r[0]+6,r[3]-r[1]+6);
- }else{
-  const {outer}=frameGeometry(f,img,preferred);
-  ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);
- }
+ const {outer}=frameGeometry(f,img,preferred);
+ ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);
  ctx.stroke();ctx.restore();
 }
 window.A18Entrance={init,background,foreground,counter,partition,papers,partitionRight,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};

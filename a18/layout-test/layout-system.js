@@ -23,6 +23,15 @@ const STAFF_POSITIONS={
  4:{x:345,y:349},5:{x:253,y:352}
 };
 const BUTLER={x:139,footY:366};
+// Lv.1 furniture has one authoritative rectangle for sprite placement and a
+// separate solid footprint. Obstacle tuples use [left,right,top,bottom].
+const ENTRANCE_LV1=Object.freeze({
+ counter:Object.freeze({image:Object.freeze([-10,333,233,107]),solid:Object.freeze([24,224,333,440])}),
+ leftWall:Object.freeze({image:Object.freeze([-6,215,215,122]),solid:Object.freeze([24,210,215,337])}),
+ rightWall:Object.freeze({image:Object.freeze([363,243,188,133]),solid:Object.freeze([363,545,243,376])}),
+ butlerService:Object.freeze({x:243,y:394}),
+ leftExhibitService:Object.freeze({x:243,y:300})
+});
 // Exact approved source alpha bounds are staff (8,6)-(51,72),
 // butler (8,4)-(51,72) on a 60x77 sprite, drawn at 43x55.
 const NPC_SPRITES={staff:{alpha:[8,6,51,72],canvas:[60,77],size:[43,55]},
@@ -41,6 +50,9 @@ function npcBounds(role,room){
 }
 const staffBlock=room=>npcBounds('staff',room);
 function npcAnchor(role,room){
+ // Butler still stands behind the counter. Talk from the visitor-facing edge;
+ // visual sprite / hitbox positions must not move with this service anchor.
+ if(role==='butler'&&room===0)return {...ENTRANCE_LV1.butlerService};
  const b=npcBounds(role,room);
  return {x:(b[0]+b[1])/2,y:(b[2]+b[3])/2};
 }
@@ -155,7 +167,12 @@ function obstacles(fixtures,room){
  // Entrance: collide at the butler's feet, not his full 49px-tall sprite.
  // The floor behind his body must be walkable; rear wall remains separate.
  // NPC visual bounds / interaction anchor remain unchanged.
- if(room===0)return [[BUTLER.x-10,BUTLER.x+10,BUTLER.footY-5,BUTLER.footY+2]];
+  if(room===0)return [
+    [...ENTRANCE_LV1.leftWall.solid],
+    [...ENTRANCE_LV1.counter.solid],
+    [...ENTRANCE_LV1.rightWall.solid],
+    [BUTLER.x-10,BUTLER.x+10,BUTLER.footY-5,BUTLER.footY+2]
+  ];
  const result=[staffBlock(room)];
  for(const f of fixtures)if(f.roomId===room&&f.kind==='frame'&&f.installation==='floor'){
   const [l,t,rr,b]=r(f);
@@ -177,7 +194,7 @@ function walkable(x,y,fixtures,room){
 }
 function anchor(f,room){
  if(f.kind!=='frame')return null;
- if(room===0){const n=Number(f.id.split('-')[2]);const points=[[116,237],[439,237],[447,406]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
+ if(room===0){const n=Number(f.id.split('-')[2]);const points=[[ENTRANCE_LV1.leftExhibitService.x,ENTRANCE_LV1.leftExhibitService.y],[439,237],[447,406]];if(!Number.isInteger(n)||!points[n])throw Error('E_ENTRANCE_ANCHOR');return {x:points[n][0],y:points[n][1]};}
  return {x:f.x,y:f.installation==='wall'?ROOM_SIZE[room].wallFoot+18:f.y+f.height/2+29};
 }
 function validatePlacement(fixtures,room){
@@ -225,10 +242,10 @@ function validatePlacement(fixtures,room){
   tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);
  }
  const npc=room===0?npcAnchor('butler',room):npcAnchor('staff',room);
- const activeFrames=room===0?rs.filter(f=>f.id==='frame-0-0'||f.id==='frame-0-1'):rs;
+ const activeFrames=rs;
  // Closed entrance: no portal route or absent third frame is required.
  const points=[...(room===0?[]:Object.values(PORTALS[room])),[npc.x,npc.y],...activeFrames.map(f=>{const a=anchor(f,room);return [a.x,a.y]})];
- if(room===0)points.push([186,330]);
+ if(room===0)points.push([243,349]);
  for(const [px,py]of points){
   let found=false;
   for(let ix=Math.floor((px-40)/step);ix<=Math.ceil((px+40)/step)&&!found;ix++){
@@ -250,5 +267,5 @@ function newDecor(room,type,x=120,y=300){
   roomId:room,kind:'decor',type,installation:type==='tapestry'?'wall':'floor',x,y,width:TYPES[type][0],height:TYPES[type][1],
   shape:'square',design:'classic',assetKey:type,workId:null};
 }
-window.A18Layout={BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,STAFF_POSITIONS,BUTLER,npcBounds,npcAnchor,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,enforceFixedLayout,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,restoreClassicFrameDimensions};
+window.A18Layout={ENTRANCE_LV1,BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,STAFF_POSITIONS,BUTLER,npcBounds,npcAnchor,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,enforceFixedLayout,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,restoreClassicFrameDimensions};
 })();
