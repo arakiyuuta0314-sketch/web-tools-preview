@@ -103,3 +103,15 @@
 - 配布に便利な `gallery1-layout-editor-v06-offline.html` は画像とスクリプトを一体化した単一HTML。別途ZIP版あり。Google DriveのHTMLプレビューではスクリプトが動かないため、ダウンロードしてブラウザで開く。
 - QA `editor-v06/qa_editor.py` : PC幅1180px、スマホ幅390pxのChromeでドラッグ・履歴・永続化・JSON厳密検証・倍率切替をPASS。単一HTML版のローカルChrome検証もPASS。実iPhoneのSafari実機は未確認。
 - **現時点ではユーザー配置監修用**。ゲーム本体や保存・当たり判定へは未反映。issue/main未統合、Web公開は行わない。
+
+## 共通配置エディターの独立公開（2026-10-28、旧表示リンク不具合対応）
+
+前回の `htmlpreview.github.io` 経由URLはiPhoneで表示できない報告があったため、表示サービスに依存せず開ける静的GitHub Pagesを新設した。
+
+- **正式な監修用URL（ゲーム公開版ではない）**： https://arakiyuuta0314-sketch.github.io/a18-gallery-layout-editor/?room=gallery1
+- **共通コードの正本**： https://github.com/arakiyuuta0314-sketch/a18-gallery-layout-editor
+- 新リポジトリの `work/a18-gallery-layout-preview-20261028` からPages配信。新リポジトリの `main` は作業成果未統合。
+- 元の `web-tools-preview` にある編集機能の試作は記録として保持。**新しい作業の編集画面の正は上記専用リポジトリ**。他室へは `rooms/<id>/room.json` と画像群、`rooms/catalog.json` の追加で流用する。
+- 読込データのroom IDを区別し、部屋の切替・別室データ混入防止まで実ブラウザQA済み。実在の展示室2〜5の画像・座標はまだ登録していないため、仮データで勝手に作らない。
+- 展示室1の初期案内台は `x=425,y=396,w=175,h=96` （旧幅205pxから左右各15px縮小）。展示壁④と⑤は以前の推奨配置を維持。
+- Webの監修用エディターはゲーム本体の衝突判定・カメラ・セーブとは連動しない。配置確定後、JSONを入力根拠としてゲーム側のレイヤー設計・実装とQAを改めて行う。
