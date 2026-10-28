@@ -1,0 +1,18 @@
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>A18 展示室1｜A/B/Cレイアウト比較</title>
+<style>body{font-family:system-ui,"Noto Sans JP",sans-serif;background:#f3f5f1;color:#213e30;margin:0}main{max-width:880px;margin:auto;padding:18px 12px 50px}h1{font-size:1.3rem;margin-bottom:5px}h2{font-size:1.14rem}p{color:#617267;line-height:1.6}.tabs{display:flex;gap:8px;margin:20px 0 15px}.tabs button{flex:1;border-radius:10px;border:2px solid #bacbbe;background:#fff;color:#294b3b;padding:12px 4px;font-size:15px;font-weight:bold}.tabs button[aria-pressed=true]{background:#285740;color:#fff}.panel{padding:14px;border-radius:15px;background:white;box-shadow:0 2px 9px #0001}.view{overflow-x:auto;border:2px solid #b3aa9d;border-radius:8px}.view img{display:block;width:100%;image-rendering:pixelated}.view.pan img{width:169.78%;max-width:none}.tips{background:#eaf0e9;padding:12px;border-radius:10px}li{margin:6px 0}small{color:#68776c}details{margin:20px 0}</style></head>
+<body><main><h1>展示室1｜建築レイアウト3案</h1><p>現行P3素材から構成した監修用試作。装飾・スタッフなしで比較します。ゲーム本体には未実装です。</p>
+<div class="tabs"><button data-v="A" aria-pressed="true">A 現行型</button><button data-v="B" aria-pressed="false">B 回り込み</button><button data-v="C" aria-pressed="false">C 横長回廊</button></div>
+<section class="panel"><h2 id="title">A｜現行型</h2><p id="summary">奥壁3枠と手前2枠、現行の構造を維持します。</p><div class="view" id="view"><img id="scene" src="gallery1_A.png" alt="A案の展示室1試作"></div>
+<p id="hint">現状と比較するための基準案です。</p><div class="tips"><strong>比較ポイント</strong><ul id="points"><li>一目で作品の配置が分かる</li><li>移動が短い</li><li>空間の変化が少ない</li></ul></div></section>
+<details><summary>素材・検証条件</summary><p>3案とも正式P3素材の合成による静止画です。B/Cの移動・接続・カメラ・写真表示・当たり判定は未実装。Bの奥扉は仮配置。Cの壁・床テクスチャの境界も仮状態です。</p></details>
+<small>原本写真・エントランス・ゲームコード・保存データは変更していません。</small></main>
+<script>
+const contents={
+A:["A｜現行型","奥壁3枠と手前2枠、現行の構造を維持します。","現状と比較するための基準案です。",["一目で作品の配置が分かる","移動が短い","空間の変化が少ない"]],
+B:["B｜回り込み型","2つの展示仕切りを前後にずらし、奥まで一直線に見渡せない案です。","奥扉の位置は仮置きです。通行の成立は未検証。",["歩くことで作品を発見する","壁の前後関係で奥行きを演出","回り込みによる手間が増える可能性"]],
+C:["C｜横長回廊型","横幅1000pxに拡張し、壁に5作品を並べます。右の入口から左へ散策します。","左右にスワイプしてみてください。最初は入口のある右側を表示します。",["景色が順番に変わる","ゆったり歩ける回廊","往復距離とカメラ追従を検証する必要"]]
+};
+const buttons=[...document.querySelectorAll('[data-v]')],v=document.getElementById('view');
+function choose(k){const a=contents[k];document.getElementById('title').textContent=a[0];document.getElementById('summary').textContent=a[1];document.getElementById('hint').textContent=a[2];document.getElementById('points').replaceChildren(...a[3].map(s=>{const e=document.createElement('li');e.textContent=s;return e;}));document.getElementById('scene').src='gallery1_'+k+'.png';v.classList.toggle('pan',k==='C');buttons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===k?'true':'false'));requestAnimationFrame(()=>v.scrollLeft=k==='C'?v.scrollWidth-v.clientWidth:0)}
+buttons.forEach(b=>b.addEventListener('click',()=>choose(b.dataset.v)));
+</script></body></html>
