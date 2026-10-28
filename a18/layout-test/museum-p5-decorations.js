@@ -16,7 +16,7 @@ function assetPath(path){
  return ROOT+path;
 }
 function validate(data){
- if(data?.version!=='full_6rooms_v0.2'||data.room_count!==6||data.frame_count!==28||data.portal_edge_count!==7)
+ if(data?.version!=='full_6rooms_v0.2'||data.room_count!==6||data.frame_count!==window.A18Layout.defaults().length||data.portal_edge_count!==7)
   throw Error('E_P5_MANIFEST_VERSION');
  if(!data.rooms||typeof data.rooms!=='object'||!Array.isArray(data.assets)||data.assets.length!==66)
   throw Error('E_P5_MANIFEST_MISSING');
@@ -35,8 +35,10 @@ function validate(data){
   if(!spec||spec.roomId!==room||spec.opens_at_level!==room+1||
      JSON.stringify(spec.size)!==JSON.stringify(dims)||
      !spec.cumulative||!spec.increments||!Array.isArray(spec.fixture_ids)||
-     spec.fixture_ids.length!==(room===0?3:5))
+     spec.fixture_ids.length!==window.A18Layout.BASE[room].length)
    throw Error('E_P5_ROOM_SCHEMA '+room);
+  if(spec.fixture_ids.some((id,i)=>id!==window.A18Layout.fixtureId(room,i)))
+   throw Error('E_P5_FIXTURE_IDS '+room);
   for(let level=1;level<=6;level++){
    const path=assetPath(spec.cumulative[String(level)]);
    const a=listed.get(path);

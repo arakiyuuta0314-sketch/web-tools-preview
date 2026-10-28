@@ -22,7 +22,7 @@ with sync_playwright() as p:
     at:L.anchor(state.fixtures.find(f=>f.id==='frame-0-0'),0),
     can:L.walkable(116,228,state.fixtures,0),level:state.museumLevel,rooms:state.fixtures.length };
  }''')
- assert geometry['level']==1 and geometry['rooms']==28,geometry
+ assert geometry['level']==1 and geometry['rooms']==26,geometry
  assert geometry['at']=={'x':116,'y':228},geometry
  assert geometry['can'] is True,geometry
  frame=geometry['frame']['outer']

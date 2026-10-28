@@ -1,7 +1,9 @@
 /* A18 release v3: one atomic state record; no legacy migration, reset or fault injection. */
 (()=>{'use strict';
 const L=window.A18Layout;
-const DATABASE='a18-totteoki-museum-v3', STORE='states', KEY='museum', EVENTS=['intro-v1','lv2-v1','lv3-v1','lv4-v1','lv5-v1','lv6-v1','gallery06-complete-v1'];
+const TEST_MODE=/(?:^|[?&])qa=1(?:&|$)/.test(window.location?.search||'');
+const DATABASE='a18-totteoki-museum-v3', STORE='states', KEY=TEST_MODE?'museum-qa':'museum', EVENTS=['intro-v1','lv2-v1','lv3-v1','lv4-v1','lv5-v1','lv6-v1','gallery06-complete-v1'];
+const RETIRED_GALLERY5_IDS=['frame-5-3','frame-5-4'];
 const error=(code,path='')=>Object.assign(Error(code+(path?' '+path:'')),{code,path});
 const copy=x=>structuredClone(x);
 let dbPromise=null;
@@ -45,7 +47,7 @@ function makeInitialV3(){
  museumTitle:'とっておき美術館',galleryIndex:0,pos:{x:326,y:425,dir:'up',stride:0},
  carrying:null,progression:{unlockedThroughLevel:1,awardedRoomIds:[],events:[{id:'intro-v1',origin:'play',status:'queued'}],newRoomNotices:[],migration:null}};
 }
-function validate(s){
+function validate(s,allowRetired=false){
  if(!s||typeof s!=='object'||s.schemaVersion!==3)throw error('E_SCHEMA_UNKNOWN','schemaVersion');
  if(!Number.isSafeInteger(s.revision)||s.revision<0)throw error('E_REVISION');
  const p=s.progression;
@@ -68,7 +70,10 @@ function validate(s){
  if(!Array.isArray(s.fixtures)||!Array.isArray(s.works))throw error('E_WORK_LINK');
  const frames=s.fixtures.filter(f=>f.kind==='frame');
  const base=L.defaults();
- if(frames.length!==28||new Set(frames.map(f=>f.id)).size!==28)throw error('E_FRAME_DUPLICATE');
+ const retired=allowRetired&&frames.length===28&&RETIRED_GALLERY5_IDS.every((id,i)=>
+  frames.some(f=>f.id===id&&f.roomId===5&&f.kind==='frame'&&f.legacySlot===28+i));
+ if((frames.length!==base.length&&!retired)||new Set(frames.map(f=>f.id)).size!==frames.length)
+  throw error('E_FRAME_DUPLICATE');
  for(const x of base){
   const f=frames.find(f=>f.id===x.id);
   if(!f||f.roomId!==x.roomId||f.legacySlot!==x.legacySlot)throw error('E_FRAME_DUPLICATE',x.id);
@@ -132,7 +137,7 @@ function validate(s){
  if(!s.pos||!Number.isFinite(s.pos.x)||!Number.isFinite(s.pos.y)||s.pos.x<0||s.pos.x>m.w||s.pos.y<0||s.pos.y>m.h
  ||!['up','down','left','right'].includes(s.pos.dir)||!Number.isInteger(s.pos.stride)||s.pos.stride<0||s.pos.stride>4)throw error('E_POSITION');
  if(!['male','female'].includes(s.avatarGender)||typeof s.playerName!=='string'||s.playerName.length>24||typeof s.museumTitle!=='string'||!s.museumTitle.trim()||s.museumTitle.length>24)throw error('E_PROFILE');
- return {ok:true,revision:s.revision,workCount:s.works.length,frameCount:28,openedRoomIds:Array.from({length:p.unlockedThroughLevel},(_,i)=>i)};
+ return {ok:true,revision:s.revision,workCount:s.works.length,frameCount:frames.length,openedRoomIds:Array.from({length:p.unlockedThroughLevel},(_,i)=>i)};
 }
 function canTraverse(from,dir,p){
  if(!Number.isInteger(from)||from<0||from>5||!['west','east','north','south'].includes(dir))throw error('E_DIRECTION');
@@ -203,7 +208,7 @@ async function load(){
     // Only a physically absent key represents a new museum.
     if(!exists)throw error('E_SCHEMA_UNKNOWN','key-value-invariant');
     result=req.result;
-    validate(result);
+    validate(result,true);
    }catch(e){reason=e;try{tx.abort()}catch(_){}}
   };
   try{
@@ -235,7 +240,7 @@ async function commit(expected,next){
    const live=req.result;
    // A physically present null/undefined/invalid record is NOT a fresh start.
    if(exists){
-    try{validate(live)}catch(e){reason=error('E_SAVE_LIVE_CORRUPT',e.code||e.message);tx.abort();return}
+    try{validate(live,true)}catch(e){reason=error('E_SAVE_LIVE_CORRUPT',e.code||e.message);tx.abort();return}
    }else if(live!==undefined){
     reason=error('E_SAVE_LIVE_CORRUPT','key-value-invariant');tx.abort();return;
    }
@@ -257,6 +262,43 @@ async function commit(expected,next){
   tx.onerror=()=>{};
  });
 }
+function migrateRetiredGallery5(before){
+ validate(before,true);
+ const retired=before.fixtures.filter(f=>RETIRED_GALLERY5_IDS.includes(f.id));
+ if(retired.length===0){validate(before);return null;}
+ if(retired.length!==2||before.fixtures.filter(f=>f.kind==='frame').length!==28)
+  throw error('E_FRAME_MIGRATION_INCOMPATIBLE');
+ const next=copy(before);
+ next.fixtures=next.fixtures.filter(f=>!RETIRED_GALLERY5_IDS.includes(f.id));
+ // Preserve original photos, captions and work IDs. Only the retired wall
+ // assignments return to storage; never silently delete a user's artwork.
+ for(const w of next.works)if(RETIRED_GALLERY5_IDS.includes(w.fixtureId))w.fixtureId=null;
+ L.syncWorks(next.fixtures,next.works);
+ next.revision++;
+ validate(next);
+ return next;
+}
+function testSetLevel(before,level){
+ if(!TEST_MODE)throw error('E_TEST_MODE_REQUIRED');
+ validate(before);
+ if(!Number.isInteger(level)||level<1||level>6)throw error('E_TEST_LEVEL_INVALID');
+ const next=copy(before);
+ const existingIntro=next.progression.events.find(e=>e.id==='intro-v1');
+ next.progression.unlockedThroughLevel=level;
+ next.progression.awardedRoomIds=Array.from({length:level-1},(_,i)=>i);
+ next.progression.events=[{...existingIntro},
+  ...next.progression.awardedRoomIds.map(r=>({
+   id:'lv'+(r+2)+'-v1',origin:'play',status:'seen'
+  }))];
+ next.progression.newRoomNotices=[];
+ if(next.galleryIndex>=level){
+  next.galleryIndex=0;
+  next.pos={x:326,y:425,dir:'up',stride:0};
+ }
+ next.revision++;
+ validate(next);
+ return next;
+}
 function resetState(before,mode){
  validate(before);
  if(!['works','all'].includes(mode))throw error('E_RESET_MODE');
@@ -273,5 +315,5 @@ function hydrate(records){return records.map(w=>{if(!(w.originalBlob instanceof 
  const originalURL=URL.createObjectURL(w.originalBlob);
  return {...w,originalURL,displaySrc:w.displaySrc||originalURL};
 });}
-window.A18P2Store={DATABASE,initial:makeInitialV3,makeInitialV3,validate,canTraverse,isRoomComplete,plan,eventAction,resetState,load,commit,persisted,hydrate,copy};
+window.A18P2Store={DATABASE,TEST_MODE,initial:makeInitialV3,makeInitialV3,validate,canTraverse,isRoomComplete,plan,eventAction,migrateRetiredGallery5,testSetLevel,resetState,load,commit,persisted,hydrate,copy};
 })();

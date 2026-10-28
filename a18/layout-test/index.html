@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-rear-left-anchor-v14-20261028"></script><script src="museum-navigation.js?v=a18-gallery-labels-20261028"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=a18-lv1-route-v13-20261028"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-gallery5-three-frames-20261029"></script><script src="museum-navigation.js?v=a18-gallery-labels-20261028"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=gallery5-three-20261029"></script><script src="entrance-renderer.js?v=a18-lv1-route-v13-20261028"></script><script src="museum-p2-storage.js?v=qa-level-gallery5-20261029"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js?v=frame-photo-hq2-20261027" defer></script>
@@ -124,7 +124,7 @@ let galleryIndex=0; // Stable room IDs: 0 = entrance, 1 = 展示室1 (opens at m
 const fixtures=L.defaults();
 L.restoreClassicFrameDimensions(fixtures);
 L.enforceFixedLayout(fixtures);
-// Keep all 28 fixture IDs and associations intact. Third entrance slot is
+// Preserve stable slot IDs for the active frames. Third entrance slot is
 // reused for the right freestanding screen instead of creating a new save key.
 const entranceVisibleFrames=()=>L.roomFrames(fixtures,0).slice(0,3);
 const roomRects=()=>galleryIndex===0
@@ -600,6 +600,12 @@ async function boot(){
   state=P2.makeInitialV3();
   P2.validate(state);
   await P2.commit(null,state);
+ }else{
+  const migrated=P2.migrateRetiredGallery5(state);
+  if(migrated){
+   await P2.commit(state.revision,migrated);
+   state=migrated;
+  }
  }
  P2.validate(state);
  state=await alignSavedEntranceFixtures(state);
@@ -789,7 +795,7 @@ function nearby(){
 function update(){
  const visibleIds=new Set((galleryIndex===0?entranceVisibleFrames():L.roomFrames(fixtures,galleryIndex)).map(f=>f.id));
  const displayed=works.filter(w=>w.fixtureId!=null&&visibleIds.has(w.fixtureId)).length;
- $('statusText').textContent=ROOM_LABELS[galleryIndex]+' Lv.'+unlockedRooms()+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
+ $('statusText').textContent=(P2.TEST_MODE?'[QA] ':'')+ROOM_LABELS[galleryIndex]+' Lv.'+unlockedRooms()+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
  const hit=nearby();
  $('act').hidden=!hit;
  if(hit)$('act').textContent=hit.type==='staff'||hit.type==='butler'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'額縁を調べる';
@@ -961,6 +967,11 @@ function showSettings(){
  open('設定','<div class="a18-settings-content"><p class="small">館長の名前・性別・美術館の名前を変更できます。</p>'+profileFields()+
   '<p id="profileError" class="error" role="alert"></p><div class="row"><button id="saveProfile">変更を保存</button><button id="closeSettings" class="light">戻る</button></div>'+
   '<hr><h3>物語</h3><button id="p6StoryHistory" type="button" class="light">美術館の物語</button>'+
+  (P2.TEST_MODE?'<hr><h3>開発テスト（QA専用）</h3><p class="small">館Lv.1〜6を自由に切り替え、開いた扉から移動を確認できます。通常のセーブとは別に保存します。</p>'+
+   '<label for="testMuseumLevel">テストする館レベル</label> <select id="testMuseumLevel">'+
+   [1,2,3,4,5,6].map(n=>'<option value="'+n+'"'+(n===unlockedRooms()?' selected':'')+'>館 Lv.'+n+'</option>').join('')+
+   '</select> <button id="applyTestMuseumLevel" type="button">レベルを切り替える</button>'+
+   '<p id="testLevelError" class="error" role="alert"></p>':'')+
   '<hr><h3>広告</h3><button id="adRemoval" type="button" disabled>広告を永久に削除　準備中</button>'+
   '<p class="small">広告削除の買い切り機能は、iOS版の課金機能を実装した後に利用できる予定です。現時点では購入処理は行いません。</p>'+ 
   '<hr><h3>ゲームのリセット</h3><p class="small">テスト中の作品と展示を削除できます。削除した写真は復元できません。</p>'+
@@ -969,6 +980,26 @@ function showSettings(){
  $('saveProfile').onclick=async()=>{if(await saveProfile())close();};
  $('closeSettings').onclick=close;
  $('p6StoryHistory').onclick=()=>{close();showStoryHistory();};
+ if(P2.TEST_MODE)$('applyTestMuseumLevel').onclick=async()=>{
+  if(saving||saveBlocked)return;
+  const level=Number($('testMuseumLevel').value);
+  saving=true;
+  $('applyTestMuseumLevel').disabled=true;
+  try{
+   clearTimeout(saveTimer);
+   const next=P2.testSetLevel(currentSave,level);
+   if(next.galleryIndex>0)await Promise.all([
+    window.A18P3Gallery.prepare(next.galleryIndex),
+    window.A18P5Decorations.prepare(next.galleryIndex,next.progression)
+   ]);
+   await P2.commit(currentSave.revision,next);
+   applyCommitted(next);
+   close();
+  }catch(e){
+   $('testLevelError').textContent='レベルを変更できませんでした：'+(e.code||e.message);
+   saveError(e);
+  }finally{saving=false;}
+ };
  $('resetWorksOnly').onclick=()=>confirmMuseumReset('works');
  $('resetAllProgress').onclick=()=>confirmMuseumReset('all');
 }

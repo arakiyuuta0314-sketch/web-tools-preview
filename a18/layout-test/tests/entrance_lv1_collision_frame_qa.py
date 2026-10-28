@@ -35,7 +35,7 @@ with sync_playwright() as p:
   page.wait_for_function('window.__A18_SCENE_STUDY__?.ready()===true',timeout=25000)
   page.wait_for_timeout(500)
   state=page.evaluate('window.__A18_SCENE_STUDY__.state()')
-  assert state['museumLevel']==1 and len(state['fixtures'])==28
+  assert state['museumLevel']==1 and len(state['fixtures'])==26
   geometry=page.evaluate("""() => {
    const L=window.A18Layout, f=L.defaults()[2], e=L.ENTRANCE_LV1;
    if(!e||e.counter.image[1]!==333||e.leftWall.image[1]!==215||e.rightWall.image[1]!==243)throw Error('E_LV1_COORDS');
@@ -91,7 +91,7 @@ with sync_playwright() as p:
   page.wait_for_function('window.__A18_SCENE_STUDY__?.ready()===true',timeout=20000)
   reloaded=page.evaluate('window.__A18_SCENE_STUDY__.state()')
   assert reloaded['works'][0]['fixtureId']=='frame-0-2',reloaded['works']
-  assert len(reloaded['fixtures'])==28
+  assert len(reloaded['fixtures'])==26
   assert errors==[],errors
   result.append({'shape':kind,'rect':rect,'collision':points,'persisted':True,'errors':errors})
   print('LV1_QA_PASS',kind,json.dumps(rect,ensure_ascii=False))

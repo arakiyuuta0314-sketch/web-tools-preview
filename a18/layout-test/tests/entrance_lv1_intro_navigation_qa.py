@@ -76,7 +76,7 @@ with sync_playwright() as p:
  game_page.locator('#confirmName').click()
  game_page.wait_for_function('window.__A18_SCENE_STUDY__?.ready()===true',timeout=20000)
  st=game_page.evaluate('window.__A18_SCENE_STUDY__.state()')
- assert st['museumLevel']==1 and len(st['fixtures'])==28
+ assert st['museumLevel']==1 and len(st['fixtures'])==26
  walkable=game_page.evaluate("""() => {
   const L=window.A18Layout,s=window.__A18_SCENE_STUDY__.state();
   const points=[[140,260],[430,288],[140,334],[450,371],[140,454],[243,394]];

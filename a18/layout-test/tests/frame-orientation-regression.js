@@ -27,7 +27,7 @@ const bLandscape=Art.frameBounds(frame,landscape,others);
 const bPortrait=Art.frameBounds({...frame,imageMode:'contain'},portrait,others);
 if(!(bPortrait.h>=118 && bPortrait.h>bPortrait.w && bPortrait.h>bLandscape.h))throw Error('Portrait remains small/horizontal');
 if(!(bLandscape.w>frame.width))throw Error('Entrance frames did not enlarge');
-console.log('PASS all 28 frames: landscape/portrait/square rendering, '+wider+' frames wider, '+notWider+' constrained');
+console.log('PASS all '+fixtures.length+' frames: landscape/portrait/square rendering, '+wider+' frames wider, '+notWider+' constrained');
 console.log('Entr. landscape',bLandscape,'portrait',bPortrait);
 
 const rect=b=>[b.x-b.rim,b.y-b.rim,b.x+b.w+b.rim,b.y+b.h+b.rim];
