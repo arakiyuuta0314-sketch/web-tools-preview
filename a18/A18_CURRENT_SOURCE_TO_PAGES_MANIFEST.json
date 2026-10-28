@@ -1,6 +1,6 @@
 {
   "purpose": "A18 current published source parity (all published runtime+art+docs)",
-  "approved_published_commit": "ee89ba300ab07198ee35eaff16a671347de4589f",
+  "approved_published_commit": "83f87b1e9273bdd0bbb32d8b7a31bddac5826b19",
   "base_dev_main": "a25cf83379415aef5ee52700abf6c9e582ea8c11",
   "copies": {
     "a18-fixed-ui.css": "ba834519a972a607b7b4519ebb2fbb132edd76ddf3f965c373e4fea16978ad5c",
@@ -237,9 +237,9 @@
     "entrance-renderer.js": "cdcc206524a3fe0a1c6b2cbbf14fbd8419368fe3d69084458265cc5e861f32ec",
     "functional-ui.css": "ba43d510fcb3763ae5ea33b9c44541536caf66c345361a171f8b973ef972d1ce",
     "gallery1-renderer.js": "3d28c6604e4610d6af9c9c958d69ef5c87a2de5527abad6f738ce53bc9c7f553",
-    "index.html": "df1d34738204a95bbb6016a97fd2543af0688cf6e26901dbe80f5e55d9824b3a",
+    "index.html": "4990d5d036d47fc6073e63b24d897a699b4ba87190272b5ddd6d9d025f3cb17d",
     "layout-assets-manifest.json": "c8ffa538b8d6a5a97551d50284dfca0bb7f81540b1998361ed0b7e9cd536d7a2",
-    "layout-system.js": "3b06ce4941bf446dffe4f4c3e36dce228a489cb7964e7ebe1891a98fa092e2ca",
+    "layout-system.js": "43cd77ac9ea396bbdff122c2887c0e3bebecb8ff9a0b9be53defbab428c8b66e",
     "manifest.webmanifest": "c3b4667811bbb5f4508abb9622ffe539797c9630ec62743fac02bd826ece1098",
     "museum-navigation.css": "8469e4f1c24788220a5c140a116555ce9e8b33492a4bb5d6b6d29f6fe5ba468e",
     "museum-navigation.js": "1317418d491e3d4356beaefe42f9a4db10ed21ddfe10cf8d75c9faaaa823b73e",
@@ -269,5 +269,5 @@
     "viewer.css": "794d386a5c5c094e0bcded0b63a40d8467c06815c812956dc98d0beb57cb3fa9",
     "viewer.js": "5274f76bd03e9b555765359cdbdedf19c405af89258e8bb5506ccd58fa791e73"
   },
-  "notes": "2026-10-28 Lv1 collision & right frame portrait/square/landscape behavior. 265 published runtime assets checked against development source; existing Lv1 v11 art unchanged."
+  "notes": "2026-10-28 Lv1 first female avatar preview, counter-front butler, lower hint, rear passages and level-gated gallery navigation. 265 release files source verified; v11 artwork and previous portrait-frame fix unchanged."
 }
