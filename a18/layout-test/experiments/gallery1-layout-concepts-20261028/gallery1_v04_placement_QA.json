@@ -1,0 +1,56 @@
+{
+  "P_stagger": {
+    "reached": {
+      "northDoor": 550,
+      "back1": 770,
+      "back2": 335,
+      "back3": 95,
+      "photo4": 890,
+      "photo5": 350,
+      "infoDesk": 610
+    },
+    "frontFloorMarginPx": {
+      "left": 54,
+      "right": 96,
+      "desk": 72
+    },
+    "frameCount": 5,
+    "scope": "approximate 13px radius static collider proxy; NOT live game QA"
+  },
+  "Q_open": {
+    "reached": {
+      "northDoor": 550,
+      "back1": 770,
+      "back2": 335,
+      "back3": 95,
+      "photo4": 865,
+      "photo5": 415,
+      "infoDesk": 680
+    },
+    "frontFloorMarginPx": {
+      "left": 82,
+      "right": 47,
+      "desk": 73
+    },
+    "frameCount": 5,
+    "scope": "approximate 13px radius static collider proxy; NOT live game QA"
+  },
+  "R_asym": {
+    "reached": {
+      "northDoor": 550,
+      "back1": 770,
+      "back2": 335,
+      "back3": 95,
+      "photo4": 930,
+      "photo5": 375,
+      "infoDesk": 655
+    },
+    "frontFloorMarginPx": {
+      "left": 50,
+      "right": 97,
+      "desk": 71
+    },
+    "frameCount": 5,
+    "scope": "approximate 13px radius static collider proxy; NOT live game QA"
+  }
+}

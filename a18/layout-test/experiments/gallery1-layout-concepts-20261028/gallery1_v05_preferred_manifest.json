@@ -1,0 +1,90 @@
+{
+  "status": "recommended layout candidate, awaits user acceptance",
+  "room": "展示室1",
+  "roomId": 1,
+  "size": [
+    930,
+    582
+  ],
+  "entrance": {
+    "edge": "east",
+    "openY": [
+      226,
+      313
+    ],
+    "to": "エントランス"
+  },
+  "exit": {
+    "edge": "north",
+    "archBounds": [
+      290,
+      34,
+      126,
+      184
+    ],
+    "to": "展示室3"
+  },
+  "wallWest": "closed",
+  "wallSouth": "display boundary (not drawn as a rear-facing wall)",
+  "frames": {
+    "rear": [
+      [
+        61,
+        81,
+        135,
+        83
+      ],
+      [
+        496,
+        81,
+        135,
+        83
+      ],
+      [
+        739,
+        81,
+        135,
+        83
+      ]
+    ],
+    "wall4": [
+      132,
+      328,
+      240,
+      182
+    ],
+    "wall5": [
+      628,
+      286,
+      240,
+      182
+    ],
+    "total": 5,
+    "note": "1-3 shown as placeholders and wall4,wall5 sprite placeholders; must be runtime photo fixtures in game"
+  },
+  "guideDesk": [
+    410,
+    396,
+    205,
+    96
+  ],
+  "visualOrder": [
+    "architecture",
+    "rear_photo_placeholders",
+    "wall4",
+    "wall5",
+    "guide_desk",
+    "side_walls"
+  ],
+  "layers": {
+    "architecture": "gallery1_v05_layer_architecture.png",
+    "rear_photo_placeholders": "gallery1_v05_layer_rear_photo_placeholders.png",
+    "wall4": "gallery1_v05_layer_wall4.png",
+    "wall5": "gallery1_v05_layer_wall5.png",
+    "guide_desk": "gallery1_v05_layer_guide_desk.png",
+    "side_walls": "gallery1_v05_layer_side_walls.png"
+  },
+  "image": "gallery1_v05_preferred_layout.png",
+  "QA": "still-compositing pixel exact and simple approximate circulation graph, not live game",
+  "nextRoomReuse": "use shared_gallery_art_style_v01.py and replace layout coordinates + doorway configuration"
+}

@@ -1,0 +1,21 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>展示室1｜v04配置比較・v05推薦案</title>
+<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f3f5f0;margin:0;color:#254436}main{max-width:870px;margin:auto;padding:18px 12px 50px}h1{font-size:1.35rem;margin:0 0 6px}p{line-height:1.65;color:#5d7165}.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.buttons button{background:#fff;border:2px solid #bac9bf;border-radius:10px;font-weight:700;padding:12px 2px;color:#2e5640}button[aria-pressed=true]{background:#315B45;color:#fff;border-color:#315B45}.card{background:#fff;padding:12px;border-radius:13px}.view{overflow-x:auto;background:#D0BFA5;border:2px solid #9da999;border-radius:7px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.view img{display:block;max-width:none;width:930px;height:582px}.caption{font-size:.88rem}.note{background:#e4efe5;padding:10px;border-radius:10px;font-size:.85rem}</style></head><body><main>
+<h1>展示室1｜展示設備の配置3案</h1>
+<p>西・東・北の壁と出入口を維持し、独立展示壁2枚と案内台だけを移動しています。右端の入口から、左方向へスクロールして比較できます。</p>
+<div class="buttons"><button data-id="P" aria-pressed="true">P 前後差</button><button data-id="Q" aria-pressed="false">Q 余白</button><button data-id="R" aria-pressed="false">R 非対称</button></div>
+<section class="card"><h2 id="heading">P｜前後差を強める</h2><p id="description" class="caption">右を奥、左を手前に配置。横に歩くにつれて壁の見え方が変わります。</p>
+<div class="view" id="view"><img id="room" src="gallery1_v05_preferred_layout.png" alt="展示室1 P案"></div>
+<p class="caption">実際の室内を操作するゲームではなく、静的な美術・建築プレビューです。</p></section>
+<p class="note">5枠・北の展示室3行き・右奥のエントランス入口・西側の閉じた壁はすべて共通。見た目の配置以外のゲーム仕様は変更していません。</p>
+</main><script>
+const opts={
+P:['P｜前後差を強める','右を奥、左を手前に配置。横に歩くにつれて壁の見え方が変わります。','gallery1_v05_preferred_layout.png'],
+Q:['Q｜余白を優先','両壁の前後差を控えめにして、作品前の余裕を確保します。','gallery1_v04_Q_open.png'],
+R:['R｜非対称な配置','左の展示壁を西壁に近づけ、中央の余白を感じられる構成です。','gallery1_v04_R_asym.png']
+};
+const view=document.querySelector('#view'),img=document.querySelector('#room');
+function choose(id){const item=opts[id];document.querySelector('#heading').textContent=item[0];document.querySelector('#description').textContent=item[1];img.src=item[2];img.alt=item[0];document.querySelectorAll('[data-id]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===id)));requestAnimationFrame(()=>view.scrollLeft=view.scrollWidth-view.clientWidth)}
+document.querySelectorAll('[data-id]').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.id)));
+window.addEventListener('load',()=>choose('P'));
+</script></body></html>
