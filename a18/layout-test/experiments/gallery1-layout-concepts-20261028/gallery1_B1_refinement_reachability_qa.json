@@ -1,0 +1,120 @@
+{
+  "B1a_balanced": {
+    "test": "approximate grid, concept solids only, not engine",
+    "targets": {
+      "futureLeftExit": {
+        "position": [
+          66,
+          183
+        ],
+        "approxPathLengthPx": 544,
+        "reachable": true,
+        "targetDistanceToWalkable": 2.2
+      },
+      "wallArtwork1": {
+        "position": [
+          186,
+          184
+        ],
+        "approxPathLengthPx": 424,
+        "reachable": true,
+        "targetDistanceToWalkable": 2.0
+      },
+      "wallArtwork2": {
+        "position": [
+          309,
+          184
+        ],
+        "approxPathLengthPx": 300,
+        "reachable": true,
+        "targetDistanceToWalkable": 1.0
+      },
+      "wallArtwork3": {
+        "position": [
+          435,
+          184
+        ],
+        "approxPathLengthPx": 172,
+        "reachable": true,
+        "targetDistanceToWalkable": 1.0
+      },
+      "floorArtwork4": {
+        "position": [
+          180,
+          433
+        ],
+        "approxPathLengthPx": 564,
+        "reachable": true,
+        "targetDistanceToWalkable": 1.0
+      },
+      "floorArtwork5": {
+        "position": [
+          437,
+          446
+        ],
+        "approxPathLengthPx": 320,
+        "reachable": true,
+        "targetDistanceToWalkable": 2.2
+      }
+    }
+  },
+  "B1b_deep": {
+    "test": "approximate grid, concept solids only, not engine",
+    "targets": {
+      "futureLeftExit": {
+        "position": [
+          66,
+          183
+        ],
+        "approxPathLengthPx": 544,
+        "reachable": true,
+        "targetDistanceToWalkable": 2.2
+      },
+      "wallArtwork1": {
+        "position": [
+          186,
+          184
+        ],
+        "approxPathLengthPx": 424,
+        "reachable": true,
+        "targetDistanceToWalkable": 2.0
+      },
+      "wallArtwork2": {
+        "position": [
+          309,
+          184
+        ],
+        "approxPathLengthPx": 300,
+        "reachable": true,
+        "targetDistanceToWalkable": 1.0
+      },
+      "wallArtwork3": {
+        "position": [
+          435,
+          184
+        ],
+        "approxPathLengthPx": 172,
+        "reachable": true,
+        "targetDistanceToWalkable": 1.0
+      },
+      "floorArtwork4": {
+        "position": [
+          184,
+          468
+        ],
+        "approxPathLengthPx": 596,
+        "reachable": true,
+        "targetDistanceToWalkable": 0.0
+      },
+      "floorArtwork5": {
+        "position": [
+          429,
+          530
+        ],
+        "approxPathLengthPx": 412,
+        "reachable": true,
+        "targetDistanceToWalkable": 2.2
+      }
+    }
+  }
+}
