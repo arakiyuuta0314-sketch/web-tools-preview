@@ -1,0 +1,134 @@
+{
+  "status": "visual comparison, unapproved and unimplemented",
+  "base": "user approved entrance Lv1 color/material only; game-room architecture is a new collage",
+  "styleSourcePaths": [
+    "assets/entrance/approved_initial_20261027/entrance_background_initial_approved.png",
+    "assets/entrance/counter_candidate_20261028/partition_right_lv1_approved_v11.png",
+    "assets/entrance/counter_candidate_20261028/reception_lshape_lv1_approved_v11.webp"
+  ],
+  "logicalCanvas": [
+    930,
+    582
+  ],
+  "camera": "existing mobile horizontal scroll behavior requires actual engineering validation",
+  "rearFrames": [
+    [
+      97,
+      79,
+      130,
+      85
+    ],
+    [
+      398,
+      79,
+      130,
+      85
+    ],
+    [
+      705,
+      79,
+      130,
+      85
+    ]
+  ],
+  "entrance": {
+    "edge": "right",
+    "spanY": [
+      225,
+      309
+    ],
+    "scenePoint": [
+      885,
+      259
+    ]
+  },
+  "exit": {
+    "edge": "left",
+    "spanY": [
+      225,
+      309
+    ],
+    "scenePoint": [
+      45,
+      259
+    ],
+    "destination": "undecided"
+  },
+  "variants": {
+    "A_wall_6frames": {
+      "shortLabel": "A｜展示壁を増やす",
+      "facility": null,
+      "freestanding": [
+        [
+          75,
+          288,
+          240,
+          182,
+          4,
+          true
+        ],
+        [
+          353,
+          324,
+          240,
+          182,
+          5,
+          false
+        ],
+        [
+          635,
+          295,
+          240,
+          182,
+          6,
+          false
+        ]
+      ],
+      "frameCount": 6,
+      "description": "奥3枚＋独立壁3枚。作品の見え方が横スクロールに伴って変化する。",
+      "risk": "従来の5枠から6枠になるため、正式採用時は進行条件・保存の改修要否を判断。",
+      "spritesUsed": [
+        "official background",
+        "official right partition",
+        "no other furniture"
+      ]
+    },
+    "B_feature_5frames": {
+      "shortLabel": "B｜展示壁＋展示案内台",
+      "facility": [
+        399,
+        359,
+        205,
+        96
+      ],
+      "freestanding": [
+        [
+          142,
+          301,
+          240,
+          182,
+          4,
+          true
+        ],
+        [
+          635,
+          322,
+          240,
+          182,
+          5,
+          false
+        ]
+      ],
+      "frameCount": 5,
+      "description": "奥3枚＋独立壁2枚＋小さな木製の展示案内台。展示だけの部屋にしない。",
+      "risk": "展示案内台は仮施設。展示室の機能・装飾レベルの確定を意味しない。",
+      "spritesUsed": [
+        "official background",
+        "official right partition",
+        "approved reception oak crop"
+      ]
+    }
+  },
+  "allLiveFixturesUnmodified": true,
+  "savedSchemaUnmodified": true
+}

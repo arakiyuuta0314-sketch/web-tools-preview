@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>展示室1 横長B1比較｜監修用</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box}body{background:#eef3ed;color:#244232;margin:0}
+main{max-width:890px;margin:auto;padding:18px 14px 50px}
+h1{font-size:1.4rem;margin:0 0 7px}p{font-size:.9rem;line-height:1.65;color:#577060}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:20px 0}
+button{border-radius:11px;border:2px solid #afc4b7;background:#fff;color:#2a5a44;padding:12px 8px;font-weight:700;font-size:.95rem}
+button[aria-pressed=true]{background:#25513b;color:#fff;border-color:#25513b}
+section{background:white;padding:12px;border-radius:13px;box-shadow:0 3px 14px #1e35251a}
+h2{margin:3px 0 5px;font-size:1.12rem}
+.viewport{border:2px solid #9eab9a;border-radius:10px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;background:#dbc3a0;-webkit-overflow-scrolling:touch}
+.viewport img{display:block;width:930px;height:582px;max-width:none}
+.small{font-size:.81rem;margin:10px 0}
+.footer{margin:20px 0 0;font-size:.82rem}
+</style></head>
+<body><main>
+<h1>展示室1｜横長B1 A/B比較</h1>
+<p>実際のエントランスLv.1の美術トーンから作った静的レイアウト。<strong>左右にスワイプ</strong>して入口側・中央・出口側を確認できます。</p>
+<div class="buttons" role="group" aria-label="案の切替">
+<button data-type="A" aria-pressed="true">A｜展示壁を追加（6枠）</button>
+<button data-type="B" aria-pressed="false">B｜案内台を配置（5枠）</button>
+</div>
+<section>
+<h2 id="title">A｜展示壁を追加（6枠）</h2>
+<p id="info">奥3枠と独立展示壁3枚。右奥から入って、左奥まで進みます。</p>
+<div class="viewport" id="view"><img id="photo" alt="横長展示室1のA案" src="gallery1_wide_A_wall_6frames_v01.png"></div>
+<p class="small">画面左が次の展示室への仮出口、右がエントランス側の入口。青線は表示しません。</p>
+</section>
+<p class="footer">このページは監修用の静的スクロール体験です。ゲームの移動・当たり判定・作品鑑賞・保存の実装ではありません。</p>
+</main>
+<script>
+const choices={
+A:{title:'A｜展示壁を追加（6枠）',info:'奥3枠と独立展示壁3枚。右奥から入って、左奥まで進みます。',src:'gallery1_wide_A_wall_6frames_v01.png'},
+B:{title:'B｜案内台を配置（5枠）',info:'奥3枠と独立展示壁2枚＋仮の展示案内台。右奥から入ります。',src:'gallery1_wide_B_feature_5frames_v01.png'}
+};
+const view=document.querySelector('#view'),image=document.querySelector('#photo');
+function choose(key){
+const c=choices[key];
+document.querySelector('#title').textContent=c.title;
+document.querySelector('#info').textContent=c.info;
+image.src=c.src;image.alt=c.title;
+for(const b of document.querySelectorAll('button[data-type]'))b.setAttribute('aria-pressed',String(b.dataset.type===key));
+requestAnimationFrame(()=>view.scrollLeft=view.scrollWidth-view.clientWidth);
+}
+for(const b of document.querySelectorAll('button[data-type]'))b.addEventListener('click',()=>choose(b.dataset.type));
+window.addEventListener('load',()=>choose('A'));
+</script>
+</body></html>

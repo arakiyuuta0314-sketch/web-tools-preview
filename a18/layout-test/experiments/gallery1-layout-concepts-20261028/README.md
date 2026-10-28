@@ -54,3 +54,13 @@
 閲覧用：`gallery1_B1b_current_style_v01.png`（清書風の配置確認）、`gallery1_B1b_current_style_route_v01.png`（予定経路のみ重ね合わせ）、`gallery1_B1b_current_style_old_vs_new_v01.png`（旧P3案との同寸比較）、`gallery1_B1b_current_style_overview_v01.png`（監修シート）、`gallery1_B1b_current_style_manifest_v01.json`（採用前の配置座標）。
 
 本画像は**現デザインに寄せた監修試作**であり、エントランスLv.1の正式背景がそのまま展示室1として配置できるという意味ではない。採否が決まるまでは、ゲームのレンダラー・部屋サイズ・衝突・保存仕様・Gitのissue/main・Pagesを変更しない。
+
+## B1-b横幅拡張（2026-10-28、現行Lv.1素材ベース）
+- 室内サイズ930×582（案）。上の左奥出口・右奥入口は共通。出口の行き先は未決定。
+- A：奥3枠＋独立壁3枚、計6枠（1枠追加は未承認）。
+- B：奥3枠＋独立壁2枚、計5枠＋低い木製案内台（名称/機能未確定）。
+- 両案の独立展示壁は240×182。現行確定エントランスの承認素材を切り抜いて共通建築と構成。
+- 比較全景：`gallery1_wide_AB_comparison_v01.png`、横移動による画面差：`gallery1_wide_AB_scroll_view_comparison_v01.png`。
+- 再利用用：`shared_gallery_art_style_v01.py`、作図：`make_gallery1_wide_AB_v01.py`、入力・接続・展示数：`gallery1_wide_AB_manifest_v01.json`。
+- 仮QA：`qa_gallery1_wide_AB_v01.py`。**実ゲームの当たり判定/保存/カメラ動作とは異なる**。
+- 5室共通の設計ルールは `../GALLERY_LAYOUT_STYLE_GUIDE_20261028.md` を参照。A/Bとも監修用のみ。ゲームコード・本番表示・issue/mainは未変更。
