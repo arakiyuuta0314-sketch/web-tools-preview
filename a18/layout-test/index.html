@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-lv1-collision-v12-20261028"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=a18-lv1-collision-v12-20261028"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-lv1-route-v13-20261028"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=a18-lv1-route-v13-20261028"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js?v=frame-photo-hq2-20261027" defer></script>
@@ -68,7 +68,12 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 }
 @media(max-height:390px){header{height:47px}.brand #museumName{font-size:17px}.status{font-size:13px}.nav button{font-size:13px;padding:7px 9px}.dpad{width:133px;height:133px}.act button{min-height:54px}.stage .hint{font-size:13px;padding:7px 11px}}
 @media(max-width:720px){.brand small{display:none}.brand{min-width:110px}.brand #museumName{font-size:16px}.status{font-size:12px}.nav button{font-size:12px;padding:8px}}
-</style><link rel="stylesheet" href="art-inspect.css?v=editor-v2-20261027"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"><link rel="stylesheet" href="opening-v1.css?v=4-compact-name"><link rel="stylesheet" href="tutorial-ui-polish.css?v=1"></head>
+</style><link rel="stylesheet" href="art-inspect.css?v=editor-v2-20261027"><link rel="stylesheet" href="viewer-minimal.css?v=1.10"><link rel="stylesheet" href="portrait.css?v=1.5"><link rel="stylesheet" href="viewer-orientation.css?v=1.5"><link rel="stylesheet" href="functional-ui.css?v=1.6"><link rel="stylesheet" href="rpg-chat.css?v=1.6"><link rel="stylesheet" href="p6-story.css?v=1"><link rel="stylesheet" href="ui-v17.css?v=1.7"><link rel="stylesheet" href="registration-compact.css?v=1.20"><link rel="stylesheet" href="a18-fixed-ui.css?v=1"><link rel="stylesheet" href="a18-viewer-framing.css?v=1"><link rel="stylesheet" href="opening-v1.css?v=4-compact-name"><link rel="stylesheet" href="tutorial-ui-polish.css?v=1">
+<style>@media (orientation:portrait) and (max-width:850px){
+ .stage:not(.overview)>.hint{top:auto!important;bottom:160px!important}
+}@media (orientation:portrait) and (max-width:370px){
+ .stage:not(.overview)>.hint{bottom:151px!important}
+}</style></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
@@ -145,7 +150,7 @@ function artworkLocation(w){
 let museumTitle='とっておき美術館',playerName='',viewMode='overview';
 let scene='entrance',pos={x:326,y:425,dir:'up',stride:0},carrying=null,carryOrigin=null,modal=false,cameraX=0,cameraY=0,logicalW=546,logicalH=483,frame=0,loaded=false,tutorialStep=0;
 const MOVE_DISTANCE=12,MOVE_REPEAT_MS=65,MOVE_SUBSTEP=3;
-let activeInteraction=null,avatarGender='male',assetManifest=null,saveTimer=null;
+let activeInteraction=null,avatarGender='male',introPreviewGender=null,assetManifest=null,saveTimer=null;
 let currentSave=null, saving=false, saveBlocked=false, showingEvent=false;
 function applyCommitted(save){
  // Photo source URLs are tied to immutable work IDs, not to save revisions.
@@ -170,7 +175,7 @@ function applyCommitted(save){
  currentSave=save;
  fixtures.splice(0,fixtures.length,...P2.copy(save.fixtures));
  works.splice(0,works.length,...next);
- avatarGender=save.avatarGender;playerName=save.playerName;museumTitle=save.museumTitle;
+ avatarGender=save.avatarGender;introPreviewGender=null;playerName=save.playerName;museumTitle=save.museumTitle;
  galleryIndex=save.galleryIndex;scene=galleryIndex===0?'entrance':'gallery';
  pos={...save.pos};carrying=save.carrying;carryOrigin=null;
  $('museumName').textContent=museumTitle;
@@ -361,6 +366,7 @@ function showIntroOpening(){
 function showButlerMuseumName(draft){
  if(showingEvent||modal||saveBlocked)return;
  if(!draft||!draft.name||!['male','female'].includes(draft.gender))throw Error('E_INTRO_PROFILE_DRAFT');
+ introPreviewGender=draft.gender;lastEntrancePaintSignature=null;
  showingEvent=true;
  const honorific=draft.name+(draft.gender==='female'?'お嬢様':'様');
  const lines=[
@@ -697,10 +703,9 @@ function safeMove(x,y){
  const m=src[scene];
  const radius=9,footY=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
- // The wall cannot be walked through. Only the actual north doorway forms a corridor.
+ // Floor behind freestanding screens is traversable. At the structural north
+ // wall only the unlocked doorway is a corridor, never a passage through masonry.
  if(y<wallFootLine()){
-  // The approved entrance architecture is a continuous wall with no travel.
-  if(galleryIndex===0)return false;
   const door=northDoorway();
   if(!P2.canTraverse(galleryIndex,'north',currentSave.progression)||x<door.x1+radius/2||x>door.x2-radius/2)return false;
  }
@@ -712,9 +717,28 @@ function safeMove(x,y){
  return true;
 }
 const PORTAL_EDGES=window.A18Navigation.EDGES;
+function portalDirection(){
+ const e=PORTAL_EDGES[scene];
+ // Trigger only at the doorway threshold, never in the middle of the floor.
+ for(const dir of Object.keys(ROOM_LINKS[galleryIndex])){
+  if(!P2.canTraverse(galleryIndex,dir,currentSave.progression))continue;
+  const r=e[dir];
+  if(!r)throw Error('E_PORTAL_EDGE_MISSING '+galleryIndex+':'+dir);
+  const inX=pos.x>=r.x1+6&&pos.x<=r.x2-6;
+  const inY=pos.y>=r.y1+4&&pos.y<=r.y2-4;
+  if(dir==='west'&&pos.x<=r.x1+19&&inY)return dir;
+  if(dir==='east'&&pos.x>=r.x2-19&&inY)return dir;
+  if(dir==='north'&&pos.y<=r.y2-4&&inX)return dir;
+  if(dir==='south'&&pos.y>=r.y1+4&&inX)return dir;
+ }
+ return null;
+}
 function checkPortal(){
- // No transitions until the entrance and its independent foreground layers are ready.
- return false;
+ const dir=portalDirection();
+ if(!dir)return false;
+ const target=ROOM_LINKS[galleryIndex][dir];
+ void changeScene(target,{direction:dir});
+ return true;
 }
 function walk(dir){
  if(modal||showingEvent||saveBlocked)return false;
@@ -741,7 +765,10 @@ function interactionCandidates(){
  });
  if(galleryIndex===0){
   const p=L.npcAnchor('butler',0);
-  artworks.push({type:'butler',x:p.x,y:p.y,enter:46,leave:54});return artworks;
+  artworks.push({type:'butler',x:p.x,y:p.y,enter:46,leave:54});
+ const front=L.ENTRANCE_LV1.butlerFrontService;
+ artworks.push({type:'butler',x:front.x,y:front.y,enter:38,leave:43});
+ return artworks;
  }
  const p=L.npcAnchor('staff',galleryIndex);
  return [...artworks,{type:'staff',x:p.x,y:p.y,enter:46,leave:54}];
@@ -770,8 +797,22 @@ function update(){
  $('cancel').textContent='作品をしまう';
 }
 async function changeScene(next,options={}){
- // Preserve room/save definitions for future work, but do not navigate yet.
- return false;
+ if(modal||showingEvent||saveBlocked||saving)return false;
+ const dir=options.direction;
+ if(!['north','south','west','east'].includes(dir)
+    ||ROOM_LINKS[galleryIndex][dir]!==next
+    ||!P2.canTraverse(galleryIndex,dir,currentSave.progression))return false;
+ // Reverse doorway's safe interior arrival point, away from portal re-trigger.
+ const entrance=next===0;
+ const spawn=dir==='west'?{x:entrance?457:514,y:entrance?451:385,dir:'left',stride:0}
+   :dir==='east'?{x:entrance?92:77,y:entrance?451:385,dir:'right',stride:0}
+   :dir==='north'?{x:296,y:431,dir:'up',stride:0}
+   :{x:entrance?285:365,y:entrance?229:185,dir:'down',stride:0};
+ if(!L.walkable(spawn.x,spawn.y,fixtures,next))throw Error('E_PORTAL_SPAWN_COLLISION '+next+':'+dir);
+ clearTimeout(saveTimer);
+ const success=await commitChange(s=>{s.galleryIndex=next;s.pos=spawn;},{event:false});
+ if(success){activeInteraction=null;update();}
+ return success;
 }
 function paintArtwork(a,i){
  const f=L.roomFrames(fixtures,galleryIndex)[i];
@@ -781,7 +822,8 @@ function paintArtwork(a,i){
 function avatar(){
  const dir=pos.dir==='up'?'back':pos.dir==='down'?'front':pos.dir;
  const id=dir+(pos.stride%5),femaleId='female-'+id;
- const formalFemale=avatarGender==='female'&&Boolean(get(femaleId));
+ const renderedGender=introPreviewGender||avatarGender;
+ const formalFemale=renderedGender==='female'&&Boolean(get(femaleId));
  const image=get(formalFemale?femaleId:id),crop=spriteBounds.get(formalFemale?femaleId:id);
  if(!image||!crop)return;
  const femaleSize=assetManifest?.avatars?.female?.size;
@@ -789,11 +831,11 @@ function avatar(){
  // Preserve the full 60x77 female sprite canvas so hair, shoes, and stride do not crop.
  ctx.fillStyle='#1b292147';ctx.beginPath();ctx.ellipse(pos.x,pos.y+1,13,3.2,0,0,Math.PI*2);ctx.fill();
  ctx.save();
- if(avatarGender==='female'&&!formalFemale)ctx.filter='hue-rotate(165deg) saturate(.85)';
+ if(renderedGender==='female'&&!formalFemale)ctx.filter='hue-rotate(165deg) saturate(.85)';
  const y=pos.y-h;
  ctx.drawImage(image,crop.x,crop.y,crop.w,crop.h,pos.x-w/2,y,w,h);
  ctx.restore();
- if(avatarGender==='female'&&!formalFemale){ctx.fillStyle='#573851';ctx.beginPath();ctx.arc(pos.x+13,pos.y-h+11,6,0,Math.PI*2);ctx.fill();}
+ if(renderedGender==='female'&&!formalFemale){ctx.fillStyle='#573851';ctx.beginPath();ctx.arc(pos.x+13,pos.y-h+11,6,0,Math.PI*2);ctx.fill();}
  if(carrying){const art=works.find(w=>w.id===carrying),sample=artworkImage(art);
  // Held photo: no blank white mat while an image is decoding.
  ctx.fillStyle='#68492d';ctx.fillRect(pos.x-20,pos.y-h-34,40,30);
@@ -857,7 +899,7 @@ function draw(){
   // Static entrance scenes should not clear and re-rasterize the marble
   // floor 60 times a second on mobile Safari. Repaint only when pixels change.
   const sig=[canvas.width,canvas.height,pixelCameraX,pixelCameraY,
-   pos.x,pos.y,pos.dir,pos.stride,avatarGender,carrying,
+   pos.x,pos.y,pos.dir,pos.stride,introPreviewGender||avatarGender,carrying,
    currentSave?.revision??-1,entranceImageRevision,works.length].join('|');
   if(lastEntrancePaintSignature===sig){requestAnimationFrame(draw);return;}
   lastEntrancePaintSignature=sig;entrancePaintCount++;
@@ -866,6 +908,8 @@ function draw(){
  ctx.save();
  ctx.setTransform(scale,0,0,scale,-pixelCameraX,-pixelCameraY);
  drawBackground();
+ const behindRight=galleryIndex===0&&pos.y<376&&pos.x>=351;
+ if(behindRight)avatar();
  if(galleryIndex===0)window.A18Entrance.partitionRight(ctx);
  for(let i=0;i<roomRects().length;i++)paintArtwork(slot(L.slotFor(galleryIndex,i)),i);
  decorate();
@@ -873,15 +917,15 @@ function draw(){
  // Collision is foot-based; keep the same visual depth ordering.
  const behindButler=galleryIndex===0&&pos.y<L.BUTLER.footY;
  const behindPartition=galleryIndex===0&&pos.y<337;
- if(behindPartition)avatar();
+ if(behindPartition&&!behindRight)avatar();
  if(galleryIndex===0){window.A18Entrance.partition(ctx);window.A18Entrance.papers(ctx);}
- if(behindButler&&!behindPartition)avatar();
+ if(behindButler&&!behindPartition&&!behindRight)avatar();
  drawButler();drawGalleryStaff();
  // The counter is in front of the butler but behind a curator standing at its customer edge.
  if(galleryIndex===0&&pos.y>=410)window.A18Entrance.counter(ctx);
  const hit=nearby();
  if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i);if(galleryIndex===0){const carried=works.find(w=>w.id===carrying);if(!carried)throw Error('E_ENTRANCE_CARRIED_WORK');window.A18Entrance.markSlot(ctx,f,artworkImage(carried),carried.preferredShape);}else{const [x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}}
- if(!behindButler)avatar();
+ if(!behindButler&&!behindRight)avatar();
  if(galleryIndex===0&&pos.y<410)window.A18Entrance.counter(ctx);
  ctx.restore();requestAnimationFrame(draw);
 }

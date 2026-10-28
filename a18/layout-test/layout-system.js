@@ -27,9 +27,10 @@ const BUTLER={x:139,footY:366};
 // separate solid footprint. Obstacle tuples use [left,right,top,bottom].
 const ENTRANCE_LV1=Object.freeze({
  counter:Object.freeze({image:Object.freeze([-10,333,233,107]),solid:Object.freeze([24,224,333,440])}),
- leftWall:Object.freeze({image:Object.freeze([-6,215,215,122]),solid:Object.freeze([24,210,215,337])}),
- rightWall:Object.freeze({image:Object.freeze([363,243,188,133]),solid:Object.freeze([363,545,243,376])}),
+ leftWall:Object.freeze({image:Object.freeze([-6,215,215,122]),solid:Object.freeze([24,210,325,337])}),
+ rightWall:Object.freeze({image:Object.freeze([363,243,188,133]),solid:Object.freeze([363,545,364,376])}),
  butlerService:Object.freeze({x:243,y:394}),
+ butlerFrontService:Object.freeze({x:139,y:459}),
  leftExhibitService:Object.freeze({x:243,y:300})
 });
 // Exact approved source alpha bounds are staff (8,6)-(51,72),
@@ -183,8 +184,8 @@ function obstacles(fixtures,room){
 function walkable(x,y,fixtures,room){
  const m=ROOM_SIZE[room],radius=9,fy=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
- // No doorway through the entrance's approved solid rear wall.
- if(room===0 && y<m.wallFoot)return false;
+  // Entrance north portal uses the actual opening only after room 6 unlocks.
+ if(room===0 && y<m.wallFoot && !(x>=260&&x<=312))return false;
  if(room!==0 && y<m.wallFoot && (ROOM_LINKS[room].north==null||(x<349||x>382)))return false;
  for(const [l,rr,t,b] of obstacles(fixtures,room)){
   const cx=Math.max(l,Math.min(x,rr)),cy=Math.max(t,Math.min(fy,b));

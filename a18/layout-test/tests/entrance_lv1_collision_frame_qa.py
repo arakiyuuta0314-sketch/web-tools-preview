@@ -58,7 +58,7 @@ with sync_playwright() as p:
    const L=window.A18Layout,f=L.defaults(),test=[[100,350],[120,295],[444,302],[326,425],[243,394],[446,407],[300,300],[243,349]];
    return test.map(([x,y])=>({x,y,walkable:L.walkable(x,y,f,0)}));
   }""")
-  expected=[False,False,False,True,True,True,True,True]
+  expected=[False,True,True,True,True,True,True,True] # Rear walkways are intentional; only wall bases remain solid
   assert [x['walkable'] for x in points]==expected,points
   # Right partition remains reachable through actual walking, not debug inspect.
   for _ in range(10):page.evaluate('window.__A18_SCENE_STUDY__.move("right")')
