@@ -1,0 +1,61 @@
+{
+  "status": "visual mockup only (unapproved)",
+  "sourceBackground": "assets/entrance/approved_initial_20261027/entrance_background_initial_approved.png",
+  "sourceIndependentWall": "assets/entrance/counter_candidate_20261028/partition_right_lv1_approved_v11.png",
+  "layoutSize": [
+    589,
+    582
+  ],
+  "room": "展示室1",
+  "entrance": "right-rear",
+  "futureExit": "left-rear, destination undecided",
+  "galleryWallFrames": [
+    [
+      49,
+      83,
+      105,
+      69
+    ],
+    [
+      245,
+      83,
+      105,
+      69
+    ],
+    [
+      427,
+      83,
+      105,
+      69
+    ]
+  ],
+  "freeStandingWalls": [
+    [
+      93,
+      287,
+      199,
+      150
+    ],
+    [
+      346,
+      362,
+      199,
+      150
+    ]
+  ],
+  "freeStandingFrames": [
+    [
+      119,
+      325,
+      132,
+      73
+    ],
+    [
+      375,
+      405,
+      130,
+      74
+    ]
+  ],
+  "note": "Pixel preview composites existing official assets; geometry, IDs and collision in real game are unchanged."
+}
