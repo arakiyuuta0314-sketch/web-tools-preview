@@ -37,7 +37,7 @@ def draw_frame(canvas,rect,label=None):
     if label is not None:
         d.text((x+w/2,y+h/2),str(label),font=font(19,True),fill='#F2DBA1',anchor='mm')
 
-def render_base(width=930,height=582,bays=3,door_height=90):
+def render_base(width=930,height=582,bays=3,door_height=90,side_openings=('left','right')):
     assert width>=450 and height>=460 and bays>=2
     im=Image.new('RGBA',(width,height))
     ywall=219
@@ -68,8 +68,9 @@ def render_base(width=930,height=582,bays=3,door_height=90):
     d.rectangle((0,208,width,220),fill='#382719')
     d.line((0,209,width,209),fill='#B48545',width=2)
     d.line((0,218,width,218),fill='#241B14',width=2)
-    # Left/future exit and right/entrance. The upper lane runs continuously across.
-    for xx in (0,width-45):
+    # Configurable side passages. The approved north-exit concept has NO west opening.
+    assert all(side in ('left','right') for side in side_openings)
+    for xx in [(0 if side=='left' else width-45) for side in side_openings]:
         d.rectangle((xx,219,xx+45,219+door_height),fill='#4D311F')
         d.rectangle((xx+4,225,xx+41,219+door_height-5),fill='#12362F')
         d.line((xx+3,225,xx+3,219+door_height),fill='#C3914E',width=3)
@@ -106,3 +107,34 @@ def place_display_feature(canvas,x,y,width=210,height=96):
 def draw_rear_frames(canvas,back):
     for index,(x,y,w,h) in enumerate(back,1):
         draw_frame(canvas,(x,y,w,h),index)
+
+
+def draw_north_passage(canvas,x=290,y=34,width=126,height=184):
+    """Architectural north-facing passage, from approved central door details.
+
+    This is a visual OPEN opening, not a movable door, and not an engine portal.
+    The outer frame is cropped from the official approved entrance background;
+    the leaf area is covered with a shaded interior so no door remains closed.
+    """
+    assert canvas.width>=x+width and canvas.height>=y+height
+    src=BG.crop((571,97,806,515))
+    sprite=src.resize((width,height),Image.Resampling.LANCZOS)
+    canvas.alpha_composite(sprite,(x,y))
+    dr=ImageDraw.Draw(canvas)
+    inner_left=x+round(width*.20)
+    inner_right=x+round(width*.80)
+    arch_top=y+round(height*.25)
+    arch_rise=22
+    bottom=y+height-8
+    # An arched, deep passage opens from the wall toward Gallery 3.
+    dr.pieslice((inner_left,arch_top-arch_rise,inner_right,arch_top+arch_rise),
+        180,360,fill='#0C201D')
+    dr.rectangle((inner_left,arch_top,inner_right,bottom),fill='#0E2924')
+    # Architectural depth and subtle doorway lip; no free-standing decor.
+    dr.line((inner_left,arch_top,inner_left,bottom),fill='#392719',width=4)
+    dr.line((inner_right,arch_top,inner_right,bottom),fill='#63411F',width=4)
+    dr.line((inner_left+3,bottom,inner_right-3,bottom),fill='#BA8F5B',width=3)
+    dr.polygon([(inner_left+3,bottom),(inner_right-3,bottom),
+                (inner_right-12,bottom+7),(inner_left+11,bottom+7)],
+               fill='#BDA67F')
+    return (inner_left,arch_top,inner_right,bottom)

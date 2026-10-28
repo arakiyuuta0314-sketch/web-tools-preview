@@ -1,0 +1,38 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>A18｜展示室1 B案 北側通路 v02</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#F1F4F0;color:#214434}
+main{max-width:860px;margin:auto;padding:20px 13px 40px}h1{font-size:1.35rem;margin:0}
+p{font-size:.91rem;line-height:1.7;color:#607263}
+.toggle{display:flex;gap:10px;margin:16px 0}button{flex:1;background:white;border:2px solid #acc6b1;padding:12px 8px;color:#28573E;font-weight:700;border-radius:11px}
+button[aria-pressed=true]{color:white;background:#28593C;border-color:#28593C}
+.viewport{width:100%;height:auto;overflow-x:auto;overflow-y:hidden;border:2px solid #A4AD9A;border-radius:9px;background:#D6C19D;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.viewport img{display:block;width:930px;height:582px;max-width:none}
+section{padding:14px;background:white;border-radius:14px;box-shadow:0 2px 10px #294c2b18}
+.status{font-size:.85rem;color:#526c60;margin-top:10px}
+</style></head>
+<body><main>
+<h1>展示室1｜B案・北側通路 v02</h1>
+<p>展示室3へ向かう通路を<strong>奥の壁</strong>へ変更しました。右端はエントランス側入口、上壁の開口が展示室3への仮出口です。横にスクロールして確認してください。</p>
+<div class="toggle" role="group" aria-label="案内表示">
+<button id="normal" aria-pressed="true">通常の見た目</button>
+<button id="route" aria-pressed="false">動線を表示</button></div>
+<section>
+<div class="viewport" id="view"><img id="scene" src="gallery1_B_north_to_gallery3_v02.png" alt="展示室1・B案。上壁に展示室3へのアーチ型通路があります"></div>
+<p class="status">作品枠5つ・中央案内台・大型展示壁2つを維持。右奥入口から奥の通路へつながります。</p>
+</section>
+<p class="status">監修用の静的画像です。青い動線は仮で、実際の通行判定や写真保存は未実装です。</p>
+<script>
+const view=document.getElementById('view'),img=document.getElementById('scene');
+const normal=document.getElementById('normal'),route=document.getElementById('route');
+function show(mode){
+img.src=mode==='route'?'gallery1_B_north_to_gallery3_route_v02.png':'gallery1_B_north_to_gallery3_v02.png';
+normal.setAttribute('aria-pressed',String(mode==='normal'));
+route.setAttribute('aria-pressed',String(mode==='route'));
+}
+normal.onclick=()=>show('normal');route.onclick=()=>show('route');
+window.onload=()=>{view.scrollLeft=view.scrollWidth-view.clientWidth};
+</script>
+</main></body></html>

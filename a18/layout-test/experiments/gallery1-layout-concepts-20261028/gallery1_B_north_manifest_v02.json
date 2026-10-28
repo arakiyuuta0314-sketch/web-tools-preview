@@ -1,0 +1,132 @@
+{
+  "status": "concept draft - gallery3 north exit requested, unimplemented",
+  "roomName": "展示室1",
+  "roomIdUnchanged": 1,
+  "gallery3InternalId": 3,
+  "logicalSize": [
+    930,
+    582
+  ],
+  "incomingFromEntrance": {
+    "edge": "right",
+    "rect": [
+      885,
+      219,
+      930,
+      309
+    ]
+  },
+  "outgoingToGallery3": {
+    "edge": "north",
+    "doorSpriteBounds": [
+      290,
+      34,
+      126,
+      184
+    ],
+    "visualDarkPassageRect": [
+      315,
+      80,
+      391,
+      210
+    ],
+    "approxApproachPoint": [
+      349,
+      228
+    ]
+  },
+  "oldWestExitRemoved": true,
+  "architecturalBays": 4,
+  "wallFrames": [
+    [
+      61,
+      81,
+      135,
+      83
+    ],
+    [
+      496,
+      81,
+      135,
+      83
+    ],
+    [
+      739,
+      81,
+      135,
+      83
+    ]
+  ],
+  "freestandingFrames": [
+    {
+      "idLabel": 4,
+      "panel": [
+        142,
+        301,
+        240,
+        182
+      ]
+    },
+    {
+      "idLabel": 5,
+      "panel": [
+        635,
+        322,
+        240,
+        182
+      ]
+    }
+  ],
+  "feature": {
+    "kind": "wood_title_pedestal",
+    "bounds": [
+      399,
+      359,
+      205,
+      96
+    ]
+  },
+  "frameCount": 5,
+  "intendedRoute": [
+    [
+      902,
+      269
+    ],
+    [
+      857,
+      262
+    ],
+    [
+      739,
+      263
+    ],
+    [
+      622,
+      263
+    ],
+    [
+      520,
+      263
+    ],
+    [
+      349,
+      263
+    ],
+    [
+      349,
+      216
+    ]
+  ],
+  "qaType": "concept geometry and still-image viewport only, NOT live walking test",
+  "confirmedStable": [
+    "art tone from approved entrance Lv1",
+    "5 frames",
+    "feature candidate",
+    "right-side entrance"
+  ],
+  "changed": [
+    "exit edge west->north",
+    "rear wall 3->4 architectural bays",
+    "three back frame positions to clear north exit"
+  ]
+}
