@@ -41,3 +41,8 @@
 - 試作品・生成スクリプト・QAスクリーンショット・不採用素材はWeb本番 `layout-test` に混ぜない。比較プレビューの履歴は別repoで保持する。
 - 2026-10-28追加回帰：縦・横・正方形画像をそれぞれ右壁で登録→額縁形状の実描画→再読込保持をChromeで確認。カウンター越しの通常登録、通行不可3家具、エントランスLv.1と28展示設備の維持を確認。
 - 本文はLv.1デザインの仕様正本。Gitの公開照合マニフェストと公開Webの検証結果を必ず一致させる。
+
+## 2026-10-28: Rear-left artwork inspection position (v14)
+
+- Only frame-0-0: move its inspection/placement anchor from the right-side aisle (243,300) to (116,228), in front of the real frame centered at (116,105). Preserve the 32px entry / 38px exit range.
+- Reach the frame from the walkable lane behind the left partition. No changes to the other two entrance frames, approved artwork/background, furniture collisions, registration, save schema, or room traversal.

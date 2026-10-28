@@ -31,7 +31,9 @@ const ENTRANCE_LV1=Object.freeze({
  rightWall:Object.freeze({image:Object.freeze([363,243,188,133]),solid:Object.freeze([363,545,364,376])}),
  butlerService:Object.freeze({x:243,y:394}),
  butlerFrontService:Object.freeze({x:139,y:459}),
- leftExhibitService:Object.freeze({x:243,y:300})
+ // Rear-left wall frame: inspect from the floor directly below its actual
+ // center (116,105), not from the central passage to the right of the wall.
+ leftExhibitService:Object.freeze({x:116,y:ROOM_SIZE[0].wallFoot+18})
 });
 // Exact approved source alpha bounds are staff (8,6)-(51,72),
 // butler (8,4)-(51,72) on a 60x77 sprite, drawn at 43x55.
