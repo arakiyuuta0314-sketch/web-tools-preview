@@ -1,0 +1,51 @@
+{
+  "status": "concept only, unapproved",
+  "roomSize": [
+    930,
+    582
+  ],
+  "roomName": "展示室1",
+  "westWall": {
+    "side": "west",
+    "rect": [
+      0,
+      219,
+      42,
+      582
+    ],
+    "openings": []
+  },
+  "eastWall": {
+    "side": "east",
+    "segments": [
+      [
+        888,
+        219,
+        930,
+        226
+      ],
+      [
+        888,
+        314,
+        930,
+        582
+      ]
+    ],
+    "entranceOpening": {
+      "edge": "east",
+      "fromY": 226,
+      "toY": 313,
+      "connectsTo": "エントランス"
+    }
+  },
+  "northExit": {
+    "destination": "展示室3",
+    "visual": "unchanged v02 top arch"
+  },
+  "frames": 5,
+  "facility": "unchanged v02 title stand",
+  "independentWalls": 2,
+  "baseImage": "gallery1_B_north_to_gallery3_v02.png",
+  "separateOverlay": "gallery1_B_side_walls_layer_v03.png",
+  "note": "East side wall is rendered around the doorway; no collision/path/camera implementation yet."
+}

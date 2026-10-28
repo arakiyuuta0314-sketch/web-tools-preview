@@ -1,0 +1,9 @@
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>展示室1 B案 v03｜左右壁</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;color:#254335;background:#f2f5f1}main{max-width:850px;margin:auto;padding:18px 12px}h1{font-size:1.4rem}p{color:#5d7063;line-height:1.7}.switch{display:flex;gap:9px;margin:18px 0}button{flex:1;padding:12px 8px;border:2px solid #a8c3b4;border-radius:10px;color:#31553e;background:#fff;font-weight:700}button[aria-pressed=true]{background:#2c5a42;color:#fff}.viewport{overflow-x:auto;overscroll-behavior-x:contain;border:2px solid #a7ad9f;border-radius:11px;background:#d3bb98;-webkit-overflow-scrolling:touch}.viewport img{display:block;width:930px;height:582px;max-width:none}.note{font-size:.87rem}</style>
+</head><body><main><h1>展示室1 B案｜左右の壁</h1><p>西側は壁で閉じ、東側は<strong>エントランスからの入口のみ</strong>開いています。北側の展示室3への通路は維持しています。</p><div class="switch"><button id="before" aria-pressed="false">修正前</button><button id="after" aria-pressed="true">左右の壁あり</button></div>
+<div class="viewport" id="view"><img id="scene" src="gallery1_B_west_east_walls_v03.png" alt="左右に壁を設けた展示室1"></div>
+<p class="note">左右にスワイプして確認できます。これはゲーム実装前の建築プレビューです。壁の当たり判定はまだ追加していません。</p></main>
+<script>const view=document.querySelector('#view'),img=document.querySelector('#scene'),before=document.querySelector('#before'),after=document.querySelector('#after');
+function show(which){img.src=which==='after'?'gallery1_B_west_east_walls_v03.png':'gallery1_B_north_to_gallery3_v02.png';before.setAttribute('aria-pressed',String(which==='before'));after.setAttribute('aria-pressed',String(which==='after'));}
+before.onclick=()=>show('before');after.onclick=()=>show('after');
+window.addEventListener('load',()=>{view.scrollLeft=view.scrollWidth-view.clientWidth;});</script></body></html>
