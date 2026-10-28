@@ -1,0 +1,53 @@
+{
+  "schema": "a18-gallery-layout-preview/v1",
+  "roomId": 1,
+  "roomName": "展示室1",
+  "canvas": {
+    "width": 930,
+    "height": 582
+  },
+  "exitNorth": {
+    "destination": "展示室3",
+    "arch": {
+      "x": 290,
+      "y": 34,
+      "w": 126,
+      "h": 184
+    }
+  },
+  "entranceEast": {
+    "destination": "エントランス",
+    "openY": [
+      226,
+      313
+    ]
+  },
+  "frameIdsUnchanged": [
+    "frame-1-0",
+    "frame-1-1",
+    "frame-1-2",
+    "frame-1-3",
+    "frame-1-4"
+  ],
+  "objects": {
+    "wall4": {
+      "x": 132,
+      "y": 328,
+      "w": 240,
+      "h": 182
+    },
+    "wall5": {
+      "x": 628,
+      "y": 286,
+      "w": 240,
+      "h": 182
+    },
+    "counter": {
+      "x": 425,
+      "y": 396,
+      "w": 175,
+      "h": 96
+    }
+  },
+  "note": "Concept editor state only; game layout, player save, hitboxes and portal logic are not modified."
+}
