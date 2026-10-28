@@ -14,11 +14,11 @@
   },
   "roomLabels": [
     "エントランス",
-    "展示室02",
-    "展示室03",
-    "展示室04",
-    "展示室05",
-    "展示室06"
+    "展示室1",
+    "展示室2",
+    "展示室3",
+    "展示室4",
+    "展示室5"
   ],
   "requiresSuccessfulCommitBeforeEvent": true,
   "events": [
@@ -109,7 +109,7 @@
         "おお、エントランスの額縁が三つとも埋まりましたな！",
         "{playerHonorific}、次の展示室もご用意できましたぞ。"
       ],
-      "systemText": "館Lv.2　展示室02が開きました"
+      "systemText": "館Lv.2　展示室1が開きました"
     },
     {
       "eventId": "lv3-v1",
@@ -128,7 +128,7 @@
         "{playerStaffName}、この部屋もいっぱいになったね！",
         "次のお部屋も開いたよ。館内をもっと素敵にしていきたいな。"
       ],
-      "systemText": "館Lv.3　展示室03が開きました"
+      "systemText": "館Lv.3　展示室2が開きました"
     },
     {
       "eventId": "lv4-v1",
@@ -145,9 +145,9 @@
       "returnTo": "same_room_and_position",
       "lines": [
         "わあ、ここも完成だね！ {playerStaffName}、おめでとう！",
-        "展示室04も開いたよ。爺やさんにも知らせたいな。"
+        "展示室3も開いたよ。爺やさんにも知らせたいな。"
       ],
-      "systemText": "館Lv.4　展示室04が開きました"
+      "systemText": "館Lv.4　展示室3が開きました"
     },
     {
       "eventId": "lv5-v1",
@@ -164,9 +164,9 @@
       "returnTo": "same_room_and_position",
       "lines": [
         "{playerStaffName}、またひと部屋完成したね！",
-        "少しずつ、この美術館らしくなってきたよ。次は展示室05！"
+        "少しずつ、この美術館らしくなってきたよ。次は展示室4！"
       ],
-      "systemText": "館Lv.5　展示室05が開きました"
+      "systemText": "館Lv.5　展示室4が開きました"
     },
     {
       "eventId": "lv6-v1",
@@ -183,9 +183,9 @@
       "returnTo": "same_room_and_position",
       "lines": [
         "{playerStaffName}、おめでとう！　今日は小さなお祝いの日だね。",
-        "最後の展示室06も開いたよ。次はどんな一枚に出会えるかな？"
+        "最後の展示室5も開いたよ。次はどんな一枚に出会えるかな？"
       ],
-      "systemText": "館Lv.6　展示室06が開きました"
+      "systemText": "館Lv.6　展示室5が開きました"
     },
     {
       "eventId": "gallery06-complete-v1",
@@ -201,10 +201,10 @@
       "trigger": "room_first_full_after_successful_commit",
       "returnTo": "same_room_and_position",
       "lines": [
-        "{playerStaffName}、ここまで来たんだね。展示室06も完成だよ！",
+        "{playerStaffName}、ここまで来たんだね。展示室5も完成だよ！",
         "今日も、とっておきが増えました。……これからも、好きなものを飾っていこうね。"
       ],
-      "systemText": "展示室06 完成記念　これからも、この美術館と。",
+      "systemText": "展示室5 完成記念　これからも、この美術館と。",
       "status": "text_pending_approval"
     }
   ]

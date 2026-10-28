@@ -7,7 +7,7 @@ let api=null,root=null,draft=null,origin=null,room=null,selected=null,history=[]
 let zoom=1,offsetX=0,offsetY=0,canvas=null,context=null,resizeObserver=null;
 const MODE_LABELS={contain:'全体表示',cover:'枠いっぱい',custom:'自由調整'};
 const SHAPE_LABELS={landscape:'横型',portrait:'縦型',square:'正方形'};
-const ROOM_NAMES=['エントランス','第2展示室','第3展示室','第4展示室','第5展示室','第6展示室'];
+const ROOM_NAMES=['エントランス','展示室1','展示室2','展示室3','展示室4','展示室5'];
 const fullData=()=>draft;
 const workFor=f=>api.works().find(w=>w.fixtureId===f.id);
 const text=(id,value)=>{const e=$(id);if(e)e.textContent=value};

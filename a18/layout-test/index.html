@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="viewer.css">
 <link rel="stylesheet" href="viewer-frame.css"><link rel="stylesheet" href="viewer-minimal.css?v=1.10">
-<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-rear-left-anchor-v14-20261028"></script><script src="museum-navigation.js?v=entrance-v09-fix-20261026"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=a18-lv1-route-v13-20261028"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
+<link rel="stylesheet" href="museum-navigation.css?v=1"><script src="layout-system.js?v=a18-rear-left-anchor-v14-20261028"></script><script src="museum-navigation.js?v=a18-gallery-labels-20261028"></script><script src="museum-progression.js?v=1"></script><script src="asset-renderer.js?v=larger2"></script><script src="museum-p3-renderer.js?v=lazy-20261026"></script><script src="museum-p5-decorations.js?v=lazy-20261026"></script><script src="entrance-renderer.js?v=a18-lv1-route-v13-20261028"></script><script src="museum-p2-storage.js?v=reset-20261024-2"></script>
 <script src="photo-prep.js" defer></script>
 <script src="smart-frame.js" defer></script>
 <script src="photo-tone.js?v=frame-photo-hq2-20261027" defer></script>
@@ -120,7 +120,7 @@ const L=window.A18Layout;
 const ROOM_LINKS=L.ROOM_LINKS;
 const P2=window.A18P2Store;
 const ROOM_LABELS=window.A18Navigation.NAMES;
-let galleryIndex=0; // roomId 0 = entrance, 1 = gallery 02.
+let galleryIndex=0; // Stable room IDs: 0 = entrance, 1 = 展示室1 (opens at museum Lv.2).
 const fixtures=L.defaults();
 L.restoreClassicFrameDimensions(fixtures);
 L.enforceFixedLayout(fixtures);
@@ -304,7 +304,7 @@ function storySession(event,fromHistory=false){
 function renderStoryPage(session){
  const {id,data,role,index,fromHistory}=session;
  const isFinal=id==='gallery06-complete-v1';
- const header=isFinal?'展示室06 完成記念':data.systemText;
+ const header=isFinal?'展示室5 完成記念':data.systemText;
  const mode=fromHistory?'会話の記録':'美術館のできごと';
  const body='<div class="p6-story-meta">'+esc(mode)+'　'+(index+1)+' / '+data.lines.length+'</div>'+
   '<h3 class="p6-story-title">'+esc(header)+'</h3>'+storyPortrait(role,data.lines[index])+
@@ -504,7 +504,7 @@ function showStoryHistory(){
  const rows=eventList.map(ev=>{
   const data=eventData(ev.id);
   const name=ev.id==='intro-v1'?'はじまりの物語':
-   ev.id==='gallery06-complete-v1'?'展示室06 完成記念':
+   ev.id==='gallery06-complete-v1'?'展示室5 完成記念':
    '館Lv.'+data.levelAfter+'　'+ROOM_LABELS[data.openedRoomId]+'開放';
   const state=ev.status==='seen'?'既読':ev.status==='available'?'あとで読む':'未読';
   return '<button class="p6-story-entry" type="button" data-p6-replay="'+esc(ev.id)+'"><span>'+esc(name)+'</span><small>'+state+'</small></button>';
@@ -603,7 +603,7 @@ async function boot(){
  }
  P2.validate(state);
  state=await alignSavedEntranceFixtures(state);
- const p6Response=await fetch('p6-event-dialogue-v1.json');
+ const p6Response=await fetch('p6-event-dialogue-v1.json?v=a18-gallery-labels-20261028');
  if(!p6Response.ok)throw Error('E_P6_DIALOGUE_LOAD');
  p6Dialogues=await p6Response.json();
  const eventIds=['intro-v1','lv2-v1','lv3-v1','lv4-v1','lv5-v1','lv6-v1','gallery06-complete-v1'];
