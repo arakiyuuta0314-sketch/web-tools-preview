@@ -45,12 +45,17 @@ function persisted(runtime){
 function makeInitialV3(){
  return {schemaVersion:3,revision:0,fixtures:L.defaults(),works:[],avatarGender:'male',playerName:'',
  museumTitle:'とっておき美術館',galleryIndex:0,pos:{x:326,y:425,dir:'up',stride:0},
- carrying:null,progression:{unlockedThroughLevel:1,awardedRoomIds:[],events:[{id:'intro-v1',origin:'play',status:'queued'}],newRoomNotices:[],migration:null}};
+ carrying:null,presentationLevel:null,progression:{unlockedThroughLevel:1,awardedRoomIds:[],events:[{id:'intro-v1',origin:'play',status:'queued'}],newRoomNotices:[],migration:null}};
 }
 function validate(s,allowRetired=false){
  if(!s||typeof s!=='object'||s.schemaVersion!==3)throw error('E_SCHEMA_UNKNOWN','schemaVersion');
  if(!Number.isSafeInteger(s.revision)||s.revision<0)throw error('E_REVISION');
  const p=s.progression;
+ // Optional v3 field: omitted by earlier releases, automatically follows
+ // actual story progression. Do NOT migrate photo data just for this choice.
+ if(s.presentationLevel!==undefined&&s.presentationLevel!==null&&
+    (!Number.isInteger(s.presentationLevel)||s.presentationLevel<1||s.presentationLevel>6))
+  throw error('E_PRESENTATION_LEVEL_INVALID');
  if(!p||!Number.isInteger(p.unlockedThroughLevel)||p.unlockedThroughLevel<1||p.unlockedThroughLevel>6)throw error('E_PROGRESSION_INVARIANT','level');
  if(p.migration!==null)throw error('E_MIGRATION_NOT_APPROVED');
  if(!Array.isArray(p.awardedRoomIds)||new Set(p.awardedRoomIds).size!==p.awardedRoomIds.length
@@ -132,12 +137,21 @@ function validate(s,allowRetired=false){
   const held=s.works.find(w=>w.id===s.carrying);
   if(!held||held.fixtureId!=null)throw error('E_CARRY_CONFLICT');
  }
- if(!Number.isInteger(s.galleryIndex)||s.galleryIndex<0||s.galleryIndex>=p.unlockedThroughLevel)throw error('E_ROOM_LOCKED','galleryIndex');
+ if(!Number.isInteger(s.galleryIndex)||s.galleryIndex<0||s.galleryIndex>=accessLevel(s))
+  throw error('E_ROOM_LOCKED','galleryIndex');
  const m=L.ROOM_SIZE[s.galleryIndex];
  if(!s.pos||!Number.isFinite(s.pos.x)||!Number.isFinite(s.pos.y)||s.pos.x<0||s.pos.x>m.w||s.pos.y<0||s.pos.y>m.h
  ||!['up','down','left','right'].includes(s.pos.dir)||!Number.isInteger(s.pos.stride)||s.pos.stride<0||s.pos.stride>4)throw error('E_POSITION');
  if(!['male','female'].includes(s.avatarGender)||typeof s.playerName!=='string'||s.playerName.length>24||typeof s.museumTitle!=='string'||!s.museumTitle.trim()||s.museumTitle.length>24)throw error('E_PROFILE');
  return {ok:true,revision:s.revision,workCount:s.works.length,frameCount:frames.length,openedRoomIds:Array.from({length:p.unlockedThroughLevel},(_,i)=>i)};
+}
+function accessLevel(save){
+ const story=save?.progression?.unlockedThroughLevel;
+ if(!Number.isInteger(story)||story<1||story>6)throw error('E_PROGRESSION_INVARIANT');
+ const display=save.presentationLevel;
+ if(display!==undefined&&display!==null&&(!Number.isInteger(display)||display<1||display>6))
+  throw error('E_PRESENTATION_LEVEL_INVALID');
+ return Math.max(story,display??story);
 }
 function canTraverse(from,dir,p){
  if(!Number.isInteger(from)||from<0||from>5||!['west','east','north','south'].includes(dir))throw error('E_DIRECTION');
@@ -315,5 +329,5 @@ function hydrate(records){return records.map(w=>{if(!(w.originalBlob instanceof 
  const originalURL=URL.createObjectURL(w.originalBlob);
  return {...w,originalURL,displaySrc:w.displaySrc||originalURL};
 });}
-window.A18P2Store={DATABASE,TEST_MODE,initial:makeInitialV3,makeInitialV3,validate,canTraverse,isRoomComplete,plan,eventAction,migrateRetiredGallery5,testSetLevel,resetState,load,commit,persisted,hydrate,copy};
+window.A18P2Store={DATABASE,TEST_MODE,accessLevel,initial:makeInitialV3,makeInitialV3,validate,canTraverse,isRoomComplete,plan,eventAction,migrateRetiredGallery5,testSetLevel,resetState,load,commit,persisted,hydrate,copy};
 })();

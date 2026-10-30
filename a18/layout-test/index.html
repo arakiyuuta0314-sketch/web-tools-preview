@@ -134,7 +134,9 @@ const frameCount=room=>room===0?3:L.roomFrames(fixtures,room).length;
 const roomStart=room=>room===0?0:5+(room-1)*5;
 const roomCapacity=room=>frameCount(room);
 const roomCount=()=>6;
-const unlockedRooms=()=>currentSave?.progression.unlockedThroughLevel??1;
+const unlockedRooms=()=>currentSave?.progression.unlockedThroughLevel??1; // Story only.
+const publicLevel=()=>currentSave?P2.accessLevel(currentSave):1;
+const accessProgression=(save=currentSave)=>({...save.progression,unlockedThroughLevel:P2.accessLevel(save),storyUnlockedThroughLevel:save.progression.unlockedThroughLevel});
 const slotId=i=>L.legacyId(i);
 const fixtureRank=id=>{
  const f=fixtures.find(f=>f.id===id);
@@ -212,7 +214,7 @@ async function commitChange(change,{event=true}={}){
   // Fail before persisting if the destination gallery is not renderable.
   if(result.nextSave.galleryIndex>0)await Promise.all([
    window.A18P3Gallery.prepare(result.nextSave.galleryIndex),
-   window.A18P5Decorations.prepare(result.nextSave.galleryIndex,result.nextSave.progression)
+   window.A18P5Decorations.prepare(result.nextSave.galleryIndex,accessProgression(result.nextSave))
   ]);
   await P2.commit(result.expectedRevision,result.nextSave);
   applyCommitted(result.nextSave);
@@ -239,7 +241,7 @@ async function commitEventAction(action,id=null){
   const next=P2.eventAction(currentSave,eventId,action);
   if(next.galleryIndex>0)await Promise.all([
    window.A18P3Gallery.prepare(next.galleryIndex),
-   window.A18P5Decorations.prepare(next.galleryIndex,next.progression)
+   window.A18P5Decorations.prepare(next.galleryIndex,accessProgression(next))
   ]);
   await P2.commit(currentSave.revision,next);
   applyCommitted(next);return true;
@@ -626,7 +628,7 @@ async function boot(){
  ]);
  if(galleryIndex>0)await Promise.all([
   window.A18P3Gallery.prepare(galleryIndex),
-  window.A18P5Decorations.prepare(galleryIndex,currentSave.progression)
+  window.A18P5Decorations.prepare(galleryIndex,accessProgression())
  ]);
  // Reuse only the canonical approved 48 PNGs already decoded by A18Art.
  // Male retains the existing walking-frame crop; female follows the adopted main-preview crop.
@@ -713,7 +715,7 @@ function safeMove(x,y){
  // wall only the unlocked doorway is a corridor, never a passage through masonry.
  if(y<wallFootLine()){
   const door=northDoorway();
-  if(!P2.canTraverse(galleryIndex,'north',currentSave.progression)||x<door.x1+radius/2||x>door.x2-radius/2)return false;
+  if(!P2.canTraverse(galleryIndex,'north',accessProgression())||x<door.x1+radius/2||x>door.x2-radius/2)return false;
  }
  for(const [left,right,top,bottom] of roomObstacles()){
   const cx=Math.max(left,Math.min(x,right));
@@ -726,7 +728,7 @@ function portalDirection(){
  const e=window.A18Navigation.portalEdges(galleryIndex);
  // Trigger only at the doorway threshold, never in the middle of the floor.
  for(const dir of Object.keys(ROOM_LINKS[galleryIndex])){
-  if(!P2.canTraverse(galleryIndex,dir,currentSave.progression))continue;
+  if(!P2.canTraverse(galleryIndex,dir,accessProgression()))continue;
   const r=e[dir];
   if(!r)throw Error('E_PORTAL_EDGE_MISSING '+galleryIndex+':'+dir);
   const inX=pos.x>=r.x1+6&&pos.x<=r.x2-6;
@@ -794,7 +796,7 @@ function nearby(){
 function update(){
  const visibleIds=new Set((galleryIndex===0?entranceVisibleFrames():L.roomFrames(fixtures,galleryIndex)).map(f=>f.id));
  const displayed=works.filter(w=>w.fixtureId!=null&&visibleIds.has(w.fixtureId)).length;
- $('statusText').textContent=(P2.TEST_MODE?'[QA] ':'')+ROOM_LABELS[galleryIndex]+' Lv.'+unlockedRooms()+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
+ $('statusText').textContent=(P2.TEST_MODE?'[QA] ':'')+ROOM_LABELS[galleryIndex]+' 館Lv.'+publicLevel()+'／物語Lv.'+unlockedRooms()+'　展示 '+displayed+'/'+roomCapacity(galleryIndex)+'　所蔵 '+works.length+'/'+MAX_WORKS;
  const hit=nearby();
  $('act').hidden=!hit;
  if(hit)$('act').textContent=hit.type==='staff'||hit.type==='butler'?'話しかける':carrying?(slot(hit.i)?'作品を入れ替える':'ここに飾る'):slot(hit.i)?'作品を調べる':'額縁を調べる';
@@ -806,7 +808,7 @@ async function changeScene(next,options={}){
  const dir=options.direction;
  if(!['north','south','west','east'].includes(dir)
     ||ROOM_LINKS[galleryIndex][dir]!==next
-    ||!P2.canTraverse(galleryIndex,dir,currentSave.progression))return false;
+    ||!P2.canTraverse(galleryIndex,dir,accessProgression()))return false;
  // Reverse doorway's safe interior arrival point, away from portal re-trigger.
  const entrance=next===0;
  const spawn=dir==='west'?{x:entrance?457:514,y:entrance?451:385,dir:'left',stride:0}
@@ -862,7 +864,7 @@ function drawBackground(){
   // Logical progression and collision gates are still enforced by P2 / navigation.
   return;
  }
- window.A18P3Gallery.background(ctx,galleryIndex,currentSave.progression);
+ window.A18P3Gallery.background(ctx,galleryIndex,accessProgression());
  window.A18P3Gallery.furniture(ctx,galleryIndex);
 }
 function drawGalleryStaff(){
@@ -935,6 +937,29 @@ function draw(){
  if(galleryIndex===0&&pos.y<410)window.A18Entrance.counter(ctx);
  ctx.restore();requestAnimationFrame(draw);
 }
+function presentationFields(){
+ const level=currentSave?.presentationLevel??null;
+ return '<p class="small">最初から全展示室を公開することもできます。物語の進行・達成記録・会話は変わりません。建築背景は現在採用中のものを使用します。</p>'+
+  '<label for="presentationLevel">館内の公開範囲 <select id="presentationLevel">'+
+  '<option value="auto"'+(level===null?' selected':'')+'>物語の進行に合わせる（自動）</option>'+
+  [1,2,3,4,5,6].map(n=>'<option value="'+n+'"'+(level===n?' selected':'')+'>館 Lv.'+n+(n===6?'（全展示室）':'')+'</option>').join('')+
+  '</select></label>'+
+  '<p class="small">物語で開放済みの展示室は、設定レベルを下げても閉じません。</p>';
+}
+function selectedPresentationLevel(){
+ const value=$('presentationLevel').value;
+ if(value==='auto')return null;
+ const n=Number(value);
+ if(!Number.isInteger(n)||n<1||n>6)throw Error('E_PRESENTATION_LEVEL_INVALID');
+ return n;
+}
+function applyPresentationToSave(save,choice){
+ save.presentationLevel=choice;
+ if(save.galleryIndex>=P2.accessLevel(save)){
+  save.galleryIndex=0;
+  save.pos={x:326,y:425,dir:'up',stride:0};
+ }
+}
 function profileFields(){
  return '<label>館長の名前<input id="a18PlayerName" maxlength="24" autocomplete="off" value="'+esc(playerName)+'" placeholder="名前"></label>'+
   '<label>館長の性別<select id="a18PlayerGender"><option value="male"'+(avatarGender==='male'?' selected':'')+'>男性館長</option>'+
@@ -945,12 +970,16 @@ async function saveProfile(){
  const name=$('a18PlayerName').value.trim(),title=$('a18MuseumTitle').value.trim(),gender=$('a18PlayerGender').value;
  if(!name||!title){$('profileError').textContent='館長の名前と美術館の名前を入力してください';return false;}
  if(!['male','female'].includes(gender))throw Error('館長の性別が不正です');
- return await commitChange(s=>{s.playerName=name;s.museumTitle=title;s.avatarGender=gender;},{event:false});
+ const presentation=selectedPresentationLevel();
+ return await commitChange(s=>{
+  s.playerName=name;s.museumTitle=title;s.avatarGender=gender;
+  applyPresentationToSave(s,presentation);
+ },{event:false});
 }
 function onboarding(){
  if(showingEvent||saveBlocked)return;
  open('あなたの美術館をはじめよう','<p>館長のお名前・姿・美術館名を決めましょう。必須の設定です。</p>'+
-  profileFields()+'<p id="profileError" class="error" role="alert"></p>'+
+  profileFields()+'<h3>最初の館内の公開レベル</h3>'+presentationFields()+'<p id="profileError" class="error" role="alert"></p>'+
   '<div class="row"><button id="confirmName">この設定ではじめる</button></div>');
  $('confirmName').onclick=async()=>{
   if(saving||saveBlocked)return;
@@ -966,6 +995,8 @@ function showSettings(){
  if(showingEvent||saveBlocked)return;
  open('設定','<div class="a18-settings-content"><p class="small">館長の名前・性別・美術館の名前を変更できます。</p>'+profileFields()+
   '<p id="profileError" class="error" role="alert"></p><div class="row"><button id="saveProfile">変更を保存</button><button id="closeSettings" class="light">戻る</button></div>'+
+  '<hr><h3>館内の公開レベル</h3>'+presentationFields()+
+  '<div class="row"><button id="applyPresentationLevel" type="button">館の公開レベルを変更する</button></div><p id="presentationError" class="error" role="alert"></p>'+
   '<hr><h3>物語</h3><button id="p6StoryHistory" type="button" class="light">美術館の物語</button>'+
   (P2.TEST_MODE?'<hr><h3>開発テスト（QA専用）</h3><p class="small">館Lv.1〜6を自由に切り替え、開いた扉から移動を確認できます。通常のセーブとは別に保存します。</p>'+
    '<label for="testMuseumLevel">テストする館レベル</label> <select id="testMuseumLevel">'+
@@ -979,6 +1010,17 @@ function showSettings(){
   '<p class="small">写真原本はこのブラウザの美術館データに保存されます。リセットは取り消せません。</p></div>');
  $('saveProfile').onclick=async()=>{if(await saveProfile())close();};
  $('closeSettings').onclick=close;
+ $('applyPresentationLevel').onclick=async()=>{
+  if(saving||saveBlocked)return;
+  try{
+   const selection=selectedPresentationLevel();
+   const button=$('applyPresentationLevel');
+   button.disabled=true;
+   const ok=await commitChange(s=>applyPresentationToSave(s,selection),{event:false});
+   if(ok)close();
+   else if(!saveBlocked){button.disabled=false;$('presentationError').textContent='保存できませんでした。';}
+  }catch(e){$('presentationError').textContent='レベル設定に失敗しました：'+(e.code||e.message);}
+ };
  $('p6StoryHistory').onclick=()=>{close();showStoryHistory();};
  if(P2.TEST_MODE)$('applyTestMuseumLevel').onclick=async()=>{
   if(saving||saveBlocked)return;
@@ -990,7 +1032,7 @@ function showSettings(){
    const next=P2.testSetLevel(currentSave,level);
    if(next.galleryIndex>0)await Promise.all([
     window.A18P3Gallery.prepare(next.galleryIndex),
-    window.A18P5Decorations.prepare(next.galleryIndex,next.progression)
+    window.A18P5Decorations.prepare(next.galleryIndex,accessProgression(next))
    ]);
    await P2.commit(currentSave.revision,next);
    applyCommitted(next);
@@ -1253,7 +1295,7 @@ $('settingsGear').onclick=showSettings;
  $('floorMapButton').onclick=()=>showFloorMap();
 function showFloorMap(){
  if(modal||showingEvent||saveBlocked)return;
- open('館内図',window.A18Navigation.mapHTML(galleryIndex,currentSave.progression)+
+ open('館内図',window.A18Navigation.mapHTML(galleryIndex,accessProgression())+
   '<div class="row"><button id="closeFloorMap">歩いて戻る</button></div>');
  $('closeFloorMap').onclick=close;
 }
@@ -1269,7 +1311,7 @@ for(const b of document.querySelectorAll('[data-d]')){const stop=()=>{clearInter
 for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventListener(ev,e=>e.preventDefault());$('dpad').addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
- state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame(),entrancePaintCount},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
+ state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),presentationLevel:currentSave?.presentationLevel??null,publicLevel:publicLevel(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame(),entrancePaintCount},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
  move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:window.A18Navigation.EDGES,
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');return commitChange(s=>{s.avatarGender=g;});},
  validateLayout:room=>L.validatePlacement(fixtures,room),
