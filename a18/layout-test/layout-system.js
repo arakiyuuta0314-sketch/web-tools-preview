@@ -188,7 +188,10 @@ function walkable(x,y,fixtures,room){
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
   // Entrance north portal uses the actual opening only after room 6 unlocks.
  if(room===0 && y<m.wallFoot && !(x>=260&&x<=312))return false;
- if(room!==0 && y<m.wallFoot && (ROOM_LINKS[room].north==null||(x<349||x>382)))return false;
+ if(room!==0 && y<m.wallFoot){
+  const north=room===1?[208,231]:room===2?[456,479]:[349,382];
+  if(ROOM_LINKS[room].north==null||x<north[0]||x>north[1])return false;
+ }
  for(const [l,rr,t,b] of obstacles(fixtures,room)){
   const cx=Math.max(l,Math.min(x,rr)),cy=Math.max(t,Math.min(fy,b));
   if(Math.hypot(x-cx,fy-cy)<radius)return false;

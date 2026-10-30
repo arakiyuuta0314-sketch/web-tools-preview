@@ -1,0 +1,77 @@
+{
+  "schema": "a18-approved-game-art/v1",
+  "topSourceY": 350,
+  "topGameY": 222,
+  "galleries": {
+    "1": {
+      "source": "assets/approved-galleries/gallery1_approved_930x582.png",
+      "game": "assets/approved-galleries/gallery1_game_589x482.png",
+      "sourceSha256": "fc06c616fa8664a03efd2d159ac4f346903dcf18f498b6605bb4c45ffb7a3308",
+      "gameSha256": "16fa7c2b2de9321d130d0588ad3f55529ccb9ed30f79ec43770e90df47c984ed",
+      "sourceSize": [
+        930,
+        582
+      ],
+      "gameSize": [
+        589,
+        482
+      ]
+    },
+    "2": {
+      "source": "assets/approved-galleries/gallery2_approved_930x582.png",
+      "game": "assets/approved-galleries/gallery2_game_589x482.png",
+      "sourceSha256": "c2f519420e869b377f9e4f12bfbe6e61c2091e49a42a4d11e30832085d9a6a70",
+      "gameSha256": "00505100b8e258a155936c1ab7bee9b00b4712faae268b3b59104d015ded899e",
+      "sourceSize": [
+        930,
+        582
+      ],
+      "gameSize": [
+        589,
+        482
+      ]
+    },
+    "3": {
+      "source": "assets/approved-galleries/gallery3_approved_930x582.png",
+      "game": "assets/approved-galleries/gallery3_game_589x482.png",
+      "sourceSha256": "80a74b6a511fa6881b2126c16d7a0fc4a478e2db4d9505be902a7fa3b72ff596",
+      "gameSha256": "297a5f688b407cf4363f8a873379998a2beecfc3c9826ea203a55fbb9d808e80",
+      "sourceSize": [
+        930,
+        582
+      ],
+      "gameSize": [
+        589,
+        482
+      ]
+    },
+    "4": {
+      "source": "assets/approved-galleries/gallery4_approved_930x582.png",
+      "game": "assets/approved-galleries/gallery4_game_589x482.png",
+      "sourceSha256": "1f77bb77a3633c5ec182ae80ce9f960ccd61379969d4b42d2ecdb296a5c6c8df",
+      "gameSha256": "43954e5df97e6b14551107f49beec8222bd3f1534f5c324496587e9140a83848",
+      "sourceSize": [
+        930,
+        582
+      ],
+      "gameSize": [
+        589,
+        482
+      ]
+    },
+    "5": {
+      "source": "assets/approved-galleries/gallery5_approved_930x582.png",
+      "game": "assets/approved-galleries/gallery5_game_589x482.png",
+      "sourceSha256": "fb8f376f6d93dd3de09b6d12af988c130a9999bf0d47ba9e2f0bca6238a1a815",
+      "gameSha256": "ba95607b423b35286659842ce54910470bacb62289c85d29fff540c08584d29d",
+      "sourceSize": [
+        930,
+        582
+      ],
+      "gameSize": [
+        589,
+        482
+      ]
+    }
+  }
+}

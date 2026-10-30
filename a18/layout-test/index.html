@@ -703,7 +703,7 @@ function worldPoint(e){
 // remain interaction-only. Physical obstacles and inspection anchors are separate.
 // Gallery layouts are preserved for later reinstatement.
 const wallFootLine=()=>L.ROOM_SIZE[galleryIndex].wallFoot;
-const northDoorway=()=>scene==='entrance'?{x1:260,x2:312}:{x1:344,x2:387};
+const northDoorway=()=>window.A18Navigation.portalEdges(galleryIndex).north||{x1:0,x2:0};
 function roomObstacles(){return L.obstacles(fixtures,galleryIndex);}
 function safeMove(x,y){
  const m=src[scene];
@@ -722,9 +722,8 @@ function safeMove(x,y){
  }
  return true;
 }
-const PORTAL_EDGES=window.A18Navigation.EDGES;
 function portalDirection(){
- const e=PORTAL_EDGES[scene];
+ const e=window.A18Navigation.portalEdges(galleryIndex);
  // Trigger only at the doorway threshold, never in the middle of the floor.
  for(const dir of Object.keys(ROOM_LINKS[galleryIndex])){
   if(!P2.canTraverse(galleryIndex,dir,currentSave.progression))continue;
@@ -813,7 +812,7 @@ async function changeScene(next,options={}){
  const spawn=dir==='west'?{x:entrance?457:514,y:entrance?451:385,dir:'left',stride:0}
    :dir==='east'?{x:entrance?92:77,y:entrance?451:385,dir:'right',stride:0}
    :dir==='north'?{x:296,y:431,dir:'up',stride:0}
-   :{x:entrance?285:365,y:entrance?229:185,dir:'down',stride:0};
+   :{x:entrance?285:next===1?220:next===2?465:365,y:entrance?229:185,dir:'down',stride:0};
  if(!L.walkable(spawn.x,spawn.y,fixtures,next))throw Error('E_PORTAL_SPAWN_COLLISION '+next+':'+dir);
  clearTimeout(saveTimer);
  const success=await commitChange(s=>{s.galleryIndex=next;s.pos=spawn;},{event:false});
@@ -864,6 +863,7 @@ function drawBackground(){
   return;
  }
  window.A18P3Gallery.background(ctx,galleryIndex,currentSave.progression);
+ window.A18P3Gallery.furniture(ctx,galleryIndex);
 }
 function drawGalleryStaff(){
  if(galleryIndex===0)return;

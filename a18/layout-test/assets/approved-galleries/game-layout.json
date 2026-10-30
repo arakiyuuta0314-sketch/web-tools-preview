@@ -1,0 +1,141 @@
+{
+  "schema": "a18-native-gallery-v1",
+  "logical": [
+    589,
+    482
+  ],
+  "rooms": {
+    "1": {
+      "image": "assets/approved-galleries/gallery1_game_589x482.png",
+      "objects": [
+        {
+          "id": "wall4",
+          "file": "assets/approved-galleries/gallery1_wall4.png",
+          "x": 64.6,
+          "y": 174.17,
+          "w": 152.0,
+          "h": 167.74,
+          "size": [
+            240,
+            182
+          ]
+        },
+        {
+          "id": "wall5",
+          "file": "assets/approved-galleries/gallery1_wall5.png",
+          "x": 402.8,
+          "y": 206.47,
+          "w": 152.0,
+          "h": 192.6,
+          "size": [
+            240,
+            182
+          ]
+        },
+        {
+          "id": "counter",
+          "file": "assets/approved-galleries/gallery1_counter.png",
+          "x": 269.17,
+          "y": 214.7,
+          "w": 85.5,
+          "h": 80.14,
+          "size": [
+            135,
+            76
+          ]
+        }
+      ]
+    },
+    "2": {
+      "image": "assets/approved-galleries/gallery2_game_589x482.png",
+      "objects": [
+        {
+          "id": "wall3",
+          "file": "assets/approved-galleries/gallery2_wall3.png",
+          "x": 66.5,
+          "y": 195.07,
+          "w": 134.27,
+          "h": 182.71,
+          "size": [
+            240,
+            182
+          ]
+        },
+        {
+          "id": "wall4",
+          "file": "assets/approved-galleries/gallery2_wall4.png",
+          "x": 240.67,
+          "y": 158.97,
+          "w": 134.27,
+          "h": 154.93,
+          "size": [
+            240,
+            182
+          ]
+        },
+        {
+          "id": "wall5",
+          "file": "assets/approved-galleries/gallery2_wall5.png",
+          "x": 420.53,
+          "y": 196.33,
+          "w": 134.27,
+          "h": 183.69,
+          "size": [
+            240,
+            182
+          ]
+        }
+      ]
+    },
+    "3": {
+      "image": "assets/approved-galleries/gallery3_game_589x482.png",
+      "objects": [
+        {
+          "id": "wall4",
+          "file": "assets/approved-galleries/gallery3_wall4.png",
+          "x": 75.37,
+          "y": 171.0,
+          "w": 146.93,
+          "h": 183.24,
+          "size": [
+            232,
+            198
+          ]
+        },
+        {
+          "id": "wall5",
+          "file": "assets/approved-galleries/gallery3_wall5.png",
+          "x": 366.07,
+          "y": 171.0,
+          "w": 146.93,
+          "h": 183.24,
+          "size": [
+            232,
+            198
+          ]
+        }
+      ]
+    },
+    "4": {
+      "image": "assets/approved-galleries/gallery4_game_589x482.png",
+      "objects": [
+        {
+          "id": "wall5",
+          "file": "assets/approved-galleries/gallery4_wall5.png",
+          "x": 388.87,
+          "y": 204.57,
+          "w": 133.0,
+          "h": 172.09,
+          "size": [
+            210,
+            165
+          ]
+        }
+      ]
+    },
+    "5": {
+      "image": "assets/approved-galleries/gallery5_game_589x482.png",
+      "objects": []
+    }
+  }
+}

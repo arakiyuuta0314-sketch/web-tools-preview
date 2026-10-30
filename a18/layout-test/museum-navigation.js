@@ -7,6 +7,13 @@ const EDGES={
  entrance:{west:{x1:24,x2:77,y1:425,y2:467},east:{x1:469,x2:522,y1:425,y2:467},north:{x1:260,x2:311,y1:160,y2:196}},
  gallery:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},north:{x1:345,x2:385,y1:101,y2:118},south:{x1:265,x2:329,y1:452,y2:471}}
 };
+// Gallery1's northern door sits on the LEFT of its approved architecture;
+// Gallery2's is on the RIGHT. Keep old entrance and other edges untouched.
+const APPROVED_NORTH={1:{x1:204,x2:235,y1:101,y2:118},2:{x1:452,x2:483,y1:101,y2:118}};
+function portalEdges(room){
+ if(room===0)return EDGES.entrance;
+ return APPROVED_NORTH[room]?{...EDGES.gallery,north:APPROVED_NORTH[room]}:EDGES.gallery;
+}
 function validateGraph(links){
  if(Object.keys(links).length!==6)throw Error('館内の部屋数が一致しません');
  for(let room=0;room<6;room++){
@@ -17,7 +24,7 @@ function validateGraph(links){
    const other=POSITIONS[target];
    const delta={west:[-1,0],east:[1,0],north:[0,-1],south:[0,1]}[edge];
    if(other[0]-xy[0]!==delta[0]||other[1]-xy[1]!==delta[1])throw Error('館内図と移動関係が不一致：'+room+' '+edge);
-   if(!EDGES[room===0?'entrance':'gallery'][edge])throw Error('扉の当たり判定が未定義：'+room+' '+edge);
+   if(!portalEdges(room)[edge])throw Error('扉の当たり判定が未定義：'+room+' '+edge);
   }
  }
  return true;
@@ -85,5 +92,5 @@ function mapHTML(room,progression){
  '<div class="a18-floorplan" aria-label="美術館の全6部屋の配置">'+cells.join('')+'</div>'+
  '<p class="a18-map-foot">館内図で現在地を確認できます。</p>';
 }
-window.A18Navigation={NAMES,POSITIONS,EDGES,validateGraph,drawDoors,mapHTML};
+window.A18Navigation={NAMES,POSITIONS,EDGES,portalEdges,validateGraph,drawDoors,mapHTML};
 })();
