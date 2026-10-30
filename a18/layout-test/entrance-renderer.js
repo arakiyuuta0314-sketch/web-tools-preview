@@ -1,4 +1,4 @@
-/* A18 approved initial architectural background (2026-10-27).
+﻿/* A18 approved initial architectural background (2026-10-27).
    Keep the approved PNG intact; only draw it with aspect-ratio-preserving crop.
    Legacy independent foreground sprites await art review; no save writes. */
 (()=>{'use strict';
@@ -59,6 +59,32 @@ function background(ctx){
  check();const im=imgs.get('background'),{sourceY,sourceH}=backgroundCrop();
  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  ctx.drawImage(im,0,sourceY,im.naturalWidth,sourceH,0,0,546,483);
+ ctx.restore();
+}
+// The accepted background depicts the north arch with shut wooden doors.
+ // For a player who can enter gallery5, reveal the SAME TOP doorway, not an
+ // invented passage on the bottom edge or an overwritten source PNG.
+function upperPassage(ctx){
+ check();
+ ctx.save();
+ const x=252,y=128,w=65,h=73;
+ // Back of the open hall (inside original carved wood surround).
+ const back=ctx.createLinearGradient(x,y,x+w,y);
+ back.addColorStop(0,'#1d211e');back.addColorStop(.24,'#15211e');
+ back.addColorStop(.68,'#10201e');back.addColorStop(1,'#171b18');
+ ctx.fillStyle='#261c16';ctx.fillRect(x-2,y-2,w+4,h+5);
+ ctx.fillStyle=back;ctx.fillRect(x,y,w,h);
+ // Real corridor recedes away from viewer, darker at the far wall.
+ ctx.fillStyle='#0a1716';ctx.fillRect(x+18,y+12,28,52);
+ ctx.fillStyle='#25302a';ctx.beginPath();
+ ctx.moveTo(x+18,y+64);ctx.lineTo(x+46,y+64);
+ ctx.lineTo(x+59,y+h);ctx.lineTo(x+5,y+h);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#805731';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+h);
+ ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h);ctx.stroke();
+ ctx.strokeStyle='#bd8c50';ctx.lineWidth=1;
+ ctx.beginPath();ctx.moveTo(x+3,y);ctx.lineTo(x+3,y+h-2);
+ ctx.moveTo(x+w-3,y);ctx.lineTo(x+w-3,y+h-2);ctx.stroke();
  ctx.restore();
 }
 function foreground(ctx){check();}
@@ -200,5 +226,5 @@ function markSlot(ctx,f,img=null,preferred=null){
  ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);
  ctx.stroke();ctx.restore();
 }
-window.A18Entrance={init,background,foreground,counter,partition,papers,partitionRight,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
+window.A18Entrance={init,background,upperPassage,foreground,counter,partition,papers,partitionRight,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
 })();

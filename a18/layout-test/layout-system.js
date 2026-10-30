@@ -1,4 +1,4 @@
-/* A18 museum layout v2: fixture IDs, continuous world coordinates, and validation. */
+﻿/* A18 museum layout v2: fixture IDs, continuous world coordinates, and validation. */
 (()=>{'use strict';
 const SHAPES={landscape:[100,76],portrait:[70,104],square:[88,88]};
 const BASE=[
@@ -167,6 +167,10 @@ function migrateLegacy(works){
  }
 }
 function obstacles(fixtures,room){
+ // Gallery architecture was replaced; the legacy frame/staff footprints are
+ // not real walls in the new approved art. Clear ALL interior collisions for
+ // galleries 1..5 until actual wall footprints are approved.
+ if(room!==0)return [];
  // Entrance: collide at the butler's feet, not his full 49px-tall sprite.
  // The floor behind his body must be walkable; rear wall remains separate.
  // NPC visual bounds / interaction anchor remain unchanged.
@@ -186,12 +190,11 @@ function obstacles(fixtures,room){
 function walkable(x,y,fixtures,room){
  const m=ROOM_SIZE[room],radius=9,fy=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
+ // Galleries: temporary free-walk mode. Retain only the outside boundary;
+ // doorway locks and target transitions are enforced in the game controller.
+ if(room!==0)return true;
   // Entrance north portal uses the actual opening only after room 6 unlocks.
  if(room===0 && y<m.wallFoot && !(x>=260&&x<=312))return false;
- if(room!==0 && y<m.wallFoot){
-  const north=room===1?[208,231]:room===2?[456,479]:[349,382];
-  if(ROOM_LINKS[room].north==null||x<north[0]||x>north[1])return false;
- }
  for(const [l,rr,t,b] of obstacles(fixtures,room)){
   const cx=Math.max(l,Math.min(x,rr)),cy=Math.max(t,Math.min(fy,b));
   if(Math.hypot(x-cx,fy-cy)<radius)return false;

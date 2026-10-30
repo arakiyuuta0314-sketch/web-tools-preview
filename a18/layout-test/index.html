@@ -698,8 +698,15 @@ function resize(){
 }
 function worldPoint(e){
  const b=canvas.getBoundingClientRect();
- return {x:(e.clientX-b.left)*logicalW/b.width+cameraX,
-         y:(e.clientY-b.top)*logicalH/b.height+cameraY};
+ const worldX=(e.clientX-b.left)*logicalW/b.width+cameraX;
+ const worldY=(e.clientY-b.top)*logicalH/b.height+cameraY;
+ // Drawing the entrance inside a smaller black architectural border must
+ // NOT shift photo-tap hitboxes or the player's logical coordinates.
+ if(galleryIndex===0)return {
+  x:(worldX-ENTRANCE_ART_FRAME.x)/ENTRANCE_ART_FRAME.scale,
+  y:(worldY-ENTRANCE_ART_FRAME.y)/ENTRANCE_ART_FRAME.scale
+ };
+ return {x:worldX,y:worldY};
 }
 // Entrance-only rebuild: rear wall and butler are solid; two rear exhibit spots
 // remain interaction-only. Physical obstacles and inspection anchors are separate.
@@ -711,6 +718,9 @@ function safeMove(x,y){
  const m=src[scene];
  const radius=9,footY=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
+ // Temporarily remove *all* gallery1..5 interior barriers; retain the
+ // exterior boundary and the existing doorway/level transition gate.
+ if(galleryIndex!==0)return true;
  // Floor behind freestanding screens is traversable. At the structural north
  // wall only the unlocked doorway is a corridor, never a passage through masonry.
  if(y<wallFootLine()){
@@ -859,6 +869,9 @@ function avatar(){
 function drawBackground(){
  if(scene==='entrance'){
   window.A18Entrance.background(ctx);
+  // The actual north door is the top passage to gallery5. Show an open
+  // perspective corridor there only when access has been granted.
+  if(P2.canTraverse(0,'north',accessProgression()))window.A18Entrance.upperPassage(ctx);
   // Keep the approved architectural background intact; the separate candidate counter is drawn in depth order below.
   // Old P5 entrance decorations and P3 shutters are not part of this architectural baseline.
   // Logical progression and collision gates are still enforced by P2 / navigation.
@@ -890,6 +903,10 @@ function drawButler(){
  if(galleryIndex!==0)return;
  window.A18Art.npc(ctx,'butler',L.BUTLER.x,L.BUTLER.footY);
 }
+// Room 0 shares the other galleries' deep, near-black architectural border.
+// Keep the old 546x483 input coordinate system unchanged. All visual layers,
+// portraits, doors and NPCs use the SAME affine transform to stay aligned.
+const ENTRANCE_ART_FRAME=Object.freeze({x:18,y:15,scale:.934});
 let lastEntrancePaintSignature=null,entrancePaintCount=0,entranceImageRevision=0;
 function draw(){
  if(!loaded)return;
@@ -915,6 +932,12 @@ function draw(){
  ctx.clearRect(0,0,canvas.width,canvas.height);
  ctx.save();
  ctx.setTransform(scale,0,0,scale,-pixelCameraX,-pixelCameraY);
+ if(galleryIndex===0){
+  ctx.fillStyle='#080a09';
+  ctx.fillRect(0,0,src.entrance.w,src.entrance.h);
+  ctx.translate(ENTRANCE_ART_FRAME.x,ENTRANCE_ART_FRAME.y);
+  ctx.scale(ENTRANCE_ART_FRAME.scale,ENTRANCE_ART_FRAME.scale);
+ }
  drawBackground();
  const behindRight=galleryIndex===0&&pos.y<376&&pos.x>=351;
  if(behindRight)avatar();
