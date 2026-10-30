@@ -87,6 +87,17 @@ function upperPassage(ctx){
  ctx.moveTo(x+w-3,y);ctx.lineTo(x+w-3,y+h-2);ctx.stroke();
  ctx.restore();
 }
+function sideFrameGaps(ctx,passages){
+ check();
+ const im=imgs.get('background'),crop=backgroundCrop();
+ const sx=im.naturalWidth/546,sy=crop.sourceH/483;
+ for(const dir of ['west','east']){
+  const r=passages[dir];
+  const srcX=dir==='west'?0:516;
+  const dstX=dir==='west'?-22:546;
+  ctx.drawImage(im,srcX*sx,crop.sourceY+r.y1*sy,30*sx,(r.y2-r.y1)*sy,dstX,r.y1,22,r.y2-r.y1);
+ }
+}
 function foreground(ctx){check();}
 // Visual review candidate: original counter illustration, no changes to approved background.
 // Requested provisional placement: original counter image moved 15 px down, no scaling.
@@ -226,5 +237,5 @@ function markSlot(ctx,f,img=null,preferred=null){
  ctx.rect(outer.x-3,outer.y-3,outer.w+6,outer.h+6);
  ctx.stroke();ctx.restore();
 }
-window.A18Entrance={init,background,upperPassage,foreground,counter,partition,papers,partitionRight,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
+window.A18Entrance={init,background,upperPassage,sideFrameGaps,foreground,counter,partition,papers,partitionRight,frame,frameGeometry,markSlot,assetCount:()=>imgs.size,ready:()=>ready};
 })();

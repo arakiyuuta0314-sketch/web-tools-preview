@@ -16,6 +16,18 @@ for(let room=1;room<=5;room++){
  }
 }
 assert.equal(Object.keys(L.PASSAGES).length,6);
+// Entrance side exits are the UPPER route behind the two independent art
+// walls. The old bottom-left/bottom-right passage must never come back.
+for(const dir of ['west','east']){
+ const r=L.PASSAGES[0][dir];
+ assert(r.y1>=225&&r.y2<=300,'Entrance side opening must be behind artwork, not on bottom');
+ assert(insideSafeForEntrance(dir,r),'Side corridor interior not walkable');
+}
+function insideSafeForEntrance(dir,r){
+ const x=dir==='west'?r.x1+16:r.x2-16;
+ return L.walkable(x,(r.y1+r.y2)/2,L.defaults(),0);
+}
+assert(L.walkable(290,264,L.defaults(),0),'Upper lateral connecting walkway must stay open');
 const reversed={north:'south',south:'north',east:'west',west:'east'};
 let directions=0,routeChecks=0,reachable=0;
 function pathGoal(r,dir){

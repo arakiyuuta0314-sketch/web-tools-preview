@@ -914,6 +914,7 @@ function avatar(){
 function drawBackground(){
  if(scene==='entrance'){
   window.A18Entrance.background(ctx);
+  window.A18Entrance.sideFrameGaps(ctx,L.PASSAGES[0]);
   // The actual north door is the top passage to gallery5. Show an open
   // perspective corridor there only when access has been granted.
   if(P2.canTraverse(0,'north',accessProgression()))window.A18Entrance.upperPassage(ctx);

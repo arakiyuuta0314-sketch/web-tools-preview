@@ -1,4 +1,4 @@
-﻿/* A18 museum layout v2: fixture IDs, continuous world coordinates, and validation. */
+/* A18 museum layout v2: fixture IDs, continuous world coordinates, and validation. */
 (()=>{'use strict';
 const SHAPES={landscape:[100,76],portrait:[70,104],square:[88,88]};
 const BASE=[
@@ -14,7 +14,7 @@ const ROOM_LINKS={0:{west:1,east:2,north:5},1:{east:0,north:3},2:{west:0,north:4
 // The openings are measured against the approved game-size 589x482 PNGs.
 // This single source owns walking thresholds, portal triggers and arrivals.
 const PASSAGES=Object.freeze({
- 0:{west:{x1:24,x2:77,y1:425,y2:467},east:{x1:469,x2:522,y1:425,y2:467},north:{x1:260,x2:311,y1:160,y2:196}},
+ 0:{west:{x1:24,x2:77,y1:238,y2:290},east:{x1:469,x2:522,y1:238,y2:290},north:{x1:260,x2:311,y1:160,y2:196}},
  1:{east:{x1:535,x2:565,y1:165,y2:225},north:{x1:202,x2:251,y1:101,y2:130}},
  2:{west:{x1:24,x2:55,y1:350,y2:430},north:{x1:434,x2:495,y1:101,y2:132}},
  3:{south:{x1:249,x2:338,y1:440,y2:471},east:{x1:537,x2:565,y1:180,y2:303}},
@@ -22,7 +22,7 @@ const PASSAGES=Object.freeze({
  5:{south:{x1:231,x2:359,y1:440,y2:471},west:{x1:24,x2:68,y1:390,y2:460},east:{x1:521,x2:565,y1:390,y2:460}}
 });
 const ARRIVALS=Object.freeze({
- 0:{west:{x:98,y:450},east:{x:448,y:450},north:{x:285,y:228}},
+ 0:{west:{x:224,y:264},east:{x:353,y:264},north:{x:285,y:228}},
  1:{east:{x:510,y:192},north:{x:225,y:166}},
  2:{west:{x:93,y:396},north:{x:464,y:179}},
  3:{south:{x:294,y:397},east:{x:509,y:235}},
@@ -262,9 +262,10 @@ function validatePlacement(fixtures,room){
    const nb=room===0?npcBounds('butler',room):staffBlock(room);
    const staticBlocks=[[nb[0],nb[2],nb[1],nb[3]]];
    if(staticBlocks.some(s=>overlaps(b,s,10)))return {ok:false,reason:'スタッフや爺やの位置を塞いでいます'};
-   if(room===0)for(const [x,y] of Object.values(PORTALS[room])){
-    if(overlaps(b,[x-31,y-36,x+31,y+36],4))return {ok:false,reason:'部屋の出入口を塞いでいます'};
-   }
+   // Entrance's independently rendered front screen overlaps the projected
+   // upstairs side corridor, but its SOLID footprint is below the corridor.
+   // The actual path is protected by walkable() and real floor obstacles;
+   // never reject a valid passage using the obsolete floor-frame rectangle.
   }
  }
  // Legacy fixed template is a work/save fixture validation, not the adopted
