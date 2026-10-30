@@ -11,12 +11,54 @@ const BASE=[
 ];
 const ROOM_SIZE=Array.from({length:6},(_,i)=>({w:i===0?546:589,h:i===0?483:482,wallFoot:i===0?210:164}));
 const ROOM_LINKS={0:{west:1,east:2,north:5},1:{east:0,north:3},2:{west:0,north:4},3:{south:1,east:5},4:{south:2,west:5},5:{south:0,west:3,east:4}};
-const PORTALS={
- 0:{west:[39,454],east:[505,454],north:[283,207]},
- 1:{east:[513,388],north:[367,183]},2:{west:[76,388],north:[367,183]},
- 3:{south:[296,420],east:[513,388]},4:{south:[296,420],west:[76,388]},
- 5:{south:[296,420],west:[76,388],east:[513,388]}
+// The openings are measured against the approved game-size 589x482 PNGs.
+// This single source owns walking thresholds, portal triggers and arrivals.
+const PASSAGES=Object.freeze({
+ 0:{west:{x1:24,x2:77,y1:425,y2:467},east:{x1:469,x2:522,y1:425,y2:467},north:{x1:260,x2:311,y1:160,y2:196}},
+ 1:{east:{x1:535,x2:565,y1:165,y2:225},north:{x1:202,x2:251,y1:101,y2:130}},
+ 2:{west:{x1:24,x2:55,y1:350,y2:430},north:{x1:434,x2:495,y1:101,y2:132}},
+ 3:{south:{x1:249,x2:338,y1:440,y2:471},east:{x1:537,x2:565,y1:180,y2:303}},
+ 4:{south:{x1:249,x2:338,y1:440,y2:471},west:{x1:24,x2:55,y1:195,y2:302}},
+ 5:{south:{x1:231,x2:359,y1:440,y2:471},west:{x1:24,x2:68,y1:390,y2:460},east:{x1:521,x2:565,y1:390,y2:460}}
+});
+const ARRIVALS=Object.freeze({
+ 0:{west:{x:98,y:450},east:{x:448,y:450},north:{x:285,y:228}},
+ 1:{east:{x:510,y:192},north:{x:225,y:166}},
+ 2:{west:{x:93,y:396},north:{x:464,y:179}},
+ 3:{south:{x:294,y:397},east:{x:509,y:235}},
+ 4:{south:{x:294,y:397},west:{x:94,y:250}},
+ 5:{south:{x:295,y:397},west:{x:146,y:423},east:{x:447,y:423}}
+});
+const PORTALS=Object.fromEntries(Object.entries(PASSAGES).map(([room,entries])=>[room,
+ Object.fromEntries(Object.entries(entries).map(([dir,b])=>[dir,[(b.x1+b.x2)/2,(b.y1+b.y2)/2]]))]));
+// Independent display-wall assets: exact approved 589x482 metadata boxes
+// reduced to *bottom footprints*. Wall-hung paintings are already protected
+// by rear structural wall. Do not use outdated P2 floor-frame rectangles.
+const DISPLAY_FOOTPRINTS={
+ 1:[[73,208,324,350],[411,547,382,405],[278,347,275,303]],
+ 2:[[74,194,356,384],[249,367,291,319],[428,547,358,386]],
+ 3:[[83,214,329,359],[374,505,329,359]],
+ 4:[[397,514,355,383]],
+ 5:[]
 };
+function architecturalFloor(room,x,y){
+ if(room===0)return true; // Entrance keeps its existing detailed furniture and wall rules.
+ if(room===1)return (x>=30&&x<=559&&y>=137)||
+  (x>=209&&x<=245&&y>=101&&y<137)||
+  (x>=536&&x<=565&&y>=162&&y<=222);
+ if(room===2)return (x>=34&&x<=558&&y>=140)||
+  (x>=24&&x<34&&y>=352)||
+  (x>=441&&x<=488&&y>=101&&y<140);
+ if(room===3)return (x>=28&&x<=559&&y>=164)||
+  (x>=179&&x<=423&&y>=112&&y<164)||
+  (x>=538&&x<=565&&y>=164&&y<=306);
+ if(room===4)return (x>=28&&x<=559&&y>=139)||
+  (x>=24&&x<28&&y>=194&&y<=306);
+ if(room===5)return (x>=121&&x<=468&&y>=230)||
+  (x>=24&&x<121&&y>=381&&y<=466)||
+  (x>468&&x<=565&&y>=381&&y<=466);
+ throw Error('E_APPROVED_FLOOR_ROOM '+room);
+}
 // Fixed staffing locations: floor-side, clear of display frames and door corridors.
 const STAFF_POSITIONS={
  1:{x:225,y:349},2:{x:248,y:349},3:{x:232,y:357},
@@ -167,34 +209,24 @@ function migrateLegacy(works){
  }
 }
 function obstacles(fixtures,room){
- // Gallery architecture was replaced; the legacy frame/staff footprints are
- // not real walls in the new approved art. Clear ALL interior collisions for
- // galleries 1..5 until actual wall footprints are approved.
- if(room!==0)return [];
- // Entrance: collide at the butler's feet, not his full 49px-tall sprite.
- // The floor behind his body must be walkable; rear wall remains separate.
- // NPC visual bounds / interaction anchor remain unchanged.
-  if(room===0)return [
-    [...ENTRANCE_LV1.leftWall.solid],
-    [...ENTRANCE_LV1.counter.solid],
-    [...ENTRANCE_LV1.rightWall.solid],
-    [BUTLER.x-10,BUTLER.x+10,BUTLER.footY-5,BUTLER.footY+2]
-  ];
- const result=[staffBlock(room)];
- for(const f of fixtures)if(f.roomId===room&&f.kind==='frame'&&f.installation==='floor'){
-  const [l,t,rr,b]=r(f);
-  result.push([l-10,rr+10,t-12,b+10]);
+ if(room!==0){
+  // Staff collision uses *actual sprite alpha bounds*, not an obsolete
+  // frame/NPC center. Approved standalone walls use their rendered floor base.
+  return [staffBlock(room),...DISPLAY_FOOTPRINTS[room].map(b=>[...b])];
  }
- return result;
+ return [
+  [...ENTRANCE_LV1.leftWall.solid],
+  [...ENTRANCE_LV1.counter.solid],
+  [...ENTRANCE_LV1.rightWall.solid],
+  [BUTLER.x-10,BUTLER.x+10,BUTLER.footY-5,BUTLER.footY+2]
+ ];
 }
 function walkable(x,y,fixtures,room){
  const m=ROOM_SIZE[room],radius=9,fy=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
- // Galleries: temporary free-walk mode. Retain only the outside boundary;
- // doorway locks and target transitions are enforced in the game controller.
- if(room!==0)return true;
-  // Entrance north portal uses the actual opening only after room 6 unlocks.
- if(room===0 && y<m.wallFoot && !(x>=260&&x<=312))return false;
+ if(room===0){
+  if(y<m.wallFoot&&(x<260||x>312))return false;
+ }else if(!architecturalFloor(room,x,y))return false;
  for(const [l,rr,t,b] of obstacles(fixtures,room)){
   const cx=Math.max(l,Math.min(x,rr)),cy=Math.max(t,Math.min(fy,b));
   if(Math.hypot(x-cx,fy-cy)<radius)return false;
@@ -230,11 +262,15 @@ function validatePlacement(fixtures,room){
    const nb=room===0?npcBounds('butler',room):staffBlock(room);
    const staticBlocks=[[nb[0],nb[2],nb[1],nb[3]]];
    if(staticBlocks.some(s=>overlaps(b,s,10)))return {ok:false,reason:'スタッフや爺やの位置を塞いでいます'};
-   for(const [x,y] of Object.values(PORTALS[room])){
+   if(room===0)for(const [x,y] of Object.values(PORTALS[room])){
     if(overlaps(b,[x-31,y-36,x+31,y+36],4))return {ok:false,reason:'部屋の出入口を塞いでいます'};
    }
   }
  }
+ // Legacy fixed template is a work/save fixture validation, not the adopted
+ // architecture's new floor plan. Modern path connectivity is checked using
+ // PASSAGES/ARRIVALS and display footprints by the dedicated movement QA.
+ if(room!==0)return {ok:true,reason:''};
  // Route validation: every portal, staff and artwork viewing anchor must share a walkable component.
  const step=12,key=(ix,iy)=>ix+','+iy;
  const reachable=new Set(),queue=[];
@@ -276,5 +312,5 @@ function newDecor(room,type,x=120,y=300){
   roomId:room,kind:'decor',type,installation:type==='tapestry'?'wall':'floor',x,y,width:TYPES[type][0],height:TYPES[type][1],
   shape:'square',design:'classic',assetKey:type,workId:null};
 }
-window.A18Layout={ENTRANCE_LV1,BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,STAFF_POSITIONS,BUTLER,npcBounds,npcAnchor,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,enforceFixedLayout,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,restoreClassicFrameDimensions};
+window.A18Layout={PASSAGES,ARRIVALS,architecturalFloor,DISPLAY_FOOTPRINTS,ENTRANCE_LV1,BASE,ROOM_SIZE,ROOM_LINKS,PORTALS,STAFF_POSITIONS,BUTLER,npcBounds,npcAnchor,TYPES,LABELS,defaults,fixtureId,slotFor,legacyId,clone,r,overlaps,frameOf,roomFrames,assertData,syncWorks,migrateLegacy,enforceFixedLayout,obstacles,walkable,anchor,validatePlacement,setShape,newDecor,restoreClassicFrameDimensions};
 })();

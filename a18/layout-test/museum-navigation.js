@@ -1,18 +1,15 @@
-/* A18 museum traversal: 2x3 connected graph and doors drawn at real passage coordinates. */
+﻿/* A18 museum traversal: 2x3 connected graph and doors drawn at real passage coordinates. */
 (()=>{'use strict';
 const POSITIONS={0:[1,1],1:[0,1],2:[2,1],3:[0,0],4:[2,0],5:[1,0]};
 const REVERSE={west:'east',east:'west',north:'south',south:'north'};
 const NAMES=['エントランス','展示室1','展示室2','展示室3','展示室4','展示室5'];
-const EDGES={
- entrance:{west:{x1:24,x2:77,y1:425,y2:467},east:{x1:469,x2:522,y1:425,y2:467},north:{x1:260,x2:311,y1:160,y2:196}},
- gallery:{west:{x1:24,x2:44,y1:345,y2:417},east:{x1:546,x2:565,y1:345,y2:417},north:{x1:345,x2:385,y1:101,y2:118},south:{x1:265,x2:329,y1:452,y2:471}}
-};
-// Gallery1's northern door sits on the LEFT of its approved architecture;
-// Gallery2's is on the RIGHT. Keep old entrance and other edges untouched.
-const APPROVED_NORTH={1:{x1:204,x2:235,y1:101,y2:118},2:{x1:452,x2:483,y1:101,y2:118}};
+// Runtime accesses only the architectural openings verified in the
+// approved 589x482 backgrounds; no duplicate, obsolete rect table here.
+const EDGES={entrance:window.A18Layout.PASSAGES[0],gallery:window.A18Layout.PASSAGES[5]};
 function portalEdges(room){
- if(room===0)return EDGES.entrance;
- return APPROVED_NORTH[room]?{...EDGES.gallery,north:APPROVED_NORTH[room]}:EDGES.gallery;
+ const edge=window.A18Layout.PASSAGES[room];
+ if(!edge)throw Error('E_APPROVED_PASSAGE_ROOM '+room);
+ return edge;
 }
 function validateGraph(links){
  if(Object.keys(links).length!==6)throw Error('館内の部屋数が一致しません');
@@ -47,7 +44,7 @@ function drawDoors(ctx,{room,scene,width,height,wallFoot,links,progression}){
  const passages=links[room];
  // Path textures are visual guidance, never a new invisible collision wall.
  for(const edge of Object.keys(passages)){
-  const rect=EDGES[scene][edge];
+  const rect=portalEdges(room)[edge];
   const locked=!window.A18P2Store.canTraverse(room,edge,progression);
   if(edge==='north'){
    const cx=(rect.x1+rect.x2)/2;

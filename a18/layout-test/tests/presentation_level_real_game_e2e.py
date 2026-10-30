@@ -87,6 +87,11 @@ try:
    state=page.evaluate("window.__A18_SCENE_STUDY__.state()")
    assert state["galleryIndex"]==0 and state["museumLevel"]==1 and state["presentationLevel"]==2,state
    assert not page.evaluate("window.__A18_SCENE_STUDY__.changeScene(5,{direction:'north'})")
+   # Gallery1 remains available at public Lv2, but its gallery3 north doorway
+   # must be physically blocked until that destination is unlocked.
+   assert page.evaluate("window.__A18_SCENE_STUDY__.changeScene(1,{direction:'west'})")
+   assert page.evaluate("window.__A18_SCENE_STUDY__.canMove(225,116)") is False
+   assert page.evaluate("window.__A18_SCENE_STUDY__.changeScene(0,{direction:'east'})")
    # Automatic mode follows STORY progress only.
    print("SETTINGS AUTO",width,flush=True)
    page.locator("#settingsGear").click(force=True)

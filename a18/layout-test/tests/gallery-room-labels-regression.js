@@ -8,6 +8,7 @@ const base=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(base,name),'utf8');
 const expected=['エントランス','展示室1','展示室2','展示室3','展示室4','展示室5'];
 const sandbox={window:{}};
+vm.runInNewContext(read('layout-system.js'),sandbox,{filename:'layout-system.js'});
 vm.runInNewContext(read('museum-navigation.js'),sandbox,{filename:'museum-navigation.js'});
 assert.deepEqual(Array.from(sandbox.window.A18Navigation.NAMES),expected);
 

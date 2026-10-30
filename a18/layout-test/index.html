@@ -718,12 +718,21 @@ function safeMove(x,y){
  const m=src[scene];
  const radius=9,footY=y+5;
  if(x<24||x>m.w-24||y<101||y>m.h-11)return false;
- // Temporarily remove *all* gallery1..5 interior barriers; retain the
- // exterior boundary and the existing doorway/level transition gate.
- if(galleryIndex!==0)return true;
- // Floor behind freestanding screens is traversable. At the structural north
- // wall only the unlocked doorway is a corridor, never a passage through masonry.
- if(y<wallFootLine()){
+ // Match the approved room's physical architecture, excluding unapproved
+ // legacy floor frame locations. Staff and *actual* display wall bases
+ // are checked separately below. Door travel remains gated by progression.
+ if(galleryIndex!==0){
+  if(!L.architecturalFloor(galleryIndex,x,y))return false;
+  // An unapproved gallery remains physically closed at its *actual* arch,
+  // not at the obsolete P2 hitbox. This prevents walking into a locked wall.
+  for(const [edge,g] of Object.entries(L.PASSAGES[galleryIndex])){
+   if(P2.canTraverse(galleryIndex,edge,accessProgression()))continue;
+   if(edge==='north'&&y<=g.y2+4&&x>=g.x1&&x<=g.x2)return false;
+   if(edge==='south'&&y>=g.y1-4&&x>=g.x1&&x<=g.x2)return false;
+   if(edge==='west'&&x<=g.x1+22&&y>=g.y1&&y<=g.y2)return false;
+   if(edge==='east'&&x>=g.x2-22&&y>=g.y1&&y<=g.y2)return false;
+  }
+ }else if(y<wallFootLine()){
   const door=northDoorway();
   if(!P2.canTraverse(galleryIndex,'north',accessProgression())||x<door.x1+radius/2||x>door.x2-radius/2)return false;
  }
@@ -819,12 +828,12 @@ async function changeScene(next,options={}){
  if(!['north','south','west','east'].includes(dir)
     ||ROOM_LINKS[galleryIndex][dir]!==next
     ||!P2.canTraverse(galleryIndex,dir,accessProgression()))return false;
- // Reverse doorway's safe interior arrival point, away from portal re-trigger.
- const entrance=next===0;
- const spawn=dir==='west'?{x:entrance?457:514,y:entrance?451:385,dir:'left',stride:0}
-   :dir==='east'?{x:entrance?92:77,y:entrance?451:385,dir:'right',stride:0}
-   :dir==='north'?{x:296,y:431,dir:'up',stride:0}
-   :{x:entrance?285:next===1?220:next===2?465:365,y:entrance?229:185,dir:'down',stride:0};
+ // The arrival uses the destination's real doorway, not a room-agnostic
+ // center; the previous default spawned inside walls or meters from exits.
+ const opposite={west:'east',east:'west',north:'south',south:'north'}[dir];
+ const arrival=L.ARRIVALS[next]?.[opposite];
+ if(!arrival)throw Error('E_PORTAL_ARRIVAL_MISSING '+next+':'+opposite);
+ const spawn={...arrival,dir:dir==='west'?'left':dir==='east'?'right':dir==='north'?'up':'down',stride:0};
  if(!L.walkable(spawn.x,spawn.y,fixtures,next))throw Error('E_PORTAL_SPAWN_COLLISION '+next+':'+dir);
  clearTimeout(saveTimer);
  const success=await commitChange(s=>{s.galleryIndex=next;s.pos=spawn;},{event:false});
@@ -1335,7 +1344,12 @@ for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventList
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
  state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),presentationLevel:currentSave?.presentationLevel??null,publicLevel:publicLevel(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame(),entrancePaintCount},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
- move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:window.A18Navigation.EDGES,
+ move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:window.A18Layout.PASSAGES,
+ qaPlaceAt:(x,y)=>{
+  if(!P2.TEST_MODE)throw Error('E_QA_ONLY_POSITION');
+  if(!Number.isFinite(x)||!Number.isFinite(y)||!safeMove(x,y))throw Error('E_QA_POSITION_BLOCKED');
+  pos.x=x;pos.y=y;update();return {...pos};
+ },
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');return commitChange(s=>{s.avatarGender=g;});},
  validateLayout:room=>L.validatePlacement(fixtures,room),
   ready:()=>loaded,

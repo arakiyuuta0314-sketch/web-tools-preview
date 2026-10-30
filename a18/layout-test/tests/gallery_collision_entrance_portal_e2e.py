@@ -45,33 +45,41 @@ try:
     if page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")==5:break
    page.wait_for_function("window.__A18_SCENE_STUDY__.state().galleryIndex===5",timeout=9000)
    print(f"PASS {width}: upper north entrance doorway is physically reachable, not bottom")
-   # Old 5-room collision layout must be absent. This includes staff, floor
-   # frame, and former impassable wallFoot boundary positions.
+   # Approved architecture walls, gallery floor-mounted displays and
+   # staff are now solid; obsolete pre-redraw P2 frame hitboxes are not reused.
    for room in range(1,6):
-    if page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")!=room:
-     # Use existing open bidirectional graph; get a live real room via entrance.
-     if page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")!=0:
-      current=page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")
-      path={1:("east",0),2:("west",0),3:("south",1),4:("south",2),5:("south",0)}[current]
-      assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.to,{direction:v.dir})",{"to":path[1],"dir":path[0]})
-      if path[1]!=0:
-       back={1:("east",0),2:("west",0)}[path[1]]
-       assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.to,{direction:v.dir})",{"to":back[1],"dir":back[0]})
-     route={1:("west",1),2:("east",2),3:("west",1),4:("east",2),5:("north",5)}[room]
-     if room in (3,4):
-      assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.to,{direction:v.dir})",{"to":route[1],"dir":route[0]})
-      route={3:("north",3),4:("north",4)}[room]
-     assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.to,{direction:v.dir})",{"to":route[1],"dir":route[0]})
-    assert page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")==room
-    assert page.evaluate("window.__A18_SCENE_STUDY__.state().obstacles.length")==0
-    blocked=page.evaluate("""()=>[[100,120],[295,120],[500,150],[260,340],[90,300],[460,300]]
-      .filter(pt=>!window.__A18_SCENE_STUDY__.canMove(pt[0],pt[1]))""")
-    assert not blocked,(room,blocked)
-    assert page.evaluate("window.__A18_SCENE_STUDY__.canMove(10,200)")==False
-    print(f"PASS {width}: gallery{room} six legacy obstruction spots walkable; outside boundary blocked")
+    while page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")!=0:
+     current=page.evaluate("window.__A18_SCENE_STUDY__.state().galleryIndex")
+     if current in (1,2,5):target={1:0,2:0,5:0}[current];direction={1:"east",2:"west",5:"south"}[current]
+     else:target={3:1,4:2}[current];direction="south"
+     assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.t,{direction:v.d})",{"t":target,"d":direction})
+    if room in (1,2,5):
+     direction={1:"west",2:"east",5:"north"}[room]
+     assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.t,{direction:v.d})",{"t":room,"d":direction})
+    else:
+     mid={3:1,4:2}[room]
+     direction="west" if mid==1 else "east"
+     assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.t,{direction:v.d})",{"t":mid,"d":direction})
+     assert page.evaluate("(v)=>window.__A18_SCENE_STUDY__.changeScene(v.t,{direction:'north'})",{"t":room})
+    state=page.evaluate("window.__A18_SCENE_STUDY__.state()")
+    assert state["galleryIndex"]==room
+    floor=page.evaluate("""(r)=>{
+      const L=window.A18Layout,arr=L.obstacles(L.defaults(),r),staff=arr[0];
+      return {obstacles:arr,art:L.DISPLAY_FOOTPRINTS[r],
+        staffPoint:[(staff[0]+staff[1])/2,(staff[2]+staff[3])/2-5]};
+    }""",room)
+    assert len(state["obstacles"])==len(floor["art"])+1
+    assert page.evaluate("(p)=>window.__A18_SCENE_STUDY__.canMove(p[0],p[1])",floor["staffPoint"]) is False
+    for left,right,top,bottom in floor["art"]:
+     assert page.evaluate("(p)=>window.__A18_SCENE_STUDY__.canMove(p[0],p[1])",
+       [(left+right)/2,(top+bottom)/2-5]) is False
+    assert page.evaluate("window.__A18_SCENE_STUDY__.canMove(295,110)") is False
+    assert page.evaluate("window.__A18_SCENE_STUDY__.canMove(295,410)") is True
+    assert page.evaluate("window.__A18_SCENE_STUDY__.canMove(10,200)") is False
+    print(f"PASS {width}: gallery{room} architectural rear wall, {len(floor['art'])} displays, staff solid; open aisle and boundary correct")
    assert not errors,errors
    assert page.evaluate("window.__A18_SCENE_STUDY__.state().museumLevel")==1
-   print(f"PASS {width}: storyLv1 held, temporary collision reset and entrance visual drawing")
+   print(f"PASS {width}: storyLv1 held, new structural and display/staff collision with entrance visual drawing")
    page.close()
   browser.close()
 finally:
