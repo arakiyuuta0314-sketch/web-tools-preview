@@ -73,13 +73,29 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
  .stage:not(.overview)>.hint{top:auto!important;bottom:160px!important}
 }@media (orientation:portrait) and (max-width:370px){
  .stage:not(.overview)>.hint{bottom:151px!important}
-}</style></head>
+}</style>
+<style>
+.a18-hitbox-toggle{position:absolute;right:11px;bottom:165px;z-index:9;
+  color:#f7f1dc;background:#17392f;border:2px solid #79c9ae;
+  border-radius:8px;padding:8px 11px;font-weight:800;font-size:13px;
+  box-shadow:0 2px 10px #0a2017aa}
+.a18-hitbox-toggle[hidden]{display:none!important}
+.a18-collision-legend{position:absolute;left:9px;top:57px;z-index:8;
+ pointer-events:none;background:#062b26e8;border:1px solid #78c2a2;
+ border-radius:7px;color:#fff3d7;font:700 11px/1.6 system-ui,sans-serif;
+ padding:4px 8px;max-width:calc(100% - 18px)}
+.a18-collision-legend[hidden]{display:none!important}
+.a18-collision-legend span{display:inline-block;margin-right:8px}
+.a18-hitbox-toggle[aria-pressed="true"]{background:#206956;color:white;border-color:#55d4ad}
+.dialog label.a18-hitbox-check{display:flex;align-items:center;gap:8px;font-weight:700}
+.dialog label.a18-hitbox-check input{width:22px;height:22px;flex:none}
+</style></head>
 <body>
 <div class="app">
 <header><div class="brand"><small>PUZZLE MUSEUM</small><button id="museumName" title="美術館の名前を変更">パズル美術館</button></div></header>
 <main class="stage" id="stage"><canvas id="world" aria-label="館長が歩く美術館"></canvas><button id="floorMapButton" class="a18-map-button" type="button" aria-label="館内図を開く">館内図 ▦</button><div class="status" id="statusText">展示室の入口</div><div class="tag">✦ <strong>とっておき美術館</strong></div><div class="hint" id="hint" role="status" hidden></div>
 <div class="dpad" id="dpad"><button data-d="up" aria-label="上へ">▲</button><button data-d="left" aria-label="左へ">◀</button><div class="label">歩く</div><button data-d="right" aria-label="右へ">▶</button><button data-d="down" aria-label="下へ">▼</button></div>
-<button id="settingsGear" class="a18-settings-gear" type="button" aria-label="設定を開く" title="設定">⚙</button><div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
+<button id="settingsGear" class="a18-settings-gear" type="button" aria-label="設定を開く" title="設定">⚙</button><button id="hitboxToggle" class="a18-hitbox-toggle" type="button" aria-pressed="false" hidden>判定を表示</button><div id="collisionLegend" class="a18-collision-legend" hidden><div><span>🟢 緑：歩行境界</span><span>🔴 赤：障害物</span></div><div><span>🔵 青：移動発動</span><span>⚪ 白：入室位置</span></div></div><div class="act"><button id="cancel" class="secondary" hidden>持ち上げを戻す</button><button id="act" hidden>調べる</button></div></main>
 
 </div><div id="overlay" class="overlay" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true"></section></div>
 <section id="photoViewer" class="a18-viewer" hidden role="dialog" aria-modal="true" aria-label="作品を大きく鑑賞する">
@@ -104,6 +120,7 @@ footer{background:#18372f;color:#ecdcbf;font-size:12px;padding:5px 14px;flex:non
 <div id="a18OpeningRoot" class="a18-opening-root" hidden></div>
 <script src="opening-v1.js?v=4-compact-name"></script>
 <script src="viewer.js?v=fixed1"></script>
+<script src="collision-debug-overlay.js?v=20261031-1"></script>
 <script>
 (() => {
 'use strict';
@@ -119,6 +136,25 @@ const MAX_WORKS=30;
 const L=window.A18Layout;
 const ROOM_LINKS=L.ROOM_LINKS;
 const P2=window.A18P2Store;
+let showCollisionOverlay=new URLSearchParams(location.search).get('hitboxes')==='1';
+function setCollisionOverlay(on){
+ showCollisionOverlay=Boolean(on);
+ const button=$('hitboxToggle');
+ $('collisionLegend').hidden=!showCollisionOverlay;
+ button.hidden=!showCollisionOverlay&&!P2.TEST_MODE;
+ button.setAttribute('aria-pressed',showCollisionOverlay?'true':'false');
+ button.textContent=showCollisionOverlay?'判定を隠す':'判定を表示';
+ const checkbox=$('showCollisionLines');
+ if(checkbox)checkbox.checked=showCollisionOverlay;
+ window.A18CollisionOverlay.invalidate();
+ // The entrance's static-scene repaint cache must not mask the toggle.
+ lastEntrancePaintSignature=null;
+}
+$('hitboxToggle').onclick=()=>setCollisionOverlay(!showCollisionOverlay);
+$('hitboxToggle').hidden=!showCollisionOverlay&&!P2.TEST_MODE;
+$('collisionLegend').hidden=!showCollisionOverlay;
+$('hitboxToggle').setAttribute('aria-pressed',showCollisionOverlay?'true':'false');
+$('hitboxToggle').textContent=showCollisionOverlay?'判定を隠す':'判定を表示';
 const ROOM_LABELS=window.A18Navigation.NAMES;
 let galleryIndex=0; // Stable room IDs: 0 = entrance, 1 = 展示室1 (opens at museum Lv.2).
 const fixtures=L.defaults();
@@ -932,7 +968,7 @@ function draw(){
  if(galleryIndex===0){
   // Static entrance scenes should not clear and re-rasterize the marble
   // floor 60 times a second on mobile Safari. Repaint only when pixels change.
-  const sig=[canvas.width,canvas.height,pixelCameraX,pixelCameraY,
+  const sig=[canvas.width,canvas.height,showCollisionOverlay,pixelCameraX,pixelCameraY,
    pos.x,pos.y,pos.dir,pos.stride,introPreviewGender||avatarGender,carrying,
    currentSave?.revision??-1,entranceImageRevision,works.length].join('|');
   if(lastEntrancePaintSignature===sig){requestAnimationFrame(draw);return;}
@@ -967,6 +1003,16 @@ function draw(){
  if(hit?.type==='art'&&carrying){const f=fixtureAt(hit.i);if(galleryIndex===0){const carried=works.find(w=>w.id===carrying);if(!carried)throw Error('E_ENTRANCE_CARRIED_WORK');window.A18Entrance.markSlot(ctx,f,artworkImage(carried),carried.preferredShape);}else{const [x1,y1,x2,y2]=L.r(f);ctx.strokeStyle='#76b18a';ctx.lineWidth=3;ctx.strokeRect(x1-7,y1-7,x2-x1+14,y2-y1+14)}}
  if(!behindButler&&!behindRight)avatar();
  if(galleryIndex===0&&pos.y<410)window.A18Entrance.counter(ctx);
+ if(showCollisionOverlay)window.A18CollisionOverlay.paint(ctx,{
+  room:galleryIndex,
+  worldWidth:m.w,worldHeight:m.h,
+  canMove:safeMove,
+  passages:L.PASSAGES[galleryIndex],
+  arrivals:L.ARRIVALS[galleryIndex],
+  obstacles:roomObstacles(),
+  canTraverse:dir=>P2.canTraverse(galleryIndex,dir,accessProgression()),
+  storyLevel:unlockedRooms(),publicLevel:publicLevel()
+ });
  ctx.restore();requestAnimationFrame(draw);
 }
 function presentationFields(){
@@ -1028,6 +1074,8 @@ function showSettings(){
  open('設定','<div class="a18-settings-content"><p class="small">館長の名前・性別・美術館の名前を変更できます。</p>'+profileFields()+
   '<p id="profileError" class="error" role="alert"></p><div class="row"><button id="saveProfile">変更を保存</button><button id="closeSettings" class="light">戻る</button></div>'+
   '<hr><h3>館内の公開レベル</h3>'+presentationFields()+
+  '<hr><h3>移動判定の確認</h3><label class="a18-hitbox-check"><input type="checkbox" id="showCollisionLines"'+(showCollisionOverlay?' checked':'')+'>歩行境界と通路の判定を表示</label>'+
+  '<p class="small">緑＝歩ける境界、赤＝スタッフ・展示壁、青＝移動発動範囲、白＝移動後の出現位置。写真・物語・保存データには影響しません。</p>'+
   '<div class="row"><button id="applyPresentationLevel" type="button">館の公開レベルを変更する</button></div><p id="presentationError" class="error" role="alert"></p>'+
   '<hr><h3>物語</h3><button id="p6StoryHistory" type="button" class="light">美術館の物語</button>'+
   (P2.TEST_MODE?'<hr><h3>開発テスト（QA専用）</h3><p class="small">館Lv.1〜6を自由に切り替え、開いた扉から移動を確認できます。通常のセーブとは別に保存します。</p>'+
@@ -1042,6 +1090,7 @@ function showSettings(){
   '<p class="small">写真原本はこのブラウザの美術館データに保存されます。リセットは取り消せません。</p></div>');
  $('saveProfile').onclick=async()=>{if(await saveProfile())close();};
  $('closeSettings').onclick=close;
+ $('showCollisionLines').onchange=e=>setCollisionOverlay(e.target.checked);
  $('applyPresentationLevel').onclick=async()=>{
   if(saving||saveBlocked)return;
   try{
@@ -1345,6 +1394,7 @@ window.addEventListener('resize',resize);window.addEventListener('orientationcha
 window.__A18_SCENE_STUDY__={
  state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),presentationLevel:currentSave?.presentationLevel??null,publicLevel:publicLevel(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame(),entrancePaintCount},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
  move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:window.A18Layout.PASSAGES,
+ collisionOverlay:()=>({enabled:showCollisionOverlay,room:galleryIndex,passages:L.PASSAGES[galleryIndex],arrivals:L.ARRIVALS[galleryIndex],obstacles:roomObstacles().map(b=>[...b])}),
  qaPlaceAt:(x,y)=>{
   if(!P2.TEST_MODE)throw Error('E_QA_ONLY_POSITION');
   if(!Number.isFinite(x)||!Number.isFinite(y)||!safeMove(x,y))throw Error('E_QA_POSITION_BLOCKED');
