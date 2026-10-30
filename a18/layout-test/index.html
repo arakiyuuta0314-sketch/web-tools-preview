@@ -1270,7 +1270,7 @@ for(const ev of ['contextmenu','selectstart','dragstart'])$('dpad').addEventList
 window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
 window.__A18_SCENE_STUDY__={
  state:()=>({scene,galleryIndex,roomNumber:galleryIndex+1,roomName:ROOM_LABELS[galleryIndex],links:{...ROOM_LINKS[galleryIndex]},allRoomLinks:JSON.parse(JSON.stringify(ROOM_LINKS)),unlockedRooms:unlockedRooms(),maxWorks:MAX_WORKS,roomCapacity:roomCapacity(galleryIndex),frameRects:roomRects().map(r=>[...r]),interactionAnchors:interactionCandidates().map(h=>({...h})),obstacles:roomObstacles().map(r=>[...r]),wallFootLine:wallFootLine(),pos:{...pos},carrying,carryOrigin,museumTitle,playerName,viewMode,avatarGender,museumLevel:unlockedRooms(),assetStatus:window.A18Art.stats(),fixtures:L.clone(fixtures),viewport:{logicalW,logicalH,cameraX,cameraY,backingWidth:canvas.width,backingHeight:canvas.height,portrait:isPortraitGame(),entrancePaintCount},interaction:nearby(),movement:{step:MOVE_DISTANCE,repeatMs:MOVE_REPEAT_MS},works:works.map(a=>({id:a.id,fixtureId:a.fixtureId,title:a.title,complete:a.complete,notes:a.notes||''}))}),
- move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:PORTAL_EDGES,
+ move:walk,canMove:safeMove,changeScene,inspect,form,list,showFloorMap,showSettings,showStoryHistory,showProgressionEvent,staffDialog,butlerDialog,checkPortal,portalEdges:window.A18Navigation.EDGES,
  setAvatar:g=>{if(!['male','female'].includes(g))throw Error('不明な館長');return commitChange(s=>{s.avatarGender=g;});},
  validateLayout:room=>L.validatePlacement(fixtures,room),
   ready:()=>loaded,
