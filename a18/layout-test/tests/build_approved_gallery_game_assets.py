@@ -14,6 +14,30 @@ entries={}
 scale=589/930
 top_src=350
 top_dst=round(top_src*scale)
+rendered_gallery1=None
+
+def replace_gallery2_north_arch_with_gallery1_door(game, gallery1):
+    # Approved room2 wall/floor remain untouched except the former arched
+    # north opening. The room1 finished two-leaf timber door is reused at
+    # exactly the same native logical art scale.
+    assert game.size==(589,482) and gallery1.size==(589,482)
+    original=game.copy()
+    px=game.load()
+    # Reconstruct the room2 wall behind its former wide oval, sampling only
+    # the adjacent untouched room2 wall panel. Otherwise remnants of the old
+    # gold oval would show through the soft outer edges.
+    for y in range(10,141):
+        for x in range(419,517):
+            px[x,y]=original.getpixel((396+(x-419)%14,y))
+    patch=gallery1.crop((181,10,269,140))
+    mask=Image.new("L",patch.size,0)
+    mm=mask.load()
+    for y in range(patch.height):
+        for x in range(patch.width):
+            edge=min(x,patch.width-1-x,y,patch.height-1-y)
+            mm[x,y]=255 if edge>=5 else int(255*max(0,edge/5))
+    game.paste(patch,(423,10),mask)
+
 for room in range(1,6):
     path=src/f"gallery{room}"/"background_approved.png"
     raw=path.read_bytes()
@@ -37,6 +61,12 @@ for room in range(1,6):
         draw.rectangle((561,0,588,481),fill=black)
         draw.rectangle((28,0,560,9),fill=black)
         draw.rectangle((28,465,560,481),fill=black)
+
+    if room==1:
+        rendered_gallery1=game.copy()
+    if room==2:
+        if rendered_gallery1 is None:raise RuntimeError("E_GALLERY1_DOOR_REFERENCE_MISSING")
+        replace_gallery2_north_arch_with_gallery1_door(game,rendered_gallery1)
 
     derived=dst/f"gallery{room}_game_589x482.png"
     game.save(derived,optimize=True)

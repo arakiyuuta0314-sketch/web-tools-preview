@@ -36,7 +36,7 @@ async function loadImage(path){
    v.onerror=()=>reject(Error('E_P3_ASSET_LOAD '+path));
    // Avoid the previously deployed borderless room2 being returned from a
    // mobile browser's old PNG cache after the approved derived image changed.
-   v.src=path+(path.endsWith('gallery2_game_589x482.png')?'?v=20261031-gallery2-frame':'');
+   v.src=path+(path.endsWith('gallery2_game_589x482.png')?'?v=20261031-gallery2-north-double-door-v1':'');
   });
   const [w,h]=dim(path);
   if(im.naturalWidth!==w||im.naturalHeight!==h)throw Error('E_P3_ASSET_DIM '+path);
