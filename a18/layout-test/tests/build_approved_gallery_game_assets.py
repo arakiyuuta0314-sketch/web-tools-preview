@@ -25,6 +25,19 @@ for room in range(1,6):
     floor=im.crop((0,top_src,930,582)).resize((589,482-top_dst),Image.Resampling.LANCZOS)
     game=Image.new("RGB",(589,482))
     game.paste(top,(0,0));game.paste(floor,(0,top_dst))
+    if room==2:
+        # Gallery2's originally borderless derived image must match the other
+        # galleries' square black architectural surrounds; keep the upper-left
+        # west side passage open from y=180 to 308.
+        from PIL import ImageDraw
+        draw=ImageDraw.Draw(game)
+        black=(0,0,0)
+        draw.rectangle((0,0,27,179),fill=black)
+        draw.rectangle((0,309,27,481),fill=black)
+        draw.rectangle((561,0,588,481),fill=black)
+        draw.rectangle((28,0,560,9),fill=black)
+        draw.rectangle((28,465,560,481),fill=black)
+
     derived=dst/f"gallery{room}_game_589x482.png"
     game.save(derived,optimize=True)
     entries[str(room)]={"source":str(orig.relative_to(dst.parent.parent)).replace("\\","/"),

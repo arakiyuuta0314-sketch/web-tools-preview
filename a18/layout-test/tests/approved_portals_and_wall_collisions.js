@@ -58,7 +58,7 @@ for(let room=0;room<6;room++){
   assert(!inside(room,(l+r)/2,(t+b)/2-5),'Standalone art collision '+room);
  }
  assert(inside(room,295,410),'Main aisle obstructed '+room);
- if(room===2){assert(!inside(room,25,220),'Gallery2 left wall above west opening must be solid');assert(!inside(room,562,220),'Gallery2 right wall must be solid');}
+ if(room===2){assert(!inside(room,25,151),'Gallery2 upper-left wall above west opening must be solid');assert(inside(room,25,244),'Gallery2 left upper entry must be walkable');assert(!inside(room,25,338),'Gallery2 left wall below passage must be solid');assert(!inside(room,562,220),'Gallery2 right wall must be solid');}
  if(room===5)assert(inside(room,295,350),'Gallery5 carpet must remain open');
 }
 assert.equal(directions,14);
