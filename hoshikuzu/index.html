@@ -12,12 +12,13 @@
 <main class="rpg" id="rpg">
 <header class="masthead"><div><span class="brand-mark">✦</span><strong>星屑の勇者</strong><span class="subtitle">はじまりの剣と黒曜の魔王城</span></div><div class="masthead-tools"><span class="chapter" id="chapter">第一幕 · はじまり</span><button id="sound-toggle" type="button" aria-label="音を消す" aria-pressed="false" title="BGM・効果音を切り替え">♫ ON</button></div></header>
 <section class="screen-shell" aria-label="レトロRPGゲーム画面">
-<canvas id="game" width="320" height="240" aria-label="主人公とマップを表示"></canvas>
+<canvas id="game" width="256" height="224" aria-label="主人公とマップを表示"></canvas>
 <div id="completion" class="completion" hidden>✦ 鉄の門 開通！</div>
+<div id="context-hint" class="context-hint" hidden>A  はなす / しらべる</div>
+<section class="action-panel" id="action-panel" hidden aria-label="ゲームの選択肢"><div class="panel-head"><strong id="panel-title">メニュー</strong><button id="panel-close" class="close" type="button" aria-label="閉じる">×</button></div><div id="panel-content" class="panel-content"></div></section>
 </section>
 <section class="dialogue" aria-live="polite" aria-label="ゲームのメッセージ"><p id="message">冒険を始めてください。</p><span id="message-arrow" aria-hidden="true">▼</span></section>
 <section class="journey-strip" aria-label="冒険の進み具合"><span id="journey-progress">冒険の記録　✦</span><span id="journey-stars">星屑 0 / 5</span></section>
-<section class="action-panel" id="action-panel" hidden aria-label="ゲームの選択肢"><div class="panel-head"><strong id="panel-title">メニュー</strong><button id="panel-close" class="close" type="button" aria-label="閉じる">×</button></div><div id="panel-content" class="panel-content"></div></section>
 <aside class="adventure-journal" aria-label="冒険の記録">
 <div class="journal-heading"><span>✦ ADVENTURE JOURNAL</span><span id="travel-region">アルテリア</span></div>
 <div class="journal-illustration" aria-hidden="true"><span class="sun-moon">✧</span><span class="peaks">▲ ▲ ⛰ ▲ ▲</span><span class="path-dots"> · ✦ · ✦ · </span></div>
@@ -38,7 +39,7 @@
 </div>
 </section>
 <div class="ad-slot" aria-label="将来の広告配置領域">ゲーム画面を邪魔しない広告用余白 · ブラウザでは広告なし</div>
-<footer><span>十字キーで移動 · Aで話す / 調べる · Bで戻る</span><span><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a> · <a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></span></footer>
+<footer><span>十字キー：移動／選択　A：決定　B：もどる</span><span><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a> · <a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></span></footer>
 </main>
 <div id="start-overlay" class="start-overlay">
 <section class="start-box" aria-label="ゲーム開始">
@@ -54,7 +55,7 @@
 <button id="load-auto" class="start-secondary" type="button">オートセーブから再開</button>
 <button id="load-manual" class="start-secondary" type="button">王様のセーブから再開</button>
 <p id="start-error" class="start-error" role="alert"></p>
-<p class="preview-note">第一幕から終幕までプレイできます · セーブ対応<br>音は開始ボタン操作後に再生されます。♫で消音できます。</p>
+<p class="preview-note">十字キーで歩いて、Aで話す・調べる・決定<br>Bでもどる。町や洞窟を自由に探検しよう。</p>
 </section>
 </div>
 <script defer src="app.js"></script>
