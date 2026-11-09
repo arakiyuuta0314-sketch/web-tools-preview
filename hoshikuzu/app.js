@@ -1853,10 +1853,10 @@
           ],
           [
             1,
-            7,
-            7,
-            7,
-            7,
+            1,
+            1,
+            1,
+            1,
             7,
             7,
             8,
@@ -1864,13 +1864,17 @@
             8,
             7,
             7,
-            7,
-            7,
-            7,
-            7,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
+            1,
+            1,
+            1,
+            1,
             1,
             7,
             7,
@@ -1879,17 +1883,17 @@
             7,
             7,
             7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
+            1,
+            1,
+            1,
+            1,
             1,
             7,
             7,
@@ -1898,14 +1902,10 @@
             7,
             7,
             7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
@@ -2037,6 +2037,24 @@
             y: 10,
             kind: "star",
             name: "\u53E4\u3044\u6728\u7BB1"
+          }
+        ],
+        buildings: [
+          {
+            id: "leaf-inn",
+            x: 1,
+            y: 6,
+            w: 4,
+            h: 3,
+            kind: "inn"
+          },
+          {
+            id: "leaf-shop",
+            x: 12,
+            y: 6,
+            w: 4,
+            h: 3,
+            kind: "shop"
           }
         ]
       },
@@ -2682,7 +2700,11 @@
           ],
           [
             1,
-            3,
+            1,
+            1,
+            1,
+            1,
+            1,
             7,
             7,
             7,
@@ -2690,20 +2712,20 @@
             7,
             7,
             7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
+            1,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
             1,
-            3,
+            1,
+            1,
+            1,
+            1,
+            1,
             7,
             7,
             3,
@@ -2711,20 +2733,20 @@
             7,
             7,
             3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            3,
+            1,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
             1,
-            3,
+            1,
+            1,
+            1,
+            1,
+            1,
             7,
             3,
             7,
@@ -2732,15 +2754,11 @@
             7,
             3,
             7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            3,
+            1,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
@@ -2920,6 +2938,24 @@
             name: "\u53E4\u3044\u5009\u5EAB\u306E\u5B9D\u7BB1",
             x: 3,
             y: 3
+          }
+        ],
+        buildings: [
+          {
+            id: "sailun-inn",
+            x: 1,
+            y: 7,
+            w: 5,
+            h: 3,
+            kind: "inn"
+          },
+          {
+            id: "sailun-shop",
+            x: 13,
+            y: 7,
+            w: 5,
+            h: 3,
+            kind: "shop"
           }
         ]
       },
@@ -4860,12 +4896,13 @@
       dot(c, x + 11, y + 11, p[3], 2, 1);
     } else throw Error("\u672A\u5B9A\u7FA9\u306E\u5730\u5F62\u30BF\u30A4\u30EB " + id);
   }
-  function drawPerson(c, x, y, kind = "hero", facing = "down") {
+  function drawPerson(c, x, y, kind = "hero", facing = "down", frame = 0) {
     const wears = { hero: ["#4b8bd1", "#2b4f84"], king: ["#ac4258", "#67294b"], watchman: ["#e9b965", "#88623b"], riona: ["#ad7dc4", "#634b91"], frontSoldier: ["#b6c1ca", "#586778"], lighthouse: ["#d9b374", "#74613a"], elder: ["#81a486", "#3c6860"], helper: ["#bf8489", "#82555e"], inn: ["#96ac7f", "#536a4b"], shop: ["#7e9eb6", "#48677a"], guard: ["#acbac6", "#5e768d"], refugee: ["#d09c77", "#8c705b"] }[kind] || ["#78b28f", "#427566"];
     const [coat, shadow] = wears;
+    const leftLeg = frame === 1 ? 4 : 5, rightLeg = frame === 2 ? 10 : 9;
     block(c, x + 4, y + 14, 8, 2, "#1b2738");
-    block(c, x + 5, y + 11, 3, 4, shadow);
-    block(c, x + 9, y + 11, 3, 4, shadow);
+    block(c, x + leftLeg, y + 11, 3, 4, shadow);
+    block(c, x + rightLeg, y + 11, 3, 4, shadow);
     block(c, x + 3, y + 7, 10, 6, coat);
     block(c, x + 4, y + 8, 2, 3, shadow);
     block(c, x + 10, y + 8, 2, 3, shadow);
@@ -4888,9 +4925,20 @@
       block(c, x + 4, y + 6, 8, 3, "#f0d5a6");
       dot(c, x + 10, y + 7, "#d9c280", 2, 2);
     }
-    if (facing !== "up") {
+    if (facing === "up") {
+      block(c, x + 5, y + 3, 6, 3, kind === "hero" ? "#293b62" : "#473945");
+    } else if (facing === "left") {
+      dot(c, x + 5, y + 5, "#263444");
+      dot(c, x + 4, y + 7, "#e8bc92");
+    } else if (facing === "right") {
+      dot(c, x + 10, y + 5, "#263444");
+      dot(c, x + 11, y + 7, "#e8bc92");
+    } else {
       dot(c, x + 6, y + 5, "#263444");
       dot(c, x + 10, y + 5, "#263444");
+    }
+    if (kind === "hero" && frame > 0) {
+      block(c, x + (frame === 1 ? 4 : 11), y + 10, 2, 3, "#f0d5a6");
     }
   }
   function drawObject(c, e, x, y, s) {
@@ -5138,29 +5186,37 @@
 
   // src/game/render.mjs
   var TILE = 16;
-  var W = 320;
-  var H = 240;
+  var W = 256;
+  var H = 224;
+  var VIEW_COLUMNS = W / TILE;
+  var VIEW_ROWS = H / TILE;
   var rect = (c, x, y, w, h, color) => {
     c.fillStyle = color;
     c.fillRect(Math.round(x), Math.round(y), w, h);
   };
-  function viewport(s) {
+  var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function viewport(s, motion = null, now = performance.now()) {
     const m = MAPS[s.pos.map];
-    const ox = m.width <= 20 ? Math.floor((W - m.width * TILE) / 2) : 0;
-    const oy = m.height <= 15 ? Math.floor((H - m.height * TILE) / 2) : 0;
-    return { ox, oy, cx: m.width <= 20 ? 0 : Math.min(m.width - 20, Math.max(0, s.pos.x - 10)), cy: m.height <= 15 ? 0 : Math.min(m.height - 15, Math.max(0, s.pos.y - 7)) };
+    const t = motion && motion.map === s.pos.map ? clamp((now - motion.start) / motion.duration, 0, 1) : 1;
+    const px = motion && motion.map === s.pos.map ? motion.fromX + (s.pos.x - motion.fromX) * t : s.pos.x;
+    const py = motion && motion.map === s.pos.map ? motion.fromY + (s.pos.y - motion.fromY) * t : s.pos.y;
+    const ox = m.width <= VIEW_COLUMNS ? Math.floor((W - m.width * TILE) / 2) : 0;
+    const oy = m.height <= VIEW_ROWS ? Math.floor((H - m.height * TILE) / 2) : 0;
+    const cx = m.width <= VIEW_COLUMNS ? 0 : clamp(px - VIEW_COLUMNS / 2, 0, m.width - VIEW_COLUMNS);
+    const cy = m.height <= VIEW_ROWS ? 0 : clamp(py - VIEW_ROWS / 2, 0, m.height - VIEW_ROWS);
+    return { ox, oy, cx, cy, px, py, t };
   }
   var colors = { castle: "#b9d3e3", field: "#d1e6b2", leaf: "#e8d5aa", cave: "#bbafd1", sailun: "#b2e6e0", ruins: "#d6cdbb", onyx: "#e5abd4" };
   function star(c, x, y, size = 1, color = "#eed391") {
     rect(c, x, y - 2 * size, size, 5 * size, color);
     rect(c, x - 2 * size, y, size * 5, size, color);
   }
-  function renderMap(canvas, s, light = 0) {
+  function renderMap(canvas, s, light = 0, motion = null) {
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
-    const m = MAPS[s.pos.map], v = viewport(s);
+    const m = MAPS[s.pos.map], v = viewport(s, motion);
     rect(c, 0, 0, W, H, "#0e1725");
-    const screen = (x, y) => [(x - v.cx) * TILE + v.ox, (y - v.cy) * TILE + v.oy];
+    const screen = (x, y) => [Math.round((x - v.cx) * TILE + v.ox), Math.round((y - v.cy) * TILE + v.oy)];
     for (let y = 0; y < m.height; y++) for (let x = 0; x < m.width; x++) {
       const [sx, sy] = screen(x, y);
       if (sx < -16 || sy < -16 || sx >= W || sy >= H) continue;
@@ -5176,21 +5232,22 @@
       const [x, y] = screen(n.x, n.y);
       drawPerson(c, x, y, n.kind);
     }
-    const [px, py] = screen(s.pos.x, s.pos.y);
+    const [px, py] = screen(v.px, v.py);
     rect(c, px + 3, py + 14, 10, 2, "#1c2b35");
-    drawPerson(c, px, py, "hero", s.pos.facing);
+    const walking = motion && v.t < 1;
+    drawPerson(c, px, py, "hero", s.pos.facing, walking ? Math.floor(v.t * 4) % 2 + 1 : 0);
     if (light > 0 && ["cave", "ruins", "onyx"].includes(m.id)) {
       const glow = (s.player.level + light) % 2 ? "#f4e1a4" : "#d2edec";
       star(c, px + 8, py - 3, 1, glow);
       for (const e of m.objects) {
         if (entityAt(s, m, e.x, e.y) && ["star", "chest", "ironChest", "ironKeyChest", "onyxChest", "mirror", "onyxForge", "onyxRuneA", "onyxRuneB", "switchA", "switchB"].includes(e.kind)) {
           const [ex, ey] = screen(e.x, e.y);
-          if (ex >= 0 && ex < 310 && ey >= 18 && ey < 216) star(c, ex + 13, ey + 1, 1, "#f4dfa0");
+          if (ex >= 0 && ex < W - 10 && ey >= 20 && ey < H - 24) star(c, ex + 13, ey + 1, 1, "#f4dfa0");
         }
       }
     }
-    rect(c, 1, 1, 318, 19, "#121f31");
-    rect(c, 3, 3, 314, 15, "#2a3b51");
+    rect(c, 1, 1, W - 2, 19, "#121f31");
+    rect(c, 3, 3, W - 6, 15, "#2a3b51");
     rect(c, 4, 3, 2, 15, colors[m.id] || "#d5c49f");
     c.fillStyle = "#f4e8c9";
     c.font = "bold 10px monospace";
@@ -5198,13 +5255,13 @@
     c.fillText(m.name, 10, 6);
     c.textAlign = "right";
     c.fillStyle = colors[m.id] || "#c2ddea";
-    c.fillText("Lv " + s.player.level + "  " + s.stage, 309, 6);
+    c.fillText("Lv " + s.player.level, W - 11, 6);
     c.textAlign = "left";
-    rect(c, 0, 224, 320, 16, "#0e1828");
-    rect(c, 0, 224, 320, 1, "#8c7691");
+    rect(c, 0, H - 17, W, 17, "#0e1828");
+    rect(c, 0, H - 17, W, 1, "#8c7691");
     c.fillStyle = "#f1dfbc";
     c.font = "10px monospace";
-    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "    MP " + s.player.mp + "/" + stats(s).maxMp + "    " + s.player.gold + " G", 8, 229);
+    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "    MP " + s.player.mp + "/" + stats(s).maxMp + "    " + s.player.gold + " G", 8, H - 12);
   }
   function renderBattle(canvas, s, b) {
     const c = canvas.getContext("2d"), enemy = monsterById(b.id);
@@ -5218,48 +5275,48 @@
     }[enemy.area] || ["#172738", "#4d6171", "#8c8791"];
     rect(c, 0, 0, W, H, palette[0]);
     for (let i = 0; i < 45; i++) {
-      const x = (i * 73 + 23) % 320, y = (i * 47 + 13) % 154;
+      const x = (i * 73 + 23) % W, y = (i * 47 + 13) % 180;
       rect(c, x, y, i % 7 === 0 ? 2 : 1, 1, i % 4 === 0 ? palette[2] : palette[1]);
     }
-    for (let x of [23, 278]) {
-      rect(c, x, 45, 19, 113, palette[1]);
+    for (const x of [15, W - 34]) {
+      rect(c, x, 45, 19, 127, palette[1]);
       rect(c, x - 3, 47, 25, 7, palette[2]);
-      for (let y = 59; y < 155; y += 17) rect(c, x + 2, y, 15, 2, palette[0]);
+      for (let y = 59; y < 170; y += 17) rect(c, x + 2, y, 15, 2, palette[0]);
     }
-    rect(c, 0, 155, 320, 3, palette[2]);
-    rect(c, 0, 158, 320, 65, palette[1]);
+    rect(c, 0, 175, W, 3, palette[2]);
+    rect(c, 0, 178, W, H - 196, palette[1]);
     for (let i = 0; i < 13; i++) {
-      rect(c, i * 67 % 320, 164 + i % 4 * 14, 28, 2, palette[0]);
-      rect(c, i * 41 % 320, 179 + i % 3 * 13, 1, 12, palette[2]);
+      rect(c, i * 67 % W, 183 + i % 3 * 12, 28, 2, palette[0]);
+      rect(c, i * 41 % W, 185 + i % 3 * 11, 1, 10, palette[2]);
     }
-    rect(c, 93, 159, 135, 7, palette[0]);
-    rect(c, 105, 164, 110, 4, palette[2]);
+    rect(c, 61, 178, 135, 7, palette[0]);
+    rect(c, 73, 183, 110, 4, palette[2]);
     if (b.id === "vold") {
-      star(c, 160, 79, 3, "#ba7ca5");
-      star(c, 76, 115, 1, "#dbb38a");
-      star(c, 248, 100, 1, "#dbb38a");
+      star(c, W / 2, 87, 3, "#ba7ca5");
+      star(c, 35, 115, 1, "#dbb38a");
+      star(c, W - 35, 100, 1, "#dbb38a");
     }
-    drawEnemy(c, b.id, 160, 125);
+    drawEnemy(c, b.id, W / 2, b.id === "vold" ? 141 : 143);
     c.fillStyle = "#f7e7c2";
     c.font = "bold 15px monospace";
     c.textAlign = "center";
     c.textBaseline = "top";
-    c.fillText(enemy.name, 160, 24);
+    c.fillText(enemy.name, W / 2, 24);
     c.font = "11px monospace";
     c.fillStyle = "#cdd9e3";
-    c.fillText("\u6575 HP " + b.hp + "/" + enemy.hp + "  /  TURN " + b.round, 160, 45);
+    c.fillText("\u6575 HP " + b.hp + "/" + enemy.hp + "  /  TURN " + b.round, W / 2, 45);
     if (b.ward > 0) {
       c.fillStyle = "#a4efdf";
-      c.fillText("\u2726 \u5B88\u308A\u306E\u5149 " + (b.ward - 1), 160, 59);
+      c.fillText("\u2726 \u5B88\u308A\u306E\u5149 " + (b.ward - 1), W / 2, 59);
     }
     c.textAlign = "left";
     c.strokeStyle = "#c6a66e";
     c.lineWidth = 3;
-    c.strokeRect(3, 3, 314, 234);
-    rect(c, 0, 221, 320, 19, "#101925");
+    c.strokeRect(3, 3, W - 6, H - 6);
+    rect(c, 0, H - 19, W, 19, "#101925");
     c.fillStyle = "#f7e8c4";
     c.font = "10px monospace";
-    c.fillText(s.name + "  HP " + s.player.hp + "/" + stats(s).maxHp + "  MP " + s.player.mp + "/" + stats(s).maxMp, 10, 227);
+    c.fillText(s.name + "  HP " + s.player.hp + "/" + stats(s).maxHp + "  MP " + s.player.mp + "/" + stats(s).maxMp, 10, H - 13);
   }
 
   // src/game/audio.mjs
@@ -5481,6 +5538,22 @@
     }
   };
 
+  // src/game/menu-navigation.mjs
+  function nextMenuSelection(choices, index, dir) {
+    if (!["up", "down", "left", "right"].includes(dir)) throw Error("\u30E1\u30CB\u30E5\u30FC\u65B9\u5411\u304C\u4E0D\u6B63");
+    if (!Array.isArray(choices) || choices.length === 0) return -1;
+    const n = choices.length, columns = 2, delta = { up: -columns, down: columns, left: -1, right: 1 }[dir];
+    let at = Math.max(0, Math.min(n - 1, index));
+    for (let count = 0; count < n; count++) {
+      at = (at + delta + n) % n;
+      if (!choices[at]?.disabled) return at;
+    }
+    return index;
+  }
+  function firstMenuSelection(choices) {
+    return choices.findIndex((choice) => !choice.disabled);
+  }
+
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
@@ -5496,6 +5569,11 @@
   var panelMode = "";
   var moving = null;
   var lightSteps = 0;
+  var menuChoices = [];
+  var menuIndex = -1;
+  var menuBack = null;
+  var walkMotion = null;
+  var walkFrame = 0;
   var audio = new GameAudio();
   var musicFor = () => !state ? "title" : state.stage === "CLEAR" ? "ending" : battle ? battle.id === "vold" ? "boss" : "battle" : { castle: "castle", field: "field", leaf: "town", sailun: "town", cave: "cave", ruins: "ruins", onyx: "onyx" }[state.pos.map] || "field";
   function soundButtons() {
@@ -5531,8 +5609,12 @@
     if (!state) return;
     audio.setTheme(musicFor());
     if (battle) renderBattle($("game"), state, battle);
-    else renderMap($("game"), state, lightSteps);
+    else renderMap($("game"), state, lightSteps, walkMotion);
     $("message").textContent = queue[0] || hint || "\u6B21\u306E\u76EE\u7684\uFF1A" + STAGE_GOALS[state.stage];
+    const target = front(state), visible = entityAt(state, MAPS[state.pos.map], target.x, target.y);
+    const gate = state.pos.map === "field" && MAPS.field.tiles[target.y]?.[target.x] === 6 && !state.flags.gateOpen;
+    $("context-hint").hidden = Boolean(battle || queue.length || panelMode || !visible && !gate);
+    $("context-hint").textContent = gate ? "A  \u9244\u306E\u9580\u3092\u8ABF\u3079\u308B" : visible ? "A  " + (MAPS[state.pos.map].npcs.some((n) => n === visible) ? "\u306F\u306A\u3059\uFF1A" : "\u3057\u3089\u3079\u308B\uFF1A") + visible.name : "";
     $("journey-progress").textContent = state.stage === "CLEAR" ? "\u2726 \u5E73\u548C\u3092\u53D6\u308A\u623B\u3057\u305F\u4E16\u754C" : state.stage === "S09" ? "\u2726 \u5E30\u9084\u306E\u65C5" : state.stage === "S08" ? "\u2726 \u9B54\u738B\u57CE\u306E\u6700\u6DF1\u90E8\u3078" : state.stage === "S07" ? "\u2726 \u6C7A\u6226\u3078\u306E\u9053" : ["S05", "S06"].includes(state.stage) ? "\u2726 \u9ECE\u660E\u306E\u93E1\u3092\u63A2\u3059" : "\u2726 \u5192\u967A\u306E\u306F\u3058\u307E\u308A";
     $("journey-stars").textContent = "\u661F\u5C51 " + state.stars.length + " / 5 \xB7 \u8A0E\u4F10 " + Object.keys(state.defeated).filter((id) => id !== "vold").length + " / 24";
     $("travel-region").textContent = MAPS[state.pos.map].name;
@@ -5569,34 +5651,66 @@
   }
   function closePanel() {
     panelMode = "";
+    menuChoices = [];
+    menuIndex = -1;
+    menuBack = null;
     $panel.hidden = true;
+    $panel.removeAttribute("data-panel-type");
     $content.replaceChildren();
   }
-  function openPanel(title, choices, desc = "") {
+  function markMenu() {
+    [...$content.querySelectorAll("button[data-command-index]")].forEach((btn, i) => {
+      const active = i === menuIndex;
+      btn.classList.toggle("is-selected", active);
+      btn.setAttribute("aria-current", active ? "true" : "false");
+      if (active && document.activeElement !== btn) btn.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+  }
+  function steerMenu(dir) {
+    if (!menuChoices.length) return;
+    menuIndex = nextMenuSelection(menuChoices, menuIndex, dir);
+    audio.cue("step");
+    markMenu();
+  }
+  function chooseMenu() {
+    const choice = menuChoices[menuIndex];
+    if (!choice || choice.disabled) return;
+    audio.cue("confirm");
+    choice.run();
+  }
+  function openPanel(title, choices, desc = "", back = null) {
     closePanel();
     panelMode = title;
+    menuChoices = choices;
+    menuIndex = firstMenuSelection(choices);
+    menuBack = back || (battle ? battleChoices : title === "\u5192\u967A\u30E1\u30CB\u30E5\u30FC" || title.includes("\u9053\u5177\u5C4B") || title.includes("\u5BBF") ? closePanel : showMenu);
     $panel.hidden = false;
+    $panel.dataset.panelType = battle ? "battle" : "field";
     $("panel-title").textContent = title;
     if (desc) {
       const p = document.createElement("p");
       p.textContent = desc;
       $content.append(p);
     }
-    for (const choice of choices) {
+    choices.forEach((choice, i) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = choice.label;
       btn.disabled = Boolean(choice.disabled);
+      btn.dataset.commandIndex = String(i);
       if (choice.wide) btn.className = "wide";
       btn.addEventListener("click", () => {
         try {
-          choice.run();
+          menuIndex = i;
+          markMenu();
+          chooseMenu();
         } catch (err) {
           fatal(err);
         }
       });
       $content.append(btn);
-    }
+    });
+    markMenu();
   }
   function fatal(err) {
     console.error("[RPG]", err);
@@ -5615,6 +5729,7 @@
     else if (result.message) notice(result.message);
   }
   function beginFight(id, tag, lines = []) {
+    stopWalkAnimation();
     audio.cue("attack");
     battle = beginCombat(id, tag);
     closePanel();
@@ -5644,6 +5759,7 @@
   }
   function battleChoices() {
     if (!battle || queue.length) return;
+    stopWalkAnimation();
     const enemy = monsterById(battle.id);
     openPanel("\u6226\u95D8\u30B3\u30DE\u30F3\u30C9", [
       { label: "\u2694 \u305F\u305F\u304B\u3046", run: () => performBattle({ type: "attack" }) },
@@ -5750,8 +5866,13 @@
   }
   function showMenu() {
     if (!state || battle || queue.length) return;
+    stopWalkAnimation();
     const st = stats(state);
     openPanel("\u5192\u967A\u30E1\u30CB\u30E5\u30FC", [
+      { label: "\u306F\u306A\u3059 / \u3057\u3089\u3079\u308B", run: () => {
+        closePanel();
+        confirm();
+      } },
       { label: "\u30B9\u30C6\u30FC\u30BF\u30B9", run: () => openPanel("\u30B9\u30C6\u30FC\u30BF\u30B9", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], state.name + " Lv" + state.player.level + "\nHP " + state.player.hp + "/" + st.maxHp + "\u3000MP " + state.player.mp + "/" + st.maxMp + "\n\u653B\u6483 " + st.attack + "\u3000\u5B88\u5099 " + st.defense + "\u3000\u901F\u3055 " + st.speed + "\nEXP " + state.player.exp + "\u3000" + state.player.gold + "G") },
       { label: "\u3069\u3046\u3050", run: () => itemMenu() },
       { label: "\u3058\u3085\u3082\u3093", run: () => spellMenu() },
@@ -5820,10 +5941,38 @@
       beginFight(id, "random");
     }
   }
+  function stopWalkAnimation() {
+    if (walkFrame) cancelAnimationFrame(walkFrame);
+    walkFrame = 0;
+    walkMotion = null;
+  }
+  function animateWalkFrame() {
+    if (!state || battle || !walkMotion) {
+      stopWalkAnimation();
+      return;
+    }
+    if (performance.now() - walkMotion.start >= walkMotion.duration) {
+      stopWalkAnimation();
+      renderMap($("game"), state, lightSteps);
+      return;
+    }
+    renderMap($("game"), state, lightSteps, walkMotion);
+    walkFrame = requestAnimationFrame(animateWalkFrame);
+  }
   function direction(dir) {
-    if (!state || battle || queue.length || panelMode) return;
+    if (!state) return;
+    if (panelMode) {
+      steerMenu(dir);
+      return;
+    }
+    if (battle || queue.length) return;
     const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
+    const previous = state.pos;
     const r = move(state, dx, dy);
+    stopWalkAnimation();
+    if (r.kind === "walk") {
+      walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145 };
+    }
     if (r.kind === "portal") audio.cue("run");
     storeAndSet(r.state, Boolean(r.autoSave));
     if (r.message) notice(r.message);
@@ -5831,6 +5980,7 @@
       hint = "";
       paint();
     }
+    if (walkMotion) walkFrame = requestAnimationFrame(animateWalkFrame);
     if (r.kind === "walk") {
       startRandom();
       if (lightSteps > 0) lightSteps--;
@@ -5839,7 +5989,15 @@
     }
   }
   function confirm() {
-    if (!state || panelMode) return;
+    if (!state) return;
+    if (panelMode) {
+      try {
+        chooseMenu();
+      } catch (err) {
+        fatal(err);
+      }
+      return;
+    }
     if (!battle) audio.cue("confirm");
     if (advanceMessage()) return;
     if (battle) {
@@ -5868,8 +6026,11 @@
   function cancel() {
     audio.cue("cancel");
     if (panelMode) {
-      if (battle) battleChoices();
-      else closePanel();
+      try {
+        menuBack?.();
+      } catch (err) {
+        fatal(err);
+      }
       return;
     }
     if (queue.length) {
@@ -5929,6 +6090,7 @@
     }
   });
   function begin(s, intro = false) {
+    stopWalkAnimation();
     audio.unlock().catch(console.warn);
     validateState(s);
     state = s;
