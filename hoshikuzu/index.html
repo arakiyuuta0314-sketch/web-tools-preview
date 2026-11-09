@@ -6,11 +6,12 @@
 <meta name="theme-color" content="#111c2f">
 <link rel="icon" href="data:,">
 <title>星屑の勇者｜はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261109-castle-v3-01">
+<link rel="stylesheet" href="rpg.css?v=20261110-objective-top-v5-01">
 </head>
 <body>
 <main class="rpg" id="rpg">
-<header class="masthead"><div><span class="brand-mark">✦</span><strong>星屑の勇者</strong><span class="subtitle">はじまりの剣と黒曜の魔王城</span></div><div class="masthead-tools"><span id="build-id" class="build-id">アルテリア城・美術v3</span><span class="chapter" id="chapter">第一幕 · はじまり</span><button id="sound-toggle" type="button" aria-label="音を消す" aria-pressed="false" title="BGM・効果音を切り替え">♫ ON</button></div></header>
+<header class="masthead"><div><span class="brand-mark">✦</span><strong>星屑の勇者</strong><span class="subtitle">はじまりの剣と黒曜の魔王城</span></div><div class="masthead-tools"><span id="build-id" class="build-id">王城の使命・UI v5</span><span class="chapter" id="chapter">第一幕 · はじまり</span><button id="sound-toggle" type="button" aria-label="音を消す" aria-pressed="false" title="BGM・効果音を切り替え">♫ ON</button></div></header>
+<section class="objective-bar" id="objective-bar" aria-label="次の目的"><span class="objective-symbol" aria-hidden="true">✦</span><strong class="objective-label">次の目的</strong><span id="objective-text" class="objective-text" aria-live="polite"></span></section>
 <section class="screen-shell" aria-label="レトロRPGゲーム画面">
 <canvas id="game" width="192" height="384" aria-label="主人公とマップを表示"></canvas>
 <div id="completion" class="completion" hidden>✦ 鉄の門 開通！</div>
@@ -34,8 +35,13 @@
 <button class="down" data-dir="down" type="button" aria-label="下">▼</button>
 </div>
 <div class="face-controls">
+<div class="shortcut-grid" aria-label="冒険コマンド">
+<button id="talk-shortcut" type="button">はなす</button>
+<button id="item-shortcut" type="button">どうぐ</button>
+<button id="spell-shortcut" type="button">じゅもん</button>
 <button id="menu-button" class="menu-button" type="button">メニュー</button>
-<div class="action-pair"><button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button><button id="confirm" class="face face-a" type="button"><span>A</span><small>決定 / 話す</small></button></div>
+</div>
+<div class="action-pair"><button id="confirm" class="face face-a" type="button"><span>A</span><small>決定 / 話す</small></button><button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button></div>
 </div>
 </section>
 <div class="ad-slot" aria-label="将来の広告配置領域">ゲーム画面を邪魔しない広告用余白 · ブラウザでは広告なし</div>
@@ -58,6 +64,6 @@
 <p class="preview-note">十字キーで歩いて、Aで話す・調べる・決定<br>Bでもどる。町や洞窟を自由に探検しよう。</p>
 </section>
 </div>
-<script defer src="app.js?v=20261109-castle-v3-01"></script>
+<script defer src="app.js?v=20261110-objective-top-v5-01"></script>
 </body>
 </html>

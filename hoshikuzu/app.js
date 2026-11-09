@@ -5677,7 +5677,7 @@
   for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
     scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
   }
-  var ART_VERSION = "20261109-castle-v3-01";
+  var ART_VERSION = "20261110-objective-top-v5-01";
   var cache = { ready: false, failed: false, images: {} };
   var lastHeroSprite = "";
   function castleArtDebug() {
@@ -6415,7 +6415,9 @@
     else if (interior) renderInterior($("game"), state, interior);
     else if (state.pos.map === "castle" && castleArtReady()) renderCastleScene($("game"), state, walkMotion);
     else renderMap($("game"), state, lightSteps, walkMotion);
-    $("message").textContent = queue[0] || hint || "\u6B21\u306E\u76EE\u7684\uFF1A" + STAGE_GOALS[state.stage];
+    const goal = STAGE_GOALS[state.stage];
+    if ($("objective-text").textContent !== goal) $("objective-text").textContent = goal;
+    $("message").textContent = queue[0] || hint || "\u5341\u5B57\u30AD\u30FC\u3067\u79FB\u52D5\u3001A\u3067\u8A71\u3059\u30FB\u8ABF\u3079\u308B";
     const target = front(state), visible = interior ? null : entityAt(state, MAPS[state.pos.map], target.x, target.y);
     const door = interior ? null : enterableDoor(state.pos);
     const roomPrompt = interior ? interiorPrompt(interior) : "";
@@ -6431,6 +6433,10 @@
     $("travel-hp").textContent = "HP " + state.player.hp + "/" + stats(state).maxHp;
     $("travel-mp").textContent = "MP " + state.player.mp + "/" + stats(state).maxMp;
     $("message-arrow").hidden = queue.length === 0;
+    $("talk-shortcut").textContent = battle ? "\u305F\u305F\u304B\u3046" : "\u306F\u306A\u3059";
+    $("item-shortcut").disabled = queue.length > 0;
+    $("spell-shortcut").disabled = queue.length > 0;
+    $("menu-button").disabled = Boolean(battle || queue.length);
     const milestone = queue.find((line) => /【第一幕クリア】|【第二幕クリア】|【第三幕】|【終幕】/.test(line));
     $("completion").hidden = !milestone;
     $("completion").textContent = milestone?.includes("\u7D42\u5E55") ? "\u2726 THE END \xB7 \u661F\u5C51\u306E\u52C7\u8005" : milestone?.includes("\u7B2C\u4E09\u5E55") ? "\u2726 \u9ED2\u66DC\u57CE\u306E\u7D50\u754C\u89E3\u9664\uFF01" : milestone?.includes("\u7B2C\u4E8C\u5E55") ? "\u2726 \u9ECE\u660E\u306E\u93E1 \u5165\u624B\uFF01" : "\u2726 \u9244\u306E\u9580 \u958B\u901A\uFF01";
@@ -6491,6 +6497,8 @@
     menuChoices = choices;
     menuIndex = firstMenuSelection(choices);
     menuBack = back || (battle ? battleChoices : title === "\u5192\u967A\u30E1\u30CB\u30E5\u30FC" || title.includes("\u9053\u5177\u5C4B") || title.includes("\u5BBF") ? closePanel : showMenu);
+    const panelHost = battle ? document.querySelector(".controls") : document.querySelector(".screen-shell");
+    if ($panel.parentElement !== panelHost) panelHost.append($panel);
     $panel.hidden = false;
     $panel.dataset.panelType = battle ? "battle" : "field";
     $("panel-title").textContent = title;
@@ -6924,6 +6932,27 @@
   window.addEventListener("blur", stopMoving);
   $("confirm").addEventListener("click", confirm);
   $("cancel").addEventListener("click", cancel);
+  $("talk-shortcut").addEventListener("click", () => {
+    if (!state) return;
+    if (queue.length) {
+      advanceMessage();
+      return;
+    }
+    if (battle) {
+      performBattle({ type: "attack" });
+      return;
+    }
+    if (panelMode) closePanel();
+    confirm();
+  });
+  $("item-shortcut").addEventListener("click", () => {
+    if (!state || queue.length) return;
+    itemMenu(Boolean(battle));
+  });
+  $("spell-shortcut").addEventListener("click", () => {
+    if (!state || queue.length) return;
+    spellMenu(Boolean(battle));
+  });
   $("menu-button").addEventListener("click", () => panelMode ? closePanel() : showMenu());
   $("panel-close").addEventListener("click", closePanel);
   document.addEventListener("keydown", (ev) => {
@@ -6963,7 +6992,7 @@
     document.title = "\u661F\u5C51\u306E\u52C7\u8005\uFF5C\u306F\u3058\u307E\u308A\u306E\u5263\u3068\u9ED2\u66DC\u306E\u9B54\u738B\u57CE";
     paint2();
     if (intro) message(["\u30A2\u30EB\u30C6\u30EA\u30A2\u738B\u56FD\u3002\u9B54\u7269\u306E\u8ECD\u52E2\u3092\u9003\u308C\u305F\u4EBA\u3005\u304C\u3001\u57CE\u3078\u62BC\u3057\u5BC4\u305B\u305F\u3002", "\u9003\u3052\u9045\u308C\u305F\u4EBA\u306E\u3059\u3050\u305D\u3070\u306B\u3001\u9B54\u7269\u304C\u8FEB\u3063\u3066\u3044\u308B\u3002", "\u5341\u5B57\u30AD\u30FC\u3067\u8FD1\u3065\u304D\u3001A\u30DC\u30BF\u30F3\u3067\u9B54\u7269\u3068\u6226\u304A\u3046\u3002"]);
-    else message(["\u5192\u967A\u306E\u8A18\u9332\u3092\u8AAD\u307F\u8FBC\u3093\u3060\u3002", "\u6B21\u306E\u76EE\u7684\uFF1A" + STAGE_GOALS[s.stage]]);
+    else message(["\u5192\u967A\u306E\u8A18\u9332\u3092\u8AAD\u307F\u8FBC\u3093\u3060\u3002"]);
   }
   function verifySlots() {
     for (const [key, store] of [["auto", auto], ["manual", manual]]) {
