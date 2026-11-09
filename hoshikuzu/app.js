@@ -749,7 +749,7 @@
           [
             1,
             7,
-            7,
+            1,
             7,
             7,
             7,
@@ -759,7 +759,7 @@
             7,
             7,
             7,
-            7,
+            1,
             7,
             1
           ],
@@ -834,7 +834,7 @@
           [
             1,
             7,
-            7,
+            1,
             7,
             7,
             7,
@@ -844,7 +844,7 @@
             7,
             7,
             7,
-            7,
+            1,
             7,
             1
           ],
@@ -935,6 +935,53 @@
             y: 3,
             kind: "sword",
             name: "\u53E4\u3044\u5263"
+          }
+        ],
+        scenery: [
+          {
+            kind: "column",
+            x: 2,
+            y: 4
+          },
+          {
+            kind: "column",
+            x: 12,
+            y: 4
+          },
+          {
+            kind: "column",
+            x: 2,
+            y: 9
+          },
+          {
+            kind: "column",
+            x: 12,
+            y: 9
+          },
+          {
+            kind: "banner",
+            x: 3,
+            y: 1
+          },
+          {
+            kind: "banner",
+            x: 11,
+            y: 1
+          },
+          {
+            kind: "throne-canopy",
+            x: 7,
+            y: 1
+          },
+          {
+            kind: "mosaic",
+            x: 5,
+            y: 5
+          },
+          {
+            kind: "mosaic",
+            x: 10,
+            y: 5
           }
         ]
       },
@@ -1758,63 +1805,66 @@
           ],
           [
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            1,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             1
           ],
           [
             1,
-            7,
+            0,
             1,
             1,
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            0,
+            3,
+            3,
+            3,
+            0,
+            0,
             1,
             1,
             1,
-            7,
+            0,
             1
           ],
           [
             1,
-            7,
+            0,
             1,
             1,
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            0,
+            3,
+            3,
+            3,
+            0,
+            0,
             1,
             1,
             1,
-            7,
+            0,
             1
           ],
           [
             1,
+            0,
+            0,
+            0,
             7,
             7,
             7,
@@ -1824,16 +1874,16 @@
             7,
             7,
             7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            0,
+            0,
             1
           ],
           [
             1,
+            0,
+            0,
+            0,
             7,
             7,
             7,
@@ -1843,12 +1893,9 @@
             7,
             7,
             7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            0,
+            0,
             1
           ],
           [
@@ -1857,13 +1904,13 @@
             1,
             1,
             1,
-            7,
-            7,
+            3,
+            3,
             8,
             8,
             8,
-            7,
-            7,
+            3,
+            3,
             1,
             1,
             1,
@@ -1876,13 +1923,13 @@
             1,
             1,
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            1,
             1,
             1,
             1,
@@ -1895,13 +1942,13 @@
             1,
             1,
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
             1,
             1,
             1,
@@ -1910,59 +1957,59 @@
           ],
           [
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            3,
+            3,
+            3,
+            3,
+            1,
+            3,
+            3,
+            3,
+            1,
+            3,
+            3,
+            3,
+            3,
+            0,
             1
           ],
           [
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            0,
             1
           ],
           [
             1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            3,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             1
           ],
           [
@@ -2055,6 +2102,54 @@
             w: 4,
             h: 3,
             kind: "shop"
+          },
+          {
+            id: "leaf-west-home",
+            x: 2,
+            y: 2,
+            w: 3,
+            h: 2,
+            kind: "home"
+          },
+          {
+            id: "leaf-east-home",
+            x: 12,
+            y: 2,
+            w: 3,
+            h: 2,
+            kind: "home"
+          }
+        ],
+        scenery: [
+          {
+            kind: "well",
+            x: 11,
+            y: 7
+          },
+          {
+            kind: "lamp",
+            x: 6,
+            y: 9
+          },
+          {
+            kind: "lamp",
+            x: 10,
+            y: 9
+          },
+          {
+            kind: "garden",
+            x: 2,
+            y: 10
+          },
+          {
+            kind: "garden",
+            x: 14,
+            y: 5
+          },
+          {
+            kind: "signpost",
+            x: 8,
+            y: 1
           }
         ]
       },
@@ -2574,8 +2669,8 @@
           ],
           [
             1,
-            3,
-            3,
+            2,
+            2,
             3,
             3,
             3,
@@ -2590,7 +2685,175 @@
             3,
             3,
             3,
+            2,
+            1
+          ],
+          [
+            1,
+            2,
+            2,
+            7,
+            7,
+            7,
             3,
+            7,
+            7,
+            7,
+            3,
+            1,
+            7,
+            7,
+            3,
+            7,
+            7,
+            2,
+            1
+          ],
+          [
+            1,
+            2,
+            2,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            2,
+            1
+          ],
+          [
+            1,
+            2,
+            2,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            2,
+            1
+          ],
+          [
+            1,
+            2,
+            2,
+            3,
+            7,
+            7,
+            7,
+            1,
+            7,
+            7,
+            7,
+            1,
+            7,
+            7,
+            7,
+            3,
+            7,
+            2,
+            1
+          ],
+          [
+            1,
+            2,
+            2,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            2,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            7,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            7,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            7,
+            3,
+            7,
+            7,
+            7,
+            3,
+            7,
+            1,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
@@ -2621,13 +2884,13 @@
             7,
             7,
             3,
-            7,
+            1,
             7,
             7,
             3,
             7,
             7,
-            7,
+            1,
             3,
             7,
             7,
@@ -2637,212 +2900,44 @@
           ],
           [
             1,
-            3,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
             3,
             3,
+            3,
+            3,
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
             1
           ],
           [
             1,
-            3,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            3,
-            1
-          ],
-          [
-            1,
-            3,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            3,
-            1
-          ],
-          [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
-          [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
-          [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
-          [
-            1,
-            3,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            3,
-            1
-          ],
-          [
-            1,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            7,
-            7,
-            7,
-            3,
-            1
-          ],
-          [
-            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
             3,
             3,
             3,
             3,
             3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            1
-          ],
-          [
-            1,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
             1
           ],
           [
@@ -2956,6 +3051,43 @@
             w: 5,
             h: 3,
             kind: "shop"
+          }
+        ],
+        scenery: [
+          {
+            kind: "boat",
+            x: 1,
+            y: 2
+          },
+          {
+            kind: "boat",
+            x: 16,
+            y: 12
+          },
+          {
+            kind: "barrels",
+            x: 6,
+            y: 11
+          },
+          {
+            kind: "barrels",
+            x: 12,
+            y: 11
+          },
+          {
+            kind: "lamp",
+            x: 7,
+            y: 5
+          },
+          {
+            kind: "lamp",
+            x: 11,
+            y: 5
+          },
+          {
+            kind: "lighthouse",
+            x: 11,
+            y: 2
           }
         ]
       },
@@ -5184,13 +5316,192 @@
     } else throw Error("\u672A\u5B9A\u7FA9\u306E\u6575\u63CF\u753BID " + id);
   }
 
+  // src/game/scenery.mjs
+  var rect = (c, x, y, w, h, color) => {
+    c.fillStyle = color;
+    c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  };
+  var point = (c, x, y, color, size = 1) => rect(c, x, y, size, size, color);
+  var palettes2 = {
+    "leaf-inn": ["#395b87", "#88adcf", "#e9cca0", "#845c42"],
+    "leaf-shop": ["#8d4939", "#d78c6b", "#e8c996", "#755345"],
+    "leaf-west-home": ["#6b6242", "#b8a579", "#e6cba2", "#89684c"],
+    "leaf-east-home": ["#81513d", "#c98e65", "#ead1ad", "#8b6550"],
+    "sailun-inn": ["#396a7b", "#72b4ba", "#e9dcbb", "#6b7774"],
+    "sailun-shop": ["#62667d", "#a0a8ba", "#e6d6b5", "#72767d"]
+  };
+  function drawBuilding(c, b, screen) {
+    const [x, y] = screen(b.x, b.y), w = b.w * 16, h = b.h * 16;
+    const palette = palettes2[b.id];
+    if (!palette) throw Error("Unknown building " + b.id);
+    const [roof, roofHi, wall, timber] = palette;
+    const home = b.kind === "home";
+    const floorY = y + h;
+    rect(c, x + 2, y + 11, w - 4, h - 12, "#443d43");
+    rect(c, x + 4, y + 13, w - 8, h - 16, wall);
+    rect(c, x + 3, y + h - 6, w - 6, 3, timber);
+    rect(c, x + 5, y + 14, 2, h - 18, timber);
+    rect(c, x + w - 8, y + 14, 2, h - 18, timber);
+    if (!home) {
+      rect(c, x + Math.floor(w / 2) - 1, y + 15, 2, h - 20, timber);
+      rect(c, x + 5, y + h - 26, w - 10, 2, "#c4a77c");
+    }
+    for (let row = 0; row < 6; row++) {
+      const inset = (5 - row) * 2;
+      rect(c, x + inset, y + row * 2, w - inset * 2, 3, row % 2 ? roof : roofHi);
+    }
+    rect(c, x - 1, y + 12, w + 2, 4, roof);
+    rect(c, x, y + 15, w, 2, "#202f44");
+    for (let xx = x + 5; xx < x + w - 4; xx += 11) {
+      point(c, xx, y + 9, roofHi, 3);
+      rect(c, xx + 3, y + 13, 5, 2, roofHi);
+    }
+    if (home) {
+      rect(c, x + w - 14, y - 4, 7, 8, timber);
+      rect(c, x + w - 15, y - 5, 9, 2, "#e7c8a0");
+    }
+    const doorTile = b.id === "leaf-shop" ? 1 : Math.floor(b.w / 2);
+    const doorX = x + doorTile * 16 - 5;
+    const doorY = y + h - 21;
+    for (const xw of [x + 9, x + w - 20]) {
+      if (Math.abs(xw - doorX) < 13) continue;
+      rect(c, xw - 2, y + h - 21, 14, 13, timber);
+      rect(c, xw, y + h - 19, 10, 9, "#5e96a3");
+      rect(c, xw + 1, y + h - 18, 8, 6, "#9cd5cf");
+      rect(c, xw + 4, y + h - 19, 2, 9, "#f1d9ac");
+      rect(c, xw, y + h - 15, 10, 2, "#f1d9ac");
+      rect(c, xw + 1, y + h - 12, 8, 2, "#547f7d");
+    }
+    rect(c, doorX - 2, doorY - 2, 16, 21, timber);
+    rect(c, doorX, doorY, 12, 19, home ? "#5c4e43" : "#58434b");
+    rect(c, doorX + 2, doorY + 2, 3, 14, "#8d6a4c");
+    point(c, doorX + 9, doorY + 10, "#f6df89", 2);
+    rect(c, x + 1, floorY - 3, w - 2, 3, "#6f6a64");
+    if (!home) {
+      const sx = x + Math.max(3, b.kind === "inn" ? 3 : w - 20), sy = y + 18;
+      rect(c, sx, sy, 16, 12, timber);
+      rect(c, sx + 2, sy + 2, 12, 8, "#f5dfab");
+      if (b.kind === "inn") {
+        rect(c, sx + 4, sy + 5, 8, 3, "#5476a0");
+        rect(c, sx + 4, sy + 4, 2, 2, "#5476a0");
+        rect(c, sx + 4, sy + 8, 1, 2, timber);
+        rect(c, sx + 11, sy + 8, 1, 2, timber);
+      } else {
+        rect(c, sx + 6, sy + 4, 5, 5, "#97714d");
+        point(c, sx + 5, sy + 6, "#d3a360", 2);
+      }
+    }
+  }
+  function drawOne(c, s, screen) {
+    const [x, y] = screen(s.x, s.y);
+    switch (s.kind) {
+      case "column":
+        rect(c, x + 3, y - 12, 10, 27, "#2f4050");
+        rect(c, x + 4, y - 10, 8, 24, "#b5b9aa");
+        rect(c, x + 6, y - 9, 3, 21, "#e1d3b4");
+        rect(c, x + 1, y - 13, 14, 4, "#dbbb84");
+        rect(c, x + 2, y + 10, 12, 4, "#8a847a");
+        rect(c, x + 1, y + 13, 14, 3, "#d3ad75");
+        break;
+      case "banner":
+        rect(c, x + 2, y - 1, 12, 32, "#7a2f43");
+        rect(c, x + 4, y + 1, 8, 25, "#b94852");
+        rect(c, x + 2, y - 2, 12, 2, "#f8db95");
+        rect(c, x + 3, y + 25, 10, 2, "#b9895d");
+        rect(c, x + 7, y + 7, 2, 13, "#f8d99a");
+        rect(c, x + 3, y + 12, 10, 2, "#f8d99a");
+        point(c, x + 7, y + 9, "#fff6c0", 2);
+        break;
+      case "throne-canopy":
+        rect(c, x - 24, y + 2, 64, 10, "#7f4b61");
+        rect(c, x - 27, y + 2, 70, 4, "#e6bf76");
+        rect(c, x - 20, y + 11, 56, 17, "#9b4860");
+        rect(c, x - 18, y + 12, 52, 5, "#d28c78");
+        rect(c, x - 11, y + 18, 38, 16, "#5a334c");
+        rect(c, x - 8, y + 20, 32, 14, "#7d4260");
+        rect(c, x - 16, y + 26, 48, 4, "#c7a86b");
+        rect(c, x + 6, y - 4, 4, 7, "#f4da88");
+        rect(c, x + 1, y - 2, 14, 3, "#f4da88");
+        point(c, x + 7, y - 6, "#fff0a2", 3);
+        break;
+      case "mosaic":
+        rect(c, x, y, 16, 16, "#8a989f");
+        rect(c, x + 3, y + 3, 10, 10, "#d7c6a1");
+        rect(c, x + 5, y + 5, 6, 6, "#7f5d76");
+        rect(c, x + 7, y + 2, 2, 12, "#e3b96d");
+        rect(c, x + 2, y + 7, 12, 2, "#e3b96d");
+        break;
+      case "well":
+        rect(c, x + 2, y + 3, 12, 12, "#685d5c");
+        rect(c, x + 3, y + 2, 10, 10, "#c7b9a0");
+        rect(c, x + 4, y + 4, 8, 7, "#246d86");
+        rect(c, x + 5, y + 5, 6, 3, "#5bafaf");
+        rect(c, x + 2, y + 13, 12, 3, "#c3b495");
+        rect(c, x + 1, y + 2, 2, 12, "#75644f");
+        rect(c, x + 13, y + 2, 2, 12, "#75644f");
+        break;
+      case "lamp":
+        rect(c, x + 7, y + 5, 2, 11, "#644c43");
+        rect(c, x + 4, y + 3, 8, 5, "#4d4656");
+        rect(c, x + 5, y + 1, 6, 6, "#f2bd67");
+        rect(c, x + 7, y, 2, 6, "#fff1b0");
+        rect(c, x + 3, y + 14, 10, 2, "#7f6351");
+        break;
+      case "garden":
+        rect(c, x + 1, y + 11, 14, 4, "#526f45");
+        for (const [dx, dy] of [[4, 7], [10, 6], [7, 10], [13, 9]]) {
+          rect(c, x + dx, y + dy, 2, 5, "#477747");
+          rect(c, x + dx - 1, y + dy - 2, 4, 4, (dx + dy) % 2 ? "#eeac81" : "#f0d88a");
+        }
+        break;
+      case "signpost":
+        rect(c, x + 7, y + 6, 2, 10, "#594c3b");
+        rect(c, x, y + 3, 16, 8, "#d9b67a");
+        rect(c, x + 1, y + 4, 14, 6, "#856a4a");
+        rect(c, x + 3, y + 6, 10, 1, "#efd295");
+        point(c, x + 12, y + 5, "#f4e9b4", 2);
+        break;
+      case "boat":
+        rect(c, x, y + 4, 27, 10, "#4d5262");
+        rect(c, x + 2, y + 5, 25, 5, "#b47d59");
+        rect(c, x + 5, y + 11, 19, 4, "#68483d");
+        rect(c, x + 13, y - 9, 2, 18, "#d8bb82");
+        rect(c, x + 15, y - 7, 10, 12, "#e0d7b3");
+        rect(c, x + 15, y - 6, 2, 10, "#fff5d4");
+        point(c, x + 4, y + 1, "#92d9d2", 3);
+        break;
+      case "barrels":
+        for (const dx of [1, 8]) {
+          rect(c, x + dx, y + 7, 7, 9, "#7b4c35");
+          rect(c, x + dx + 1, y + 8, 5, 7, "#bd8251");
+          rect(c, x + dx, y + 9, 7, 1, "#d6b27b");
+          rect(c, x + dx, y + 13, 7, 1, "#554952");
+        }
+        break;
+      case "lighthouse":
+        rect(c, x + 3, y - 18, 10, 34, "#b5c6c1");
+        rect(c, x + 4, y - 15, 8, 27, "#eff0d6");
+        for (let yy = y - 11; yy < y + 12; yy += 9) rect(c, x + 4, yy, 8, 4, "#a8655b");
+        rect(c, x + 1, y - 21, 14, 4, "#bd6a57");
+        rect(c, x + 5, y - 25, 6, 4, "#efd48b");
+        rect(c, x + 6, y - 25, 4, 5, "#fff7b5");
+        rect(c, x + 3, y + 12, 10, 4, "#597478");
+        break;
+      default:
+        throw Error("Unknown scenery " + s.kind);
+    }
+  }
+  function drawScenery(c, map, screen) {
+    for (const scene of map.scenery || []) drawOne(c, scene, screen);
+  }
+
   // src/game/render.mjs
   var TILE = 16;
   var W = 256;
-  var H = 224;
+  var H = 256;
   var VIEW_COLUMNS = W / TILE;
   var VIEW_ROWS = H / TILE;
-  var rect = (c, x, y, w, h, color) => {
+  var rect2 = (c, x, y, w, h, color) => {
     c.fillStyle = color;
     c.fillRect(Math.round(x), Math.round(y), w, h);
   };
@@ -5208,14 +5519,14 @@
   }
   var colors = { castle: "#b9d3e3", field: "#d1e6b2", leaf: "#e8d5aa", cave: "#bbafd1", sailun: "#b2e6e0", ruins: "#d6cdbb", onyx: "#e5abd4" };
   function star(c, x, y, size = 1, color = "#eed391") {
-    rect(c, x, y - 2 * size, size, 5 * size, color);
-    rect(c, x - 2 * size, y, size * 5, size, color);
+    rect2(c, x, y - 2 * size, size, 5 * size, color);
+    rect2(c, x - 2 * size, y, size * 5, size, color);
   }
   function renderMap(canvas, s, light = 0, motion = null) {
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
     const m = MAPS[s.pos.map], v = viewport(s, motion);
-    rect(c, 0, 0, W, H, "#0e1725");
+    rect2(c, 0, 0, W, H, "#0e1725");
     const screen = (x, y) => [Math.round((x - v.cx) * TILE + v.ox), Math.round((y - v.cy) * TILE + v.oy)];
     for (let y = 0; y < m.height; y++) for (let x = 0; x < m.width; x++) {
       const [sx, sy] = screen(x, y);
@@ -5223,6 +5534,8 @@
       const id = m.tiles[y][x] === 6 && s.flags.gateOpen ? 3 : m.tiles[y][x];
       drawTile(c, id, sx, sy, x, y, m.id);
     }
+    drawScenery(c, m, screen);
+    for (const building of m.buildings || []) drawBuilding(c, building, screen);
     for (const e of m.objects) {
       if (!entityAt(s, m, e.x, e.y)) continue;
       const [x, y] = screen(e.x, e.y);
@@ -5233,7 +5546,7 @@
       drawPerson(c, x, y, n.kind);
     }
     const [px, py] = screen(v.px, v.py);
-    rect(c, px + 3, py + 14, 10, 2, "#1c2b35");
+    rect2(c, px + 3, py + 14, 10, 2, "#1c2b35");
     const walking = motion && v.t < 1;
     drawPerson(c, px, py, "hero", s.pos.facing, walking ? Math.floor(v.t * 4) % 2 + 1 : 0);
     if (light > 0 && ["cave", "ruins", "onyx"].includes(m.id)) {
@@ -5246,9 +5559,9 @@
         }
       }
     }
-    rect(c, 1, 1, W - 2, 19, "#121f31");
-    rect(c, 3, 3, W - 6, 15, "#2a3b51");
-    rect(c, 4, 3, 2, 15, colors[m.id] || "#d5c49f");
+    rect2(c, 1, 1, W - 2, 19, "#121f31");
+    rect2(c, 3, 3, W - 6, 15, "#2a3b51");
+    rect2(c, 4, 3, 2, 15, colors[m.id] || "#d5c49f");
     c.fillStyle = "#f4e8c9";
     c.font = "bold 10px monospace";
     c.textBaseline = "top";
@@ -5257,8 +5570,8 @@
     c.fillStyle = colors[m.id] || "#c2ddea";
     c.fillText("Lv " + s.player.level, W - 11, 6);
     c.textAlign = "left";
-    rect(c, 0, H - 17, W, 17, "#0e1828");
-    rect(c, 0, H - 17, W, 1, "#8c7691");
+    rect2(c, 0, H - 17, W, 17, "#0e1828");
+    rect2(c, 0, H - 17, W, 1, "#8c7691");
     c.fillStyle = "#f1dfbc";
     c.font = "10px monospace";
     c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "    MP " + s.player.mp + "/" + stats(s).maxMp + "    " + s.player.gold + " G", 8, H - 12);
@@ -5273,30 +5586,31 @@
       ruins: ["#232b3e", "#5b6773", "#9c9b8f"],
       onyx: ["#18172c", "#493150", "#9a5c85"]
     }[enemy.area] || ["#172738", "#4d6171", "#8c8791"];
-    rect(c, 0, 0, W, H, palette[0]);
+    rect2(c, 0, 0, W, H, palette[0]);
     for (let i = 0; i < 45; i++) {
       const x = (i * 73 + 23) % W, y = (i * 47 + 13) % 180;
-      rect(c, x, y, i % 7 === 0 ? 2 : 1, 1, i % 4 === 0 ? palette[2] : palette[1]);
+      rect2(c, x, y, i % 7 === 0 ? 2 : 1, 1, i % 4 === 0 ? palette[2] : palette[1]);
     }
+    const floor = H - 49;
     for (const x of [15, W - 34]) {
-      rect(c, x, 45, 19, 127, palette[1]);
-      rect(c, x - 3, 47, 25, 7, palette[2]);
-      for (let y = 59; y < 170; y += 17) rect(c, x + 2, y, 15, 2, palette[0]);
+      rect2(c, x, 45, 19, floor - 48, palette[1]);
+      rect2(c, x - 3, 47, 25, 7, palette[2]);
+      for (let y = 59; y < floor; y += 17) rect2(c, x + 2, y, 15, 2, palette[0]);
     }
-    rect(c, 0, 175, W, 3, palette[2]);
-    rect(c, 0, 178, W, H - 196, palette[1]);
+    rect2(c, 0, floor, W, 3, palette[2]);
+    rect2(c, 0, floor + 3, W, H - floor - 22, palette[1]);
     for (let i = 0; i < 13; i++) {
-      rect(c, i * 67 % W, 183 + i % 3 * 12, 28, 2, palette[0]);
-      rect(c, i * 41 % W, 185 + i % 3 * 11, 1, 10, palette[2]);
+      rect2(c, i * 67 % W, floor + 8 + i % 4 * 9, 28, 2, palette[0]);
+      rect2(c, i * 41 % W, floor + 6 + i % 3 * 11, 1, 10, palette[2]);
     }
-    rect(c, 61, 178, 135, 7, palette[0]);
-    rect(c, 73, 183, 110, 4, palette[2]);
+    rect2(c, 61, floor + 3, 135, 7, palette[0]);
+    rect2(c, 73, floor + 8, 110, 4, palette[2]);
     if (b.id === "vold") {
       star(c, W / 2, 87, 3, "#ba7ca5");
       star(c, 35, 115, 1, "#dbb38a");
       star(c, W - 35, 100, 1, "#dbb38a");
     }
-    drawEnemy(c, b.id, W / 2, b.id === "vold" ? 141 : 143);
+    drawEnemy(c, b.id, W / 2, b.id === "vold" ? H - 83 : H - 81);
     c.fillStyle = "#f7e7c2";
     c.font = "bold 15px monospace";
     c.textAlign = "center";
@@ -5313,7 +5627,7 @@
     c.strokeStyle = "#c6a66e";
     c.lineWidth = 3;
     c.strokeRect(3, 3, W - 6, H - 6);
-    rect(c, 0, H - 19, W, 19, "#101925");
+    rect2(c, 0, H - 19, W, 19, "#101925");
     c.fillStyle = "#f7e8c4";
     c.font = "10px monospace";
     c.fillText(s.name + "  HP " + s.player.hp + "/" + stats(s).maxHp + "  MP " + s.player.mp + "/" + stats(s).maxMp, 10, H - 13);
