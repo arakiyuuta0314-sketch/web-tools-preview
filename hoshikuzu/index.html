@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111c2f">
+<link rel="icon" href="data:,">
+<title>星屑の勇者｜はじまりの剣と黒曜の魔王城</title>
+<link rel="stylesheet" href="rpg.css">
+</head>
+<body>
+<main class="rpg" id="rpg">
+<header class="masthead"><div><span class="brand-mark">✦</span><strong>星屑の勇者</strong><span class="subtitle">はじまりの剣と黒曜の魔王城</span></div><div class="masthead-tools"><span class="chapter" id="chapter">第一幕 · はじまり</span><button id="sound-toggle" type="button" aria-label="音を消す" aria-pressed="false" title="BGM・効果音を切り替え">♫ ON</button></div></header>
+<section class="screen-shell" aria-label="レトロRPGゲーム画面">
+<canvas id="game" width="320" height="240" aria-label="主人公とマップを表示"></canvas>
+<div id="completion" class="completion" hidden>✦ 鉄の門 開通！</div>
+</section>
+<section class="dialogue" aria-live="polite" aria-label="ゲームのメッセージ"><p id="message">冒険を始めてください。</p><span id="message-arrow" aria-hidden="true">▼</span></section>
+<section class="journey-strip" aria-label="冒険の進み具合"><span id="journey-progress">冒険の記録　✦</span><span id="journey-stars">星屑 0 / 5</span></section>
+<section class="action-panel" id="action-panel" hidden aria-label="ゲームの選択肢"><div class="panel-head"><strong id="panel-title">メニュー</strong><button id="panel-close" class="close" type="button" aria-label="閉じる">×</button></div><div id="panel-content" class="panel-content"></div></section>
+<aside class="adventure-journal" aria-label="冒険の記録">
+<div class="journal-heading"><span>✦ ADVENTURE JOURNAL</span><span id="travel-region">アルテリア</span></div>
+<div class="journal-illustration" aria-hidden="true"><span class="sun-moon">✧</span><span class="peaks">▲ ▲ ⛰ ▲ ▲</span><span class="path-dots"> · ✦ · ✦ · </span></div>
+<p id="travel-goal">この世界に小さな光を取り戻そう</p>
+<div class="journal-info"><span id="travel-weapon">⚔ 木ぼう</span><span id="travel-hp">HP 36/36</span><span id="travel-mp">MP 14/14</span></div>
+</aside>
+<section class="controls" aria-label="ゲーム操作">
+<div class="dpad" aria-label="十字キー">
+<button class="up" data-dir="up" type="button" aria-label="上">▲</button>
+<button class="left" data-dir="left" type="button" aria-label="左">◀</button>
+<div class="dpad-center">✦</div>
+<button class="right" data-dir="right" type="button" aria-label="右">▶</button>
+<button class="down" data-dir="down" type="button" aria-label="下">▼</button>
+</div>
+<div class="face-controls">
+<button id="menu-button" class="menu-button" type="button">メニュー</button>
+<div class="action-pair"><button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button><button id="confirm" class="face face-a" type="button"><span>A</span><small>決定 / 話す</small></button></div>
+</div>
+</section>
+<div class="ad-slot" aria-label="将来の広告配置領域">ゲーム画面を邪魔しない広告用余白 · ブラウザでは広告なし</div>
+<footer><span>十字キーで移動 · Aで話す / 調べる · Bで戻る</span><span><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a> · <a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></span></footer>
+</main>
+<div id="start-overlay" class="start-overlay">
+<section class="start-box" aria-label="ゲーム開始">
+<div class="start-emblem">✦</div>
+<p class="start-kicker">A CLASSIC FANTASY ADVENTURE</p>
+<h1>星屑の勇者</h1>
+<p class="start-subtitle">はじまりの剣と黒曜の魔王城</p>
+<p class="start-story">人々を襲う魔物の軍勢。<br>古い剣のかすかな光が、<br>ひとりの剣士の旅を照らす。</p>
+<label for="hero-name">主人公の名前</label>
+<input id="hero-name" maxlength="12" value="アレン" autocomplete="off" enterkeyhint="done" aria-label="主人公の名前">
+<button id="start-sound" class="start-sound" type="button" aria-pressed="false">♫ タイトル音楽を聴く</button>
+<button id="new-game" class="start-primary" type="button">あたらしい冒険</button>
+<button id="load-auto" class="start-secondary" type="button">オートセーブから再開</button>
+<button id="load-manual" class="start-secondary" type="button">王様のセーブから再開</button>
+<p id="start-error" class="start-error" role="alert"></p>
+<p class="preview-note">第一幕から終幕までプレイできます · セーブ対応<br>音は開始ボタン操作後に再生されます。♫で消音できます。</p>
+</section>
+</div>
+<script defer src="app.js"></script>
+</body>
+</html>
