@@ -697,19 +697,87 @@
           ],
           [
             1,
-            7,
             1,
             1,
             1,
-            7,
-            7,
             1,
             7,
             7,
             1,
+            7,
+            7,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
             1,
             1,
             7,
+            8,
+            8,
+            8,
+            7,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            7,
+            7,
+            8,
+            7,
+            7,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            7,
+            7,
+            8,
+            7,
+            7,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            7,
+            7,
+            8,
+            7,
+            7,
+            1,
+            1,
+            1,
+            1,
             1
           ],
           [
@@ -719,23 +787,6 @@
             7,
             7,
             7,
-            8,
-            8,
-            8,
-            7,
-            7,
-            7,
-            7,
-            7,
-            1
-          ],
-          [
-            1,
-            7,
-            7,
-            7,
-            7,
-            7,
             7,
             8,
             7,
@@ -748,58 +799,7 @@
           ],
           [
             1,
-            7,
             1,
-            7,
-            7,
-            7,
-            7,
-            8,
-            7,
-            7,
-            7,
-            7,
-            1,
-            7,
-            1
-          ],
-          [
-            1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            8,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            1
-          ],
-          [
-            1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            8,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            1
-          ],
-          [
-            1,
-            7,
             7,
             7,
             7,
@@ -909,15 +909,22 @@
           {
             id: "refugee",
             name: "\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA",
-            x: 10,
-            y: 7,
+            x: 9,
+            y: 6,
             kind: "refugee"
           },
           {
             id: "castle-guard",
             name: "\u5B88\u5099\u5175",
-            x: 3,
-            y: 7,
+            x: 5,
+            y: 3,
+            kind: "guard"
+          },
+          {
+            id: "castle-guard-east",
+            name: "\u5B88\u5099\u5175",
+            x: 9,
+            y: 3,
             kind: "guard"
           }
         ],
@@ -982,6 +989,11 @@
             kind: "mosaic",
             x: 10,
             y: 5
+          },
+          {
+            kind: "doorway",
+            x: 1,
+            y: 7
           }
         ]
       },
@@ -5395,6 +5407,15 @@
   function drawOne(c, s, screen) {
     const [x, y] = screen(s.x, s.y);
     switch (s.kind) {
+      case "doorway":
+        rect(c, x, y, 16, 16, "#454050");
+        rect(c, x + 1, y + 1, 14, 15, "#c6a575");
+        rect(c, x + 3, y + 2, 10, 13, "#624638");
+        rect(c, x + 5, y + 4, 7, 11, "#2e2731");
+        rect(c, x + 1, y, 14, 3, "#e8c98b");
+        rect(c, x + 3, y + 3, 2, 12, "#85654a");
+        rect(c, x + 10, y + 8, 2, 2, "#f9e6b2");
+        break;
       case "column":
         rect(c, x + 3, y - 12, 10, 27, "#2f4050");
         rect(c, x + 4, y - 10, 8, 24, "#b5b9aa");
@@ -5497,22 +5518,19 @@
 
   // src/game/render.mjs
   var TILE = 16;
-  var W = 256;
-  var H = 256;
-  var VIEW_COLUMNS = W / TILE;
-  var VIEW_ROWS = H / TILE;
   var rect2 = (c, x, y, w, h, color) => {
     c.fillStyle = color;
     c.fillRect(Math.round(x), Math.round(y), w, h);
   };
   var clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  function viewport(s, motion = null, now = performance.now()) {
+  function viewport(s, motion = null, now = performance.now(), W2 = 192, H2 = 384) {
+    const VIEW_COLUMNS = W2 / TILE, VIEW_ROWS = H2 / TILE;
     const m = MAPS[s.pos.map];
     const t = motion && motion.map === s.pos.map ? clamp((now - motion.start) / motion.duration, 0, 1) : 1;
     const px = motion && motion.map === s.pos.map ? motion.fromX + (s.pos.x - motion.fromX) * t : s.pos.x;
     const py = motion && motion.map === s.pos.map ? motion.fromY + (s.pos.y - motion.fromY) * t : s.pos.y;
-    const ox = m.width <= VIEW_COLUMNS ? Math.floor((W - m.width * TILE) / 2) : 0;
-    const oy = m.height <= VIEW_ROWS ? Math.floor((H - m.height * TILE) / 2) : 0;
+    const ox = m.width <= VIEW_COLUMNS ? Math.floor((W2 - m.width * TILE) / 2) : 0;
+    const oy = m.height <= VIEW_ROWS ? Math.floor((H2 - m.height * TILE) / 2) : 0;
     const cx = m.width <= VIEW_COLUMNS ? 0 : clamp(px - VIEW_COLUMNS / 2, 0, m.width - VIEW_COLUMNS);
     const cy = m.height <= VIEW_ROWS ? 0 : clamp(py - VIEW_ROWS / 2, 0, m.height - VIEW_ROWS);
     return { ox, oy, cx, cy, px, py, t };
@@ -5523,14 +5541,15 @@
     rect2(c, x - 2 * size, y, size * 5, size, color);
   }
   function renderMap(canvas, s, light = 0, motion = null) {
+    const W2 = canvas.width, H2 = canvas.height;
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
-    const m = MAPS[s.pos.map], v = viewport(s, motion);
-    rect2(c, 0, 0, W, H, "#0e1725");
+    const m = MAPS[s.pos.map], v = viewport(s, motion, performance.now(), W2, H2);
+    rect2(c, 0, 0, W2, H2, "#0e1725");
     const screen = (x, y) => [Math.round((x - v.cx) * TILE + v.ox), Math.round((y - v.cy) * TILE + v.oy)];
     for (let y = 0; y < m.height; y++) for (let x = 0; x < m.width; x++) {
       const [sx, sy] = screen(x, y);
-      if (sx < -16 || sy < -16 || sx >= W || sy >= H) continue;
+      if (sx < -16 || sy < -16 || sx >= W2 || sy >= H2) continue;
       const id = m.tiles[y][x] === 6 && s.flags.gateOpen ? 3 : m.tiles[y][x];
       drawTile(c, id, sx, sy, x, y, m.id);
     }
@@ -5555,12 +5574,12 @@
       for (const e of m.objects) {
         if (entityAt(s, m, e.x, e.y) && ["star", "chest", "ironChest", "ironKeyChest", "onyxChest", "mirror", "onyxForge", "onyxRuneA", "onyxRuneB", "switchA", "switchB"].includes(e.kind)) {
           const [ex, ey] = screen(e.x, e.y);
-          if (ex >= 0 && ex < W - 10 && ey >= 20 && ey < H - 24) star(c, ex + 13, ey + 1, 1, "#f4dfa0");
+          if (ex >= 0 && ex < W2 - 10 && ey >= 20 && ey < H2 - 24) star(c, ex + 13, ey + 1, 1, "#f4dfa0");
         }
       }
     }
-    rect2(c, 1, 1, W - 2, 19, "#121f31");
-    rect2(c, 3, 3, W - 6, 15, "#2a3b51");
+    rect2(c, 1, 1, W2 - 2, 19, "#121f31");
+    rect2(c, 3, 3, W2 - 6, 15, "#2a3b51");
     rect2(c, 4, 3, 2, 15, colors[m.id] || "#d5c49f");
     c.fillStyle = "#f4e8c9";
     c.font = "bold 10px monospace";
@@ -5568,15 +5587,16 @@
     c.fillText(m.name, 10, 6);
     c.textAlign = "right";
     c.fillStyle = colors[m.id] || "#c2ddea";
-    c.fillText("Lv " + s.player.level, W - 11, 6);
+    c.fillText("Lv " + s.player.level, W2 - 11, 6);
     c.textAlign = "left";
-    rect2(c, 0, H - 17, W, 17, "#0e1828");
-    rect2(c, 0, H - 17, W, 1, "#8c7691");
+    rect2(c, 0, H2 - 17, W2, 17, "#0e1828");
+    rect2(c, 0, H2 - 17, W2, 1, "#8c7691");
     c.fillStyle = "#f1dfbc";
     c.font = "10px monospace";
-    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "    MP " + s.player.mp + "/" + stats(s).maxMp + "    " + s.player.gold + " G", 8, H - 12);
+    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "    MP " + s.player.mp + "/" + stats(s).maxMp + "    " + s.player.gold + " G", 8, H2 - 12);
   }
   function renderBattle(canvas, s, b) {
+    const W2 = canvas.width, H2 = canvas.height;
     const c = canvas.getContext("2d"), enemy = monsterById(b.id);
     c.imageSmoothingEnabled = false;
     const palette = {
@@ -5586,51 +5606,328 @@
       ruins: ["#232b3e", "#5b6773", "#9c9b8f"],
       onyx: ["#18172c", "#493150", "#9a5c85"]
     }[enemy.area] || ["#172738", "#4d6171", "#8c8791"];
-    rect2(c, 0, 0, W, H, palette[0]);
+    rect2(c, 0, 0, W2, H2, palette[0]);
     for (let i = 0; i < 45; i++) {
-      const x = (i * 73 + 23) % W, y = (i * 47 + 13) % 180;
+      const x = (i * 73 + 23) % W2, y = (i * 47 + 13) % 180;
       rect2(c, x, y, i % 7 === 0 ? 2 : 1, 1, i % 4 === 0 ? palette[2] : palette[1]);
     }
-    const floor = H - 49;
-    for (const x of [15, W - 34]) {
+    const floor = H2 - 49;
+    for (const x of [15, W2 - 34]) {
       rect2(c, x, 45, 19, floor - 48, palette[1]);
       rect2(c, x - 3, 47, 25, 7, palette[2]);
       for (let y = 59; y < floor; y += 17) rect2(c, x + 2, y, 15, 2, palette[0]);
     }
-    rect2(c, 0, floor, W, 3, palette[2]);
-    rect2(c, 0, floor + 3, W, H - floor - 22, palette[1]);
+    rect2(c, 0, floor, W2, 3, palette[2]);
+    rect2(c, 0, floor + 3, W2, H2 - floor - 22, palette[1]);
     for (let i = 0; i < 13; i++) {
-      rect2(c, i * 67 % W, floor + 8 + i % 4 * 9, 28, 2, palette[0]);
-      rect2(c, i * 41 % W, floor + 6 + i % 3 * 11, 1, 10, palette[2]);
+      rect2(c, i * 67 % W2, floor + 8 + i % 4 * 9, 28, 2, palette[0]);
+      rect2(c, i * 41 % W2, floor + 6 + i % 3 * 11, 1, 10, palette[2]);
     }
     rect2(c, 61, floor + 3, 135, 7, palette[0]);
     rect2(c, 73, floor + 8, 110, 4, palette[2]);
     if (b.id === "vold") {
-      star(c, W / 2, 87, 3, "#ba7ca5");
+      star(c, W2 / 2, 87, 3, "#ba7ca5");
       star(c, 35, 115, 1, "#dbb38a");
-      star(c, W - 35, 100, 1, "#dbb38a");
+      star(c, W2 - 35, 100, 1, "#dbb38a");
     }
-    drawEnemy(c, b.id, W / 2, b.id === "vold" ? H - 83 : H - 81);
+    drawEnemy(c, b.id, W2 / 2, b.id === "vold" ? H2 - 83 : H2 - 81);
     c.fillStyle = "#f7e7c2";
     c.font = "bold 15px monospace";
     c.textAlign = "center";
     c.textBaseline = "top";
-    c.fillText(enemy.name, W / 2, 24);
+    c.fillText(enemy.name, W2 / 2, 24);
     c.font = "11px monospace";
     c.fillStyle = "#cdd9e3";
-    c.fillText("\u6575 HP " + b.hp + "/" + enemy.hp + "  /  TURN " + b.round, W / 2, 45);
+    c.fillText("\u6575 HP " + b.hp + "/" + enemy.hp + "  /  TURN " + b.round, W2 / 2, 45);
     if (b.ward > 0) {
       c.fillStyle = "#a4efdf";
-      c.fillText("\u2726 \u5B88\u308A\u306E\u5149 " + (b.ward - 1), W / 2, 59);
+      c.fillText("\u2726 \u5B88\u308A\u306E\u5149 " + (b.ward - 1), W2 / 2, 59);
     }
     c.textAlign = "left";
     c.strokeStyle = "#c6a66e";
     c.lineWidth = 3;
-    c.strokeRect(3, 3, W - 6, H - 6);
-    rect2(c, 0, H - 19, W, 19, "#101925");
+    c.strokeRect(3, 3, W2 - 6, H2 - 6);
+    rect2(c, 0, H2 - 19, W2, 19, "#101925");
     c.fillStyle = "#f7e8c4";
     c.font = "10px monospace";
-    c.fillText(s.name + "  HP " + s.player.hp + "/" + stats(s).maxHp + "  MP " + s.player.mp + "/" + stats(s).maxMp, 10, H - 13);
+    c.fillText(s.name + "  HP " + s.player.hp + "/" + stats(s).maxHp + "  MP " + s.player.mp + "/" + stats(s).maxMp, 10, H2 - 13);
+  }
+
+  // src/game/castle-visual.mjs
+  var CASTLE_ART_SCENE = Object.freeze({
+    width: 1254,
+    height: 1474,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 27,
+    originY: 250
+  });
+  var scenes = {
+    background: "castle-background.png",
+    foreground: "castle-foreground.png",
+    king: "castle-king.png",
+    guard: "castle-guard.png",
+    guardEast: "castle-guard-east.png",
+    refugee: "castle-refugee.png",
+    raider: "castle-raider.png",
+    libraryBackground: "castle-library-background.png",
+    libraryForeground: "castle-library-foreground.png",
+    librarian: "castle-librarian.png"
+  };
+  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
+    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
+  }
+  var ART_VERSION = "20261109-castle-v3-01";
+  var cache = { ready: false, failed: false, images: {} };
+  var lastHeroSprite = "";
+  function castleArtDebug() {
+    return { ready: cache.ready, lastHeroSprite };
+  }
+  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  function castleArtReady() {
+    return cache.ready;
+  }
+  function preloadCastleArt(onReady = () => {
+  }) {
+    if (cache.ready) {
+      onReady();
+      return Promise.resolve();
+    }
+    if (cache.loading) return cache.loading.then(onReady);
+    cache.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        cache.images[name] = image;
+        resolve();
+      };
+      image.onerror = () => {
+        cache.failed = true;
+        reject(Error("Castle art missing: " + file));
+      };
+      image.src = "assets/castle/" + file + "?v=" + ART_VERSION;
+    }))).then(() => {
+      const bg = cache.images.background;
+      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions");
+      cache.ready = true;
+      onReady();
+    });
+    return cache.loading;
+  }
+  function castleMapPoint(x, y) {
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: m.originX + (x + 0.5) * m.tileWidth,
+      y: m.originY + (y + 0.5) * m.tileHeight
+    };
+  }
+  function castleVisualPosition(s, motion = null, now = performance.now()) {
+    const pos = s.pos;
+    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    return {
+      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
+      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
+      t
+    };
+  }
+  function castleCamera(canvas, s, motion = null, now = performance.now()) {
+    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
+    const viewWidth = canvas.width, viewHeight = canvas.height;
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: clamp2(p.x - viewWidth / 2, 0, Math.max(0, m.width - viewWidth)),
+      y: clamp2(p.y - viewHeight * 0.6, 0, Math.max(0, m.height - viewHeight)),
+      player: p
+    };
+  }
+  function drawSmallPerson(c, cx, cy, kind) {
+    c.save();
+    c.translate(Math.round(cx - 30), Math.round(cy - 56));
+    const tile = (x, y, w, h, color2) => {
+      c.fillStyle = color2;
+      c.fillRect(x * 5, y * 5, w * 5, h * 5);
+    };
+    const color = kind === "refugee" ? "#a5676a" : "#47788e";
+    tile(3, 0, 6, 1, "#27283b");
+    tile(2, 1, 8, 2, "#483a38");
+    tile(3, 3, 6, 3, "#e9bb8d");
+    tile(4, 4, 1, 1, "#3b2c36");
+    tile(7, 4, 1, 1, "#3b2c36");
+    tile(2, 6, 8, 6, color);
+    tile(4, 6, 4, 2, "#d8ad69");
+    tile(1, 7, 2, 4, "#edc59b");
+    tile(9, 7, 2, 4, "#edc59b");
+    tile(2, 12, 3, 1, "#292d3c");
+    tile(7, 12, 3, 1, "#292d3c");
+    c.restore();
+  }
+  function drawSword(c, x, y) {
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    c.fillStyle = "#252b42";
+    c.fillRect(-6, -32, 12, 53);
+    c.fillStyle = "#e9e4d5";
+    c.fillRect(-4, -39, 8, 32);
+    c.fillStyle = "#88cbd9";
+    c.fillRect(-1, -35, 3, 23);
+    c.fillStyle = "#e4ba61";
+    c.fillRect(-22, -11, 44, 7);
+    c.fillStyle = "#765c50";
+    c.fillRect(-5, -6, 10, 22);
+    c.fillStyle = "#ffdf99";
+    c.fillRect(-8, 16, 16, 5);
+    c.restore();
+  }
+  function uiLabel(c, canvas, s, title = "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u738B\u306E\u9593") {
+    const W2 = canvas.width, H2 = canvas.height;
+    c.fillStyle = "#0b1229e8";
+    c.fillRect(5, 5, Math.min(315, W2 - 10), 34);
+    c.strokeStyle = "#dfc58e";
+    c.lineWidth = 2;
+    c.strokeRect(5, 5, Math.min(315, W2 - 10), 34);
+    c.font = "bold 18px sans-serif";
+    c.textBaseline = "middle";
+    c.fillStyle = "#f5e9ce";
+    c.textAlign = "left";
+    c.fillText(title, 18, 23);
+    c.fillStyle = "#081527ef";
+    c.fillRect(0, H2 - 34, W2, 34);
+    c.fillStyle = "#dbc18d";
+    c.fillRect(0, H2 - 34, W2, 2);
+    c.fillStyle = "#f7ecd7";
+    c.font = "bold 19px monospace";
+    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "   MP " + s.player.mp + "/" + stats(s).maxMp, 14, H2 - 17);
+  }
+  function renderCastleScene(canvas, s, motion = null, now = performance.now()) {
+    if (!cache.ready) return false;
+    if (s.pos.map !== "castle") throw Error("Castle art on another map");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const { width: W2, height: H2 } = canvas;
+    const camera = castleCamera(canvas, s, motion, now);
+    c.fillStyle = "#0b101c";
+    c.fillRect(0, 0, W2, H2);
+    c.drawImage(cache.images.background, Math.round(-camera.x), Math.round(-camera.y));
+    const plot = (x, y) => {
+      const p = castleMapPoint(x, y);
+      return { x: p.x - camera.x, y: p.y - camera.y };
+    };
+    const map = MAPS.castle;
+    const actors = [];
+    for (const n of map.npcs) {
+      const p = plot(n.x, n.y);
+      actors.push({ z: p.y, draw: () => {
+        let im, anchor = 0, lift = 0;
+        if (n.kind === "king") {
+          im = cache.images.king;
+          lift = 53;
+        } else if (n.id === "castle-guard") {
+          im = cache.images.guard;
+          anchor = -42;
+        } else if (n.id === "castle-guard-east") {
+          im = cache.images.guardEast;
+          anchor = 44;
+        } else if (n.id === "refugee") {
+          im = cache.images.refugee;
+          lift = 41;
+        } else {
+          drawSmallPerson(c, p.x, p.y, n.kind);
+          return;
+        }
+        c.drawImage(im, Math.round(p.x - im.width / 2 + anchor), Math.round(p.y + lift - im.height));
+      } });
+    }
+    for (const e of map.objects) {
+      if (!entityAt(s, map, e.x, e.y)) continue;
+      const p = plot(e.x, e.y);
+      actors.push({ z: p.y, draw: () => {
+        if (e.kind === "raider") {
+          const im = cache.images.raider;
+          c.drawImage(im, Math.round(p.x - im.width / 2), Math.round(p.y + 42 - im.height));
+        } else if (e.kind === "sword") drawSword(c, p.x, p.y);
+      } });
+    }
+    const pp = camera.player;
+    actors.push({ z: pp.y - camera.y, draw: () => {
+      const t = castleVisualPosition(s, motion, now).t;
+      const isMoving = motion && motion.map === "castle" && t < 1;
+      const frame = isMoving ? t < 0.34 ? 1 : t < 0.68 ? 2 : 1 : 0;
+      const hero = cache.images[`hero_${s.pos.facing}_${frame}`];
+      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
+      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
+      const bob = isMoving ? Math.round(Math.sin(t * Math.PI * 2) * 3) : 0;
+      const sx = Math.round(pp.x - camera.x - hero.width / 2);
+      const sy = Math.round(pp.y - camera.y + 43 - hero.height + bob);
+      c.fillStyle = "#11132065";
+      c.beginPath();
+      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
+      c.fill();
+      c.drawImage(hero, sx, sy);
+    } });
+    actors.sort((a, b) => a.z - b.z);
+    for (const actor of actors) actor.draw();
+    c.drawImage(cache.images.foreground, Math.round(-camera.x), Math.round(-camera.y));
+    uiLabel(c, canvas, s);
+    return true;
+  }
+  var CASTLE_LIBRARY_SCENE = Object.freeze({
+    width: 1254,
+    height: 1380,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 147,
+    originY: 320
+  });
+  function castleLibraryPoint(x, y) {
+    const m = CASTLE_LIBRARY_SCENE;
+    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
+  }
+  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
+    const m = CASTLE_LIBRARY_SCENE;
+    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
+    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
+    const p = castleLibraryPoint(x, y);
+    return {
+      x: clamp2(p.x - canvas.width / 2, 0, Math.max(0, m.width - canvas.width)),
+      y: clamp2(p.y - canvas.height * 0.6, 0, Math.max(0, m.height - canvas.height)),
+      player: p,
+      t
+    };
+  }
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now()) {
+    if (!cache.ready) return false;
+    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const cam = castleLibraryCamera(canvas, room, motion, now);
+    const sx = (x) => Math.round(x - cam.x), sy = (y) => Math.round(y - cam.y);
+    c.fillStyle = "#131321";
+    c.fillRect(0, 0, canvas.width, canvas.height);
+    c.drawImage(cache.images.libraryBackground, sx(0), sy(0));
+    const elder = castleLibraryPoint(6, 3), elderSprite = cache.images.librarian;
+    const heroFrame = motion && cam.t < 1 ? cam.t < 0.34 ? 1 : cam.t < 0.68 ? 2 : 1 : 0;
+    const heroKey = "hero_" + room.facing + "_" + heroFrame;
+    const heroSprite = cache.images[heroKey];
+    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
+    lastHeroSprite = heroKey;
+    const actors = [
+      { y: elder.y, draw: () => {
+        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
+      } },
+      { y: cam.player.y, draw: () => {
+        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
+        c.fillStyle = "#10132575";
+        c.beginPath();
+        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
+        c.fill();
+        c.drawImage(heroSprite, x, y);
+      } }
+    ];
+    actors.sort((a, b) => a.y - b.y);
+    for (const actor of actors) actor.draw();
+    c.drawImage(cache.images.libraryForeground, sx(0), sy(0));
+    uiLabel(c, canvas, s, "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u66F8\u5EAB");
+    return true;
   }
 
   // src/game/audio.mjs
@@ -5868,6 +6165,185 @@
     return choices.findIndex((choice) => !choice.disabled);
   }
 
+  // src/game/interiors.mjs
+  var ENTRIES = Object.freeze([
+    {
+      id: "castle-library",
+      map: "castle",
+      door: { x: 1, y: 7 },
+      name: "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u30FB\u66F8\u5EAB",
+      theme: "library",
+      keeper: "\u66F8\u5EAB\u756A",
+      words: ["\u66F8\u5EAB\u756A\u300C\u57CE\u306B\u53E4\u304F\u304B\u3089\u6B8B\u308B\u5730\u56F3\u306F\u3001\u5192\u967A\u8005\u306E\u9053\u3057\u308B\u3079\u306B\u306A\u308B\u3093\u3060\u300D", "\u66F8\u5EAB\u756A\u300C\u56F0\u3063\u305F\u3089\u3001\u753A\u306E\u4EBA\u306E\u8A71\u3092\u805E\u3044\u3066\u307F\u308B\u3068\u3044\u3044\u3088\u300D"]
+    },
+    {
+      id: "leaf-west-home",
+      map: "leaf",
+      door: { x: 3, y: 3 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u4ED5\u7ACB\u3066\u5C4B\u306E\u5BB6",
+      theme: "home",
+      keeper: "\u4ED5\u7ACB\u3066\u5C4B",
+      words: ["\u4ED5\u7ACB\u3066\u5C4B\u300C\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u670D\u3092\u3001\u307F\u3093\u306A\u3067\u7E55\u3063\u3066\u3044\u308B\u3093\u3060\u300D", "\u4ED5\u7ACB\u3066\u5C4B\u300C\u6D1E\u7A9F\u3078\u884C\u304F\u306A\u3089\u7121\u7406\u3092\u3057\u306A\u3044\u3067\u306D\u300D"]
+    },
+    {
+      id: "leaf-east-home",
+      map: "leaf",
+      door: { x: 13, y: 3 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u6751\u4EBA\u306E\u5BB6",
+      theme: "home",
+      keeper: "\u30EA\u30FC\u30D5\u30A1\u306E\u4F4F\u4EBA",
+      words: ["\u6751\u4EBA\u300C\u9B54\u7269\u304C\u3044\u306A\u304F\u306A\u308C\u3070\u3001\u307E\u305F\u753A\u3082\u8CD1\u3084\u304B\u306B\u306A\u308B\u3088\u300D", "\u6751\u4EBA\u300C\u65C5\u306E\u4EBA\u3082\u3001\u3053\u306E\u753A\u3067\u306F\u5927\u5207\u306A\u304A\u5BA2\u3055\u3093\u3055\u300D"]
+    }
+  ]);
+  var W = 12;
+  var H = 10;
+  var ENTRY = { x: 6, y: 8 };
+  var blocked = /* @__PURE__ */ new Set(["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"]);
+  var furniture = {
+    "2,3": "\u672C\u68DA",
+    "2,4": "\u672C\u68DA",
+    "9,3": "\u98DF\u5668\u68DA",
+    "9,4": "\u98DF\u5668\u68DA",
+    "3,6": "\u5C0F\u3055\u306A\u673A",
+    "8,6": "\u6728\u7BB1",
+    "1,2": "\u58C1\u306E\u7D75",
+    "10,2": "\u82B1\u74F6"
+  };
+  var resident = { x: 6, y: 3 };
+  function enterableDoor(pos) {
+    const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[pos.facing];
+    return ENTRIES.find((e) => e.map === pos.map && e.door.x === pos.x + delta[0] && e.door.y === pos.y + delta[1]) || null;
+  }
+  function makeInterior(door) {
+    if (!ENTRIES.some((e) => e.id === door.id)) throw Error("Unknown interior");
+    return { id: door.id, x: ENTRY.x, y: ENTRY.y, facing: "up" };
+  }
+  function interiorDefinition(room) {
+    const definition = ENTRIES.find((e) => e.id === room.id);
+    if (!definition) throw Error("Unknown interior " + room.id);
+    return definition;
+  }
+  function moveInside(room, dir) {
+    if (!["up", "down", "left", "right"].includes(dir)) throw Error("Direction invalid");
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
+    const x = room.x + dx, y = room.y + dy;
+    if (x === 6 && y === 9) return { kind: "exit", room: null };
+    const facing = { ...room, facing: dir };
+    if (x <= 0 || y <= 1 || x >= W - 1 || y >= H - 1 || blocked.has(x + "," + y) || x === resident.x && y === resident.y)
+      return { kind: "blocked", room: facing };
+    return { kind: "walk", room: { ...facing, x, y } };
+  }
+  function investigateInside(room) {
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    const x = room.x + dx, y = room.y + dy;
+    const definition = interiorDefinition(room);
+    if (x === resident.x && y === resident.y) return definition.words;
+    const item = furniture[x + "," + y];
+    if (item === "\u672C\u68DA") return ["\u53E4\u3044\u672C\u3092\u3081\u304F\u3063\u305F\u3002\u5927\u9678\u306E\u5730\u56F3\u3084\u3001\u5404\u5730\u306E\u8A00\u3044\u4F1D\u3048\u304C\u66F8\u304D\u7559\u3081\u3089\u308C\u3066\u3044\u308B\u3002"];
+    if (item === "\u5C0F\u3055\u306A\u673A") return ["\u673A\u306B\u306F\u6E29\u304B\u3044\u304A\u8336\u304C\u4E8C\u3064\u3002\u8AB0\u304B\u3092\u5F85\u3063\u3066\u3044\u308B\u306E\u3060\u308D\u3046\u304B\u3002"];
+    if (item === "\u6728\u7BB1") return ["\u6728\u7BB1\u306B\u306F\u6BDB\u5E03\u3084\u7740\u66FF\u3048\u304C\u8A70\u3081\u3089\u308C\u3066\u3044\u308B\u3002\u65C5\u4EBA\u306E\u305F\u3081\u306B\u7528\u610F\u3055\u308C\u305F\u3088\u3046\u3060\u3002"];
+    if (item === "\u98DF\u5668\u68DA") return ["\u98DF\u5668\u304C\u304D\u3061\u3093\u3068\u4E26\u3093\u3067\u3044\u308B\u3002\u3053\u3053\u306B\u306F\u666E\u6BB5\u306E\u66AE\u3089\u3057\u304C\u3042\u308B\u3002"];
+    if (item) return [item + "\u304C\u3042\u308B\u3002"];
+    if (x === 6 && y === 9) return ["\u6249\u304B\u3089\u5916\u3078\u623B\u308C\u308B\u3002\u4E0B\u3078\u6B69\u3053\u3046\u3002"];
+    return ["\u3042\u305F\u308A\u3092\u8ABF\u3079\u305F\u3002\u5BB6\u5177\u3084\u751F\u6D3B\u306E\u9053\u5177\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"];
+  }
+  function interiorPrompt(room) {
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    const x = room.x + dx, y = room.y + dy;
+    if (x === resident.x && y === resident.y) return "A  " + interiorDefinition(room).keeper + "\u3068\u8A71\u3059";
+    if (furniture[x + "," + y]) return "A  " + furniture[x + "," + y] + "\u3092\u8ABF\u3079\u308B";
+    return "";
+  }
+  var paint = (c, x, y, w, h, color) => {
+    c.fillStyle = color;
+    c.fillRect(Math.round(x), Math.round(y), w, h);
+  };
+  function drawFurniture(c, name, x, y) {
+    paint(c, x + 1, y + 1, 14, 15, "#3e302f");
+    if (name === "\u672C\u68DA") {
+      paint(c, x + 2, y + 2, 12, 14, "#87613e");
+      paint(c, x + 3, y + 4, 10, 2, "#b88d51");
+      for (let i = 0; i < 4; i++) {
+        paint(c, x + 3 + i * 3, y + 6, 2, 6, ["#cf8a59", "#5e91a0", "#a5a86b", "#d2ae7e"][i]);
+      }
+    } else if (name === "\u98DF\u5668\u68DA") {
+      paint(c, x + 2, y + 2, 12, 13, "#986e4a");
+      paint(c, x + 3, y + 5, 10, 2, "#d3b480");
+      paint(c, x + 4, y + 3, 3, 3, "#b9e0dd");
+      paint(c, x + 9, y + 3, 3, 3, "#b9e0dd");
+      paint(c, x + 5, y + 8, 6, 4, "#d4ae7b");
+    } else if (name === "\u5C0F\u3055\u306A\u673A") {
+      paint(c, x + 1, y + 6, 14, 7, "#916a4b");
+      paint(c, x + 2, y + 6, 12, 2, "#d5a979");
+      paint(c, x + 4, y + 4, 3, 3, "#e5e3cc");
+      paint(c, x + 9, y + 4, 3, 3, "#e6e3cc");
+    } else if (name === "\u6728\u7BB1") {
+      paint(c, x + 2, y + 5, 12, 9, "#956b3f");
+      paint(c, x + 3, y + 6, 10, 3, "#d6a665");
+      paint(c, x + 7, y + 5, 2, 9, "#66422f");
+    } else if (name === "\u82B1\u74F6") {
+      paint(c, x + 5, y + 8, 6, 7, "#648997");
+      paint(c, x + 7, y + 4, 2, 5, "#4d8750");
+      for (const [px, py] of [[5, 4], [10, 5], [7, 2]]) paint(c, x + px, y + py, 3, 3, "#e5ad93");
+    } else {
+      paint(c, x + 1, y + 2, 14, 12, "#bba075");
+      paint(c, x + 3, y + 4, 10, 8, "#477e7d");
+      paint(c, x + 5, y + 6, 6, 4, "#ecdca9");
+    }
+  }
+  function renderInterior(canvas, state2, room) {
+    const c = canvas.getContext("2d"), CW = canvas.width, CH = canvas.height, def = interiorDefinition(room);
+    c.imageSmoothingEnabled = false;
+    const ox = Math.floor((CW - W * 16) / 2), oy = Math.floor((CH - H * 16) / 2);
+    paint(c, 0, 0, CW, CH, "#241f27");
+    for (let y = 0; y < CH; y += 16) for (let x = 0; x < CW; x += 16) {
+      paint(c, x, y, 16, 16, Math.floor(x / 16 + y / 16) % 2 === 0 ? "#3b2b2d" : "#403233");
+      paint(c, x, y, 16, 1, "#604443");
+      paint(c, x + 12, y + 8, 2, 2, "#51403b");
+    }
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const px = ox + x * 16, py = oy + y * 16;
+      if (y <= 1 || x === 0 || x === W - 1 || y === H - 1) {
+        paint(c, px, py, 16, 16, "#655149");
+        paint(c, px + 1, py + 1, 14, 14, "#af9171");
+        paint(c, px, py, 16, 2, "#d6b58d");
+        paint(c, px, py + 14, 16, 2, "#544044");
+      } else {
+        paint(c, px, py, 16, 16, (x + y) % 2 === 0 ? "#a87d53" : "#ae855a");
+        paint(c, px, py, 16, 1, "#855d40");
+        paint(c, px + 7, py + 12, 2, 2, "#b99368");
+      }
+      if (x >= 4 && x <= 7 && y >= 4 && y <= 6) {
+        paint(c, px, py, 16, 16, "#6e4354");
+        paint(c, px + 1, py + 1, 14, 14, (x + y) % 2 ? "#985568" : "#925267");
+        if (x === 4 || x === 7) paint(c, px + (x === 4 ? 1 : 13), py, 2, 16, "#d9b176");
+      }
+    }
+    paint(c, ox + 6 * 16, oy + 9 * 16, 16, 16, "#5b4236");
+    paint(c, ox + 6 * 16 + 3, oy + 9 * 16 + 1, 10, 15, "#a57b54");
+    for (const x of [2, 9]) {
+      paint(c, ox + x * 16 + 6, oy + 2 * 16 - 5, 4, 9, "#e8bd76");
+      paint(c, ox + x * 16 + 5, oy + 2 * 16 - 9, 6, 5, "#ffdc86");
+    }
+    for (const [pos, name] of Object.entries(furniture)) {
+      const [x, y] = pos.split(",").map(Number);
+      drawFurniture(c, name, ox + x * 16, oy + y * 16);
+    }
+    drawPerson(c, ox + resident.x * 16, oy + resident.y * 16, def.theme === "library" ? "elder" : "helper");
+    drawPerson(c, ox + room.x * 16, oy + room.y * 16, "hero", room.facing);
+    paint(c, 0, 0, CW, 20, "#142237");
+    paint(c, 3, 3, CW - 6, 14, "#293d53");
+    c.fillStyle = "#f0dbb1";
+    c.textBaseline = "top";
+    c.textAlign = "left";
+    c.font = "bold 10px monospace";
+    c.fillText(def.name, 8, 6);
+    paint(c, 0, CH - 17, CW, 17, "#101b2d");
+    c.fillStyle = "#ffedca";
+    c.font = "9px monospace";
+    c.fillText("HP " + state2.player.hp + "/" + stats(state2).maxHp + "   MP " + state2.player.mp + "/" + stats(state2).maxMp, 8, CH - 12);
+  }
+
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
@@ -5888,8 +6364,11 @@
   var menuBack = null;
   var walkMotion = null;
   var walkFrame = 0;
+  var interior = null;
+  var roomMotion = null;
+  var roomFrame = 0;
   var audio = new GameAudio();
-  var musicFor = () => !state ? "title" : state.stage === "CLEAR" ? "ending" : battle ? battle.id === "vold" ? "boss" : "battle" : { castle: "castle", field: "field", leaf: "town", sailun: "town", cave: "cave", ruins: "ruins", onyx: "onyx" }[state.pos.map] || "field";
+  var musicFor = () => !state ? "title" : state.stage === "CLEAR" ? "ending" : battle ? battle.id === "vold" ? "boss" : "battle" : interior ? state.pos.map === "castle" ? "castle" : "town" : { castle: "castle", field: "field", leaf: "town", sailun: "town", cave: "cave", ruins: "ruins", onyx: "onyx" }[state.pos.map] || "field";
   function soundButtons() {
     $("sound-toggle").textContent = audio.muted ? "\u266B OFF" : "\u266B ON";
     $("sound-toggle").setAttribute("aria-pressed", String(audio.muted));
@@ -5917,21 +6396,35 @@
     validateState(next);
     if (autoSave) auto.write(next);
     state = next;
-    paint();
+    paint2();
   }
-  function paint() {
+  function sizeGameCanvas() {
+    const canvas = $("game"), rect3 = canvas.getBoundingClientRect();
+    if (rect3.width < 1 || rect3.height < 1) return;
+    const desiredWidth = state?.pos.map === "castle" && !battle && (!interior || interior.id === "castle-library") ? 576 : 192;
+    if (canvas.width !== desiredWidth) canvas.width = desiredWidth;
+    const pixels = Math.max(desiredWidth, Math.min(desiredWidth === 576 ? 1254 : 640, Math.round(desiredWidth * rect3.height / rect3.width)));
+    if (canvas.height !== pixels) canvas.height = pixels;
+  }
+  function paint2() {
     if (!state) return;
+    sizeGameCanvas();
     audio.setTheme(musicFor());
     if (battle) renderBattle($("game"), state, battle);
+    else if (interior?.id === "castle-library" && castleArtReady()) renderCastleLibrary($("game"), state, interior, roomMotion);
+    else if (interior) renderInterior($("game"), state, interior);
+    else if (state.pos.map === "castle" && castleArtReady()) renderCastleScene($("game"), state, walkMotion);
     else renderMap($("game"), state, lightSteps, walkMotion);
     $("message").textContent = queue[0] || hint || "\u6B21\u306E\u76EE\u7684\uFF1A" + STAGE_GOALS[state.stage];
-    const target = front(state), visible = entityAt(state, MAPS[state.pos.map], target.x, target.y);
-    const gate = state.pos.map === "field" && MAPS.field.tiles[target.y]?.[target.x] === 6 && !state.flags.gateOpen;
-    $("context-hint").hidden = Boolean(battle || queue.length || panelMode || !visible && !gate);
-    $("context-hint").textContent = gate ? "A  \u9244\u306E\u9580\u3092\u8ABF\u3079\u308B" : visible ? "A  " + (MAPS[state.pos.map].npcs.some((n) => n === visible) ? "\u306F\u306A\u3059\uFF1A" : "\u3057\u3089\u3079\u308B\uFF1A") + visible.name : "";
+    const target = front(state), visible = interior ? null : entityAt(state, MAPS[state.pos.map], target.x, target.y);
+    const door = interior ? null : enterableDoor(state.pos);
+    const roomPrompt = interior ? interiorPrompt(interior) : "";
+    const gate = !interior && state.pos.map === "field" && MAPS.field.tiles[target.y]?.[target.x] === 6 && !state.flags.gateOpen;
+    $("context-hint").hidden = Boolean(battle || queue.length || panelMode || !roomPrompt && !door && !visible && !gate);
+    $("context-hint").textContent = interior ? roomPrompt : door ? "A  " + door.name + "\u3078\u5165\u308B" : gate ? "A  \u9244\u306E\u9580\u3092\u8ABF\u3079\u308B" : visible ? "A  " + (MAPS[state.pos.map].npcs.some((n) => n === visible) ? "\u306F\u306A\u3059\uFF1A" : "\u3057\u3089\u3079\u308B\uFF1A") + visible.name : "";
     $("journey-progress").textContent = state.stage === "CLEAR" ? "\u2726 \u5E73\u548C\u3092\u53D6\u308A\u623B\u3057\u305F\u4E16\u754C" : state.stage === "S09" ? "\u2726 \u5E30\u9084\u306E\u65C5" : state.stage === "S08" ? "\u2726 \u9B54\u738B\u57CE\u306E\u6700\u6DF1\u90E8\u3078" : state.stage === "S07" ? "\u2726 \u6C7A\u6226\u3078\u306E\u9053" : ["S05", "S06"].includes(state.stage) ? "\u2726 \u9ECE\u660E\u306E\u93E1\u3092\u63A2\u3059" : "\u2726 \u5192\u967A\u306E\u306F\u3058\u307E\u308A";
     $("journey-stars").textContent = "\u661F\u5C51 " + state.stars.length + " / 5 \xB7 \u8A0E\u4F10 " + Object.keys(state.defeated).filter((id) => id !== "vold").length + " / 24";
-    $("travel-region").textContent = MAPS[state.pos.map].name;
+    $("travel-region").textContent = interior ? interiorDefinition(interior).name : MAPS[state.pos.map].name;
     $("travel-goal").textContent = state.stage === "CLEAR" ? "\u5192\u967A\u306F\u7D42\u308F\u3063\u305F\u3002\u5E73\u548C\u306B\u306A\u3063\u305F\u5404\u5730\u3078\u65C5\u7ACB\u3068\u3046\u3002" : STAGE_GOALS[state.stage];
     const weapon = CATALOG.equipment.weapons.find((e) => e.id === state.equipment.weapon);
     $("travel-weapon").textContent = "\u2694 " + weapon.name;
@@ -5946,13 +6439,13 @@
   function message(lines) {
     queue = lines.filter(Boolean).map(String);
     hint = "";
-    paint();
+    paint2();
     if (!queue.length) afterMessage();
   }
   function advanceMessage() {
     if (!queue.length) return false;
     queue.shift();
-    paint();
+    paint2();
     if (!queue.length) afterMessage();
     return true;
   }
@@ -5961,7 +6454,7 @@
   }
   function notice(text) {
     hint = text;
-    paint();
+    paint2();
   }
   function closePanel() {
     panelMode = "";
@@ -6031,7 +6524,7 @@
     closePanel();
     queue = [];
     hint = "\u51E6\u7406\u3092\u505C\u6B62\u3057\u307E\u3057\u305F\u3002\u30BB\u30FC\u30D6\u30C7\u30FC\u30BF\u306F\u52DD\u624B\u306B\u521D\u671F\u5316\u3057\u307E\u305B\u3093\u3002 " + String(err.message || err);
-    paint();
+    paint2();
     $("message").style.color = "#ffb5ad";
   }
   function apply(result) {
@@ -6048,7 +6541,7 @@
     battle = beginCombat(id, tag);
     closePanel();
     message([...lines, tag === "tutorial" ? "\u300C\u305F\u305F\u304B\u3046\u300D\u3067\u9B54\u7269\u306B\u7ACB\u3061\u5411\u304B\u304A\u3046\uFF01" : monsterById(id).name + "\u304C\u73FE\u308C\u305F\uFF01"]);
-    paint();
+    paint2();
   }
   function performBattle(action) {
     if (queue.length) return;
@@ -6267,11 +6760,31 @@
     }
     if (performance.now() - walkMotion.start >= walkMotion.duration) {
       stopWalkAnimation();
-      renderMap($("game"), state, lightSteps);
+      paint2();
       return;
     }
-    renderMap($("game"), state, lightSteps, walkMotion);
+    if (state.pos.map === "castle" && castleArtReady()) renderCastleScene($("game"), state, walkMotion);
+    else renderMap($("game"), state, lightSteps, walkMotion);
     walkFrame = requestAnimationFrame(animateWalkFrame);
+  }
+  function stopRoomAnimation() {
+    if (roomFrame) cancelAnimationFrame(roomFrame);
+    roomFrame = 0;
+    roomMotion = null;
+  }
+  function animateRoomFrame() {
+    if (!state || battle || !interior || !roomMotion) {
+      stopRoomAnimation();
+      return;
+    }
+    if (performance.now() - roomMotion.start >= roomMotion.duration) {
+      stopRoomAnimation();
+      paint2();
+      return;
+    }
+    if (interior.id === "castle-library" && castleArtReady()) renderCastleLibrary($("game"), state, interior, roomMotion);
+    else paint2();
+    roomFrame = requestAnimationFrame(animateRoomFrame);
   }
   function direction(dir) {
     if (!state) return;
@@ -6280,6 +6793,24 @@
       return;
     }
     if (battle || queue.length) return;
+    if (interior) {
+      const previous2 = interior;
+      const moved = moveInside(interior, dir);
+      stopRoomAnimation();
+      if (moved.kind === "exit") {
+        interior = null;
+        audio.cue("run");
+        message(["\u5EFA\u7269\u304B\u3089\u5916\u3078\u51FA\u305F\u3002"]);
+      } else {
+        interior = moved.room;
+        if (moved.kind === "walk" && interior.id === "castle-library") roomMotion = { id: interior.id, fromX: previous2.x, fromY: previous2.y, start: performance.now(), duration: 145 };
+        if (moved.kind === "blocked") hint = "\u5BB6\u5177\u3084\u58C1\u304C\u3042\u3063\u3066\u9032\u3081\u306A\u3044\u3002";
+        else hint = "";
+        paint2();
+        if (roomMotion) roomFrame = requestAnimationFrame(animateRoomFrame);
+      }
+      return;
+    }
     const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
     const previous = state.pos;
     const r = move(state, dx, dy);
@@ -6292,7 +6823,7 @@
     if (r.message) notice(r.message);
     else {
       hint = "";
-      paint();
+      paint2();
     }
     if (walkMotion) walkFrame = requestAnimationFrame(animateWalkFrame);
     if (r.kind === "walk") {
@@ -6316,6 +6847,19 @@
     if (advanceMessage()) return;
     if (battle) {
       battleChoices();
+      return;
+    }
+    if (interior) {
+      message(investigateInside(interior));
+      return;
+    }
+    const doorway = enterableDoor(state.pos);
+    if (doorway) {
+      stopWalkAnimation();
+      stopRoomAnimation();
+      interior = makeInterior(doorway);
+      audio.cue("run");
+      message([doorway.name + "\u306B\u5165\u3063\u305F\u3002\u5BB6\u5177\u3084\u4F4F\u4EBA\u306B\u8FD1\u3065\u304D\u3001A\u3067\u8A71\u3059\u30FB\u8ABF\u3079\u308B\u3002\u51FA\u53E3\u306F\u4E0B\u306E\u6249\u3002"]);
       return;
     }
     try {
@@ -6405,17 +6949,19 @@
   });
   function begin(s, intro = false) {
     stopWalkAnimation();
+    stopRoomAnimation();
     audio.unlock().catch(console.warn);
     validateState(s);
     state = s;
     battle = null;
+    interior = null;
     queue = [];
     hint = "";
     lightSteps = 0;
     closePanel();
     $("start-overlay").hidden = true;
     document.title = "\u661F\u5C51\u306E\u52C7\u8005\uFF5C\u306F\u3058\u307E\u308A\u306E\u5263\u3068\u9ED2\u66DC\u306E\u9B54\u738B\u57CE";
-    paint();
+    paint2();
     if (intro) message(["\u30A2\u30EB\u30C6\u30EA\u30A2\u738B\u56FD\u3002\u9B54\u7269\u306E\u8ECD\u52E2\u3092\u9003\u308C\u305F\u4EBA\u3005\u304C\u3001\u57CE\u3078\u62BC\u3057\u5BC4\u305B\u305F\u3002", "\u9003\u3052\u9045\u308C\u305F\u4EBA\u306E\u3059\u3050\u305D\u3070\u306B\u3001\u9B54\u7269\u304C\u8FEB\u3063\u3066\u3044\u308B\u3002", "\u5341\u5B57\u30AD\u30FC\u3067\u8FD1\u3065\u304D\u3001A\u30DC\u30BF\u30F3\u3067\u9B54\u7269\u3068\u6226\u304A\u3046\u3002"]);
     else message(["\u5192\u967A\u306E\u8A18\u9332\u3092\u8AAD\u307F\u8FBC\u3093\u3060\u3002", "\u6B21\u306E\u76EE\u7684\uFF1A" + STAGE_GOALS[s.stage]]);
   }
@@ -6451,11 +6997,25 @@
       setError(err);
     }
   });
+  var saveSlotError = null;
   try {
     verifySlots();
   } catch (err) {
+    saveSlotError = err;
     setError(err);
-    $("new-game").disabled = true;
   }
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, audio: () => audio.inspect() });
+  for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
+  window.addEventListener("resize", () => {
+    if (state) paint2();
+  });
+  preloadCastleArt(() => {
+    if (saveSlotError) return;
+    verifySlots();
+    $("new-game").disabled = false;
+    if (state?.pos.map === "castle" && !battle && !interior) paint2();
+  }).catch((err) => {
+    setError(err);
+    for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
+  });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, interior: () => interior ? { ...interior } : null, castleArt: () => ({ ...castleArtDebug(), width: $("game").width, height: $("game").height }), audio: () => audio.inspect() });
 })();

@@ -1,0 +1,56 @@
+{
+  "schema": "hoshikuzu-castle-art/v2",
+  "source": "assets/concept/arteria-throne-room-quality-reference-v2.png",
+  "original_art_size": [
+    1254,
+    1254
+  ],
+  "background_size": [
+    1254,
+    1474
+  ],
+  "scene_tile": {
+    "width": 80,
+    "height": 72,
+    "origin_x": 27,
+    "origin_y": 250
+  },
+  "files": [
+    "castle-background.png",
+    "castle-foreground.png",
+    "castle-hero-up.png",
+    "castle-king.png",
+    "castle-guard.png",
+    "castle-refugee.png",
+    "castle-raider.png",
+    "castle-guard-east.png",
+    "castle-hero-up-0.png",
+    "castle-hero-up-1.png",
+    "castle-hero-up-2.png",
+    "castle-hero-down-0.png",
+    "castle-hero-down-1.png",
+    "castle-hero-down-2.png",
+    "castle-hero-right-0.png",
+    "castle-hero-right-1.png",
+    "castle-hero-right-2.png",
+    "castle-hero-left-0.png",
+    "castle-hero-left-1.png",
+    "castle-hero-left-2.png",
+    "castle-library-background.png",
+    "castle-library-foreground.png",
+    "castle-librarian.png"
+  ],
+  "limitations": "face/side sprites are procedural paint-over of the approved up-facing source; review at phone size",
+  "actor_mode": "characters, king and both guards rendered as depth-sorted PNG entities; no baked actors",
+  "hero_directions": [
+    "up",
+    "down",
+    "left",
+    "right"
+  ],
+  "hero_frames_per_direction": 3,
+  "library_size": [
+    1254,
+    1380
+  ]
+}

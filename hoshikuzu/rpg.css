@@ -144,3 +144,72 @@ footer{font-size:9px}
 .controls{margin-top:3px;flex:1;min-height:155px;max-height:none;align-items:center;background:linear-gradient(165deg,#1a2d47,#122139);border:1px solid #8297a9}
 footer{margin-top:1px}
 @media(max-height:730px){.masthead{min-height:28px}.dialogue{min-height:62px;padding:6px 20px 5px 10px}.dialogue p{font-size:12px}.controls{min-height:139px}}
+
+/* 2026-11-09: actual handheld RPG layout, not a website with a small game embedded. */
+html,body{height:100%;overscroll-behavior:none}
+body{overflow:hidden;background:#050b17}
+.rpg{
+  position:relative;display:block;width:100%;max-width:510px;height:100vh;height:100dvh;
+  min-height:0;margin:0 auto;padding:0;overflow:hidden;background:#0b1422;
+  border:0;border-radius:0;box-shadow:0 0 50px #000a
+}
+.masthead{
+  position:absolute;z-index:12;top:0;left:0;right:0;
+  height:calc(44px + env(safe-area-inset-top));min-height:0;margin:0;
+  padding:calc(6px + env(safe-area-inset-top)) 12px 5px;
+  background:linear-gradient(180deg,#101c32 0%,#142741 78%,#172c46 100%);
+  border-bottom:2px solid #cdb880
+}
+.masthead strong{font-size:16px}
+.masthead .subtitle{font-size:8px;line-height:1.2}
+.masthead-tools{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.masthead-tools #sound-toggle{position:absolute;right:7px;top:calc(7px + env(safe-area-inset-top));min-width:44px;min-height:31px}
+.masthead-tools .chapter{display:none}
+.build-id{color:#efc788;font-size:10px;margin-right:49px;white-space:nowrap}
+.screen-shell{
+  position:absolute;z-index:1;inset:calc(44px + env(safe-area-inset-top)) 0 0;
+  border:0;outline:0;box-shadow:none!important;overflow:hidden;background:#142334
+}
+#game{display:block;width:100%;height:100%;aspect-ratio:auto;object-fit:fill;image-rendering:pixelated;image-rendering:crisp-edges}
+.screen-shell::after{display:none}
+.dialogue{
+  position:absolute;z-index:11;left:9px;right:9px;bottom:calc(169px + env(safe-area-inset-bottom));
+  min-height:74px;max-height:110px;margin:0;padding:10px 23px 8px 11px;
+  background:#071024f2;border:3px double #e1d3b3;border-radius:5px;
+  box-shadow:0 5px 18px #010610c8,inset 0 0 0 2px #263b57
+}
+.dialogue p{font-size:13px;line-height:1.55;color:#fff5db}
+.controls{
+  position:absolute;z-index:10;bottom:max(5px,env(safe-area-inset-bottom));left:0;right:0;
+  margin:0;min-height:152px;height:158px;max-height:158px;
+  border:0;border-radius:0;background:linear-gradient(0deg,#071221e8 0%,#081524a8 75%,transparent 100%);
+  padding:2px 12px 4px;align-items:center;flex:0;box-shadow:none;pointer-events:none
+}
+.controls button{pointer-events:auto;touch-action:none}
+.dpad{grid-template-columns:repeat(3,49px);grid-template-rows:repeat(3,49px)}
+.dpad button{height:49px;width:49px;background:#1e334edc;border:2px solid #bdd5e5b0;box-shadow:inset 0 -3px #06172c;backdrop-filter:blur(2px)}
+.dpad-center{color:#f2d49a}
+.menu-button{background:#203652ef;color:#f5dfb1;min-height:38px;box-shadow:0 2px 6px #0008}
+.face{box-shadow:0 3px 9px #0009,inset 0 -5px #0004;border:2px solid #ead391}
+.face-a{background:#a64d62e8}.face-b{background:#355c89e8}
+.journey-strip,.adventure-journal,.ad-slot,footer{display:none!important}
+.context-hint{font-size:11px;bottom:calc(252px + env(safe-area-inset-bottom));right:8px;z-index:12}
+.action-panel{top:10%;left:4%;max-height:62%;box-shadow:0 10px 20px #000d;border-color:#f7ebcf}
+.action-panel[data-panel-type="battle"]{bottom:42%;top:auto;left:4%;width:min(175px,49%);max-height:38%;overflow-y:auto}
+.completion{z-index:14}
+@media(min-width:700px){
+ .rpg{height:min(100dvh,900px);margin:0 auto;min-height:0;border-radius:0}
+ .masthead{border-radius:0}
+}
+@media(max-height:640px){
+ .masthead{height:calc(36px + env(safe-area-inset-top));padding-top:calc(3px + env(safe-area-inset-top))}
+ .screen-shell{top:calc(36px + env(safe-area-inset-top))}
+ .controls{height:127px;min-height:127px;max-height:127px;padding:0 7px}
+ .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}
+ .dpad button{height:44px;width:44px;min-height:44px;min-width:44px}
+ .face{height:49px;width:49px}.face-b{height:44px;width:44px}
+ .action-pair{gap:8px}
+ .dialogue{bottom:calc(135px + env(safe-area-inset-bottom));min-height:61px;padding:7px 22px 6px 9px}
+ .dialogue p{font-size:12px}
+ .context-hint{bottom:calc(204px + env(safe-area-inset-bottom))}
+}
