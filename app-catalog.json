@@ -62,6 +62,18 @@
       "url": "https://arakiyuuta0314-sketch.github.io/flip-fix-market-preview/test-v010/?v=162",
       "version": "Web試遊版・外部ページ",
       "cta": "ゲームを開く"
+    },
+    {
+      "id": "hoshikuzu",
+      "name": "星屑の勇者",
+      "subtitle": "はじまりの剣と黒曜の魔王城",
+      "emoji": "⚔️",
+      "stage": "Webプレビュー",
+      "kind": "game",
+      "description": "三幕構成のオリジナルレトロRPG。魔王ヴォルドとの戦いまで遊べる試遊版。",
+      "url": "./hoshikuzu/",
+      "version": "第4工程 Web試遊版",
+      "cta": "ゲームを開く"
     }
   ]
 }
