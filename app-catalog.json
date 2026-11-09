@@ -71,7 +71,7 @@
       "stage": "Webプレビュー",
       "kind": "game",
       "description": "三幕構成のオリジナルレトロRPG。魔王ヴォルドとの戦いまで遊べる試遊版。",
-      "url": "./hoshikuzu/",
+      "url": "./hoshikuzu/?v=20261109-world-rework-01",
       "version": "第4工程 Web試遊版",
       "cta": "ゲームを開く"
     }
