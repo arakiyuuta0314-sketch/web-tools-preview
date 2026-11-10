@@ -19,3 +19,28 @@
 @media(min-width:650px){.page{padding:26px 28px}.hero{min-height:278px}.hero h1{font-size:40px}.month-grid{grid-template-columns:repeat(4,1fr)}.fieldcards{grid-template-columns:repeat(8,1fr)}.fieldcards .hana{width:64px}.handcards{justify-content:center}.handcards .hana{flex-basis:67px}.catalog-grid{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:355px){.page{padding:12px}.hero{padding:20px}.hero h1{font-size:27px}.hero-cards{right:5px}.fieldcards{gap:6px}.fieldcards .hana{width:min(100%,63px)}.handcards .hana{flex-basis:48px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* 初心者向け：すべての手札を最初から見せ、絵柄の下に札名を表示する。 */
+.handcards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px 6px;overflow:visible;scroll-snap-type:none;padding:8px 2px 5px;justify-items:stretch}
+.fieldcards{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px 6px;align-items:start}
+.card-slot{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;width:100%;height:100%}
+.card-slot .hana{flex:none;width:min(100%,72px);height:auto;margin:0 auto;aspect-ratio:512/839;scroll-snap-align:none}
+.card-name{width:100%;min-height:31px;padding:3px 2px;border-radius:6px;background:#f8f1d4;color:#21392e;text-align:center;line-height:1.25;overflow-wrap:anywhere}
+.card-name strong{display:block;font-size:10px;font-weight:800;white-space:nowrap}
+.card-name span{display:block;font-size:9px;line-height:1.22}
+.tabletop .deckline h3{margin:9px 0}
+.hand-help{margin:12px 0 2px;background:#fdf7e7;color:#284433;border-radius:13px;padding:12px;text-align:left}
+.hand-help strong{font-size:13px;display:block}
+.hand-help p{font-size:12px;margin:7px 0;line-height:1.5}
+.hand-help button{margin-top:6px}
+.hand-instruction{text-align:center;color:#f5e8bf;font-size:12px;font-weight:700;margin:9px 0 3px}
+.tutorial-panel{border:2px solid #c79c58;border-radius:17px;padding:15px 16px;margin:0 0 12px;background:#fffbec;color:#2c4737;box-shadow:0 5px 15px #152a1e19}
+.tutorial-panel .tutor-kicker{font-size:11px;color:#9b6941;font-weight:800;letter-spacing:.05em;margin-bottom:6px}
+.tutorial-panel strong{display:block;font-size:16px}
+.tutorial-panel p{font-size:13px;line-height:1.7;margin:9px 0 10px}
+.tutorial-panel button{min-width:170px}
+.tutor-entry{background:#fdf7e8;border-color:#e3c48f;margin-top:13px}
+.tutor-entry .tag{background:#f3e0b5;color:#6f4a2f}
+@media(min-width:650px){.handcards{grid-template-columns:repeat(8,minmax(0,1fr));gap:9px}.card-slot .hana{width:min(100%,67px)}}
+@media(max-width:355px){.card-name strong{font-size:9px}.card-name span{font-size:8px}.tabletop{padding:10px 8px 12px}.handcards{gap:8px 5px}}
