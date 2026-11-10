@@ -7833,7 +7833,7 @@
                         var introPriceMicros = vp.introductoryPriceAmountMicros ? vp.introductoryPriceAmountMicros : "";
                         var introPrice = vp.introductoryPrice ? vp.introductoryPrice : "";
                         var introPricePaymentMode;
-        
+
                         if (vp.freeTrialPeriod) {
                             introPricePaymentMode = 'FreeTrial';
                             try {
@@ -7853,23 +7853,23 @@
                                 introPricePaymentMode = 'UpFront';
                             }
                         }
-        
+
                         if (!introPricePaymentMode) {
                             introPricePeriod = null;
                             introPricePeriodUnit = null;
                         }
-        
+
                         var parsedSubscriptionPeriod = {};
                         if (subscriptionPeriod) {
                             parsedSubscriptionPeriod.unit = normalizeISOPeriodUnit(subscriptionPeriod);
                             parsedSubscriptionPeriod.count = normalizeISOPeriodCount(subscriptionPeriod);
                         }
-        
+
                         var trialPeriod = vp.trial_period || null;
                         var trialPeriodUnit = vp.trial_period_unit || null;
                         var billingPeriod = parsedSubscriptionPeriod.count || vp.billing_period || null;
                         var billingPeriodUnit = parsedSubscriptionPeriod.unit || vp.billing_period_unit || null;
-        
+
                         var pricingPhases = [];
                         if (trialPeriod) {
                             pricingPhases.push({
@@ -7893,7 +7893,7 @@
                                 currency: currency,
                             });
                         }
-        
+
                         pricingPhases.push({
                             paymentMode: 'PayAsYouGo',
                             recurrenceMode: store.INFINITE_RECURRING,
@@ -7904,7 +7904,7 @@
                             currency: currency,
                         });
                         attributes.pricingPhases = pricingPhases;
-        
+
                         if (store.compatibility > 0 && store.compatibility < 11.999) {
                             Object.assign(attributes, {
                                 price: price,
@@ -7921,14 +7921,14 @@
                                 introPricePaymentMode: introPricePaymentMode,
                             });
                         }
-        
+
                         if (store.compatibility > 0 && store.compatibility < 9.999) {
                             Object.assign(attributes, {
                                 introPriceNumberOfPeriods: introPricePeriod,
                                 introPriceSubscriptionPeriod: introPricePeriodUnit,
                             });
                         }
-        
+
                         p.set(attributes);
                         p.trigger("loaded");
                     }
