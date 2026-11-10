@@ -40,7 +40,7 @@
     "castle-library-foreground.png",
     "castle-librarian.png"
   ],
-  "limitations": "face/side sprites are procedural paint-over of the approved up-facing source; review at phone size",
+  "limitations": "new walking sprites integrated into local work only; user motion approval and iPhone Safari QA pending",
   "actor_mode": "characters, king and both guards rendered as depth-sorted PNG entities; no baked actors",
   "hero_directions": [
     "up",
@@ -52,5 +52,13 @@
   "library_size": [
     1254,
     1380
-  ]
+  ],
+  "hero_source": "scripts/build-imagegen-hero-walk.py",
+  "hero_source_resolution": [
+    96,
+    136
+  ],
+  "hero_base": "user-accepted image-generated independent four poses, generated walk motion",
+  "hero_facing_count": 4,
+  "hero_design_approval": "four static poses accepted by user; walking awaiting user review"
 }
