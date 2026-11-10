@@ -2,68 +2,81 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111c2f">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0f171b">
+<meta name="color-scheme" content="dark">
 <link rel="icon" href="data:,">
-<title>星屑の勇者｜はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261110-objective-top-v5-01">
+<title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
+<link rel="stylesheet" href="rpg.css?v=20261110-rooms-field-battle-v10-01">
 </head>
 <body>
-<main class="rpg" id="rpg">
-<header class="masthead"><div><span class="brand-mark">✦</span><strong>星屑の勇者</strong><span class="subtitle">はじまりの剣と黒曜の魔王城</span></div><div class="masthead-tools"><span id="build-id" class="build-id">王城の使命・UI v5</span><span class="chapter" id="chapter">第一幕 · はじまり</span><button id="sound-toggle" type="button" aria-label="音を消す" aria-pressed="false" title="BGM・効果音を切り替え">♫ ON</button></div></header>
-<section class="objective-bar" id="objective-bar" aria-label="次の目的"><span class="objective-symbol" aria-hidden="true">✦</span><strong class="objective-label">次の目的</strong><span id="objective-text" class="objective-text" aria-live="polite"></span></section>
-<section class="screen-shell" aria-label="レトロRPGゲーム画面">
-<canvas id="game" width="192" height="384" aria-label="主人公とマップを表示"></canvas>
-<div id="completion" class="completion" hidden>✦ 鉄の門 開通！</div>
-<div id="context-hint" class="context-hint" hidden>A  はなす / しらべる</div>
-<section class="action-panel" id="action-panel" hidden aria-label="ゲームの選択肢"><div class="panel-head"><strong id="panel-title">メニュー</strong><button id="panel-close" class="close" type="button" aria-label="閉じる">×</button></div><div id="panel-content" class="panel-content"></div></section>
-</section>
-<section class="dialogue" aria-live="polite" aria-label="ゲームのメッセージ"><p id="message">冒険を始めてください。</p><span id="message-arrow" aria-hidden="true">▼</span></section>
-<section class="journey-strip" aria-label="冒険の進み具合"><span id="journey-progress">冒険の記録　✦</span><span id="journey-stars">星屑 0 / 5</span></section>
-<aside class="adventure-journal" aria-label="冒険の記録">
-<div class="journal-heading"><span>✦ ADVENTURE JOURNAL</span><span id="travel-region">アルテリア</span></div>
-<div class="journal-illustration" aria-hidden="true"><span class="sun-moon">✧</span><span class="peaks">▲ ▲ ⛰ ▲ ▲</span><span class="path-dots"> · ✦ · ✦ · </span></div>
-<p id="travel-goal">この世界に小さな光を取り戻そう</p>
-<div class="journal-info"><span id="travel-weapon">⚔ 木ぼう</span><span id="travel-hp">HP 36/36</span><span id="travel-mp">MP 14/14</span></div>
-</aside>
-<section class="controls" aria-label="ゲーム操作">
-<div class="dpad" aria-label="十字キー">
-<button class="up" data-dir="up" type="button" aria-label="上">▲</button>
-<button class="left" data-dir="left" type="button" aria-label="左">◀</button>
-<div class="dpad-center">✦</div>
-<button class="right" data-dir="right" type="button" aria-label="右">▶</button>
-<button class="down" data-dir="down" type="button" aria-label="下">▼</button>
-</div>
-<div class="face-controls">
-<div class="shortcut-grid" aria-label="冒険コマンド">
-<button id="talk-shortcut" type="button">はなす</button>
-<button id="item-shortcut" type="button">どうぐ</button>
-<button id="spell-shortcut" type="button">じゅもん</button>
-<button id="menu-button" class="menu-button" type="button">メニュー</button>
-</div>
-<div class="action-pair"><button id="confirm" class="face face-a" type="button"><span>A</span><small>決定 / 話す</small></button><button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button></div>
-</div>
-</section>
-<div class="ad-slot" aria-label="将来の広告配置領域">ゲーム画面を邪魔しない広告用余白 · ブラウザでは広告なし</div>
-<footer><span>十字キー：移動／選択　A：決定　B：もどる</span><span><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a> · <a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></span></footer>
+<main class="game-shell" id="rpg">
+  <section class="world-zone" aria-label="星屑の勇者 ゲーム画面">
+    <header class="game-topline">
+      <span class="game-title">星屑の勇者</span>
+      <span id="build-id" class="visually-hidden">町と冒険・v10</span>
+      <span class="chapter" id="chapter" aria-hidden="true"></span>
+      <button class="sound" id="sound-toggle" type="button" aria-label="音を消す" aria-pressed="false">♫ ON</button>
+    </header>
+    <div class="objective" id="objective-bar" aria-label="現在の目的">
+      <span class="objective-marker" aria-hidden="true">✦</span>
+      <span class="objective-caption">つぎの目的</span>
+      <span id="objective-text" class="objective-text" aria-live="polite">城の魔物から人を守る</span>
+    </div>
+    <div class="screen-shell">
+      <canvas id="game" width="288" height="340" aria-label="探索中のマップと登場人物、または戦闘中の敵"></canvas>
+      <div class="dialogue" id="dialogue" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
+        <p id="message"></p><span class="message-arrow" id="message-arrow" aria-hidden="true" hidden>▼</span>
+      </div>
+      <div id="context-hint" class="context-hint" hidden></div>
+      <div id="completion" class="completion" hidden></div>
+      <section class="action-panel" id="action-panel" hidden aria-label="コマンド選択">
+        <header class="panel-head"><strong id="panel-title">コマンド</strong><button id="panel-close" class="close" type="button" aria-label="閉じる">×</button></header>
+        <div class="panel-content" id="panel-content"></div>
+      </section>
+    </div>
+  </section>
+  <section class="controls" aria-label="ゲームコントローラー">
+    <div class="controls-label" aria-hidden="true"><span>✦</span> ADVENTURE</div>
+    <div class="dpad" role="group" aria-label="移動と選択">
+      <button class="up" data-dir="up" aria-label="上" type="button"><span>▲</span></button>
+      <button class="left" data-dir="left" aria-label="左" type="button"><span>◀</span></button>
+      <span class="dpad-center" aria-hidden="true"></span>
+      <button class="right" data-dir="right" aria-label="右" type="button"><span>▶</span></button>
+      <button class="down" data-dir="down" aria-label="下" type="button"><span>▼</span></button>
+    </div>
+    <div class="control-actions">
+      <div class="shortcut-grid" role="group" aria-label="ショートカット">
+        <button id="talk-shortcut" type="button">はなす</button>
+        <button id="item-shortcut" type="button">どうぐ</button>
+        <button id="spell-shortcut" type="button">じゅもん</button>
+        <button id="menu-button" type="button">メニュー</button>
+      </div>
+      <div class="action-pair" role="group" aria-label="決定と戻る">
+        <button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button>
+        <button id="confirm" class="face face-a" type="button"><span>A</span><small>決定</small></button>
+      </div>
+    </div>
+    <div class="control-tip" aria-hidden="true">十字キーで歩く · Aで話す · Bでもどる</div>
+  </section>
 </main>
-<div id="start-overlay" class="start-overlay">
-<section class="start-box" aria-label="ゲーム開始">
-<div class="start-emblem">✦</div>
-<p class="start-kicker">A CLASSIC FANTASY ADVENTURE</p>
-<h1>星屑の勇者</h1>
-<p class="start-subtitle">はじまりの剣と黒曜の魔王城</p>
-<p class="start-story">人々を襲う魔物の軍勢。<br>古い剣のかすかな光が、<br>ひとりの剣士の旅を照らす。</p>
-<label for="hero-name">主人公の名前</label>
-<input id="hero-name" maxlength="12" value="アレン" autocomplete="off" enterkeyhint="done" aria-label="主人公の名前">
-<button id="start-sound" class="start-sound" type="button" aria-pressed="false">♫ タイトル音楽を聴く</button>
-<button id="new-game" class="start-primary" type="button">あたらしい冒険</button>
-<button id="load-auto" class="start-secondary" type="button">オートセーブから再開</button>
-<button id="load-manual" class="start-secondary" type="button">王様のセーブから再開</button>
-<p id="start-error" class="start-error" role="alert"></p>
-<p class="preview-note">十字キーで歩いて、Aで話す・調べる・決定<br>Bでもどる。町や洞窟を自由に探検しよう。</p>
-</section>
+<div class="start-overlay" id="start-overlay">
+  <section class="start-box" aria-label="星屑の勇者を始める">
+    <span class="start-spark" aria-hidden="true">✦</span>
+    <h1>星屑の勇者</h1>
+    <p class="start-subtitle">はじまりの剣と黒曜の魔王城</p>
+    <div class="start-mountain" aria-hidden="true"><span></span><span></span><span></span></div>
+    <p class="start-story">魔物の軍勢が王国へ迫る。<br>誰かを守ろうとした、その一歩から<br>ひとりの剣士の旅が始まる。</p>
+    <label for="hero-name">なまえ</label>
+    <input id="hero-name" maxlength="12" value="アレン" autocomplete="off" enterkeyhint="done" aria-label="主人公の名前">
+    <button id="new-game" class="start-primary" type="button" disabled>はじめから</button>
+    <button id="load-auto" class="start-secondary" type="button" disabled>つづきから（自動）</button>
+    <button id="load-manual" class="start-secondary" type="button" disabled>つづきから（王様の記録）</button>
+    <button id="start-sound" class="start-sound" type="button" aria-pressed="false">♫ タイトル音楽を聴く</button>
+    <p id="start-error" class="start-error" role="alert"></p>
+    <div class="legal"><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a><span>·</span><a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></div>
+  </section>
 </div>
-<script defer src="app.js?v=20261110-objective-top-v5-01"></script>
+<script defer src="app.js?v=20261110-rooms-field-battle-v10-01"></script>
 </body>
 </html>

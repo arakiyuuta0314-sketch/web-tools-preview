@@ -1,0 +1,11 @@
+{
+  "schema":"hoshikuzu-retro-atlas/v1",
+  "license":"CC0-1.0",
+  "author":"Pixel-Boy and AAA / Ninja Adventure",
+  "source":"https://github.com/pixel-boy/NinjaAdventure",
+  "revision":"6ac78232d5aedcc85ce5f27d060ea92366f7c24a",
+  "tileSourceSize":16,
+  "actorColumns":["down","up","left","right"],
+  "actorRows":["idle","walk1","walk2"],
+  "actors":["hero", "king", "guard", "refugee", "elder", "helper", "inn", "shop", "watchman", "frontSoldier", "riona", "lighthouse"]
+}

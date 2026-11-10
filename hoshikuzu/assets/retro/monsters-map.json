@@ -1,0 +1,131 @@
+{
+  "schema": "rpg-monsters/v2",
+  "license": {
+    "CC0-derived": "CC0-1.0",
+    "newly-authored": "project-owned"
+  },
+  "CC0Author": "isaiah658",
+  "originalArt": "Hoshikuzu no Yuusha",
+  "mapping": [
+    {
+      "id": "m01",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 52
+    },
+    {
+      "id": "m02",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 18
+    },
+    {
+      "id": "m03",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 29
+    },
+    {
+      "id": "m04",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 8
+    },
+    {
+      "id": "m05",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 20
+    },
+    {
+      "id": "m06",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 46
+    },
+    {
+      "id": "m07",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m08",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 14
+    },
+    {
+      "id": "m09",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 12
+    },
+    {
+      "id": "m10",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 33
+    },
+    {
+      "id": "m11",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m12",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 22
+    },
+    {
+      "id": "m13",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m14",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 42
+    },
+    {
+      "id": "m15",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m16",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 26
+    },
+    {
+      "id": "m17",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m18",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 47
+    },
+    {
+      "id": "m19",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 44
+    },
+    {
+      "id": "m20",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 9
+    },
+    {
+      "id": "m21",
+      "artOrigin": "CC0-derived",
+      "sourceMonster": 7
+    },
+    {
+      "id": "m22",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m23",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    },
+    {
+      "id": "m24",
+      "artOrigin": "newly-authored",
+      "sourceMonster": null
+    }
+  ]
+}
