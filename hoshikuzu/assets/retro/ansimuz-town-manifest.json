@@ -1,0 +1,26 @@
+{
+  "schema": "hoshikuzu-town-pack/v1",
+  "creator": "Luis Zuno (@ansimuz)",
+  "license": "CC0-1.0",
+  "source": "https://opengameart.org/content/rpg-town-pixel-art-assets",
+  "sourceZipSHA256": "f82d4496e858d243f4c151c6d38f7d66f58c5eaaaafe7a630444bef578d07578",
+  "sheet": {
+    "width": 352,
+    "height": 288
+  },
+  "houseSprite": {
+    "width": 99,
+    "height": 101,
+    "variants": [
+      "unchanged",
+      "slate",
+      "moss",
+      "umber"
+    ]
+  },
+  "grass": {
+    "size": 48,
+    "tile": 16
+  },
+  "notes": "Buildings are source-licensed, roof variants recolored in this script. No DQ or FF images are used."
+}
