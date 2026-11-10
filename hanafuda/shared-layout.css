@@ -1,0 +1,9 @@
+/* Safe-area and bottom native banner rules, independent of app theme. */
+html.app-viewport{--app-banner-height:50px;--app-bottom-clearance:20px}
+html.app-viewport .page{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));padding-bottom:calc(var(--app-bottom-clearance) + 20px + env(safe-area-inset-bottom))}
+html.app-viewport.native-ad-visible .page{padding-bottom:calc(var(--app-bottom-clearance) + var(--app-banner-height) + env(safe-area-inset-bottom))}
+html.app-viewport .overlay .sheet{max-height:calc(100dvh - env(safe-area-inset-top) - 8px);overscroll-behavior:contain}
+html.app-viewport.native-ad-visible .overlay .sheet{bottom:calc(var(--app-banner-height) + env(safe-area-inset-bottom));max-height:calc(100dvh - var(--app-banner-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 8px);padding-bottom:24px}
+html.app-viewport.native-ad-visible .toast{bottom:calc(18px + var(--app-banner-height) + env(safe-area-inset-bottom))}
+@media(prefers-reduced-motion:reduce){html.app-viewport *,html.app-viewport *::before,html.app-viewport *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(max-width:360px){html.app-viewport .page{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}html.app-viewport .sheet{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}

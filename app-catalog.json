@@ -74,6 +74,18 @@
       "url": "./hoshikuzu/?v=20261111-castle-approved-return-v13-01",
       "version": "v13 王城の画風改修・Web試遊版",
       "cta": "ゲームを開く"
+    },
+    {
+      "id": "hanafuda",
+      "name": "花札の旅｜こいこい",
+      "subtitle": "解説と一緒に遊ぶ、十二か月の花札",
+      "emoji": "🎴",
+      "stage": "Webプレビュー",
+      "kind": "game",
+      "description": "一手ごとの解説つき対局と12か月の旅を楽しめる、オフライン対応の花札こいこい。",
+      "url": "./hanafuda/?v=20261111-web-preview-01",
+      "version": "Webプレイ可能版・初版",
+      "cta": "ゲームを開く"
     }
   ]
 }
