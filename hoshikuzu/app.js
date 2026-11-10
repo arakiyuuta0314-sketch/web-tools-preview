@@ -5030,6 +5030,327 @@
     c.textAlign = "left";
   }
 
+  // src/game/castle-visual.mjs
+  var CASTLE_ART_SCENE = Object.freeze({
+    width: 1254,
+    height: 1474,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 27,
+    originY: 250
+  });
+  var scenes = {
+    background: "castle-background.png",
+    foreground: "castle-foreground.png",
+    king: "castle-king.png",
+    guard: "castle-guard.png",
+    guardEast: "castle-guard-east.png",
+    refugee: "castle-refugee.png",
+    raider: "castle-raider.png",
+    libraryBackground: "castle-library-background.png",
+    libraryForeground: "castle-library-foreground.png",
+    librarian: "castle-librarian.png"
+  };
+  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
+    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
+  }
+  var CASTLE_SCENE_SCALE = 0.44;
+  var ART_VERSION = "20261111-generated-hero-walk-v1";
+  var cache = { ready: false, failed: false, images: {} };
+  var lastHeroSprite = "";
+  function castleArtDebug() {
+    return { ready: cache.ready, lastHeroSprite };
+  }
+  function heroGaitFrame(motion, t) {
+    if (!motion || t < 0.17 || t > 0.86) return 0;
+    return motion.step % 2 === 0 ? 1 : 2;
+  }
+  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4) {
+    if (!cache.ready) throw Error("Shared protagonist art not loaded");
+    const key = `hero_${facing}_${frame}`;
+    const sprite = cache.images[key];
+    if (!sprite) throw Error("Missing protagonist art: " + key);
+    lastHeroSprite = key;
+    const w = Math.round(sprite.width * scale), h = Math.round(sprite.height * scale);
+    const x = Math.round(feetX - w / 2), y = Math.round(feetY - h);
+    c.save();
+    c.imageSmoothingEnabled = false;
+    c.fillStyle = "#1319297a";
+    c.beginPath();
+    c.ellipse(
+      Math.round(feetX),
+      Math.round(feetY - 3),
+      Math.max(7, Math.round(w * 0.34)),
+      Math.max(3, Math.round(w * 0.09)),
+      0,
+      0,
+      Math.PI * 2
+    );
+    c.fill();
+    c.drawImage(sprite, x, y, w, h);
+    c.restore();
+  }
+  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  function castleArtReady() {
+    return cache.ready;
+  }
+  function preloadCastleArt(onReady = () => {
+  }) {
+    if (cache.ready) {
+      onReady();
+      return Promise.resolve();
+    }
+    if (cache.loading) return cache.loading.then(onReady);
+    cache.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        cache.images[name] = image;
+        resolve();
+      };
+      image.onerror = () => {
+        cache.failed = true;
+        reject(Error("Castle art missing: " + file));
+      };
+      image.src = "assets/castle/" + file + "?v=" + ART_VERSION;
+    }))).then(() => {
+      const bg = cache.images.background;
+      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions");
+      cache.ready = true;
+      onReady();
+    });
+    return cache.loading;
+  }
+  function castleMapPoint(x, y) {
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: m.originX + (x + 0.5) * m.tileWidth,
+      y: m.originY + (y + 0.5) * m.tileHeight
+    };
+  }
+  function castleVisualPosition(s, motion = null, now = performance.now()) {
+    const pos = s.pos;
+    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    return {
+      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
+      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
+      t
+    };
+  }
+  function castleCamera(canvas, s, motion = null, now = performance.now()) {
+    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
+    const viewWidth = canvas.width, viewHeight = canvas.height;
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: clamp2(p.x - viewWidth / 2, 0, Math.max(0, m.width - viewWidth)),
+      // Initial view shows the throne and the hero together, rather
+      // than cutting the king off above the phone viewport.
+      y: clamp2(p.y - viewHeight * 0.75, 0, Math.max(0, m.height - viewHeight)),
+      player: p
+    };
+  }
+  function drawSmallPerson(c, cx, cy, kind) {
+    c.save();
+    c.translate(Math.round(cx - 30), Math.round(cy - 56));
+    const tile = (x, y, w, h, color3) => {
+      c.fillStyle = color3;
+      c.fillRect(x * 5, y * 5, w * 5, h * 5);
+    };
+    const color2 = kind === "refugee" ? "#a5676a" : "#47788e";
+    tile(3, 0, 6, 1, "#27283b");
+    tile(2, 1, 8, 2, "#483a38");
+    tile(3, 3, 6, 3, "#e9bb8d");
+    tile(4, 4, 1, 1, "#3b2c36");
+    tile(7, 4, 1, 1, "#3b2c36");
+    tile(2, 6, 8, 6, color2);
+    tile(4, 6, 4, 2, "#d8ad69");
+    tile(1, 7, 2, 4, "#edc59b");
+    tile(9, 7, 2, 4, "#edc59b");
+    tile(2, 12, 3, 1, "#292d3c");
+    tile(7, 12, 3, 1, "#292d3c");
+    c.restore();
+  }
+  function drawSword(c, x, y) {
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    c.fillStyle = "#252b42";
+    c.fillRect(-6, -32, 12, 53);
+    c.fillStyle = "#e9e4d5";
+    c.fillRect(-4, -39, 8, 32);
+    c.fillStyle = "#88cbd9";
+    c.fillRect(-1, -35, 3, 23);
+    c.fillStyle = "#e4ba61";
+    c.fillRect(-22, -11, 44, 7);
+    c.fillStyle = "#765c50";
+    c.fillRect(-5, -6, 10, 22);
+    c.fillStyle = "#ffdf99";
+    c.fillRect(-8, 16, 16, 5);
+    c.restore();
+  }
+  function uiLabel(c, canvas, s, title = "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u738B\u306E\u9593") {
+    const W2 = canvas.width, H2 = canvas.height;
+    const locationW = Math.min(W2 - 12, Math.ceil(title.length * 15 + 16));
+    c.fillStyle = "#0b1229e8";
+    c.fillRect(5, 5, locationW, 26);
+    c.strokeStyle = "#dfc58e";
+    c.lineWidth = 1;
+    c.strokeRect(5.5, 5.5, locationW, 25);
+    c.font = "bold 14px sans-serif";
+    c.textBaseline = "middle";
+    c.fillStyle = "#f5e9ce";
+    c.textAlign = "left";
+    c.fillText(title, 13, 19);
+    c.fillStyle = "#081527ef";
+    c.fillRect(0, H2 - 28, W2, 28);
+    c.fillStyle = "#dbc18d";
+    c.fillRect(0, H2 - 28, W2, 1);
+    c.fillStyle = "#f7ecd7";
+    c.font = "bold 13px monospace";
+    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "   MP " + s.player.mp + "/" + stats(s).maxMp, 10, H2 - 14);
+  }
+  function renderCastleScene(canvas, s, motion = null, now = performance.now()) {
+    if (!cache.ready) return false;
+    if (s.pos.map !== "castle") throw Error("Castle art on another map");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const z = CASTLE_SCENE_SCALE;
+    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
+    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
+    c.save();
+    c.scale(z, z);
+    c.fillStyle = "#0b101c";
+    c.fillRect(0, 0, W2, H2);
+    c.drawImage(cache.images.background, Math.round(-camera.x), Math.round(-camera.y));
+    const plot = (x, y) => {
+      const p = castleMapPoint(x, y);
+      return { x: p.x - camera.x, y: p.y - camera.y };
+    };
+    const map = MAPS.castle;
+    const actors2 = [];
+    for (const n of map.npcs) {
+      const p = plot(n.x, n.y);
+      actors2.push({ z: p.y, draw: () => {
+        let im, anchor = 0, lift = 0;
+        if (n.kind === "king") {
+          im = cache.images.king;
+          lift = 53;
+        } else if (n.id === "castle-guard") {
+          im = cache.images.guard;
+          anchor = -42;
+        } else if (n.id === "castle-guard-east") {
+          im = cache.images.guardEast;
+          anchor = 44;
+        } else if (n.id === "refugee") {
+          im = cache.images.refugee;
+          lift = 41;
+        } else {
+          drawSmallPerson(c, p.x, p.y, n.kind);
+          return;
+        }
+        c.drawImage(im, Math.round(p.x - im.width / 2 + anchor), Math.round(p.y + lift - im.height));
+      } });
+    }
+    for (const e of map.objects) {
+      if (!entityAt(s, map, e.x, e.y)) continue;
+      const p = plot(e.x, e.y);
+      actors2.push({ z: p.y, draw: () => {
+        if (e.kind === "raider") {
+          const im = cache.images.raider;
+          c.drawImage(im, Math.round(p.x - im.width / 2), Math.round(p.y + 42 - im.height));
+        } else if (e.kind === "sword") drawSword(c, p.x, p.y);
+      } });
+    }
+    const pp = camera.player;
+    actors2.push({ z: pp.y - camera.y, draw: () => {
+      const t = castleVisualPosition(s, motion, now).t;
+      const isMoving = motion && motion.map === "castle" && t < 1;
+      const frame = isMoving ? heroGaitFrame(motion, t) : 0;
+      const hero = cache.images[`hero_${s.pos.facing}_${frame}`];
+      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
+      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
+      const bob = isMoving ? -Math.round(Math.sin(t * Math.PI) * 2) : 0;
+      const sx = Math.round(pp.x - camera.x - hero.width / 2);
+      const sy = Math.round(pp.y - camera.y + 43 - hero.height + bob);
+      c.fillStyle = "#11132065";
+      c.beginPath();
+      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
+      c.fill();
+      c.drawImage(hero, sx, sy);
+    } });
+    actors2.sort((a, b) => a.z - b.z);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache.images.foreground, Math.round(-camera.x), Math.round(-camera.y));
+    c.restore();
+    uiLabel(c, canvas, s);
+    return true;
+  }
+  var CASTLE_LIBRARY_SCENE = Object.freeze({
+    width: 1254,
+    height: 1380,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 147,
+    originY: 320
+  });
+  function castleLibraryPoint(x, y) {
+    const m = CASTLE_LIBRARY_SCENE;
+    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
+  }
+  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
+    const m = CASTLE_LIBRARY_SCENE;
+    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
+    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
+    const p = castleLibraryPoint(x, y);
+    return {
+      x: clamp2(p.x - canvas.width / 2, 0, Math.max(0, m.width - canvas.width)),
+      y: clamp2(p.y - canvas.height * 0.6, 0, Math.max(0, m.height - canvas.height)),
+      player: p,
+      t
+    };
+  }
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now()) {
+    if (!cache.ready) return false;
+    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const z = CASTLE_SCENE_SCALE;
+    const cam = castleLibraryCamera({
+      width: Math.ceil(canvas.width / z),
+      height: Math.ceil(canvas.height / z)
+    }, room, motion, now);
+    c.save();
+    c.scale(z, z);
+    const sx = (x) => Math.round(x - cam.x), sy = (y) => Math.round(y - cam.y);
+    c.fillStyle = "#131321";
+    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
+    c.drawImage(cache.images.libraryBackground, sx(0), sy(0));
+    const elder = castleLibraryPoint(6, 3), elderSprite = cache.images.librarian;
+    const heroFrame = motion && cam.t < 1 ? heroGaitFrame(motion, cam.t) : 0;
+    const heroKey = "hero_" + room.facing + "_" + heroFrame;
+    const heroSprite = cache.images[heroKey];
+    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
+    lastHeroSprite = heroKey;
+    const actors2 = [
+      { y: elder.y, draw: () => {
+        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
+      } },
+      { y: cam.player.y, draw: () => {
+        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
+        c.fillStyle = "#10132575";
+        c.beginPath();
+        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
+        c.fill();
+        c.drawImage(heroSprite, x, y);
+      } }
+    ];
+    actors2.sort((a, b) => a.y - b.y);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache.images.libraryForeground, sx(0), sy(0));
+    c.restore();
+    uiLabel(c, canvas, s, "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u66F8\u5EAB");
+    return true;
+  }
+
   // src/game/interiors.mjs
   var ENTRIES = Object.freeze([
     {
@@ -5257,7 +5578,7 @@
     townRoad: "town-road-edges.png"
   });
   var RETRO_ASSET_VERSION = "20261111-castle-approved-return-v13-01";
-  var cache = /* @__PURE__ */ new Map();
+  var cache2 = /* @__PURE__ */ new Map();
   var ready = false;
   var loading = null;
   function retroAssetsReady() {
@@ -5266,7 +5587,7 @@
   function retroAsset(key) {
     if (!Object.hasOwn(IMAGES, key)) throw Error("Unrecognized retro art key: " + key);
     if (!ready) throw Error("Retro CC0 assets not preloaded: " + key);
-    const img = cache.get(key);
+    const img = cache2.get(key);
     if (!img || !img.complete || img.naturalWidth === 0) throw Error("Retro asset unavailable: " + key);
     return img;
   }
@@ -5280,7 +5601,7 @@
           reject(Error("Corrupt retro PNG: " + filename));
           return;
         }
-        cache.set(key, img);
+        cache2.set(key, img);
         resolve();
       };
       img.onerror = () => reject(Error("Could not load retro art " + filename));
@@ -7267,7 +7588,7 @@
   }
 
   // src/game/reboot-view.mjs
-  var clamp2 = (v, a, b) => Math.max(a, Math.min(b, v));
+  var clamp3 = (v, a, b) => Math.max(a, Math.min(b, v));
   var backgrounds = /* @__PURE__ */ new Map();
   var actors = { hero: "hero", king: "king", guard: "guard", refugee: "refugee" };
   var shot = (context, x, y, w, h, color2) => {
@@ -7312,14 +7633,14 @@
   }
   function retroCamera(s, motion = null, now = performance.now(), W2 = 288, H2 = 340) {
     const m = MAPS[s.pos.map];
-    const t = motion && motion.map === s.pos.map ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    const t = motion && motion.map === s.pos.map ? clamp3((now - motion.start) / motion.duration, 0, 1) : 1;
     const px = motion && motion.map === s.pos.map ? motion.fromX + (s.pos.x - motion.fromX) * t : s.pos.x;
     const py = motion && motion.map === s.pos.map ? motion.fromY + (s.pos.y - motion.fromY) * t : s.pos.y;
     const cols = W2 / TILE, rows = H2 / TILE;
     const ox = m.width <= cols ? Math.round((W2 - m.width * TILE) / 2) : 0;
     const oy = m.height <= rows ? Math.round((H2 - m.height * TILE) / 2) : 0;
-    const cx = m.width <= cols ? 0 : clamp2(px - cols / 2 + 0.5, 0, m.width - cols);
-    const cy = m.height <= rows ? 0 : clamp2(py - rows / 2 + 0.5, 0, m.height - rows);
+    const cx = m.width <= cols ? 0 : clamp3(px - cols / 2 + 0.5, 0, m.width - cols);
+    const cy = m.height <= rows ? 0 : clamp3(py - rows / 2 + 0.5, 0, m.height - rows);
     return { px, py, t, ox, oy, cx, cy, cols, rows };
   }
   function label(c, W2, H2, main, st) {
@@ -7403,8 +7724,8 @@
     }
     drawables.push({ x: v.px, y: v.py, depth: v.py + 0.12, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(v.px, v.py);
-      const f = motion && v.t < 1 ? Math.round(v.t * 2 + 1) : 0;
-      paintActor(ctx, x, y, "hero", s.pos.facing, f);
+      const f = motion && v.t < 1 ? heroGaitFrame(motion, v.t) : 0;
+      paintSharedHero(ctx, x + TILE / 2, y + TILE, s.pos.facing, f, 0.4);
     } });
     drawables.sort((a, b) => a.depth - b.depth);
     for (const actor of drawables) {
@@ -7444,7 +7765,7 @@
     ctx.drawImage(bg, ox, oy);
     const resident2 = { x: 6, y: 3 };
     const moving2 = motion && motion.id === room.id;
-    const t = moving2 ? clamp2((performance.now() - motion.start) / motion.duration, 0, 1) : 1;
+    const t = moving2 ? clamp3((performance.now() - motion.start) / motion.duration, 0, 1) : 1;
     const x = moving2 ? motion.fromX + (room.x - motion.fromX) * t : room.x;
     const y = moving2 ? motion.fromY + (room.y - motion.fromY) * t : room.y;
     const drawables = [
@@ -7464,7 +7785,14 @@
         "down",
         0
       ) },
-      { y: y + 0.1, fn: () => paintActor(ctx, ox + x * TILE, oy + y * TILE, "hero", room.facing, t < 1 ? Math.round(t * 2 + 1) : 0) }
+      { y: y + 0.1, fn: () => paintSharedHero(
+        ctx,
+        ox + x * TILE + TILE / 2,
+        oy + y * TILE + TILE,
+        room.facing,
+        t < 1 ? heroGaitFrame(motion, t) : 0,
+        0.4
+      ) }
     ];
     drawables.sort((a, b) => a.y - b.y).forEach((a) => a.fn());
     label(
@@ -7518,295 +7846,6 @@
     shot(ctx, barX + 1, H2 - 47, Math.max(1, Math.round((barW - 2) * b.hp / enemy.hp)), 2, "#dd9caa");
     label(ctx, W2, H2, "", { hp: s.player.hp, mp: s.player.mp, level: s.player.level, gold: s.player.gold });
     ctx.textAlign = "left";
-  }
-
-  // src/game/castle-visual.mjs
-  var CASTLE_ART_SCENE = Object.freeze({
-    width: 1254,
-    height: 1474,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 27,
-    originY: 250
-  });
-  var scenes = {
-    background: "castle-background.png",
-    foreground: "castle-foreground.png",
-    king: "castle-king.png",
-    guard: "castle-guard.png",
-    guardEast: "castle-guard-east.png",
-    refugee: "castle-refugee.png",
-    raider: "castle-raider.png",
-    libraryBackground: "castle-library-background.png",
-    libraryForeground: "castle-library-foreground.png",
-    librarian: "castle-librarian.png"
-  };
-  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
-    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
-  }
-  var CASTLE_SCENE_SCALE = 0.44;
-  var ART_VERSION = "20261111-castle-approved-return-v13";
-  var cache2 = { ready: false, failed: false, images: {} };
-  var lastHeroSprite = "";
-  var clamp3 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-  function castleArtReady() {
-    return cache2.ready;
-  }
-  function preloadCastleArt(onReady = () => {
-  }) {
-    if (cache2.ready) {
-      onReady();
-      return Promise.resolve();
-    }
-    if (cache2.loading) return cache2.loading.then(onReady);
-    cache2.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => {
-        cache2.images[name] = image;
-        resolve();
-      };
-      image.onerror = () => {
-        cache2.failed = true;
-        reject(Error("Castle art missing: " + file));
-      };
-      image.src = "assets/castle/" + file + "?v=" + ART_VERSION;
-    }))).then(() => {
-      const bg = cache2.images.background;
-      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions");
-      cache2.ready = true;
-      onReady();
-    });
-    return cache2.loading;
-  }
-  function castleMapPoint(x, y) {
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: m.originX + (x + 0.5) * m.tileWidth,
-      y: m.originY + (y + 0.5) * m.tileHeight
-    };
-  }
-  function castleVisualPosition(s, motion = null, now = performance.now()) {
-    const pos = s.pos;
-    const t = motion && motion.map === "castle" ? clamp3((now - motion.start) / motion.duration, 0, 1) : 1;
-    return {
-      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
-      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
-      t
-    };
-  }
-  function castleCamera(canvas, s, motion = null, now = performance.now()) {
-    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
-    const viewWidth = canvas.width, viewHeight = canvas.height;
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: clamp3(p.x - viewWidth / 2, 0, Math.max(0, m.width - viewWidth)),
-      // Initial view shows the throne and the hero together, rather
-      // than cutting the king off above the phone viewport.
-      y: clamp3(p.y - viewHeight * 0.75, 0, Math.max(0, m.height - viewHeight)),
-      player: p
-    };
-  }
-  function drawSmallPerson(c, cx, cy, kind) {
-    c.save();
-    c.translate(Math.round(cx - 30), Math.round(cy - 56));
-    const tile = (x, y, w, h, color3) => {
-      c.fillStyle = color3;
-      c.fillRect(x * 5, y * 5, w * 5, h * 5);
-    };
-    const color2 = kind === "refugee" ? "#a5676a" : "#47788e";
-    tile(3, 0, 6, 1, "#27283b");
-    tile(2, 1, 8, 2, "#483a38");
-    tile(3, 3, 6, 3, "#e9bb8d");
-    tile(4, 4, 1, 1, "#3b2c36");
-    tile(7, 4, 1, 1, "#3b2c36");
-    tile(2, 6, 8, 6, color2);
-    tile(4, 6, 4, 2, "#d8ad69");
-    tile(1, 7, 2, 4, "#edc59b");
-    tile(9, 7, 2, 4, "#edc59b");
-    tile(2, 12, 3, 1, "#292d3c");
-    tile(7, 12, 3, 1, "#292d3c");
-    c.restore();
-  }
-  function drawSword(c, x, y) {
-    c.save();
-    c.translate(Math.round(x), Math.round(y));
-    c.fillStyle = "#252b42";
-    c.fillRect(-6, -32, 12, 53);
-    c.fillStyle = "#e9e4d5";
-    c.fillRect(-4, -39, 8, 32);
-    c.fillStyle = "#88cbd9";
-    c.fillRect(-1, -35, 3, 23);
-    c.fillStyle = "#e4ba61";
-    c.fillRect(-22, -11, 44, 7);
-    c.fillStyle = "#765c50";
-    c.fillRect(-5, -6, 10, 22);
-    c.fillStyle = "#ffdf99";
-    c.fillRect(-8, 16, 16, 5);
-    c.restore();
-  }
-  function uiLabel(c, canvas, s, title = "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u738B\u306E\u9593") {
-    const W2 = canvas.width, H2 = canvas.height;
-    const locationW = Math.min(W2 - 12, Math.ceil(title.length * 15 + 16));
-    c.fillStyle = "#0b1229e8";
-    c.fillRect(5, 5, locationW, 26);
-    c.strokeStyle = "#dfc58e";
-    c.lineWidth = 1;
-    c.strokeRect(5.5, 5.5, locationW, 25);
-    c.font = "bold 14px sans-serif";
-    c.textBaseline = "middle";
-    c.fillStyle = "#f5e9ce";
-    c.textAlign = "left";
-    c.fillText(title, 13, 19);
-    c.fillStyle = "#081527ef";
-    c.fillRect(0, H2 - 28, W2, 28);
-    c.fillStyle = "#dbc18d";
-    c.fillRect(0, H2 - 28, W2, 1);
-    c.fillStyle = "#f7ecd7";
-    c.font = "bold 13px monospace";
-    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "   MP " + s.player.mp + "/" + stats(s).maxMp, 10, H2 - 14);
-  }
-  function renderCastleScene(canvas, s, motion = null, now = performance.now()) {
-    if (!cache2.ready) return false;
-    if (s.pos.map !== "castle") throw Error("Castle art on another map");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const z = CASTLE_SCENE_SCALE;
-    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
-    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
-    c.save();
-    c.scale(z, z);
-    c.fillStyle = "#0b101c";
-    c.fillRect(0, 0, W2, H2);
-    c.drawImage(cache2.images.background, Math.round(-camera.x), Math.round(-camera.y));
-    const plot = (x, y) => {
-      const p = castleMapPoint(x, y);
-      return { x: p.x - camera.x, y: p.y - camera.y };
-    };
-    const map = MAPS.castle;
-    const actors2 = [];
-    for (const n of map.npcs) {
-      const p = plot(n.x, n.y);
-      actors2.push({ z: p.y, draw: () => {
-        let im, anchor = 0, lift = 0;
-        if (n.kind === "king") {
-          im = cache2.images.king;
-          lift = 53;
-        } else if (n.id === "castle-guard") {
-          im = cache2.images.guard;
-          anchor = -42;
-        } else if (n.id === "castle-guard-east") {
-          im = cache2.images.guardEast;
-          anchor = 44;
-        } else if (n.id === "refugee") {
-          im = cache2.images.refugee;
-          lift = 41;
-        } else {
-          drawSmallPerson(c, p.x, p.y, n.kind);
-          return;
-        }
-        c.drawImage(im, Math.round(p.x - im.width / 2 + anchor), Math.round(p.y + lift - im.height));
-      } });
-    }
-    for (const e of map.objects) {
-      if (!entityAt(s, map, e.x, e.y)) continue;
-      const p = plot(e.x, e.y);
-      actors2.push({ z: p.y, draw: () => {
-        if (e.kind === "raider") {
-          const im = cache2.images.raider;
-          c.drawImage(im, Math.round(p.x - im.width / 2), Math.round(p.y + 42 - im.height));
-        } else if (e.kind === "sword") drawSword(c, p.x, p.y);
-      } });
-    }
-    const pp = camera.player;
-    actors2.push({ z: pp.y - camera.y, draw: () => {
-      const t = castleVisualPosition(s, motion, now).t;
-      const isMoving = motion && motion.map === "castle" && t < 1;
-      const frame = isMoving ? t < 0.34 ? 1 : t < 0.68 ? 2 : 1 : 0;
-      const hero = cache2.images[`hero_${s.pos.facing}_${frame}`];
-      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
-      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
-      const bob = isMoving ? Math.round(Math.sin(t * Math.PI * 2) * 3) : 0;
-      const sx = Math.round(pp.x - camera.x - hero.width / 2);
-      const sy = Math.round(pp.y - camera.y + 43 - hero.height + bob);
-      c.fillStyle = "#11132065";
-      c.beginPath();
-      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
-      c.fill();
-      c.drawImage(hero, sx, sy);
-    } });
-    actors2.sort((a, b) => a.z - b.z);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache2.images.foreground, Math.round(-camera.x), Math.round(-camera.y));
-    c.restore();
-    uiLabel(c, canvas, s);
-    return true;
-  }
-  var CASTLE_LIBRARY_SCENE = Object.freeze({
-    width: 1254,
-    height: 1380,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 147,
-    originY: 320
-  });
-  function castleLibraryPoint(x, y) {
-    const m = CASTLE_LIBRARY_SCENE;
-    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
-  }
-  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
-    const m = CASTLE_LIBRARY_SCENE;
-    const t = motion && motion.id === room.id ? clamp3((now - motion.start) / motion.duration, 0, 1) : 1;
-    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
-    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
-    const p = castleLibraryPoint(x, y);
-    return {
-      x: clamp3(p.x - canvas.width / 2, 0, Math.max(0, m.width - canvas.width)),
-      y: clamp3(p.y - canvas.height * 0.6, 0, Math.max(0, m.height - canvas.height)),
-      player: p,
-      t
-    };
-  }
-  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now()) {
-    if (!cache2.ready) return false;
-    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const z = CASTLE_SCENE_SCALE;
-    const cam = castleLibraryCamera({
-      width: Math.ceil(canvas.width / z),
-      height: Math.ceil(canvas.height / z)
-    }, room, motion, now);
-    c.save();
-    c.scale(z, z);
-    const sx = (x) => Math.round(x - cam.x), sy = (y) => Math.round(y - cam.y);
-    c.fillStyle = "#131321";
-    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
-    c.drawImage(cache2.images.libraryBackground, sx(0), sy(0));
-    const elder = castleLibraryPoint(6, 3), elderSprite = cache2.images.librarian;
-    const heroFrame = motion && cam.t < 1 ? cam.t < 0.34 ? 1 : cam.t < 0.68 ? 2 : 1 : 0;
-    const heroKey = "hero_" + room.facing + "_" + heroFrame;
-    const heroSprite = cache2.images[heroKey];
-    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
-    lastHeroSprite = heroKey;
-    const actors2 = [
-      { y: elder.y, draw: () => {
-        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
-      } },
-      { y: cam.player.y, draw: () => {
-        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
-        c.fillStyle = "#10132575";
-        c.beginPath();
-        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
-        c.fill();
-        c.drawImage(heroSprite, x, y);
-      } }
-    ];
-    actors2.sort((a, b) => a.y - b.y);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache2.images.libraryForeground, sx(0), sy(0));
-    c.restore();
-    uiLabel(c, canvas, s, "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u66F8\u5EAB");
-    return true;
   }
 
   // src/game/audio.mjs
@@ -8064,9 +8103,11 @@
   var menuBack = null;
   var walkMotion = null;
   var walkFrame = 0;
+  var walkStep = 0;
   var interior = null;
   var roomMotion = null;
   var roomFrame = 0;
+  var roomStep = 0;
   var battleFx = null;
   var battleFrame = 0;
   var audio = new GameAudio();
@@ -8536,7 +8577,7 @@
         message(["\u5EFA\u7269\u304B\u3089\u5916\u3078\u51FA\u305F\u3002"]);
       } else {
         interior = moved.room;
-        if (moved.kind === "walk") roomMotion = { id: interior.id, fromX: previous2.x, fromY: previous2.y, start: performance.now(), duration: 145 };
+        if (moved.kind === "walk") roomMotion = { id: interior.id, fromX: previous2.x, fromY: previous2.y, start: performance.now(), duration: 145, step: roomStep++ };
         if (moved.kind === "blocked") hint = "\u5BB6\u5177\u3084\u58C1\u304C\u3042\u3063\u3066\u9032\u3081\u306A\u3044\u3002";
         else hint = "";
         paint();
@@ -8549,7 +8590,7 @@
     const r2 = move(state, dx, dy);
     stopWalkAnimation();
     if (r2.kind === "walk") {
-      walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145 };
+      walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145, step: walkStep++ };
     }
     if (r2.kind === "portal") audio.cue("run");
     storeAndSet(r2.state, Boolean(r2.autoSave));
@@ -8784,5 +8825,5 @@
   window.addEventListener("resize", () => {
     if (state) paint();
   });
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady() }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();
