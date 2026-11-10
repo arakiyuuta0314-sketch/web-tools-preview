@@ -77,14 +77,14 @@
     },
     {
       "id": "hanafuda",
-      "name": "花札の旅｜こいこい",
-      "subtitle": "解説と一緒に遊ぶ、十二か月の花札",
+      "name": "まなべる花札 こいこい",
+      "subtitle": "札の名前を見ながら遊べる、十二か月の花札",
       "emoji": "🎴",
       "stage": "Webプレビュー",
       "kind": "game",
-      "description": "一手ごとの解説つき対局と12か月の旅を楽しめる、オフライン対応の花札こいこい。",
-      "url": "./hanafuda/?v=20261111-web-preview-01",
-      "version": "Webプレイ可能版・初版",
+      "description": "一手ごとの解説と練習チュートリアル、全手札表示で覚える花札こいこい。",
+      "url": "./hanafuda/?v=20261111-guided-theme-v2",
+      "version": "操作チュートリアル・札名表示・和風デザイン v2",
       "cta": "ゲームを開く"
     }
   ]
