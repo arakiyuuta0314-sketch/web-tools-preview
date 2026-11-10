@@ -5247,9 +5247,16 @@
     village: "village.png",
     actors: "actors.png",
     monsters: "monsters.png",
-    vold: "vold.png"
+    vold: "vold.png",
+    townSheet: "ansimuz-town.png",
+    townGrass: "ansimuz-grass.png",
+    townGround: "ansimuz-town-ground.png",
+    townHouses: "ansimuz-houses.png",
+    actors32: "actors32.png",
+    townCalmGrass: "town-grass-calm.png",
+    townRoad: "town-road-edges.png"
   });
-  var RETRO_ASSET_VERSION = "20261110-rooms-field-battle-v10-01";
+  var RETRO_ASSET_VERSION = "20261111-castle-approved-return-v13-01";
   var cache = /* @__PURE__ */ new Map();
   var ready = false;
   var loading = null;
@@ -5738,20 +5745,22 @@
       const col = { down: 0, up: 1, left: 2, right: 3 }[facing];
       if (col === void 0) throw Error("Bad actor facing: " + facing);
       const row = frame > 0 ? Math.abs(frame) % 2 + 1 : 0;
-      const x2 = Math.round(tileX), y2 = Math.round(tileY) - 8;
-      B(c, x2 + 4, y2 + 27, 18, 3, "#15232a80");
+      const width = 36 * scale, height = 42 * scale;
+      const x2 = Math.round(tileX + (TILE - width) / 2);
+      const y2 = Math.round(tileY + TILE - height + 3);
+      B(c, tileX + 3 * scale, tileY + 24 * scale, 18 * scale, 3 * scale, "#15232a75");
       c.drawImage(
-        retroAsset("actors"),
-        col * 16,
-        actorIndex * 112 + row * 16,
-        16,
-        16,
+        retroAsset("actors32"),
+        (col * 3 + row) * 32,
+        actorIndex * 32,
+        32,
+        32,
         x2,
         y2,
-        24 * scale,
-        31 * scale
+        width,
+        height
       );
-      return { x: x2, y: y2, width: 24 * scale, height: 31 * scale };
+      return { x: x2, y: y2, width, height };
     }
     const p = actorP(kind);
     const x = Math.round(tileX), y = Math.round(tileY) - 10;
@@ -6665,6 +6674,88 @@
     return details;
   }
 
+  // src/game/leaf-art-v11.mjs
+  var draw = (c, sheet, sx, sy, sw, sh, x, y, w, h) => {
+    c.drawImage(
+      retroAsset(sheet),
+      sx,
+      sy,
+      sw,
+      sh,
+      Math.round(x),
+      Math.round(y),
+      Math.round(w),
+      Math.round(h)
+    );
+  };
+  var dot = (c, x, y, w, h, color2) => {
+    c.fillStyle = color2;
+    c.fillRect(Math.round(x), Math.round(y), w, h);
+  };
+  var mix = (x, y, a = 0) => (Math.imul(x + 23, 73856093) ^ Math.imul(y + 51, 19349663) ^ Math.imul(a + 3, 83492791)) >>> 0;
+  var isPaved = (id) => id === 3 || id === 7 || id === 8 || id === 5;
+  function leafRoadMask(map, wx, wy) {
+    const at2 = (x, y) => map.tiles[y]?.[x];
+    return (isPaved(at2(wx, wy - 1)) ? 0 : 1) | (isPaved(at2(wx + 1, wy)) ? 0 : 2) | (isPaved(at2(wx, wy + 1)) ? 0 : 4) | (isPaved(at2(wx - 1, wy)) ? 0 : 8);
+  }
+  function paintLeafGround(c, id, x, y, wx, wy, map) {
+    if (map.id !== "leaf") throw Error("CC0 village ground used outside Leaf");
+    const gx = (wx % 3 + 3) % 3, gy = (wy % 3 + 3) % 3;
+    draw(c, "townCalmGrass", gx * 16, gy * 16, 16, 16, x, y, TILE, TILE);
+    if (id === 1) {
+      if (wx === 0 || wy === 0 || wx === map.width - 1 || wy === map.height - 1) {
+        draw(c, "townSheet", 0, 0, 16, 16, x, y, TILE, TILE);
+      }
+      return;
+    }
+    if (id === 3 || id === 7 || id === 8 || id === 5) {
+      const edgeMask = leafRoadMask(map, wx, wy);
+      draw(c, "townRoad", edgeMask * 16, 0, 16, 16, x, y, TILE, TILE);
+      return;
+    }
+    if (id !== 0 && id !== 4) throw Error("Unsupported Leaf world tile " + id);
+  }
+  function paintLeafTree(c, x, y, wx, wy) {
+    const v = mix(wx, wy) % 3;
+    const options = [
+      [75, 46, 23, 88],
+      [96, 45, 22, 90],
+      [118, 49, 21, 86]
+    ];
+    const [sx, sy, sw, sh] = options[v];
+    const height = v === 1 ? 113 : 105;
+    const width = Math.round(sw / sh * height);
+    draw(
+      c,
+      "townSheet",
+      sx,
+      sy,
+      sw,
+      sh,
+      x + (TILE - width) / 2,
+      y + TILE - height + 2,
+      width,
+      height
+    );
+  }
+  function paintLeafBuilding(c, b, at2) {
+    const variants = {
+      "leaf-inn": 0,
+      "leaf-shop": 1,
+      "leaf-west-home": 2,
+      "leaf-east-home": 3
+    };
+    const variant = variants[b.id];
+    if (variant === void 0) throw Error("Leaf building has no approved source facade: " + b.id);
+    const [x, y] = at2(b.x, b.y);
+    const width = b.w * TILE + (b.kind === "home" ? 3 : 5);
+    const height = Math.round(width * 101 / 99);
+    const left = x + Math.round((b.w * TILE - width) / 2) - (b.id === "leaf-inn" ? 9 : 0);
+    const bottom = y + b.h * TILE + 3;
+    draw(c, "townHouses", variant * 99, 0, 99, 101, left, bottom - height, width, height);
+    dot(c, left + 4, bottom - 2, width - 8, 2, "#384b3b66");
+  }
+
   // src/game/retro-decoration.mjs
   var color = {
     field: ["#e6d7a0", "#f3e8bb", "#91b771", "#5b824e"],
@@ -7201,7 +7292,8 @@
     };
     for (let y = 0; y < m.height; y++) for (let x = 0; x < m.width; x++) {
       const kind = kindAt(x, y);
-      paintTile(c, kind, x * TILE, y * TILE, x, y, m.id, {
+      if (m.id === "leaf") paintLeafGround(c, kind, x * TILE, y * TILE, x, y, m);
+      else paintTile(c, kind, x * TILE, y * TILE, x, y, m.id, {
         n: kindAt(x, y - 1),
         s: kindAt(x, y + 1),
         w: kindAt(x - 1, y),
@@ -7209,9 +7301,11 @@
       });
     }
     const at2 = (x, y) => [x * TILE, y * TILE];
-    paintRegionAtmosphere(c, m, at2);
-    paintRegionalStructures(c, m, at2);
-    paintTownLife(c, m, at2);
+    if (m.id !== "leaf") {
+      paintRegionAtmosphere(c, m, at2);
+      paintRegionalStructures(c, m, at2);
+      paintTownLife(c, m, at2);
+    }
     for (const feature of m.scenery || []) paintScenery(c, feature, at2, m.id);
     backgrounds.set(id, canvas);
     return canvas;
@@ -7283,7 +7377,8 @@
         depth: ty + 0.85,
         draw: (ctx, screenFn) => {
           const [sx, sy] = screenFn(tx, ty);
-          paintTreeCanopy(ctx, sx, sy, tx, ty, m.id);
+          if (m.id === "leaf") paintLeafTree(ctx, sx, sy, tx, ty);
+          else paintTreeCanopy(ctx, sx, sy, tx, ty, m.id);
         }
       });
     }
@@ -7292,7 +7387,10 @@
         x: b.x,
         y: b.y,
         depth: b.y + b.h - 0.15,
-        draw: (ctx, screenFn) => paintBuilding(ctx, b, screenFn, m.id)
+        draw: (ctx, screenFn) => {
+          if (m.id === "leaf") paintLeafBuilding(ctx, b, screenFn);
+          else paintBuilding(ctx, b, screenFn, m.id);
+        }
       });
     }
     if (m.id === "field") for (const portal of m.portals) {
@@ -7420,6 +7518,295 @@
     shot(ctx, barX + 1, H2 - 47, Math.max(1, Math.round((barW - 2) * b.hp / enemy.hp)), 2, "#dd9caa");
     label(ctx, W2, H2, "", { hp: s.player.hp, mp: s.player.mp, level: s.player.level, gold: s.player.gold });
     ctx.textAlign = "left";
+  }
+
+  // src/game/castle-visual.mjs
+  var CASTLE_ART_SCENE = Object.freeze({
+    width: 1254,
+    height: 1474,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 27,
+    originY: 250
+  });
+  var scenes = {
+    background: "castle-background.png",
+    foreground: "castle-foreground.png",
+    king: "castle-king.png",
+    guard: "castle-guard.png",
+    guardEast: "castle-guard-east.png",
+    refugee: "castle-refugee.png",
+    raider: "castle-raider.png",
+    libraryBackground: "castle-library-background.png",
+    libraryForeground: "castle-library-foreground.png",
+    librarian: "castle-librarian.png"
+  };
+  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
+    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
+  }
+  var CASTLE_SCENE_SCALE = 0.44;
+  var ART_VERSION = "20261111-castle-approved-return-v13";
+  var cache2 = { ready: false, failed: false, images: {} };
+  var lastHeroSprite = "";
+  var clamp3 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  function castleArtReady() {
+    return cache2.ready;
+  }
+  function preloadCastleArt(onReady = () => {
+  }) {
+    if (cache2.ready) {
+      onReady();
+      return Promise.resolve();
+    }
+    if (cache2.loading) return cache2.loading.then(onReady);
+    cache2.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        cache2.images[name] = image;
+        resolve();
+      };
+      image.onerror = () => {
+        cache2.failed = true;
+        reject(Error("Castle art missing: " + file));
+      };
+      image.src = "assets/castle/" + file + "?v=" + ART_VERSION;
+    }))).then(() => {
+      const bg = cache2.images.background;
+      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions");
+      cache2.ready = true;
+      onReady();
+    });
+    return cache2.loading;
+  }
+  function castleMapPoint(x, y) {
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: m.originX + (x + 0.5) * m.tileWidth,
+      y: m.originY + (y + 0.5) * m.tileHeight
+    };
+  }
+  function castleVisualPosition(s, motion = null, now = performance.now()) {
+    const pos = s.pos;
+    const t = motion && motion.map === "castle" ? clamp3((now - motion.start) / motion.duration, 0, 1) : 1;
+    return {
+      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
+      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
+      t
+    };
+  }
+  function castleCamera(canvas, s, motion = null, now = performance.now()) {
+    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
+    const viewWidth = canvas.width, viewHeight = canvas.height;
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: clamp3(p.x - viewWidth / 2, 0, Math.max(0, m.width - viewWidth)),
+      // Initial view shows the throne and the hero together, rather
+      // than cutting the king off above the phone viewport.
+      y: clamp3(p.y - viewHeight * 0.75, 0, Math.max(0, m.height - viewHeight)),
+      player: p
+    };
+  }
+  function drawSmallPerson(c, cx, cy, kind) {
+    c.save();
+    c.translate(Math.round(cx - 30), Math.round(cy - 56));
+    const tile = (x, y, w, h, color3) => {
+      c.fillStyle = color3;
+      c.fillRect(x * 5, y * 5, w * 5, h * 5);
+    };
+    const color2 = kind === "refugee" ? "#a5676a" : "#47788e";
+    tile(3, 0, 6, 1, "#27283b");
+    tile(2, 1, 8, 2, "#483a38");
+    tile(3, 3, 6, 3, "#e9bb8d");
+    tile(4, 4, 1, 1, "#3b2c36");
+    tile(7, 4, 1, 1, "#3b2c36");
+    tile(2, 6, 8, 6, color2);
+    tile(4, 6, 4, 2, "#d8ad69");
+    tile(1, 7, 2, 4, "#edc59b");
+    tile(9, 7, 2, 4, "#edc59b");
+    tile(2, 12, 3, 1, "#292d3c");
+    tile(7, 12, 3, 1, "#292d3c");
+    c.restore();
+  }
+  function drawSword(c, x, y) {
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    c.fillStyle = "#252b42";
+    c.fillRect(-6, -32, 12, 53);
+    c.fillStyle = "#e9e4d5";
+    c.fillRect(-4, -39, 8, 32);
+    c.fillStyle = "#88cbd9";
+    c.fillRect(-1, -35, 3, 23);
+    c.fillStyle = "#e4ba61";
+    c.fillRect(-22, -11, 44, 7);
+    c.fillStyle = "#765c50";
+    c.fillRect(-5, -6, 10, 22);
+    c.fillStyle = "#ffdf99";
+    c.fillRect(-8, 16, 16, 5);
+    c.restore();
+  }
+  function uiLabel(c, canvas, s, title = "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u738B\u306E\u9593") {
+    const W2 = canvas.width, H2 = canvas.height;
+    const locationW = Math.min(W2 - 12, Math.ceil(title.length * 15 + 16));
+    c.fillStyle = "#0b1229e8";
+    c.fillRect(5, 5, locationW, 26);
+    c.strokeStyle = "#dfc58e";
+    c.lineWidth = 1;
+    c.strokeRect(5.5, 5.5, locationW, 25);
+    c.font = "bold 14px sans-serif";
+    c.textBaseline = "middle";
+    c.fillStyle = "#f5e9ce";
+    c.textAlign = "left";
+    c.fillText(title, 13, 19);
+    c.fillStyle = "#081527ef";
+    c.fillRect(0, H2 - 28, W2, 28);
+    c.fillStyle = "#dbc18d";
+    c.fillRect(0, H2 - 28, W2, 1);
+    c.fillStyle = "#f7ecd7";
+    c.font = "bold 13px monospace";
+    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "   MP " + s.player.mp + "/" + stats(s).maxMp, 10, H2 - 14);
+  }
+  function renderCastleScene(canvas, s, motion = null, now = performance.now()) {
+    if (!cache2.ready) return false;
+    if (s.pos.map !== "castle") throw Error("Castle art on another map");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const z = CASTLE_SCENE_SCALE;
+    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
+    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
+    c.save();
+    c.scale(z, z);
+    c.fillStyle = "#0b101c";
+    c.fillRect(0, 0, W2, H2);
+    c.drawImage(cache2.images.background, Math.round(-camera.x), Math.round(-camera.y));
+    const plot = (x, y) => {
+      const p = castleMapPoint(x, y);
+      return { x: p.x - camera.x, y: p.y - camera.y };
+    };
+    const map = MAPS.castle;
+    const actors2 = [];
+    for (const n of map.npcs) {
+      const p = plot(n.x, n.y);
+      actors2.push({ z: p.y, draw: () => {
+        let im, anchor = 0, lift = 0;
+        if (n.kind === "king") {
+          im = cache2.images.king;
+          lift = 53;
+        } else if (n.id === "castle-guard") {
+          im = cache2.images.guard;
+          anchor = -42;
+        } else if (n.id === "castle-guard-east") {
+          im = cache2.images.guardEast;
+          anchor = 44;
+        } else if (n.id === "refugee") {
+          im = cache2.images.refugee;
+          lift = 41;
+        } else {
+          drawSmallPerson(c, p.x, p.y, n.kind);
+          return;
+        }
+        c.drawImage(im, Math.round(p.x - im.width / 2 + anchor), Math.round(p.y + lift - im.height));
+      } });
+    }
+    for (const e of map.objects) {
+      if (!entityAt(s, map, e.x, e.y)) continue;
+      const p = plot(e.x, e.y);
+      actors2.push({ z: p.y, draw: () => {
+        if (e.kind === "raider") {
+          const im = cache2.images.raider;
+          c.drawImage(im, Math.round(p.x - im.width / 2), Math.round(p.y + 42 - im.height));
+        } else if (e.kind === "sword") drawSword(c, p.x, p.y);
+      } });
+    }
+    const pp = camera.player;
+    actors2.push({ z: pp.y - camera.y, draw: () => {
+      const t = castleVisualPosition(s, motion, now).t;
+      const isMoving = motion && motion.map === "castle" && t < 1;
+      const frame = isMoving ? t < 0.34 ? 1 : t < 0.68 ? 2 : 1 : 0;
+      const hero = cache2.images[`hero_${s.pos.facing}_${frame}`];
+      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
+      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
+      const bob = isMoving ? Math.round(Math.sin(t * Math.PI * 2) * 3) : 0;
+      const sx = Math.round(pp.x - camera.x - hero.width / 2);
+      const sy = Math.round(pp.y - camera.y + 43 - hero.height + bob);
+      c.fillStyle = "#11132065";
+      c.beginPath();
+      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
+      c.fill();
+      c.drawImage(hero, sx, sy);
+    } });
+    actors2.sort((a, b) => a.z - b.z);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache2.images.foreground, Math.round(-camera.x), Math.round(-camera.y));
+    c.restore();
+    uiLabel(c, canvas, s);
+    return true;
+  }
+  var CASTLE_LIBRARY_SCENE = Object.freeze({
+    width: 1254,
+    height: 1380,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 147,
+    originY: 320
+  });
+  function castleLibraryPoint(x, y) {
+    const m = CASTLE_LIBRARY_SCENE;
+    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
+  }
+  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
+    const m = CASTLE_LIBRARY_SCENE;
+    const t = motion && motion.id === room.id ? clamp3((now - motion.start) / motion.duration, 0, 1) : 1;
+    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
+    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
+    const p = castleLibraryPoint(x, y);
+    return {
+      x: clamp3(p.x - canvas.width / 2, 0, Math.max(0, m.width - canvas.width)),
+      y: clamp3(p.y - canvas.height * 0.6, 0, Math.max(0, m.height - canvas.height)),
+      player: p,
+      t
+    };
+  }
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now()) {
+    if (!cache2.ready) return false;
+    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const z = CASTLE_SCENE_SCALE;
+    const cam = castleLibraryCamera({
+      width: Math.ceil(canvas.width / z),
+      height: Math.ceil(canvas.height / z)
+    }, room, motion, now);
+    c.save();
+    c.scale(z, z);
+    const sx = (x) => Math.round(x - cam.x), sy = (y) => Math.round(y - cam.y);
+    c.fillStyle = "#131321";
+    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
+    c.drawImage(cache2.images.libraryBackground, sx(0), sy(0));
+    const elder = castleLibraryPoint(6, 3), elderSprite = cache2.images.librarian;
+    const heroFrame = motion && cam.t < 1 ? cam.t < 0.34 ? 1 : cam.t < 0.68 ? 2 : 1 : 0;
+    const heroKey = "hero_" + room.facing + "_" + heroFrame;
+    const heroSprite = cache2.images[heroKey];
+    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
+    lastHeroSprite = heroKey;
+    const actors2 = [
+      { y: elder.y, draw: () => {
+        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
+      } },
+      { y: cam.player.y, draw: () => {
+        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
+        c.fillStyle = "#10132575";
+        c.beginPath();
+        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
+        c.fill();
+        c.drawImage(heroSprite, x, y);
+      } }
+    ];
+    actors2.sort((a, b) => a.y - b.y);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache2.images.libraryForeground, sx(0), sy(0));
+    c.restore();
+    uiLabel(c, canvas, s, "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u66F8\u5EAB");
+    return true;
   }
 
   // src/game/audio.mjs
@@ -7721,13 +8108,25 @@
     const pixels = Math.max(175, Math.min(560, Math.round(desiredWidth * rect3.height / rect3.width)));
     if (canvas.height !== pixels) canvas.height = pixels;
   }
+  function paintCurrentWorld() {
+    if (state.pos.map === "castle") {
+      if (!castleArtReady()) throw Error("Approved castle art not loaded");
+      renderCastleScene($("game"), state, walkMotion);
+    } else drawWorld($("game"), state, lightSteps, walkMotion);
+  }
+  function paintCurrentRoom() {
+    if (interior?.id === "castle-library") {
+      if (!castleArtReady()) throw Error("Approved castle library art not loaded");
+      renderCastleLibrary($("game"), state, interior, roomMotion);
+    } else drawRoom($("game"), state, interior, roomMotion);
+  }
   function paint() {
     if (!state) return;
     sizeGameCanvas();
     audio.setTheme(musicFor());
     if (battle) drawFight($("game"), state, battle, battleFx);
-    else if (interior) drawRoom($("game"), state, interior, roomMotion);
-    else drawWorld($("game"), state, lightSteps, walkMotion);
+    else if (interior) paintCurrentRoom();
+    else paintCurrentWorld();
     const goal = STAGE_GOALS[state.stage];
     if ($("objective-text").textContent !== goal) $("objective-text").textContent = goal;
     $("dialogue").hidden = !(queue.length || hint);
@@ -8099,7 +8498,7 @@
       paint();
       return;
     }
-    drawWorld($("game"), state, lightSteps, walkMotion);
+    paintCurrentWorld();
     walkFrame = requestAnimationFrame(animateWalkFrame);
   }
   function stopRoomAnimation() {
@@ -8117,7 +8516,7 @@
       paint();
       return;
     }
-    drawRoom($("game"), state, interior, roomMotion);
+    paintCurrentRoom();
     roomFrame = requestAnimationFrame(animateRoomFrame);
   }
   function direction(dir) {
@@ -8374,7 +8773,7 @@
   }
   for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
   if (!saveSlotError) {
-    preloadRetroAssets().then(() => {
+    Promise.all([preloadRetroAssets(), preloadCastleArt()]).then(() => {
       verifySlots();
       $("new-game").disabled = false;
     }).catch((err) => {
@@ -8385,5 +8784,5 @@
   window.addEventListener("resize", () => {
     if (state) paint();
   });
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v10", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady() }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady() }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();

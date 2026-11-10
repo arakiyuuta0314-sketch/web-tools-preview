@@ -1,0 +1,85 @@
+{
+  "schema": "hoshikuzu-character-terrain-v12",
+  "sourceActor": {
+    "author": "Eldiran",
+    "license": "CC0-1.0",
+    "url": "https://opengameart.org/content/32x32-rpg-character-sprites",
+    "sha256": "40345d2eee59f06006b2fe420f83eed288a084f7e19e9c4ba1dbd16a861c75b7"
+  },
+  "sourceTown": {
+    "author": "Luis Zuno (ansimuz)",
+    "license": "CC0-1.0"
+  },
+  "actorResolution": [
+    32,
+    32
+  ],
+  "actorOrder": [
+    "hero",
+    "king",
+    "guard",
+    "refugee",
+    "elder",
+    "helper",
+    "inn",
+    "shop",
+    "watchman",
+    "frontSoldier",
+    "riona",
+    "lighthouse"
+  ],
+  "actorSourceRows": {
+    "hero": 3,
+    "king": 20,
+    "guard": 4,
+    "refugee": 2,
+    "elder": 16,
+    "helper": 9,
+    "inn": 6,
+    "shop": 10,
+    "watchman": 15,
+    "frontSoldier": 17,
+    "riona": 5,
+    "lighthouse": 18
+  },
+  "sideAnimationSingleFrame": {
+    "king": {
+      "availableSideFrames": 1,
+      "requested": 3
+    },
+    "elder": {
+      "availableSideFrames": 1,
+      "requested": 3
+    },
+    "watchman": {
+      "availableSideFrames": 1,
+      "requested": 3
+    },
+    "frontSoldier": {
+      "availableSideFrames": 1,
+      "requested": 3
+    },
+    "lighthouse": {
+      "availableSideFrames": 1,
+      "requested": 3
+    }
+  },
+  "ground": {
+    "calmGrass": [
+      48,
+      48
+    ],
+    "edgeMasks": 16,
+    "sourcePatch": [
+      254,
+      161,
+      16,
+      16
+    ]
+  },
+  "generated": {
+    "actors32.png": "8f74cf7ad2d365c1b743365ef9ca93a58ac6c15568cfd5814bedbccf45377c9d",
+    "town-grass-calm.png": "019e73421376a04660b7eedcd97f2350450113831ab8e5ec7273e3cf5fa1bc0e",
+    "town-road-edges.png": "4b8f19c3f190d3a759329957f9044e5def74f6ab6b1602c6dfef58d908feda1b"
+  }
+}
