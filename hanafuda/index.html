@@ -4,9 +4,16 @@
 <meta name="theme-color" content="#193c31">
 <meta name="description" content="解説を聞きながら覚える、十二か月の花札こいこい。">
 <title>まなべる花札 こいこい</title>
-<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="shared-layout.css"><link rel="stylesheet" href="game-theme.css"><link rel="stylesheet" href="screen-layout.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="shared-layout.css"><link rel="stylesheet" href="game-theme.css"><link rel="stylesheet" href="screen-layout.css"><link rel="stylesheet" href="landscape.css">
 </head><body>
 <div id="app"><div class="loading">花の便りを準備しています…</div></div>
+<div id="portrait-hint" aria-label="横画面のご案内" role="note">
+  <div class="portrait-hint-inner">
+    <span class="rotate-symbol" aria-hidden="true">↻</span>
+    <strong>iPhoneを横向きにして遊ぼう</strong>
+    <p>「まなべる花札 こいこい」は、場札と手札を並べて見られる横画面がおすすめです。</p>
+  </div>
+</div>
 <nav class="footerlinks" aria-label="アプリの情報"><a id="privacy-link" href="https://arakiyuuta0314-sketch.github.io/app-legal-pages/privacy/">プライバシーポリシー</a> · <a id="support-link" href="https://arakiyuuta0314-sketch.github.io/">サポート</a></nav>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script defer src="app.js"></script>

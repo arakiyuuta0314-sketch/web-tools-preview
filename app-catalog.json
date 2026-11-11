@@ -78,13 +78,13 @@
     {
       "id": "hanafuda",
       "name": "まなべる花札 こいこい",
-      "subtitle": "札の名前を見ながら遊べる、十二か月の花札",
+      "subtitle": "横画面で、札を見て学べる花札の旅",
       "emoji": "🎴",
       "stage": "Webプレビュー",
       "kind": "game",
-      "description": "縦スクロールなしの固定画面で覚える花札。操作練習・先生の解説・月ごとの図鑑に対応。",
-      "url": "./hanafuda/?v=20261111-fixed-screen-v3",
-      "version": "画面固定・学習ハブ・操作ガイド v3",
+      "description": "相手の手札・みんなの場札・自分の手札を分けた横画面。先生の解説と3段階チュートリアルで学べるこいこい。",
+      "url": "./hanafuda/?v=20261111-landscape-v4",
+      "version": "横画面UI・操作練習・十二か月の旅 v4",
       "cta": "ゲームを開く"
     }
   ]
