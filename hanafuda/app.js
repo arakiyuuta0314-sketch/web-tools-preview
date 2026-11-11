@@ -10197,6 +10197,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var studyMonth = 1;
   var selectedYakuIndex = 0;
   var gameDialog = null;
+  var gameDialogReturn = null;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
@@ -10222,6 +10223,23 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function mini(ids) {
     return '<div class="tinycards">' + ids.map((id) => '<div class="hana" title="' + esc(card(id).name) + '"><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></div>').join("") + "</div>";
+  }
+  var TAKEN_FAMILIES = Object.freeze(["\u5149", "\u30BF\u30CD", "\u77ED\u518A", "\u30AB\u30B9"]);
+  function takenCategoryCount(ids, type) {
+    return ids.filter((id) => card(id).type === type).length;
+  }
+  function takenStrip(ids, points) {
+    const preview = ids.slice(-4);
+    const categories = TAKEN_FAMILIES.filter((type) => takenCategoryCount(ids, type) > 0).map((type) => '<span class="taken-kind">' + esc(type) + " " + takenCategoryCount(ids, type) + "</span>").join("");
+    return '<div class="taken-label"><strong>\u3042\u306A\u305F\u306E\u53D6\u308A\u672D</strong><span>' + ids.length + "\u679A \xB7 \u5F79" + points + '\u70B9</span></div><div class="taken-kinds">' + (categories || '<span class="taken-empty">\u307E\u3060\u306A\u3057</span>') + '</div><div class="taken-preview" aria-label="\u6700\u8FD1\u53D6\u3063\u305F\u672D ' + preview.length + '\u679A">' + preview.map((id, i) => '<img class="' + (i >= Math.max(0, preview.length - 2) ? "taken-new" : "") + '" src="' + photo(id) + '" alt="' + esc(card(id).name) + '" title="' + esc(card(id).name) + '">').join("") + (ids.length > 4 ? "<small>\uFF0B" + (ids.length - 4) + "</small>" : "") + '</div><button class="capture-link taken-open" data-action="show-taken" data-who="0">\u5168\u672D\u3092\u898B\u308B \u203A</button>';
+  }
+  function takenDetails(ids) {
+    const score = evaluate(ids);
+    return '<p class="taken-detail-intro">\u53D6\u3063\u305F\u672D\u3092\u7A2E\u985E\u3054\u3068\u306B\u8868\u793A\u3057\u3066\u3044\u307E\u3059\u3002\u672D\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u540D\u524D\u3068\u8AAC\u660E\u3092\u898B\u3089\u308C\u307E\u3059\u3002</p><div class="taken-detail-status">' + ids.length + "\u679A\u306E\u53D6\u308A\u672D \xB7 \u73FE\u5728 " + score.raw + "\u70B9" + (score.yakus.length ? "<span>\u6210\u7ACB\u3057\u305F\u5F79\uFF1A" + score.yakus.map((y) => esc(y.name) + " " + y.points + "\u70B9").join("\u30FB") + "</span>" : "<span>\u307E\u3060\u5F79\u306F\u5B8C\u6210\u3057\u3066\u3044\u307E\u305B\u3093</span>") + '</div><div class="taken-groups">' + TAKEN_FAMILIES.map((type) => {
+      const subset = ids.filter((id) => card(id).type === type);
+      const threshold = type === "\u30BF\u30CD" || type === "\u77ED\u518A" ? 5 : type === "\u30AB\u30B9" ? 10 : 3;
+      return '<section class="taken-group" aria-label="' + esc(type) + "\u672D " + subset.length + '\u679A"><header><strong>' + esc(type) + "\u672D</strong><span>" + subset.length + "\u679A" + (type === "\u5149" ? "" : " / " + threshold + "\u679A\u3067\u5F79") + '</span></header><div class="taken-group-cards">' + (subset.length ? subset.map((id) => '<button class="taken-card" type="button" data-action="inspect" data-id="' + esc(id) + '" aria-label="' + esc(card(id).name) + '"><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("") : '<span class="taken-not-yet">\u307E\u3060\u306A\u3057</span>') + "</div></section>";
+    }).join("") + "</div>" + (ids.includes(CUP) ? '<p class="taken-cup-note">\u203B \u83CA\u306E\u76C3\u306F\u30BF\u30CD\u672D\u3067\u3059\u304C\u3001\u30AB\u30B9\u306E\u5F79\u306B\u3082\u6570\u3048\u307E\u3059\u3002</p>' : "");
   }
   function shell(content, right = "") {
     const gaming = screen === "game";
@@ -10262,8 +10280,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return ids;
   }
   function yakuGuide() {
-    const y = YAKU_TABLE[selectedYakuIndex];
-    return shell('<div class="reference-page">' + headline("\u5F79\u3092\u304A\u307C\u3048\u308B", "learn", "\u3053\u3044\u3053\u3044\u306E\u5F79\u56F3\u9451") + '<div class="reference-top"><button data-action="yaku-prev">\u2039 \u524D\u306E\u5F79</button><strong>' + y.name + " \xB7 " + y.base + '\u70B9</strong><button data-action="yaku-next">\u6B21\u306E\u5F79 \u203A</button></div><div class="reference-yaku">' + yakuExample(y).map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + '</div><div class="reference-note"><strong>\u3069\u3046\u3084\u3063\u3066\u5B8C\u6210\u3059\u308B\uFF1F</strong><p>' + (y.group === "count" ? y.type + "\u306E\u672D\u3092" + y.requires + "\u679A\u96C6\u3081\u308B\u3068\u6210\u7ACB\u3002\u4EE5\u5F8C1\u679A\u3054\u3068\u306B1\u70B9\u8FFD\u52A0\u3002" : y.bonus ? "\u6307\u5B9A\u3055\u308C\u305F\u672D\u3092\u305D\u308D\u3048\u308B\u3068\u6210\u7ACB\u3002\u3055\u3089\u306B\u96C6\u3081\u305F\u672D\u3067\u5F97\u70B9\u304C\u5897\u3048\u307E\u3059\u3002" : "\u3053\u306E\u7D75\u67C4\u306E\u7D44\u307F\u5408\u308F\u305B\u3092\u305D\u308D\u3048\u308B\u3068\u6210\u7ACB\u3057\u307E\u3059\u3002") + '</p></div><div class="reference-page-count">' + (selectedYakuIndex + 1) + " / " + YAKU_TABLE.length + "\u5F79</div></div>");
+    const y = YAKU_TABLE[selectedYakuIndex], examples = yakuExample(y);
+    return shell('<div class="reference-page">' + headline("\u5F79\u3092\u304A\u307C\u3048\u308B", "learn", "\u3053\u3044\u3053\u3044\u306E\u5F79\u56F3\u9451") + '<div class="reference-top"><button data-action="yaku-prev">\u2039 \u524D\u306E\u5F79</button><strong>' + y.name + " \xB7 " + y.base + '\u70B9</strong><button data-action="yaku-next">\u6B21\u306E\u5F79 \u203A</button></div><div class="reference-yaku" style="--yaku-share:' + 100 / examples.length + '%">' + examples.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + '</div><div class="reference-note"><strong>\u3069\u3046\u3084\u3063\u3066\u5B8C\u6210\u3059\u308B\uFF1F</strong><p>' + (y.group === "count" ? y.type + "\u306E\u672D\u3092" + y.requires + "\u679A\u96C6\u3081\u308B\u3068\u6210\u7ACB\u3002\u4EE5\u5F8C1\u679A\u3054\u3068\u306B1\u70B9\u8FFD\u52A0\u3002" : y.bonus ? "\u6307\u5B9A\u3055\u308C\u305F\u672D\u3092\u305D\u308D\u3048\u308B\u3068\u6210\u7ACB\u3002\u3055\u3089\u306B\u96C6\u3081\u305F\u672D\u3067\u5F97\u70B9\u304C\u5897\u3048\u307E\u3059\u3002" : "\u3053\u306E\u7D75\u67C4\u306E\u7D44\u307F\u5408\u308F\u305B\u3092\u305D\u308D\u3048\u308B\u3068\u6210\u7ACB\u3057\u307E\u3059\u3002") + '</p></div><div class="reference-page-count">' + (selectedYakuIndex + 1) + " / " + YAKU_TABLE.length + "\u5F79</div></div>");
   }
   function columns() {
     const ch = CHAPTERS[studyMonth - 1];
@@ -10296,7 +10314,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const choices = showMonth ? quiz.options.map((m) => '<button class="quiz-option ' + (answered ? m === c.month ? "correct" : m === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-month="' + m + '" ' + (answered ? "disabled" : "") + ">" + m + "\u6708 " + MONTHS[m - 1].flower + "</button>").join("") : quiz.options.map((id) => '<button class="quiz-option ' + (answered ? id === quiz.answer ? "correct" : id === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-id="' + id + '" ' + (answered ? "disabled" : "") + '><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("");
     const correct = quiz.answered === (showMonth ? c.month : quiz.answer);
     const explanation = showMonth ? c.detail : "\u6B63\u89E3\u306F " + card(quiz.answer).name + "\u3002" + y.name + "\u304C\u5B8C\u6210\u3057\u307E\u3059\u3002";
-    return shell('<div class="quiz-screen"><div class="quiz-head"><small>\u82B1\u672D\u30AF\u30A4\u30BA ' + (state.quiz.total + 1) + '\u554F\u76EE</small><h1 class="quiz-title">' + heading + '</h1></div><div class="quiz-art">' + display + '</div><div class="quiz-options">' + choices + '</div><div class="quiz-feedback">' + (answered ? '<p class="notice">' + (correct ? "\u6B63\u89E3\uFF01" : "\u60DC\u3057\u3044\uFF01") + " " + esc(explanation) + '</p><button class="primary" data-action="next-quiz">\u6B21\u306E\u554F\u984C\u3078 \u203A</button>' : "<p>\u672D\u306E\u300C\u6708\u30FB\u82B1\u30FB\u7D75\u67C4\u300D\u306B\u6CE8\u76EE\u3057\u3066\u7B54\u3048\u3066\u307F\u3088\u3046\u3002</p>") + '</div><div class="quiz-counter">\u3044\u307E\u307E\u3067 ' + state.quiz.correct + "\u554F\u6B63\u89E3 / " + state.quiz.total + "\u554F</div></div>");
+    return shell('<div class="quiz-screen"><div class="quiz-head"><small>\u82B1\u672D\u30AF\u30A4\u30BA ' + (state.quiz.total + (answered ? 0 : 1)) + '\u554F\u76EE</small><h1 class="quiz-title">' + heading + '</h1></div><div class="quiz-art">' + display + '</div><div class="quiz-options">' + choices + '</div><div class="quiz-feedback">' + (answered ? '<p class="notice">' + (correct ? "\u6B63\u89E3\uFF01" : "\u60DC\u3057\u3044\uFF01") + " " + esc(explanation) + '</p><button class="primary" data-action="next-quiz">\u6B21\u306E\u554F\u984C\u3078 \u203A</button>' : "<p>\u672D\u306E\u300C\u6708\u30FB\u82B1\u30FB\u7D75\u67C4\u300D\u306B\u6CE8\u76EE\u3057\u3066\u7B54\u3048\u3066\u307F\u3088\u3046\u3002</p>") + '</div><div class="quiz-counter">\u3044\u307E\u307E\u3067 ' + state.quiz.correct + "\u554F\u6B63\u89E3 / " + state.quiz.total + "\u554F</div></div>");
   }
   function settingsView() {
     return shell('<div class="settings-screen"><div class="settings-head"><h1>\u3042\u305D\u3073\u65B9\u306E\u8A2D\u5B9A</h1><small>\u3044\u3064\u3067\u3082\u5909\u66F4\u3067\u304D\u307E\u3059</small></div><div class="setting-row"><strong>\u521D\u5FC3\u8005\u30E2\u30FC\u30C9</strong><span>\u672D\u540D\u3068\u30D2\u30F3\u30C8\u3092\u8868\u793A</span><div><button class="chip ' + (state.settings.beginner ? "active" : "") + '" data-action="beginner" data-value="true">\u30AA\u30F3</button><button class="chip ' + (!state.settings.beginner ? "active" : "") + '" data-action="beginner" data-value="false">\u30AA\u30D5</button></div></div><div class="setting-row"><strong>\u5148\u751F\u306E\u89E3\u8AAC</strong><span>\u5BFE\u5C40\u4E2D\u306E\u30D2\u30F3\u30C8\u306E\u91CF</span><div>' + [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]].map(([v, t]) => '<button class="chip ' + (state.settings.narration === v ? "active" : "") + '" data-action="narration" data-value="' + v + '">' + t + "</button>").join("") + '</div></div><div class="setting-row"><strong>\u76F8\u624B\u306E\u3064\u3088\u3055</strong><span>\u30D5\u30EA\u30FC\u5BFE\u5C40\u3067\u9069\u7528</span><div>' + [1, 2, 3].map((i) => '<button class="chip ' + (state.settings.difficulty === i ? "active" : "") + '" data-action="difficulty" data-value="' + i + '">' + ["", "\u3084\u3055\u3057\u3044", "\u3075\u3064\u3046", "\u3064\u3088\u3044"][i] + "</button>").join("") + '</div></div><button class="settings-retry" data-action="start-tutorial">\u2726 \u3053\u3044\u3053\u3044\u3092\u7DF4\u7FD2\u3059\u308B \u203A</button><button class="settings-credits" data-action="credits">\u672D\u7D75\u306E\u8457\u4F5C\u6A29\u30FB\u5229\u7528\u306B\u3064\u3044\u3066 \u203A</button></div>');
@@ -10399,9 +10417,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else {
       const mine = gameDialog === "mine", ids = g.round.captured[mine ? 0 : 1];
       title = mine ? "\u81EA\u5206\u306E\u53D6\u308A\u672D" : "\u76F8\u624B\u306E\u53D6\u308A\u672D";
-      body = '<p class="dialog-text">\u53D6\u3063\u305F\u672D\u304C\u5F79\u306B\u3064\u306A\u304C\u308A\u307E\u3059\u3002' + (!ids.length ? "\u307E\u3060\u53D6\u308A\u672D\u306F\u3042\u308A\u307E\u305B\u3093\u3002" : "") + '</p><div class="dialog-cards">' + ids.map((id) => tile(id, { action: "inspect", label: true })).join("") + "</div>";
+      body = takenDetails(ids);
     }
-    return '<div class="game-dialog" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="dialog-sheet"><div class="dialog-top"><strong>' + title + '</strong><button class="quiet" data-action="close-dialog">\u9589\u3058\u308B \xD7</button></div>' + body + "</div></div>";
+    return '<div class="game-dialog" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="dialog-sheet' + (["mine", "opp"].includes(gameDialog) ? " capture-dialog" : "") + '"><div class="dialog-top"><strong>' + title + '</strong><button class="quiet" data-action="close-dialog">' + (gameDialogReturn ? "\u2039 \u4E00\u89A7\u306B\u623B\u308B" : "\u9589\u3058\u308B \xD7") + "</button></div>" + body + "</div></div>";
   }
   function tutorialExhibit(g) {
     if (!g.tutorial || g.tutorialIntroDone) return "";
@@ -10455,7 +10473,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const isEnd = r.phase === "round-end" || r.phase === "game-end";
     const opponentBacks = r.hands[1].map(() => '<span class="opponent-card-back" aria-hidden="true"><i>\u273F</i></span>').join("");
     const introStep = intro ? g.tutorialIntroStep ?? 0 : -1;
-    const board = '<div class="tabletop" data-intro-step="' + introStep + '"><section class="board-opponent region-opponent" aria-label="\u76F8\u624B\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>\u76F8\u624B\u306E\u624B\u672D</strong><span>\u88CF\u5411\u304D \xB7 \u4E2D\u8EAB\u306F\u898B\u3048\u307E\u305B\u3093</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div><button class="capture-link" data-action="show-taken" data-who="1">\u76F8\u624B\u306E\u53D6\u308A\u672D ' + r.captured[1].length + '\u679A \u203A</button></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + '\u679A</small></strong><span>\u3069\u3061\u3089\u3082\u53D6\u308C\u308B \xB7 \u540C\u3058\u6708\u3092\u5408\u308F\u305B\u308B</span></div><div class="landscape-fieldline"><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div><div class="field-stock"><span class="stock-back" aria-hidden="true">\u273F</span><small>\u5C71\u672D ' + r.stock.length + '\u679A</small></div></div></section><div class="board-taken"><strong>\u3042\u306A\u305F\u304C\u53D6\u3063\u305F\u672D</strong><span>' + r.captured[0].length + "\u679A \xB7 " + me.raw + '\u70B9</span><button class="capture-link" data-action="show-taken" data-who="0">\u78BA\u8A8D \u203A</button></div><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D <small>' + r.hands[0].length + "\u679A</small></strong><span>" + (r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section></div>";
+    const board = '<div class="tabletop" data-intro-step="' + introStep + '"><section class="board-opponent region-opponent" aria-label="\u76F8\u624B\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>\u76F8\u624B\u306E\u624B\u672D</strong><span>\u88CF\u5411\u304D \xB7 \u4E2D\u8EAB\u306F\u898B\u3048\u307E\u305B\u3093</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div><button class="capture-link" data-action="show-taken" data-who="1">\u76F8\u624B\u306E\u53D6\u308A\u672D ' + r.captured[1].length + '\u679A \u203A</button></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + '\u679A</small></strong><span>\u3069\u3061\u3089\u3082\u53D6\u308C\u308B \xB7 \u540C\u3058\u6708\u3092\u5408\u308F\u305B\u308B</span></div><div class="landscape-fieldline"><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div><div class="field-stock"><span class="stock-back" aria-hidden="true">\u273F</span><small>\u5C71\u672D ' + r.stock.length + '\u679A</small></div></div></section><div class="board-taken" aria-label="\u3042\u306A\u305F\u304C\u53D6\u3063\u305F\u672D\u306E\u4E00\u89A7">' + takenStrip(r.captured[0], me.raw) + '</div><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D <small>' + r.hands[0].length + "\u679A</small></strong><span>" + (r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section></div>";
     const endText = isEnd ? '<div class="result" role="status"><div class="result-symbol">' + (r.result.winner === 0 ? "\u273F" : r.result.winner === 1 ? "\u263E" : "\u25C7") + "</div><h2>" + esc(lesson.title) + "</h2><p>" + esc(lesson.description) + '</p><div class="result-action">' + lesson.action + "</div></div>" : "";
     return shell('<div class="play-layout' + (g.tutorial ? " is-tutorial" : "") + (intro ? " tutorial-intro intro-step-" + introStep : "") + '"><div class="gameheader"><div class="round-badge">' + (g.tutorial ? "\u7DF4\u7FD2" : g.mode === "travel" ? g.month + "\u6708\u306E\u65C5" : g.length + "\u304B\u6708\u5BFE\u5C40") + "<small>\u7B2C" + (g.index + 1) + '\u5C40</small></div><div class="game-score">' + g.scores[0] + " <span>\u5BFE</span> " + g.scores[1] + '</div><button class="coach-detail" data-action="show-guide">\u904A\u3073\u65B9 \u24D8</button></div><div class="game-board-wrap">' + board + tutorialExhibit(g) + capturedTutorialView(g) + (g.tutorialLearning ? "" : completedRoleView(g)) + (isEnd ? endText : "") + '</div><aside class="controlpad tutorial-panel" aria-label="\u5148\u751F\u306E\u89E3\u8AAC"><div class="coach-mast"><span class="coach-monogram">\u5B66</span><strong>\u5148\u751F\u306E\u624B\u307B\u3069\u304D</strong><small>LEARN AS YOU PLAY</small></div><div class="coach-prompt"><span class="tutor-kicker">' + esc(lesson.step) + "</span><strong>" + esc(lesson.title) + "</strong><p>" + esc(lesson.description) + '</p></div><div class="coach-actions">' + (isEnd && !g.tutorialLearning ? "" : lesson.action) + '</div><div class="coach-footer"><span>\u273F</span> \u540C\u3058\u6708\u306E\u672D\u3092\u3042\u308F\u305B\u3088\u3046</div></aside>' + gameDialogView(g, guide) + "</div>");
   }
@@ -10528,6 +10546,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     selectedHand = null;
     gameDialog = null;
+    gameDialogReturn = null;
     screen = "game";
     save();
     render();
@@ -10556,16 +10575,19 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     if (action === "show-guide") {
       gameDialog = "guide";
+      gameDialogReturn = null;
       render();
       return;
     }
     if (action === "show-taken") {
       gameDialog = button.dataset.who === "0" ? "mine" : "opp";
+      gameDialogReturn = null;
       render();
       return;
     }
     if (action === "close-dialog") {
-      gameDialog = null;
+      gameDialog = gameDialogReturn;
+      gameDialogReturn = null;
       render();
       return;
     }
@@ -10573,6 +10595,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       screen = "home";
       selectedHand = null;
       gameDialog = null;
+      gameDialogReturn = null;
     } else if (action === "resume") {
       screen = "game";
     } else if (action === "travel") {
@@ -10640,7 +10663,10 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         state.seen.push(id);
         save();
       }
-      if (screen === "game") gameDialog = "card";
+      if (screen === "game") {
+        gameDialogReturn = ["mine", "opp"].includes(gameDialog) ? gameDialog : null;
+        gameDialog = "card";
+      }
     } else if (action === "select-hand") {
       if (state.active?.tutorial && !state.active.tutorialIntroDone) {
         toast("\u307E\u305A\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u306E\u300C\u624B\u672D\u3092\u9078\u3093\u3067\u307F\u308B\u300D\u3092\u62BC\u3057\u3066\u304F\u3060\u3055\u3044\u3002");

@@ -82,9 +82,9 @@
       "emoji": "🎴",
       "stage": "Webプレビュー",
       "kind": "game",
-      "description": "場札が9枚以上に増えても、すべての札の絵柄を見ながら遊べる横画面の花札こいこい。",
-      "url": "./hanafuda/?v=20261111-field-visible-v7",
-      "version": "場札の絵柄表示修正 v7",
+      "description": "対局中の取り札を絵柄・種類別に見られます。図鑑、クイズ、花の物語、旅の画面も見直した横画面の花札こいこい。",
+      "url": "./hanafuda/?v=20261111-all-pages-v8",
+      "version": "取った札の見える化・全画面表示改善 v8",
       "cta": "ゲームを開く"
     }
   ]
