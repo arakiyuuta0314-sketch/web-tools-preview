@@ -10186,6 +10186,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var selectedHand = null;
   var selectedCard = null;
   var selectedMonth = state.travelUnlocked;
+  if (state.active?.tutorial && !state.active.tutorialIntroDone && state.active.tutorialIntroVersion !== 6) {
+    state.active.tutorialIntroStep = 0;
+    state.active.tutorialIntroVersion = 6;
+    store2.write(state);
+  }
   var quiz = null;
   var notice = "";
   var adsStatus = "\u30D6\u30E9\u30A6\u30B6\u3067\u306F\u5E83\u544A\u3092\u8868\u793A\u3057\u307E\u305B\u3093";
@@ -10227,10 +10232,10 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function home() {
     const canResume = state.active !== null && !state.active.finished;
-    return shell('<div class="hub"><section class="hub-hero"><div class="eyebrow">LEARN & PLAY \xB7 HANAFUDA</div><h1>\u82B1\u3092\u3081\u3050\u308A\u3001<br>\u672D\u3092\u899A\u3048\u308B\u3002</h1><p>\u306F\u3058\u3081\u3066\u3067\u3082\u3001\u82B1\u672D\u304C\u308F\u304B\u308B\u3002</p><div class="hero-cards"><img src="' + photo("1-1") + '" alt=""><img src="' + photo("3-1") + '" alt=""><img src="' + photo("8-1") + '" alt=""></div><div class="landscape-title"><span>\u82B1\u3092\u77E5\u308A\u3001\u5B63\u7BC0\u3092\u904A\u3076\u3002</span><strong>\u307E\u306A\u3079\u308B\u82B1\u672D</strong><b>\u3053\u3044\u3053\u3044</b></div></section><button class="hub-tutorial" data-action="start-tutorial"><span class="hub-badge">\u306F\u3058\u3081\u3066\u306E\u65B9\u306F\u3001\u3053\u3053\u304B\u3089</span><strong>\u2460 \u64CD\u4F5C\u3092\u899A\u3048\u308B</strong><span>\u672D\u306E\u540D\u524D\u3092\u898B\u306A\u304C\u3089\u3001\u5148\u751F\u3068\u4E00\u5C40\u7DF4\u7FD2</span><b>\u7DF4\u7FD2\u3092\u306F\u3058\u3081\u308B \u203A</b></button>' + (canResume ? '<button class="hub-resume" data-action="resume">\u25B6 \u7D9A\u304D\u304B\u3089\u518D\u958B <small>' + (state.active.tutorial ? "\u64CD\u4F5C\u7DF4\u7FD2\u4E2D" : state.active.mode === "travel" ? state.active.month + "\u6708\u306E\u65C5" : "\u30D5\u30EA\u30FC\u5BFE\u5C40") + "</small></button>" : "") + '<div class="hub-modes"><button class="hub-mode hub-journey" data-action="travel"><span>\u3082\u306E\u304C\u305F\u308A</span><strong>\u5341\u4E8C\u304B\u6708\u306E\u65C5</strong><small>\u677E\u304B\u3089\u6850\u3078\u3001\u5B63\u7BC0\u3092\u3081\u3050\u308B</small></button><button class="hub-mode hub-free" data-action="free"><span>\u81EA\u7531\u306B\u3042\u305D\u3076</span><strong>\u30D5\u30EA\u30FC\u5BFE\u5C40</strong><small>3\u30FB6\u30FB12\u304B\u6708</small></button></div><button class="hub-learn" data-action="learn"><strong>\u2461 \u82B1\u672D\u3092\u5B66\u3076</strong><span>\u672D\u56F3\u9451\u30FB\u5F79\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u30FB\u82B1\u3060\u3088\u308A</span><b>\u203A</b></button><div class="hub-progress"><span>\u65C5 ' + state.travelCleared + "/12</span><span>\u899A\u3048\u305F\u672D " + state.seen.length + "/48</span><span>\u30AF\u30A4\u30BA " + (state.quiz.total ? Math.round(state.quiz.correct / state.quiz.total * 100) : 0) + "%</span></div></div>");
+    return shell('<div class="hub"><section class="hub-hero"><div class="eyebrow">LEARN & PLAY \xB7 HANAFUDA</div><h1>\u82B1\u3092\u3081\u3050\u308A\u3001<br>\u672D\u3092\u899A\u3048\u308B\u3002</h1><p>\u306F\u3058\u3081\u3066\u3067\u3082\u3001\u82B1\u672D\u304C\u308F\u304B\u308B\u3002</p><div class="hero-cards"><img src="' + photo("1-1") + '" alt=""><img src="' + photo("3-1") + '" alt=""><img src="' + photo("8-1") + '" alt=""></div><div class="landscape-title"><span>\u82B1\u3092\u77E5\u308A\u3001\u5B63\u7BC0\u3092\u904A\u3076\u3002</span><strong>\u307E\u306A\u3079\u308B\u82B1\u672D</strong><b>\u3053\u3044\u3053\u3044</b></div></section><button class="hub-tutorial" data-action="start-tutorial"><span class="hub-badge">\u306F\u3058\u3081\u3066\u306E\u65B9\u306F\u3001\u3053\u3053\u304B\u3089</span><strong>\u306F\u3058\u3081\u3066\u306E\u3053\u3044\u3053\u3044</strong><span>\u4F55\u3092\u3059\u308B\u904A\u3073\u304B\u77E5\u3063\u3066\u3001\u5148\u751F\u3068\u4E00\u5C40\u7DF4\u7FD2</span><b>\u57FA\u672C\u304B\u3089\u5B66\u3076 \u203A</b></button>' + (canResume ? '<button class="hub-resume" data-action="resume">\u25B6 \u7D9A\u304D\u304B\u3089\u518D\u958B <small>' + (state.active.tutorial ? "\u64CD\u4F5C\u7DF4\u7FD2\u4E2D" : state.active.mode === "travel" ? state.active.month + "\u6708\u306E\u65C5" : "\u30D5\u30EA\u30FC\u5BFE\u5C40") + "</small></button>" : "") + '<div class="hub-modes"><button class="hub-mode hub-journey" data-action="travel"><span>\u3082\u306E\u304C\u305F\u308A</span><strong>\u5341\u4E8C\u304B\u6708\u306E\u65C5</strong><small>\u677E\u304B\u3089\u6850\u3078\u3001\u5B63\u7BC0\u3092\u3081\u3050\u308B</small></button><button class="hub-mode hub-free" data-action="free"><span>\u81EA\u7531\u306B\u3042\u305D\u3076</span><strong>\u30D5\u30EA\u30FC\u5BFE\u5C40</strong><small>3\u30FB6\u30FB12\u304B\u6708</small></button></div><button class="hub-learn" data-action="learn"><strong>\u2461 \u82B1\u672D\u3092\u5B66\u3076</strong><span>\u672D\u56F3\u9451\u30FB\u5F79\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u30FB\u82B1\u3060\u3088\u308A</span><b>\u203A</b></button><div class="hub-progress"><span>\u65C5 ' + state.travelCleared + "/12</span><span>\u899A\u3048\u305F\u672D " + state.seen.length + "/48</span><span>\u30AF\u30A4\u30BA " + (state.quiz.total ? Math.round(state.quiz.correct / state.quiz.total * 100) : 0) + "%</span></div></div>");
   }
   function learn() {
-    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u3069\u3046\u3084\u3063\u3066\u5B66\u3076\uFF1F</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u64CD\u4F5C\u3092\u304A\u307C\u3048\u308B</strong><small>\u5148\u751F\u30681\u5C40\u3001\u624B\u672D\u306E\u51FA\u3057\u65B9\u304B\u3089</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
+    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u3069\u3046\u3084\u3063\u3066\u5B66\u3076\uFF1F</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u30681\u5C40\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
   }
   function journey() {
     return shell(headline("\u6708\u3092\u3081\u304F\u308B\u65C5", "home", "TWELVE MONTHS") + '<div class="panel"><p class="lead">\u52DD\u3063\u305F\u6708\u306E\u6B21\u3078\u9032\u3081\u307E\u3059\u3002\u6557\u5317\u30FB\u5F15\u5206\u3051\u3067\u306F\u305D\u306E\u6708\u306B\u518D\u6311\u6226\u3057\u307E\u3059\u3002</p><div class="month-grid">' + CHAPTERS.map((ch) => {
@@ -10299,35 +10304,40 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function lessonFor(g, selected, guide) {
     const r = g.round, teach = Boolean(g.tutorial);
     if (g.tutorial && !g.tutorialIntroDone) {
-      const phase = Math.min(g.tutorialIntroStep ?? 0, 4);
+      const phase = Math.min(g.tutorialIntroStep ?? 0, 5);
       const basics = [
         {
-          step: "\u307E\u305A\u306F\u4ED5\u7D44\u307F\u3092\u77E5\u308D\u3046 \xB7 1 / 5",
-          title: "\u82B1\u672D\u306F\u3001\u672D\u3092\u53D6\u3063\u3066\u5F79\u3092\u4F5C\u308B\u30B2\u30FC\u30E0",
-          description: "\u540C\u3058\u300C\u6708\u300D\u306E\u672D\u30922\u679A\u5408\u308F\u305B\u3066\u53D6\u308A\u307E\u3059\u3002\u53D6\u3063\u305F\u672D\u3092\u96C6\u3081\u308B\u3068\u300C\u5F79\u300D\u304C\u3067\u304D\u3001\u70B9\u6570\u306B\u306A\u308A\u307E\u3059\u3002"
+          step: "\u306F\u3058\u3081\u306B \xB7 1 / 6",
+          title: "\u3053\u3044\u3053\u3044\u306F\u3001\u70B9\u6570\u3092\u7AF6\u30462\u4EBA\u306E\u30B2\u30FC\u30E0",
+          description: "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3066\u53D6\u308A\u3001\u300C\u5F79\u300D\u3068\u3044\u3046\u7D44\u307F\u5408\u308F\u305B\u3092\u4F5C\u308A\u307E\u3059\u3002\u5F79\u3067\u70B9\u6570\u3092\u53D6\u308A\u3001\u76F8\u624B\u3088\u308A\u591A\u304F\u306E\u70B9\u6570\u3092\u76EE\u6307\u3059\u904A\u3073\u3067\u3059\u3002"
         },
         {
-          step: "\u76E4\u9762\u306E\u898B\u65B9 \xB7 2 / 5",
+          step: "\u904A\u3073\u65B9\u306E\u6D41\u308C \xB7 2 / 6",
+          title: "\u51FA\u3059\u30FB\u3081\u304F\u308B\u30FB\u96C6\u3081\u308B",
+          description: "\u624B\u672D\u30921\u679A\u51FA\u3057\u3066\u5834\u672D\u3068\u5408\u308F\u305B\u3001\u5C71\u672D\u30821\u679A\u3081\u304F\u308A\u307E\u3059\u3002\u4EA4\u4E92\u306B\u7D9A\u3051\u3001\u5F79\u304C\u3067\u304D\u305F\u3089\u300C\u52DD\u8CA0\u300D\u3067\u5F97\u70B9\u3092\u78BA\u5B9A\u3059\u308B\u304B\u3001\u300C\u3053\u3044\u3053\u3044\u300D\u3067\u7D9A\u3051\u308B\u304B\u9078\u3073\u307E\u3059\u3002"
+        },
+        {
+          step: "\u76E4\u9762\u306E\u898B\u65B9 \xB7 3 / 6",
           title: "\u76F8\u624B\u306E\u624B\u672D\u306F\u3001\u88CF\u5411\u304D",
           description: "\u76F8\u624B\u304C\u6301\u3063\u3066\u3044\u308B8\u679A\u3002\u3069\u3093\u306A\u672D\u304B\u306F\u898B\u3048\u307E\u305B\u3093\u3002"
         },
         {
-          step: "\u76E4\u9762\u306E\u898B\u65B9 \xB7 3 / 5",
+          step: "\u76E4\u9762\u306E\u898B\u65B9 \xB7 4 / 6",
           title: "\u771F\u3093\u4E2D\u306F\u300C\u307F\u3093\u306A\u306E\u5834\u672D\u300D",
           description: "\u3053\u3053\u306B\u7F6E\u304B\u308C\u305F\u672D\u306F\u3001\u3042\u306A\u305F\u3082\u76F8\u624B\u3082\u53D6\u308C\u307E\u3059\u3002\u540C\u3058\u6708\u306E\u672D\u3092\u63A2\u305D\u3046\u3002"
         },
         {
-          step: "\u76E4\u9762\u306E\u898B\u65B9 \xB7 4 / 5",
+          step: "\u76E4\u9762\u306E\u898B\u65B9 \xB7 5 / 6",
           title: "\u4E0B\u306F\u300C\u3042\u306A\u305F\u306E\u624B\u672D\u300D",
           description: "\u81EA\u5206\u304C\u51FA\u30598\u679A\u3002\u672D\u306E\u540D\u524D\u3092\u898B\u3066\u3001\u5834\u672D\u3068\u540C\u3058\u6708\u306E1\u679A\u3092\u9078\u3073\u307E\u3059\u3002"
         },
         {
-          step: "\u672D\u306E\u7A2E\u985E \xB7 5 / 5",
+          step: "\u672D\u306E\u7A2E\u985E \xB7 6 / 6",
           title: "\u672D\u306B\u306F4\u3064\u306E\u7A2E\u985E\u304C\u3042\u308B\u3088",
           description: "\u5149\u30FB\u30BF\u30CD\u30FB\u77ED\u518A\u30FB\u30AB\u30B9\u3002\u3069\u308C\u3082\u5F79\u3092\u4F5C\u308B\u6750\u6599\u3067\u3059\u3002\u540D\u524D\u3068\u7D75\u67C4\u306F\u30D7\u30EC\u30A4\u4E2D\u3082\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002"
         }
       ][phase];
-      return { ...basics, action: phase < 4 ? '<button class="primary" data-action="tutorial-next">\u6B21\u3092\u898B\u308B \u203A</button>' : '<button class="primary" data-action="tutorial-continue">\u672D\u3092\u53D6\u3063\u3066\u307F\u3088\u3046 \u203A</button>' };
+      return { ...basics, action: phase < 5 ? '<button class="primary" data-action="tutorial-next">\u6B21\u3092\u898B\u308B \u203A</button>' : '<button class="primary" data-action="tutorial-continue">\u672D\u3092\u53D6\u3063\u3066\u307F\u3088\u3046 \u203A</button>' };
     }
     if (g.tutorialLearning) {
       const ids = g.tutorialLearning.ids;
@@ -10397,9 +10407,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (!g.tutorial || g.tutorialIntroDone) return "";
     const phase = g.tutorialIntroStep ?? 0;
     if (phase === 0) {
-      return '<div class="tutorial-exhibit concept-exhibit" aria-label="\u672D\u3092\u5408\u308F\u305B\u308B\u4ED5\u7D44\u307F"><strong>\u540C\u3058\u6708\u306E2\u679A\u3092\u3042\u308F\u305B\u308B</strong><div class="tutorial-examples">' + mini(["1-1", "1-2"]) + "</div><span>\u2460 \u53D6\u308B\u3000\u2192\u3000\u2461 \u96C6\u3081\u308B\u3000\u2192\u3000\u2462 \u5F79\u304C\u3067\u304D\u308B</span></div>";
+      return '<div class="tutorial-exhibit goal-exhibit" aria-label="\u82B1\u672D\u3053\u3044\u3053\u3044\u306E\u76EE\u7684"><div class="goal-title">\u273F \u672D\u3092\u96C6\u3081\u3066\u3001\u5F79\u3092\u4F5C\u308D\u3046</div><div class="goal-steps"><div class="goal-step"><strong>\u2460 \u540C\u3058\u6708\u306E\u672D\u3092\u53D6\u308B</strong>' + mini(["1-1", "1-2"]) + '</div><div class="goal-step"><strong>\u2461 \u672D\u3092\u96C6\u3081\u3066\u5F79\u3092\u4F5C\u308B</strong>' + mini(["7-1", "10-1", "6-1"]) + '<small>\u4F8B\uFF1A\u732A\u9E7F\u8776\u306F5\u70B9</small></div><div class="goal-step"><strong>\u2462 \u52DD\u8CA0\u3057\u3066\u70B9\u6570\u3092\u53D6\u308B</strong><span class="goal-points">5 <small>\u70B9</small></span><small>\u5F79\u304C\u3067\u304D\u305F\u3089\u52DD\u8CA0\u304B\u3053\u3044\u3053\u3044\uFF01</small></div></div><p>\u4E8C\u4EBA\u3067\u4EA4\u4E92\u306B\u672D\u3092\u51FA\u3057\u5408\u3044\u3001\u5F97\u70B9\u3092\u7AF6\u3046\u904A\u3073\u3067\u3059\u3002</p></div>';
     }
-    if (phase === 4) {
+    if (phase === 1) {
+      return '<div class="tutorial-exhibit concept-exhibit" aria-label="\u672D\u3092\u5408\u308F\u305B\u308B\u4ED5\u7D44\u307F"><strong>\u540C\u3058\u6708\u306E2\u679A\u3092\u3042\u308F\u305B\u308B</strong><div class="tutorial-examples">' + mini(["1-1", "1-2"]) + "</div><span>\u624B\u672D\u304B\u30891\u679A \u2192 \u5834\u672D\u3068\u5408\u308F\u305B\u308B \u2192 \u5C71\u672D\u3092\u3081\u304F\u308B</span></div>";
+    }
+    if (phase === 5) {
       return '<div class="tutorial-exhibit family-exhibit" aria-label="4\u7A2E\u985E\u306E\u672D">' + CARD_FAMILIES.map((f) => '<div class="family-example"><img src="' + photo(f.sample) + '" alt="' + esc(f.type) + '\u672D\u306E\u898B\u672C"><div><strong>' + esc(f.type) + "</strong><span>" + esc(f.meaning) + "</span></div></div>").join("") + "</div>";
     }
     return "";
@@ -10511,6 +10524,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       state.active.tutorial = true;
       state.active.tutorialIntroDone = false;
       state.active.tutorialIntroStep = 0;
+      state.active.tutorialIntroVersion = 6;
     }
     selectedHand = null;
     gameDialog = null;
@@ -10602,7 +10616,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return;
     } else if (action === "tutorial-next") {
       if (!state.active?.tutorial || state.active.tutorialIntroDone) throw new Error("Tutorial is not at the introduction");
-      state.active.tutorialIntroStep = Math.min(4, (state.active.tutorialIntroStep ?? 0) + 1);
+      state.active.tutorialIntroStep = Math.min(5, (state.active.tutorialIntroStep ?? 0) + 1);
       save();
     } else if (action === "tutorial-learned") {
       if (!state.active?.tutorialLearning) throw new Error("No capture lesson to acknowledge");
@@ -10702,7 +10716,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     toast("\u5E83\u544A\u306E\u521D\u671F\u5316\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u5BFE\u5C40\u306F\u7D9A\u3051\u3089\u308C\u307E\u3059\u3002");
   });
   if (!ports.native && "serviceWorker" in navigator && (location.protocol === "https:" || ["localhost", "127.0.0.1"].includes(location.hostname))) {
-    void navigator.serviceWorker.register("./sw.js").catch((err) => console.warn("Offline cache is unavailable", err));
+    void navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then((reg) => reg.update().catch((err) => console.warn("Update check unavailable", err))).catch((err) => console.warn("Offline cache is unavailable", err));
   }
 })();
 /*! Bundled license information:
