@@ -1,0 +1,332 @@
+/* まなべる花札 こいこい — One-screen game/hub layout.
+   The document never scrolls: each choice changes scenes. */
+html,body,#app{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+.shell{height:100dvh;min-height:0;overflow:hidden;padding:0;background:
+  radial-gradient(circle at 10% 0%,#dfc99962,transparent 48%),#f5edde}
+.page{height:100%;min-height:0;max-width:680px;margin:auto;padding:calc(env(safe-area-inset-top) + 5px) 12px calc(env(safe-area-inset-bottom) + 4px);
+  display:grid;grid-template-rows:49px minmax(0,1fr) 58px;overflow:hidden}
+.topbar{height:49px;min-height:0;flex-shrink:0;padding:3px 0 7px;margin:0;border-color:#cdb991}
+.topbar .brand{gap:6px;align-items:center;font-size:15px}
+.brand-name{display:flex;flex-direction:column;gap:1px;line-height:1.15}
+.brand-name small{font-size:12px;letter-spacing:.2em;color:#996943}
+.topbar .seal{width:31px;height:31px;margin-right:3px}
+.topbar .quiet{min-height:39px;padding:7px 10px;font-size:12px}
+.scene-body{min-height:0;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+.scene-nav{min-height:0;height:56px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+  border-top:1px solid #d1b88c;padding-top:5px;background:linear-gradient(180deg,#f4ebd9,#f1e4ca)}
+.scene-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  color:#52634e;background:transparent;border:0;border-radius:8px;font-size:20px;line-height:1}
+.scene-nav button span{font-size:10px;font-weight:750;margin-top:3px}
+.scene-nav button:focus-visible{outline:2px solid #b88745}
+.scene-home .scene-nav button[data-action=home],
+.scene-learn .scene-nav button[data-action=learn],
+.scene-travel .scene-nav button[data-action=travel],
+.scene-cards .scene-nav button[data-action=learn],
+.scene-yaku .scene-nav button[data-action=learn],
+.scene-columns .scene-nav button[data-action=learn]{
+  background:#e5d4af;color:#8b3e32}
+.hub{height:100%;min-height:0;display:flex;flex-direction:column;gap:clamp(5px,1.2dvh,10px);padding:8px 1px 5px}
+.hub-hero{position:relative;flex:1.25;min-height:0;overflow:hidden;border:2px solid #b8a06d;border-radius:13px;
+ background:radial-gradient(circle at 85% 10%,#b0a97155 0 12%,transparent 12.5%),
+ linear-gradient(135deg,#173e37,#2f634d 72%,#21433a);
+ box-shadow:inset 0 0 0 5px #d6c49125,0 5px 12px #2c3e2928;
+ color:#fff7df;padding:clamp(12px,3.4dvh,24px) 16px}
+.hub-hero .eyebrow{font-size:9px;color:#e9c896;letter-spacing:.17em}
+.hub-hero h1{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(24px,6.8vw,33px);
+  margin:clamp(6px,2dvh,15px) 0 8px;line-height:1.37;letter-spacing:.08em;position:relative;z-index:2;text-shadow:0 2px 4px #153327}
+.hub-hero p{font-size:11px;position:relative;z-index:2;max-width:215px;color:#e6dfc7}
+.hub-hero .hero-cards{right:24px;top:22%;transform:rotate(9deg);filter:drop-shadow(0 5px 8px #091c19)}
+.hub-hero .hero-cards img{width:clamp(36px,13vw,67px)}
+.hub-tutorial,.hub-resume,.hub-learn,.hub-mode{position:relative;appearance:none;min-width:0;text-align:left;overflow:hidden}
+.hub-tutorial{flex:1.03;min-height:0;border:2px solid #ad5937;border-radius:12px;
+ background:repeating-linear-gradient(0deg,#9f82480c 0 1px,transparent 1px 6px),
+ linear-gradient(110deg,#fff9df,#f3d999);
+ padding:9px 14px;display:flex;flex-direction:column;justify-content:center;gap:3px;
+ box-shadow:0 4px 12px #563d2920}
+.hub-tutorial .hub-badge{font-size:11px;font-weight:850;color:#a3442e;letter-spacing:.02em}
+.hub-tutorial strong{font-family:"Yu Mincho",serif;font-size:clamp(17px,4.6vw,23px);color:#283e30}
+.hub-tutorial>span:not(.hub-badge){font-size:11px;color:#594f3a}
+.hub-tutorial b{font-size:12px;color:#a03c31;align-self:flex-end;position:absolute;right:12px;bottom:10px}
+.hub-resume{flex:.40;min-height:28px;border:1px solid #b7a779;background:#f2e9d5;border-radius:8px;
+ color:#375440;padding:6px 12px;font-weight:800}
+.hub-resume small{font-size:10px;color:#766147;margin-left:10px}
+.hub-modes{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.hub-mode{min-height:0;border-radius:11px;padding:clamp(10px,2.6dvh,18px) 10px;
+ display:flex;flex-direction:column;justify-content:center;gap:5px}
+.hub-mode span{font-size:10px;letter-spacing:.08em}
+.hub-mode strong{font-family:"Yu Mincho",serif;font-size:clamp(16px,4.9vw,22px);white-space:nowrap}
+.hub-mode small{font-size:10px;line-height:1.3}
+.hub-journey{color:#faead0;border:2px solid #b3a069;background:
+ radial-gradient(circle at 88% 18%,#ceb07b66,transparent 40%),linear-gradient(135deg,#224435,#357052)}
+.hub-free{border:2px solid #cdb68e;color:#425241;background:
+ radial-gradient(circle at 85% 8%,#bc8e754d,transparent 50%),#f7ebd3}
+.hub-learn{flex:.65;min-height:0;padding:8px 37px 8px 14px;border:1px solid #c9b183;border-radius:10px;
+ background:linear-gradient(115deg,#fff8e8,#e9d8b7);display:flex;flex-direction:column;justify-content:center;gap:5px}
+.hub-learn strong{font-family:"Yu Mincho",serif;color:#3e513d;font-size:18px}
+.hub-learn span{font-size:11px;color:#795e48}
+.hub-learn b{position:absolute;right:14px;font-size:24px;top:50%;transform:translateY(-50%);color:#98533a}
+.hub-progress{flex:.22;min-height:18px;display:flex;align-items:center;justify-content:space-between;
+ font-size:11px;color:#806b4b;padding:0 5px;white-space:nowrap}
+.study-hub{height:100%;min-height:0;display:flex;flex-direction:column;gap:10px;padding:10px 3px}
+.study-heading{flex:.85;min-height:0}
+.study-heading h1{font-family:"Yu Mincho",serif;font-size:clamp(24px,7vw,32px);margin:5px 0}
+.study-heading p{font-size:12px;color:#77684f;line-height:1.5;margin:4px 0}
+.study-main{flex:1;min-height:0;border:2px solid #a84e36;background:linear-gradient(125deg,#fff3d0,#eecf8b);
+ border-radius:13px;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;gap:3px;text-align:left}
+.study-main>b{color:#9c4731;font-size:11px}
+.study-main strong{font-size:21px;color:#254034;font-family:"Yu Mincho",serif}
+.study-main small{font-size:12px;color:#7c6046}
+.study-main span{color:#a0442e;font-weight:850;font-size:12px;align-self:flex-end}
+.study-actions{flex:2.45;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px}
+.study-actions button{min-height:0;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:8px;
+ padding:15px 10px;border:1px solid #ccb68c;border-radius:10px;background:#fff9eb;color:#36513e}
+.study-actions button strong{font-family:"Yu Mincho",serif;font-size:17px}
+.study-actions button span{font-size:11px;color:#7e705b;line-height:1.4}
+.study-foot{flex:.35;min-height:0;margin:0;font-size:11px;line-height:1.6;color:#8d7653;text-align:center}
+.reference-page{height:100%;min-height:0;display:grid;grid-template-rows:70px 50px minmax(0,1fr) minmax(80px,.5fr) 25px;gap:5px;padding:8px 2px}
+.reference-page>.row{min-height:0}
+.reference-page .chapter-title{font-size:24px;margin:0}
+.reference-page .kicker{font-size:10px}
+.reference-top{min-height:0;display:flex;align-items:center;justify-content:space-between;gap:5px;background:#e8d8b9;border-radius:9px;padding:4px}
+.reference-top button{min-height:38px;border:1px solid #c3a371;border-radius:8px;background:#fff8e6;color:#5e573e;font-weight:700;font-size:11px}
+.reference-top strong{font-size:15px;font-family:"Yu Mincho",serif;color:#2b513e}
+.reference-cards,.reference-yaku{min-height:0;display:flex;align-items:center;justify-content:center;gap:8px;overflow:hidden}
+.reference-cards .catalogitem{flex:1;min-width:0;max-width:110px}
+.reference-cards .card-slot{height:auto;gap:5px}
+.reference-cards .card-slot .hana{width:100%;height:auto;max-width:88px}
+.reference-yaku img{height:min(100%,31dvh);max-width:18%;object-fit:contain}
+.reference-note{min-height:0;background:#fdf7ea;border:1px solid #d9bd8a;border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.reference-note strong{font-family:"Yu Mincho",serif;color:#355442;font-size:17px}
+.reference-note p{line-height:1.55;font-size:12px;color:#655f50;margin:0;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.reference-page-count{font-size:11px;color:#96784d;text-align:center}
+.season-art{min-height:0;display:grid;place-items:center}
+.season-art img{max-height:100%;height:100%;width:auto;object-fit:contain;border-radius:5px}
+.scene-game .page{grid-template-rows:43px minmax(0,1fr)}
+.scene-game .topbar{height:43px}
+.scene-game .scene-body{height:100%}
+.play-layout{height:100%;min-height:0;display:grid;grid-template-rows:44px minmax(0,1fr) clamp(94px,14dvh,121px);gap:6px;padding:5px 1px 3px;position:relative}
+.play-layout .gameheader{min-height:0;margin:0;padding:5px 11px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:9px}
+.play-layout .gameheader::after{display:none}
+.round-badge{display:flex;flex-direction:column;gap:1px;font-size:12px;color:#f6e5ba;font-weight:800;white-space:nowrap}
+.round-badge small{font-size:10px;color:#c5d5c1}
+.play-layout .game-score{font-size:23px;white-space:nowrap;line-height:1}
+.play-layout .game-score span{font-size:11px;color:#e0dec2}
+.coach-detail{min-height:36px;padding:5px 7px;border:1px solid #b6a47a;border-radius:6px;color:#46604a;background:#fff6e4;font-size:11px;font-weight:800}
+.game-board-wrap{min-height:0;position:relative}
+.play-layout .tabletop{height:100%;min-height:0;display:grid;grid-template-rows:29px minmax(0,1fr) 29px minmax(0,1fr);gap:2px;
+ border:4px solid #805b39;border-radius:11px;padding:5px 7px;overflow:hidden;outline:none;box-shadow:inset 0 0 0 2px #b9985b}
+.board-opponent,.board-taken{min-height:0;display:flex;align-items:center;justify-content:space-between;color:#e6dfba;
+ border-bottom:1px solid #e5d5a34b;gap:5px;font-size:11px;padding:0 3px}
+.board-opponent button,.board-taken button{min-height:26px;max-height:27px;padding:3px 8px;background:#294b3c;border:1px solid #a1a776;border-radius:5px;color:#fff0cb;font-size:10px}
+.board-taken{border-top:1px solid #e5d5a34b;border-bottom:0}
+.board-zone{min-height:0;display:grid;grid-template-rows:19px minmax(0,1fr);gap:0}
+.board-zone-caption{min-height:0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#e8d9aa;padding:0 4px;line-height:1}
+.board-zone-caption strong{font-size:12px;color:#fff2cf}
+.board-zone-caption small{font-size:10px;color:#e9c68c}
+.board-zone-caption span{font-size:10px}
+.play-layout .fieldcards,.play-layout .handcards{min-height:0;height:100%;padding:3px 1px;display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));
+ gap:4px 5px;align-items:stretch;justify-items:stretch;overflow:visible}
+.play-layout .fieldcards.dense{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr))}
+.play-layout .card-slot{height:100%;min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) 18px;gap:2px;justify-items:center;align-items:stretch}
+.play-layout .card-slot .hana{min-height:0;height:100%;width:auto;max-width:100%;margin:0;aspect-ratio:512/839;box-shadow:0 2px 3px #0c251ca8}
+.play-layout .card-slot .hana img{height:100%;width:100%;object-fit:contain}
+.play-layout .card-name{width:100%;height:18px;min-height:18px;max-height:18px;overflow:hidden;padding:2px 1px;border-radius:3px}
+.play-layout .card-name strong{font-size:clamp(8px,2.6vw,10px);line-height:13px}
+.play-layout .card-name span{display:none}
+.play-layout .hana.selected{transform:none;outline:3px solid #ffe65d;box-shadow:0 0 0 3px #fcebcf}
+.play-layout .hana.target{transform:none;outline:3px solid #ffde5c;box-shadow:0 0 7px 3px #f6b443a8}
+.play-layout .hana.playable{outline:1px solid #dcc37b;outline-offset:1px}
+.play-layout .hana.hint{box-shadow:0 0 0 2px #c2f69f}
+.play-layout .controlpad{min-height:0;margin:0;border-left:4px solid #a44834;border-radius:8px;padding:7px 10px;
+ display:flex;align-items:center;gap:10px;overflow:hidden}
+.coach-prompt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px;justify-content:center}
+.play-layout .tutor-kicker{font-size:10px;line-height:1.1}
+.play-layout .coach-prompt strong{font-size:clamp(13px,3.6vw,16px);line-height:1.2;white-space:normal}
+.play-layout .coach-prompt p{font-size:clamp(10px,2.7vw,12px);line-height:1.34;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.coach-actions{display:flex;flex-direction:column;justify-content:center;gap:5px;width:105px;flex:0 0 105px;min-height:0}
+.coach-actions button{width:100%;min-height:39px;padding:5px;font-size:12px;line-height:1.1;white-space:normal}
+.coach-actions button+button{min-height:36px}
+.coach-actions .coach-detail{font-size:11px}
+.play-layout .result{position:absolute;inset:6px;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ border:2px solid #d3af73;border-radius:11px;background:linear-gradient(130deg,#fbf3d7,#e9d5a4);padding:12px}
+.play-layout .result h2{font-size:24px;color:#345042}
+.play-layout .result p{font-size:13px;color:#655237}
+.result-symbol{font-size:47px;color:#b9533d}
+.result-action{width:100%;max-width:230px}
+.result-action button{width:100%}
+.game-dialog{position:absolute;inset:0;z-index:50;background:#142a2199;display:flex;align-items:flex-end;justify-content:center}
+.dialog-sheet{width:100%;max-height:88%;overflow:auto;padding:17px;border:2px solid #bb9a5a;border-radius:15px 15px 8px 8px;background:#f9f0da}
+.dialog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.dialog-top strong{font-size:18px;color:#324d3c}
+.dialog-text{font-size:14px;line-height:1.6;color:#445844}
+.howto-mini{display:grid;gap:7px;padding:10px;background:#e9ddc4;border-radius:9px;font-size:12px}
+.dialog-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-height:50dvh;overflow:auto}
+.dialog-cards .card-slot .hana{height:auto;width:min(100%,70px)}
+.dialog-cards .card-name{font-size:10px}
+.scene-home .footerlinks,.scene-game .footerlinks{display:none}
+#toast{left:10%;right:10%;font-size:12px;bottom:calc(10px + env(safe-area-inset-bottom))}
+@media(max-height:680px){
+ .page{grid-template-rows:40px minmax(0,1fr) 48px;padding-top:3px;padding-bottom:3px}
+ .topbar{height:40px;padding:2px 0}
+ .topbar .seal{height:27px;width:27px;font-size:17px}
+ .topbar .quiet{min-height:34px}
+ .scene-nav{height:47px;padding-top:1px}
+ .scene-nav button{font-size:17px}
+ .scene-nav button span{font-size:9px}
+ .hub{padding:4px 1px;gap:5px}
+ .hub-hero{padding:9px 12px}
+ .hub-hero h1{font-size:23px;margin:3px 0}
+ .hub-hero p{font-size:9px;margin:0}
+ .hub-hero .eyebrow{font-size:8px}
+ .hub-hero .hero-cards{top:12%;right:8px}
+ .hub-hero .hero-cards img{width:36px}
+ .hub-tutorial{padding:5px 10px;gap:1px}
+ .hub-tutorial strong{font-size:16px}
+ .hub-tutorial .hub-badge{font-size:10px}
+ .hub-tutorial>span:not(.hub-badge){font-size:10px;max-width:220px}
+ .hub-tutorial b{font-size:10px;bottom:5px}
+ .hub-mode{padding:8px}
+ .hub-mode strong{font-size:16px}
+ .hub-mode span,.hub-mode small{font-size:9px}
+ .hub-learn{padding:5px 30px 5px 10px;gap:1px}
+ .hub-learn strong{font-size:15px}
+ .hub-learn span{font-size:10px}
+ .hub-progress{font-size:9px;min-height:14px}
+ .scene-game .page{grid-template-rows:37px minmax(0,1fr)}
+ .scene-game .topbar{height:37px}
+ .play-layout{grid-template-rows:36px minmax(0,1fr) 88px;gap:4px;padding:2px 1px}
+ .play-layout .gameheader{padding:2px 8px}
+ .play-layout .game-score{font-size:21px}
+ .play-layout .tabletop{grid-template-rows:24px minmax(0,1fr) 24px minmax(0,1fr);padding:3px 5px;border-width:3px}
+ .board-zone{grid-template-rows:16px minmax(0,1fr)}
+ .board-zone-caption strong{font-size:10px}
+ .board-opponent,.board-taken{font-size:10px}
+ .board-opponent button,.board-taken button{min-height:22px;max-height:22px}
+ .play-layout .fieldcards,.play-layout .handcards{gap:3px 4px;padding:2px 0}
+ .play-layout .card-slot{grid-template-rows:minmax(0,1fr) 15px;gap:1px}
+ .play-layout .card-name{height:15px;max-height:15px;min-height:15px;padding:0}
+ .play-layout .card-name strong{line-height:13px;font-size:9px}
+ .play-layout .controlpad{padding:5px 8px;gap:6px}
+ .play-layout .coach-prompt strong{font-size:13px}
+ .play-layout .coach-prompt p{-webkit-line-clamp:2;font-size:10px;line-height:1.3}
+ .coach-actions{flex-basis:94px;width:94px}
+ .coach-actions button{min-height:36px}
+ .reference-page{grid-template-rows:49px 40px minmax(0,1fr) minmax(75px,.45fr) 18px}
+ .reference-page .chapter-title{font-size:20px}
+ .reference-top button{min-height:32px;font-size:10px}
+ .reference-top strong{font-size:13px}
+ .reference-note{padding:8px}
+ .reference-note p{-webkit-line-clamp:4;font-size:11px}
+ .study-hub{gap:5px;padding:5px 0}
+ .study-heading h1{font-size:24px;margin:3px 0}
+ .study-heading p{font-size:10px}
+ .study-main{padding:7px 11px}
+ .study-main strong{font-size:18px}
+ .study-actions{gap:6px}
+ .study-actions button{gap:4px;padding:8px}
+ .study-actions button strong{font-size:14px}
+ .study-actions button span{font-size:10px}
+}
+@media(max-width:355px){
+ .topbar .brand{font-size:13px}
+ .play-layout .gameheader .coach-detail{font-size:10px;min-height:32px}
+ .round-badge{font-size:10px}
+ .hub-hero h1{font-size:21px}
+ .hub-mode strong{font-size:15px}
+ .study-actions button strong{font-size:13px}
+}
+@media(min-width:650px){
+ .page{padding-left:25px;padding-right:25px}
+ .play-layout .fieldcards,.play-layout .handcards{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px 10px}
+ .play-layout .card-slot .hana{width:auto;height:100%}
+}
+
+/* Hide the old decorative pseudo-element in the compact teacher dock. */
+.play-layout .controlpad::before,.play-layout .controlpad::after{content:none!important}
+.play-layout .coach-actions button{min-width:0!important;width:100%;max-width:100%;padding:5px 2px!important;overflow-wrap:anywhere}
+.play-layout .controlpad .coach-prompt{min-height:0}
+.play-layout .controlpad .coach-prompt strong{white-space:normal}
+.play-layout .coach-actions{overflow:hidden}
+
+/* Remaining menus also use scene changes, not an endlessly scrolling page. */
+.scene-travel .scene-body,.scene-chapter .scene-body,.scene-free .scene-body,.scene-credits .scene-body{gap:8px;padding:8px 2px;overflow:hidden}
+.scene-travel .scene-body>.row,.scene-chapter .scene-body>.row,.scene-free .scene-body>.row,.scene-credits .scene-body>.row{flex:0 0 58px;min-height:0}
+.scene-travel .chapter-title,.scene-chapter .chapter-title,.scene-free .chapter-title,.scene-credits .chapter-title{font-size:23px;margin:2px 0}
+.scene-travel .panel,.scene-chapter .panel,.scene-free .panel,.scene-credits .panel{flex:1;min-height:0;margin:0;overflow:hidden;padding:12px}
+.scene-travel .panel{display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}
+.scene-travel .panel>.lead{margin:0;font-size:11px;line-height:1.5}
+.scene-travel .month-grid{min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:6px}
+.scene-travel .month{min-height:0;padding:5px 3px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden}
+.scene-travel .month strong{font-size:clamp(19px,6vw,27px);line-height:1.1}
+.scene-travel .month>span:not(.mark){font-size:9px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:center}
+.scene-travel .month .mark{font-size:9px;line-height:1.1;position:absolute;right:3px;top:2px}
+.scene-chapter .panel{display:flex;flex-direction:column;gap:8px}
+.scene-chapter .panel .row{min-height:0;flex:0 0 auto}
+.scene-chapter .panel img{max-height:19dvh;object-fit:contain}
+.scene-chapter .chapter-title{font-size:21px}
+.scene-chapter .story{flex:1;min-height:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:8;-webkit-box-orient:vertical;font-size:12px;line-height:1.7;margin:2px 0}
+.scene-chapter .quote{display:none}
+.scene-chapter .primary{margin-top:auto;flex:0 0 auto}
+.scene-free .panel{display:flex;flex-direction:column;gap:13px;justify-content:center}
+.scene-free .panel>.lead{margin:0;line-height:1.6;font-size:12px}
+.scene-free .panel>h3{font-family:"Yu Mincho",serif;margin:4px 0;font-size:20px}
+.scene-free .panel .stack{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));flex:1;min-height:0;max-height:360px;gap:10px}
+.scene-free .panel .stack button{height:100%;min-height:0;font-size:17px;border-radius:11px}
+.quiz-screen{height:100%;min-height:0;display:grid;grid-template-rows:65px minmax(0,1fr) 128px minmax(70px,.55fr) 23px;gap:7px;padding:10px 3px}
+.quiz-head small{font-size:11px;color:#a45f42}
+.quiz-head h1{font-family:"Yu Mincho",serif;font-size:clamp(19px,5.3vw,24px);line-height:1.3;margin:5px 0}
+.quiz-art{min-height:0;display:flex;gap:8px;align-items:center;justify-content:center}
+.quiz-art img{height:100%;width:auto;max-width:46%;object-fit:contain;filter:drop-shadow(0 4px 6px #30241641)}
+.quiz-options{min-height:0;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,minmax(0,1fr));gap:8px}
+.quiz-option{min-height:0!important;height:100%;display:flex;align-items:center;justify-content:center;border:2px solid #c6a87c;background:#fdf7e9;font-size:15px;box-shadow:0 2px 0 #d0b68b}
+.quiz-option img{max-height:100%;height:100%;width:auto;max-width:100%;object-fit:contain}
+.quiz-feedback{min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px}
+.quiz-feedback .notice{margin:0;padding:8px;font-size:11px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.quiz-feedback .primary{min-height:39px;padding:7px}
+.quiz-feedback>p:not(.notice){font-size:11px;color:#826e50;text-align:center;margin:0}
+.quiz-counter{font-size:11px;color:#8e7854;text-align:center}
+.settings-screen{height:100%;min-height:0;display:grid;grid-template-rows:65px repeat(3,minmax(0,1fr)) 50px 35px;gap:7px;padding:8px 3px}
+.settings-head h1{font-family:"Yu Mincho",serif;font-size:24px;margin:2px 0}
+.settings-head small{font-size:11px;color:#8b6f4d}
+.setting-row{min-height:0;background:#fff8e9;border:1px solid #d3b992;border-radius:9px;padding:8px 11px;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.setting-row strong{font-size:15px;color:#36533d}
+.setting-row>span{font-size:10px;color:#8e7860}
+.setting-row>div{display:flex;gap:7px}
+.setting-row .chip{flex:1;min-width:0;min-height:36px;padding:5px;font-size:11px}
+.settings-retry{border:1px solid #a94e36;border-radius:9px;color:white;background:#a64938;font-weight:800;font-size:14px}
+.settings-credits{border:0;background:transparent;color:#897357;font-size:11px;text-decoration:underline}
+.scene-credits .panel{display:flex;flex-direction:column;justify-content:center;gap:14px}
+.scene-credits .panel .lead{margin:0;font-size:12px}
+@media(max-height:680px){
+ .scene-travel .scene-body,.scene-chapter .scene-body,.scene-free .scene-body{padding:4px 1px;gap:4px}
+ .scene-travel .scene-body>.row,.scene-chapter .scene-body>.row,.scene-free .scene-body>.row{flex-basis:46px}
+ .scene-travel .panel,.scene-chapter .panel,.scene-free .panel{padding:8px}
+ .scene-travel .month-grid{gap:4px}
+ .scene-travel .month strong{font-size:18px}
+ .scene-travel .month>span:not(.mark){font-size:8px}
+ .scene-chapter .panel{gap:5px}
+ .scene-chapter .story{-webkit-line-clamp:6;font-size:11px}
+ .quiz-screen{grid-template-rows:52px minmax(0,1fr) 112px minmax(58px,.45fr) 16px;gap:5px;padding:5px 2px}
+ .quiz-head h1{font-size:18px;margin:3px 0}
+ .quiz-option{font-size:13px}
+ .settings-screen{grid-template-rows:40px repeat(3,minmax(0,1fr)) 40px 23px;gap:4px;padding:4px 2px}
+ .settings-head h1{font-size:21px}
+ .setting-row{padding:4px 8px;gap:2px}
+ .setting-row strong{font-size:13px}
+ .setting-row .chip{min-height:32px}
+ .settings-retry{font-size:12px}
+}
+
+/* Always display both the month/flower and the card's actual name/type. */
+.play-layout .card-slot{grid-template-rows:minmax(0,1fr) 27px}
+.play-layout .card-name{height:27px;min-height:27px;max-height:27px;padding:1px}
+.play-layout .card-name strong{display:block;font-size:clamp(8px,2.4vw,10px);line-height:12px}
+.play-layout .card-name span{display:block!important;font-size:clamp(7px,2.1vw,9px);line-height:11px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-height:680px){
+ .play-layout .card-slot{grid-template-rows:minmax(0,1fr) 23px}
+ .play-layout .card-name{height:23px;min-height:23px;max-height:23px}
+ .play-layout .card-name strong{line-height:10px;font-size:8px}
+ .play-layout .card-name span{line-height:10px;font-size:7px}
+}
