@@ -1,0 +1,198 @@
+/* Seasonal game-stage artwork: decorative only. Layout and card size
+   are owned by screen-layout.css / landscape.css / ui-fit.css. */
+@media (orientation:landscape) and (max-height:620px) {
+  .shell {
+    background:
+      radial-gradient(ellipse at 12% 1%, #98734435 0%, transparent 33%),
+      radial-gradient(ellipse at 98% 92%, #94704a26 0%, transparent 30%),
+      repeating-linear-gradient(90deg, transparent 0 28px, #090e0b17 29px 30px),
+      repeating-linear-gradient(0deg, #f5d7a608 0 1px, transparent 1px 5px),
+      linear-gradient(110deg,#172a23,#101d19 47%,#1a2921);
+  }
+  .shell::before {inset:4px;border-color:#c9a1662e;border-radius:3px;
+    box-shadow:inset 0 0 0 3px #0d1d154a}
+  .topbar {border-bottom-color:#b98e5588}
+  .topbar .seal {box-shadow:0 1px 0 #3b1d18,inset 0 0 0 2px #f6d39b3d}
+  .topbar .quiet {background:linear-gradient(#75523a,#382b23);border-color:#c19c61}
+  .scene-body>.row {position:relative;padding:0 4px 3px;
+    border-bottom:1px solid #b99a6038}
+  .scene-body>.row .kicker {letter-spacing:.17em}
+  .scene-body>.row .chapter-title {text-shadow:0 2px 4px #080d08a6}
+
+  /* The home screen is the game title, not a utility dashboard. */
+  .hub-hero {
+    border-color:#c8a46a;
+    background:
+      radial-gradient(circle at 71% 41%,#d2ae6754 0%,transparent 16%),
+      radial-gradient(circle at 76% 45%,transparent 0 27%,#d1af774a 27.4% 27.8%,transparent 28.2%),
+      radial-gradient(ellipse at 50% 103%,#45684e6b 0%,transparent 58%),
+      repeating-linear-gradient(135deg,#e9d5a006 0 2px,transparent 2px 14px),
+      linear-gradient(115deg,#102e27,#214837 64%,#102822);
+    box-shadow:inset 0 0 0 4px #e6bf7430,inset 0 0 0 7px #071b1480,
+      0 10px 24px #030a08aa;
+  }
+  .hub-hero::before {border-color:#d9ba7e69;box-shadow:0 0 0 14px #d6b27115,
+    0 0 0 27px #d6b2710b}
+  .landscape-title strong {color:#fff5db}
+  .landscape-title b {color:#f4d18e}
+  .hub-hero .hero-cards img {box-shadow:3px 7px 12px #020f0bc7,
+    0 0 0 2px #d6b78255}
+
+  /* Each of the four entrance panels is a deliberate game choice. */
+  .hub-tutorial {
+    border:2px solid #cc9856;border-left:5px solid #a53b2b;
+    background:
+      radial-gradient(circle at 91% 19%,#ffedbd 0%,transparent 28%),
+      repeating-linear-gradient(0deg,#91633b0c 0 1px,transparent 1px 8px),
+      linear-gradient(115deg,#fae9bd,#d9b579);
+    box-shadow:inset 0 0 0 3px #fff1c17e,0 5px 12px #040b08a0;
+  }
+  .hub-tutorial::before {color:#a96c324d}
+  .hub-tutorial strong {color:#3b3528;text-shadow:0 1px #fff5d7}
+  .hub-tutorial b {color:#8a3128}
+  .hub-mode {border-width:2px;box-shadow:
+    inset 0 0 0 3px #e2c7932b,inset 0 0 15px #050b085e,0 4px 9px #040b086e}
+  .hub-mode::after {content:"›";position:absolute;right:7px;top:50%;
+    transform:translateY(-50%);font:25px Georgia,serif;
+    color:#eace9199;pointer-events:none}
+  .hub-mode span {letter-spacing:.12em}
+  .hub-journey {background:
+    radial-gradient(circle at 84% 19%,#d7b6774f,transparent 32%),
+    linear-gradient(125deg,#36644a,#173e32)}
+  .hub-free {background:
+    radial-gradient(circle at 83% 20%,#d2a67355,transparent 37%),
+    linear-gradient(125deg,#704735,#382725)}
+  .hub-learn {border:2px solid #b79560;
+    background:linear-gradient(115deg,#fbedd0,#d1b386);
+    box-shadow:inset 0 0 0 3px #fff5d67a,0 4px 10px #050a076a}
+  .hub-progress {border-top:1px solid #ac8d5b50;padding-top:2px}
+  .hub-progress span {color:#e3c891}
+
+  /* The twelve stops share one lacquered route board. */
+  .scene-travel .panel {
+    border:2px solid #b89256;
+    background:
+      radial-gradient(ellipse at 50% -15%,#4c654a,transparent 85%),
+      repeating-linear-gradient(90deg,transparent 0 18px,#0f251c38 19px 20px),
+      linear-gradient(#244736,#132b24);
+    box-shadow:inset 0 0 0 4px #d5ad6740,0 7px 13px #060e0a94;
+  }
+  .scene-travel .panel>.lead {color:#ead6ad;font-weight:650;
+    letter-spacing:.035em}
+  .scene-travel .month-grid {
+    position:relative;gap:5px;padding:3px;
+    border-radius:5px;border:1px solid #bd9b655c;
+    background:repeating-linear-gradient(0deg,#c5aa5e14 0 1px,transparent 1px 3px);
+  }
+  .scene-travel .month {
+    border-color:#b19765;border-radius:4px;
+    background:linear-gradient(130deg,#faebc6,#dfc796 83%);
+    box-shadow:inset 0 0 0 2px #fff4d75c,0 2px 3px #071811b5;
+  }
+  .scene-travel .month::after {color:#987b4324;right:15%;bottom:-27px}
+  .scene-travel .month strong {color:#2b4b39;
+    text-shadow:0 1px #fff5dc}
+  .scene-travel .month>span:not(.mark){color:#594b36;font-weight:650}
+  .scene-travel .month .mark {top:3px;right:auto;left:5px;font-size:10px;
+    color:#a44332}
+  .scene-travel .month img.month-art {box-shadow:2px 4px 7px #281c1682}
+  .scene-travel .month.locked {
+    background:linear-gradient(120deg,#8b9381,#677568);
+    border-color:#a1aa94;filter:none;
+  }
+  .scene-travel .month.locked strong {color:#e5dec6;text-shadow:0 1px #20352b}
+  .scene-travel .month.locked>span:not(.mark){color:#e3dcc5}
+  .scene-travel .month.locked .mark{color:#d8c9a6}
+  .scene-travel .month.locked img {opacity:.26}
+  .scene-travel .month.ready {
+    background:linear-gradient(125deg,#fff3bf,#e7c179);
+    border:2px solid #ffdc86;box-shadow:inset 0 0 0 2px #fff7d4,
+      0 0 0 2px #c7853e,0 2px 9px #f6b85177;
+  }
+  .scene-travel .month.cleared {
+    background:linear-gradient(120deg,#dde5c9,#afc49c);
+  }
+
+  /* Free play: lacquered selection plaques instead of form controls. */
+  .scene-free .panel {position:relative;isolation:isolate;
+    border:2px solid #b48e54;
+    background:radial-gradient(ellipse at 86% 20%,#46644b6b,transparent 50%),
+      repeating-linear-gradient(0deg,#dab77a0a 0 1px,transparent 1px 9px),
+      linear-gradient(125deg,#193e31,#122b25);
+    box-shadow:inset 0 0 0 5px #d9b57432,0 8px 16px #040b08a0}
+  .scene-free .panel::before {content:"";position:absolute;z-index:-1;
+    top:10%;right:3%;width:115px;height:70%;background:
+    url('assets/cards/Hanafuda_January_Hikari.png') center/contain no-repeat;
+    opacity:.13;filter:sepia(1);transform:rotate(8deg);pointer-events:none}
+  .scene-free .panel>.lead {color:#eee2bf;font-size:12px}
+  .scene-free .panel>h3 {color:#f6deaa;letter-spacing:.13em;font-size:18px}
+  .scene-free .panel .stack {gap:8px}
+  .scene-free .panel .stack button {
+    position:relative;overflow:hidden;
+    border:2px solid #d2ad74;border-radius:5px;
+    color:#fff2d1;font:800 clamp(14px,1.86vw,18px) "Yu Mincho",serif;
+    letter-spacing:.1em;
+    background:linear-gradient(180deg,#795039,#4e3027 70%,#38221e);
+    box-shadow:inset 0 0 0 3px #f1d1a022,0 3px 0 #281d1c;
+  }
+  .scene-free .panel .stack button:nth-child(2){
+    background:linear-gradient(180deg,#52694c,#2d513b 70%,#1c362e)}
+  .scene-free .panel .stack button:nth-child(3){
+    background:linear-gradient(180deg,#7d633c,#5d482b 70%,#40311f)}
+  .scene-free .panel .stack button::after {content:"❀";position:absolute;
+    right:20px;top:50%;transform:translateY(-50%);
+    color:#f5d59d35;font:45px Georgia,serif;pointer-events:none}
+  .scene-free .panel .stack button::before {content:"";position:absolute;
+    left:12px;top:25%;bottom:25%;width:3px;background:#edcd8c8c;pointer-events:none}
+
+  /* The study menu feels like a cabinet of illustrated cards. */
+  .scene-learn .study-heading h1 {color:#ffe6b7;text-shadow:0 2px 4px #07110b}
+  .scene-learn .study-heading p {color:#d8c7a4}
+  .scene-learn .study-main {
+    border:2px solid #c49b62;border-left:5px solid #b54b35;
+    border-radius:5px;background:linear-gradient(120deg,#f9e9bc,#d5ae72);
+    box-shadow:inset 0 0 0 3px #fff0c36e,0 4px 9px #08110ba6}
+  .scene-learn .study-actions button {
+    border:2px solid #b99662;border-radius:5px;
+    background:radial-gradient(circle at 85% 50%,#fff6d1,transparent 43%),
+      linear-gradient(130deg,#f5e7c3,#c9ad78);
+    box-shadow:inset 0 0 0 3px #fff5d86b,0 4px 9px #050b0888}
+  .scene-learn .study-actions button:nth-child(2n){
+    background:radial-gradient(circle at 88% 45%,#f1dfb9,transparent 43%),
+      linear-gradient(130deg,#e2d1a9,#ba9e73)}
+  .scene-learn .study-actions button strong{color:#274638}
+  .scene-learn .study-actions button span{color:#684e35}
+  .scene-learn .study-foot{color:#cbb891}
+
+  /* Consistent, readable framed reference, quiz and settings screens. */
+  .reference-top {border:1px solid #b9995f;
+    box-shadow:inset 0 0 0 2px #fff0cf8c;
+    background:linear-gradient(120deg,#f2e1b8,#cfb184)}
+  .reference-note,.scene-quiz .quiz-feedback,.setting-row {
+    border-color:#b89a65;
+    background:linear-gradient(130deg,#fff3d8,#e5cf9e);
+    box-shadow:inset 0 0 0 2px #fff5dd88;
+  }
+  .scene-quiz .quiz-option{border-color:#b8945c;border-radius:4px;
+    background:linear-gradient(150deg,#fff9e8,#ddc796);
+    box-shadow:inset 0 0 0 2px #fff7e3,0 3px 0 #765d3c}
+  .scene-quiz .quiz-option:active{transform:translateY(2px);box-shadow:none}
+  .scene-settings .setting-row{border-radius:5px}
+  .scene-chapter .panel {box-shadow:inset 0 0 0 5px #fff2d080,0 7px 15px #050c0895}
+  .game-dialog .dialog-sheet {border-color:#d2aa69;
+    background:linear-gradient(130deg,#fff5dc,#e8d1a0);
+    box-shadow:inset 0 0 0 4px #fff8e3a6,0 9px 25px #05100cb3}
+  button:focus-visible {outline:3px solid #ffe69b;outline-offset:1px}
+  button:disabled {cursor:default}
+}
+@media (orientation:landscape) and (max-height:390px){
+  .scene-free .panel>h3{font-size:16px}
+  .scene-free .panel .stack button::after{font-size:30px}
+  .hub-mode::after{font-size:19px}
+}
+@media (orientation:landscape) and (max-height:620px) and (prefers-reduced-motion:no-preference) and (hover:hover) and (pointer:fine){
+  .scene-travel .month:not(:disabled):hover,
+  .scene-free .panel .stack button:hover,
+  .hub-tutorial:hover,.hub-mode:hover,.hub-learn:hover,
+  .scene-learn .study-actions button:hover {filter:brightness(1.08)}
+}
