@@ -1,0 +1,188 @@
+/* Learning overlay — independent from game mechanics. Works on the live board.
+   The highlight is inside the board to keep the teacher controls clickable. */
+.play-layout.tutorial-intro .tabletop{
+  position:relative;
+  isolation:isolate;
+}
+.play-layout.tutorial-intro .tabletop::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(5,12,10,.72);
+  z-index:8;
+  pointer-events:auto;
+}
+.play-layout.tutorial-intro .tabletop .region-opponent,
+.play-layout.tutorial-intro .tabletop .region-field,
+.play-layout.tutorial-intro .tabletop .region-hand{
+  position:relative;
+  filter:none;
+  z-index:auto;
+}
+.play-layout.intro-step-1 .region-opponent,
+.play-layout.intro-step-2 .region-field,
+.play-layout.intro-step-3 .region-hand{
+  z-index:9!important;
+  filter:none!important;
+  box-shadow:0 0 0 3px #f5cd71,0 0 0 7px #f5cd7160,0 0 22px #f5c768b6!important;
+  border-radius:5px;
+}
+.play-layout.intro-step-1 .region-opponent{background:#274e3f}
+.play-layout.intro-step-2 .region-field{background:linear-gradient(135deg,#ead9b5,#f8f0db)}
+.play-layout.intro-step-3 .region-hand{background:linear-gradient(150deg,#1c4333,#102e27)}
+.play-layout.tutorial-intro .controlpad{
+  position:relative;
+  z-index:12;
+  border-color:#e8bd72;
+  box-shadow:inset 0 0 0 3px #fff3c262,0 0 0 3px #e7b65b,0 0 20px #deb26384;
+}
+.play-layout.tutorial-intro .tutor-kicker{
+  color:#a14b34;
+  font-weight:850;
+}
+.play-layout.tutorial-intro .coach-mast::after{
+  content:"ガイド中";
+  margin-left:auto;
+  border:1px solid #bf9363;
+  border-radius:3px;
+  padding:2px 4px;
+  background:#f8e6bb;
+  color:#8b422f;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.tutorial-exhibit{
+  display:none;
+  position:absolute;
+  z-index:11;
+  inset:10% 5%;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border:1px solid #efd193;
+  border-radius:8px;
+  background:linear-gradient(135deg,#f4e7c7,#d7b987);
+  color:#334d3b;
+  box-shadow:0 10px 30px #030b07b8,inset 0 0 0 5px #fff7d95c;
+}
+.play-layout.intro-step-0 .concept-exhibit{display:flex;flex-direction:column}
+.concept-exhibit strong{font:750 clamp(15px,2.4vw,23px) "Yu Mincho",serif}
+.concept-exhibit .tinycards{gap:14px;overflow:visible;padding:0}
+.concept-exhibit .tinycards .hana{width:49px;height:80px;flex:0 0 49px;box-shadow:0 5px 8px #4d382d70}
+.concept-exhibit span{font-size:12px;line-height:1.3;text-align:center}
+.play-layout.intro-step-4 .family-exhibit{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  align-items:stretch;
+  padding:10px 14px;
+  gap:9px;
+}
+.family-example{display:flex;gap:7px;align-items:center;min-width:0}
+.family-example img{height:min(100%,108px);width:auto;max-width:45%;object-fit:contain;border:1px solid #a18c6b;border-radius:3px;box-shadow:0 3px 6px #47352850}
+.family-example div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.family-example strong{font:800 clamp(13px,1.8vw,17px) "Yu Mincho",serif}
+.family-example span{font-size:clamp(9px,1.15vw,11px);line-height:1.5}
+.capture-learning,.role-reveal{
+  position:absolute;
+  z-index:13;
+  inset:3%;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:2px solid #d7b46d;
+  border-radius:8px;
+  padding:10px 14px;
+  background:linear-gradient(115deg,#f7edcf,#dec496);
+  color:#384f3d;
+  box-shadow:0 0 0 2000px #071b15a0,0 8px 22px #020c0acc,inset 0 0 0 5px #fff8db78;
+}
+.capture-lesson-head,.role-reveal-title{
+  color:#a34b34;
+  font:800 clamp(17px,2.5vw,23px) "Yu Mincho",serif;
+  letter-spacing:.06em;
+}
+.capture-learning-cards{display:flex;justify-content:center;align-items:center;gap:11px;min-height:0;max-height:60%;width:100%;overflow:hidden}
+.capture-learning-cards>div{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.capture-learning-cards img{height:clamp(40px,16vh,84px);width:auto;border:1px solid #9d8358;box-shadow:0 3px 5px #3326194c}
+.capture-learning-cards strong{font-size:10px}
+.capture-learning-cards span{font-size:9px}
+.capture-learning p,.role-reveal p{
+  margin:0;
+  font-size:clamp(10px,1.3vw,13px);
+  line-height:1.35;
+  text-align:center;
+  color:#4f513f;
+}
+.role-reveal{gap:5px;padding:7px 10px}
+.role-reveal-title{font-size:clamp(17px,2.2vw,24px)}
+.role-scored{display:flex;gap:8px;justify-content:center;align-items:stretch;width:100%;min-height:0;max-height:58%;overflow:auto}
+.role-scored-item{min-width:0;flex:0 1 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:4px 8px;border:1px solid #cbb17c;border-radius:5px;background:#fff7df}
+.role-scored-item>strong{font-size:13px;white-space:nowrap}
+.role-scored-item>strong b{color:#a24832}
+.role-cards{display:flex;align-items:center;justify-content:center;gap:3px;min-height:0}
+.role-cards img{max-width:37px;max-height:clamp(38px,12vh,70px);height:auto;width:auto;object-fit:contain}
+.game-dialog{z-index:50}
+.card-inspection{display:flex;gap:15px;align-items:center;justify-content:center;padding:6px 10px}
+.card-inspection>img{width:auto;height:clamp(82px,23vh,153px);max-width:24%;border:1px solid #b3a17a}
+.card-inspection>div{flex:1;min-width:0}
+.card-inspection strong{font-size:17px;color:#914a35}
+.card-inspection p{font-size:12px;line-height:1.65;color:#465b49}
+#toast[hidden]{display:none!important}
+#toast{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:600px;
+  margin:auto;left:10px;right:10px;padding:8px 10px;font-size:12px}
+#toast>span{flex:1}
+#toast button{flex:none;border:1px solid #c7a977;border-radius:5px;background:#f1dfbd;
+  color:#34503e;min-height:32px;padding:5px 9px;font-size:11px;font-weight:800}
+@media (orientation:landscape) and (max-height:390px){
+ .play-layout.intro-step-4 .family-exhibit{inset:6% 2%;padding:8px;gap:4px}
+ .family-example{gap:4px}
+ .family-example img{max-height:72px}
+ .family-example span{font-size:9px;line-height:1.25}
+ .capture-learning-cards img{height:55px}
+ .role-cards img{max-height:43px;max-width:27px}
+ .role-scored-item{padding:3px 5px}
+ .role-scored-item>strong{font-size:11px}
+}
+/* Polish after on-device-sized screenshot review: teacher must never look disabled. */
+.capture-learning,.role-reveal{
+  box-shadow:0 8px 22px #020c0acc,inset 0 0 0 5px #fff8db78;
+}
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.intro-step-4 .family-exhibit{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:8px 12px;
+    padding:11px 14px;
+    align-items:stretch;
+  }
+  .family-example{
+    background:#fff5df9c;
+    border:1px solid #c1a47b;
+    border-radius:5px;
+    padding:7px 9px;
+    justify-content:flex-start;
+    gap:12px;
+  }
+  .family-example img{height:94%;max-width:28%;max-height:97px;flex:none}
+  .family-example div{gap:6px}
+  .family-example strong{font-size:clamp(15px,1.7vw,19px)}
+  .family-example span{font-size:clamp(10px,1.2vw,12px);line-height:1.55}
+}
+@media (orientation:landscape) and (max-height:390px){
+  .play-layout.intro-step-4 .family-exhibit{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:6px;padding:7px 9px;
+  }
+  .family-example{gap:6px;padding:4px 6px}
+  .family-example img{max-height:76px}
+  .family-example div{gap:3px}
+  .family-example strong{font-size:14px}
+  .family-example span{font-size:10px;line-height:1.3}
+}
