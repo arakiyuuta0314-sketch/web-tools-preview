@@ -82,9 +82,9 @@
       "emoji": "🎴",
       "stage": "Webプレビュー",
       "kind": "game",
-      "description": "一手ごとの解説と練習チュートリアル、全手札表示で覚える花札こいこい。",
-      "url": "./hanafuda/?v=20261111-guided-theme-v2",
-      "version": "操作チュートリアル・札名表示・和風デザイン v2",
+      "description": "縦スクロールなしの固定画面で覚える花札。操作練習・先生の解説・月ごとの図鑑に対応。",
+      "url": "./hanafuda/?v=20261111-fixed-screen-v3",
+      "version": "画面固定・学習ハブ・操作ガイド v3",
       "cta": "ゲームを開く"
     }
   ]

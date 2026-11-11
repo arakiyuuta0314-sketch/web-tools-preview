@@ -8019,9 +8019,9 @@
     (function(Utils) {
       const HEX2STR = "0123456789abcdef".split("");
       function toHexString(r) {
-        for (var n2 = "", e = 0; e < 4; e++)
-          n2 += HEX2STR[r >> 8 * e + 4 & 15] + HEX2STR[r >> 8 * e & 15];
-        return n2;
+        for (var n = "", e = 0; e < 4; e++)
+          n += HEX2STR[r >> 8 * e + 4 & 15] + HEX2STR[r >> 8 * e & 15];
+        return n;
       }
       function hexStringFromArray(array) {
         const out = [];
@@ -8029,29 +8029,29 @@
           out.push(toHexString(array[i]));
         return out.join("");
       }
-      function add32(r, n2) {
-        return r + n2 & 4294967295;
+      function add32(r, n) {
+        return r + n & 4294967295;
       }
-      function complexShift(r, n2, e, t, o, u, shiftFunction) {
+      function complexShift(r, n, e, t, o, u, shiftFunction) {
         function shiftAdd32(op0, op1, v1) {
           return add32(op0 << op1 | op0 >>> 32 - op1, v1);
         }
         function add32x4(i0, i1, j0, j1) {
           return add32(add32(i1, i0), add32(j0, j1));
         }
-        return shiftAdd32(add32x4(r, n2, t, u), o, e);
+        return shiftAdd32(add32x4(r, n, t, u), o, e);
       }
-      var step1Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(e & t | ~e & o, n2, e, u, f, a);
+      var step1Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(e & t | ~e & o, n, e, u, f, a);
       };
-      var step2Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(e & o | t & ~o, n2, e, u, f, a);
+      var step2Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(e & o | t & ~o, n, e, u, f, a);
       };
-      var step3Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(e ^ t ^ o, n2, e, u, f, a);
+      var step3Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(e ^ t ^ o, n, e, u, f, a);
       };
-      var step4Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(t ^ (e | ~o), n2, e, u, f, a);
+      var step4Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(t ^ (e | ~o), n, e, u, f, a);
       };
       function hashStep(inOutVec4, strAsInts, shiftFunction) {
         if (!shiftFunction)
@@ -8164,9 +8164,9 @@
           return "";
         let shiftFunction;
         if ("5d41402abc4b2a76b9719d911017c592" !== hexStringFromArray(computeMD5("hello")))
-          shiftFunction = function(r, n2) {
-            const e = (65535 & r) + (65535 & n2);
-            return (r >> 16) + (n2 >> 16) + (e >> 16) << 16 | 65535 & e;
+          shiftFunction = function(r, n) {
+            const e = (65535 & r) + (65535 & n);
+            return (r >> 16) + (n >> 16) + (e >> 16) << 16 | 65535 & e;
           };
         return hexStringFromArray(computeMD5(str, shiftFunction));
       }
@@ -8753,7 +8753,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           }
           const RENEWS_EVERY_MS = 2 * 6e4;
           const receipt = new CdvPurchase2.Receipt(platform, this.context.apiDecorators);
-          const makeTransaction = (n2) => {
+          const makeTransaction = (n) => {
             var _a, _b;
             const tr = new CdvPurchase2.Transaction(platform, receipt, this.context.apiDecorators);
             tr.products = [{
@@ -8761,21 +8761,21 @@ Enter "E" to fail with an error.Anything else to cancel.`);
               offerId: Test.testProducts.PAID_SUBSCRIPTION_ACTIVE.extra.offerId
             }];
             tr.state = CdvPurchase2.TransactionState.APPROVED;
-            tr.transactionId = transactionId(n2);
-            tr.isAcknowledged = n2 == 1;
+            tr.transactionId = transactionId(n);
+            tr.isAcknowledged = n == 1;
             tr.renewalIntent = CdvPurchase2.RenewalIntent.RENEW;
             const firstPurchase = +(((_b = (_a = receipt === null || receipt === void 0 ? void 0 : receipt.transactions) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.purchaseDate) || /* @__PURE__ */ new Date());
             tr.purchaseDate = new Date(firstPurchase);
-            tr.lastRenewalDate = new Date(firstPurchase + RENEWS_EVERY_MS * (n2 - 1));
-            tr.expirationDate = new Date(firstPurchase + RENEWS_EVERY_MS * n2);
+            tr.lastRenewalDate = new Date(firstPurchase + RENEWS_EVERY_MS * (n - 1));
+            tr.expirationDate = new Date(firstPurchase + RENEWS_EVERY_MS * n);
             updateVerifiedPurchases(tr);
             return tr;
           };
           receipt.transactions.push(makeTransaction(1));
           this.receipts.push(receipt);
           this.context.listener.receiptsUpdated(CdvPurchase2.Platform.TEST, [receipt]);
-          function transactionId(n2) {
-            return "test-active-subscription-transaction-" + n2;
+          function transactionId(n) {
+            return "test-active-subscription-transaction-" + n;
           }
           let transactionNumber = 1;
           setInterval(() => {
@@ -9346,8 +9346,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         if (!iso)
           return "";
         const l = iso.length;
-        const n2 = iso.slice(1, l - 1);
-        if (n2 === "1") {
+        const n = iso.slice(1, l - 1);
+        if (n === "1") {
           if (options === null || options === void 0 ? void 0 : options.omitOne) {
             return { "D": "day", "W": "week", "M": "month", "Y": "year" }[iso[l - 1]] || iso[l - 1];
           } else {
@@ -9355,7 +9355,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           }
         } else {
           const u = { "D": "days", "W": "weeks", "M": "months", "Y": "years" }[iso[l - 1]] || iso[l - 1];
-          return `${n2} ${u}`;
+          return `${n} ${u}`;
         }
       }
       Utils.formatDurationEN = formatDurationEN;
@@ -10159,6 +10159,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var quiz = null;
   var notice = "";
   var adsStatus = "\u30D6\u30E9\u30A6\u30B6\u3067\u306F\u5E83\u544A\u3092\u8868\u793A\u3057\u307E\u305B\u3093";
+  var studyMonth = 1;
+  var selectedYakuIndex = 0;
+  var gameDialog = null;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
@@ -10173,9 +10176,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function esc(v) {
     return String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   }
-  function n(v) {
-    return Number(v).toLocaleString("ja-JP");
-  }
   function photo(id) {
     return card(id).asset;
   }
@@ -10185,18 +10185,19 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (!opts.label) return button;
     return '<div class="card-slot">' + button + '<div class="card-name" aria-hidden="true"><strong>' + c.month + "\u6708 " + esc(c.flower) + "</strong><span>" + esc(c.subject) + "\u30FB" + esc(c.type) + "</span></div></div>";
   }
-  function mini(ids) {
-    return '<div class="tinycards">' + ids.map((id) => '<div class="hana" title="' + esc(card(id).name) + '"><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></div>').join("") + "</div>";
-  }
   function shell(content, right = "") {
-    return '<div class="shell"><main class="page"><header class="topbar"><div class="brand"><span class="seal">\u82B1</span> \u307E\u306A\u3079\u308B\u82B1\u672D <span class="navsmall">\u3053\u3044\u3053\u3044</span></div><div class="row">' + (right || '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + "</div></header>" + content + '<footer class="footerlinks">\u672C\u4F5C\u306F\u30AA\u30D5\u30E9\u30A4\u30F3\u3067\u904A\u3079\u307E\u3059\u3002<a data-action="credits" href="#">\u672D\u7D75\u306E\u8457\u4F5C\u6A29\u8868\u793A</a> \xB7 \u958B\u767A\u30D7\u30EC\u30D3\u30E5\u30FC</footer></main></div>';
+    const gaming = screen === "game";
+    return '<div class="shell scene-' + screen + '"><main class="page"><header class="topbar"><div class="brand"><span class="seal">\u82B1</span><span class="brand-name">\u307E\u306A\u3079\u308B\u82B1\u672D <small>\u3053\u3044\u3053\u3044</small></span></div><div class="row">' + (gaming ? '<button class="quiet" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button>' : right || '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u64CD\u4F5C\u3092\u5B66\u3076">\u2726<span>\u7DF4\u7FD2</span></button><button data-action="travel" aria-label="\u5341\u4E8C\u304B\u6708\u306E\u65C5">\u2740<span>\u65C5</span></button><button data-action="learn" aria-label="\u82B1\u672D\u3092\u5B66\u3076">\u25A3<span>\u5B66\u3076</span></button></nav>') + "</main></div>";
   }
   function headline(title, back = "home", subtitle = "") {
     return '<div class="row"><div><div class="kicker">' + esc(subtitle || "\u82B1\u672D\u306E\u65C5") + '</div><h1 class="chapter-title">' + esc(title) + '</h1></div><button class="quiet" data-action="' + back + '">\u623B\u308B</button></div>';
   }
   function home() {
     const canResume = state.active !== null && !state.active.finished;
-    return shell('<div class="hero"><div class="eyebrow">LEARN AS YOU PLAY \xB7 HANAFUDA</div><h1>\u82B1\u3092\u3081\u3050\u308A\u3001<br>\u672D\u3092\u899A\u3048\u308B\u3002</h1><p>\u5148\u751F\u306E\u89E3\u8AAC\u3068\u4E00\u7DD2\u306B\u904A\u3076\u3001\u5341\u4E8C\u304B\u6708\u306E\u3053\u3044\u3053\u3044\u65C5\u3002</p><div class="hero-cards"><img src="' + photo("1-1") + '" alt=""><img src="' + photo("3-1") + '" alt=""><img src="' + photo("8-1") + '" alt=""></div></div>' + (canResume ? '<section class="panel"><div class="row"><div><strong>\u7D9A\u304D\u304B\u3089\u518D\u958B</strong><p class="lead">' + (state.active.tutorial ? "\u64CD\u4F5C\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB" : state.active.mode === "travel" ? state.active.month + "\u6708\u306E\u65C5" : state.active.length + "\u304B\u6708\u5BFE\u5C40") + " \xB7 \u7B2C" + (state.active.index + 1) + '\u5C40</p></div><button class="primary" data-action="resume">\u518D\u958B\u3059\u308B</button></div></section>' : "") + '<div class="mode-card tutor-entry"><div><span class="tag">\u306F\u3058\u3081\u3066\u306E\u65B9\u3078</span><h3>\u64CD\u4F5C\u3092\u899A\u3048\u308B\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</h3><p>\u672D\u306E\u540D\u524D\u3092\u898B\u306A\u304C\u3089\u30011\u5C40\u3092\u5B9F\u969B\u306B\u904A\u3093\u3067\u899A\u3048\u307E\u3059\u3002\u6210\u7E3E\u306B\u306F\u5165\u308A\u307E\u305B\u3093\u3002</p></div><button class="primary" data-action="start-tutorial">\u7DF4\u7FD2\u3059\u308B</button></div><div class="sectionhead"><h2>\u904A\u3073\u306A\u304C\u3089\u5B66\u3076</h2><small>PLAY & LEARN</small></div><div class="stack"><div class="mode-card story-entry"><div><span class="tag">MAIN STORY</span><h3>\u5341\u4E8C\u304B\u6708\u306E\u65C5</h3><p>\u677E\u304B\u3089\u6850\u307E\u3067\u3001\u82B1\u306E\u5B63\u7BC0\u3092\u9032\u3082\u3046\u3002</p></div><button class="primary" data-action="travel">\u65C5\u3078</button></div><div class="mode-card free-entry"><div><span class="tag">FREE PLAY</span><h3>\u30D5\u30EA\u30FC\u5BFE\u5C40</h3><p>3\u30FB6\u30FB12\u304B\u6708\u304B\u3089\u9078\u3093\u3067\u5BFE\u6226\u3002</p></div><button class="secondary" data-action="free">\u5BFE\u5C40</button></div></div><div class="sectionhead"><h2>\u82B1\u672D\u3092\u77E5\u308B</h2><small>STUDY ROOM</small></div><div class="stack"><div class="mode-card study-entry"><div><strong>\u56DB\u5341\u516B\u679A\u306E\u672D\u56F3\u9451</strong><p>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092\u7D75\u67C4\u3067\u899A\u3048\u308B\u3002</p></div><button class="chip" data-action="cards">\u672D\u3092\u307F\u308B</button></div><div class="mode-card study-entry"><div><strong>\u5F79\u56F3\u9451</strong><p>\u5FC5\u8981\u306A\u672D\u3068\u70B9\u6570\u3092\u898B\u6BD4\u3079\u308B\u3002</p></div><button class="chip" data-action="yaku">\u5F79\u3092\u307F\u308B</button></div><div class="mode-card study-entry"><div><strong>\u82B1\u672D\u30AF\u30A4\u30BA</strong><p>\u77E5\u8B58\u3092\u8A66\u3057\u3066\u3001\u6B63\u7B54\u7387\u3092\u8A18\u9332\u3002</p></div><button class="chip" data-action="quiz">\u6311\u6226</button></div><div class="mode-card study-entry"><div><strong>\u5341\u4E8C\u304B\u6708\u306E\u82B1\u3060\u3088\u308A</strong><p>\u571F\u5730\u3068\u5B63\u7BC0\u306B\u307E\u3064\u308F\u308B\u5C0F\u3055\u306A\u8AAD\u307F\u7269\u3002</p></div><button class="chip" data-action="columns">\u8AAD\u3080</button></div></div><div class="sectionhead"><h2>\u3053\u308C\u307E\u3067\u306E\u6B69\u307F</h2></div><div class="stats"><div class="stat"><strong>' + n(state.travelCleared) + '/12</strong><label>\u65C5\u306E\u5230\u9054\u6708</label></div><div class="stat"><strong>' + n(state.seen.length) + '/48</strong><label>\u898B\u305F\u3053\u3068\u306E\u3042\u308B\u672D</label></div><div class="stat"><strong>' + (state.quiz.total ? Math.round(state.quiz.correct / state.quiz.total * 100) : 0) + "%</strong><label>\u30AF\u30A4\u30BA\u6B63\u7B54\u7387</label></div></div>");
+    return shell('<div class="hub"><section class="hub-hero"><div class="eyebrow">LEARN & PLAY \xB7 HANAFUDA</div><h1>\u82B1\u3092\u3081\u3050\u308A\u3001<br>\u672D\u3092\u899A\u3048\u308B\u3002</h1><p>\u306F\u3058\u3081\u3066\u3067\u3082\u3001\u82B1\u672D\u304C\u308F\u304B\u308B\u3002</p><div class="hero-cards"><img src="' + photo("1-1") + '" alt=""><img src="' + photo("3-1") + '" alt=""><img src="' + photo("8-1") + '" alt=""></div></section><button class="hub-tutorial" data-action="start-tutorial"><span class="hub-badge">\u306F\u3058\u3081\u3066\u306E\u65B9\u306F\u3001\u3053\u3053\u304B\u3089</span><strong>\u2460 \u64CD\u4F5C\u3092\u899A\u3048\u308B</strong><span>\u672D\u306E\u540D\u524D\u3092\u898B\u306A\u304C\u3089\u3001\u5148\u751F\u3068\u4E00\u5C40\u7DF4\u7FD2</span><b>\u7DF4\u7FD2\u3092\u306F\u3058\u3081\u308B \u203A</b></button>' + (canResume ? '<button class="hub-resume" data-action="resume">\u25B6 \u7D9A\u304D\u304B\u3089\u518D\u958B <small>' + (state.active.tutorial ? "\u64CD\u4F5C\u7DF4\u7FD2\u4E2D" : state.active.mode === "travel" ? state.active.month + "\u6708\u306E\u65C5" : "\u30D5\u30EA\u30FC\u5BFE\u5C40") + "</small></button>" : "") + '<div class="hub-modes"><button class="hub-mode hub-journey" data-action="travel"><span>\u3082\u306E\u304C\u305F\u308A</span><strong>\u5341\u4E8C\u304B\u6708\u306E\u65C5</strong><small>\u677E\u304B\u3089\u6850\u3078\u3001\u5B63\u7BC0\u3092\u3081\u3050\u308B</small></button><button class="hub-mode hub-free" data-action="free"><span>\u81EA\u7531\u306B\u3042\u305D\u3076</span><strong>\u30D5\u30EA\u30FC\u5BFE\u5C40</strong><small>3\u30FB6\u30FB12\u304B\u6708</small></button></div><button class="hub-learn" data-action="learn"><strong>\u2461 \u82B1\u672D\u3092\u5B66\u3076</strong><span>\u672D\u56F3\u9451\u30FB\u5F79\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u30FB\u82B1\u3060\u3088\u308A</span><b>\u203A</b></button><div class="hub-progress"><span>\u65C5 ' + state.travelCleared + "/12</span><span>\u899A\u3048\u305F\u672D " + state.seen.length + "/48</span><span>\u30AF\u30A4\u30BA " + (state.quiz.total ? Math.round(state.quiz.correct / state.quiz.total * 100) : 0) + "%</span></div></div>");
+  }
+  function learn() {
+    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u3069\u3046\u3084\u3063\u3066\u5B66\u3076\uFF1F</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u64CD\u4F5C\u3092\u304A\u307C\u3048\u308B</strong><small>\u5148\u751F\u30681\u5C40\u3001\u624B\u672D\u306E\u51FA\u3057\u65B9\u304B\u3089</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
   }
   function journey() {
     return shell(headline("\u6708\u3092\u3081\u304F\u308B\u65C5", "home", "TWELVE MONTHS") + '<div class="panel"><p class="lead">\u52DD\u3063\u305F\u6708\u306E\u6B21\u3078\u9032\u3081\u307E\u3059\u3002\u6557\u5317\u30FB\u5F15\u5206\u3051\u3067\u306F\u305D\u306E\u6708\u306B\u518D\u6311\u6226\u3057\u307E\u3059\u3002</p><div class="month-grid">' + CHAPTERS.map((ch) => {
@@ -10213,7 +10214,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return shell(headline("\u81EA\u7531\u306B\u5BFE\u5C40", "home", "FREE MATCH") + '<div class="panel"><p class="lead">\u5BFE\u5C40\u306F\u5408\u8A08\u70B9\u3067\u52DD\u6557\u3092\u6C7A\u3081\u307E\u3059\u3002\u89E3\u8AAC\u306F\u65C5\u30E2\u30FC\u30C9\u3068\u540C\u3058\u3088\u3046\u306B\u4F7F\u3048\u307E\u3059\u3002</p><h3>\u5BFE\u5C40\u306E\u9577\u3055</h3><div class="stack">' + [3, 6, 12].map((k) => '<button class="secondary full" data-action="start-free" data-length="' + k + '">' + k + "\u304B\u6708\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button>").join("") + "</div></div>");
   }
   function cardCollection() {
-    return shell(headline("\u672D\u56F3\u9451", "home", "48 HANA CARDS") + '<p class="lead">\u672D\u3092\u9078\u3076\u3068\u898B\u5206\u3051\u65B9\u3092\u8868\u793A\u3057\u307E\u3059\u3002\u898B\u305F\u672D\u306F\u5B66\u7FD2\u8A18\u9332\u306B\u6B8B\u308A\u307E\u3059\u3002</p>' + MONTHS.map((m) => '<div class="dictionary-group"><h3>' + m.month + "\u6708 " + m.flower + '</h3><div class="catalog-grid">' + DECK.filter((c) => c.month === m.month).map((c) => '<div class="catalogitem">' + tile(c.id, { action: "inspect" }) + '<div class="capt">' + c.type + "</div></div>").join("") + "</div></div>").join("") + (selectedCard ? '<div class="panel"><h3>' + esc(card(selectedCard).name) + '</h3><p class="lead">' + esc(letterForCard(selectedCard)) + "</p></div>" : ""));
+    const m = MONTHS[studyMonth - 1], cards = DECK.filter((c) => c.month === studyMonth);
+    return shell('<div class="reference-page">' + headline("\u672D\u3092\u304A\u307C\u3048\u308B", "learn", "48\u679A\u3092\u6708\u3054\u3068\u306B") + '<div class="reference-top"><button data-action="study-prev">\u2039 \u524D\u306E\u6708</button><strong>' + studyMonth + "\u6708 \xB7 " + m.flower + '</strong><button data-action="study-next">\u6B21\u306E\u6708 \u203A</button></div><div class="reference-cards">' + cards.map((c) => '<div class="catalogitem">' + tile(c.id, { action: "inspect", label: true }) + "</div>").join("") + '</div><div class="reference-note"><span>\u672D\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u89E3\u8AAC\u304C\u8868\u793A\u3055\u308C\u307E\u3059</span><strong>' + (selectedCard && card(selectedCard).month === studyMonth ? esc(card(selectedCard).name) : m.flower + "\u306E4\u679A") + "</strong><p>" + (selectedCard && card(selectedCard).month === studyMonth ? esc(letterForCard(selectedCard)) : "\u540C\u3058\u6708\u306E\u672D\u306F\u3001\u7D75\u67C4\u304C\u9055\u3063\u3066\u3082\u4E00\u7DD2\u306B\u53D6\u308C\u307E\u3059\u3002") + '</p></div><div class="reference-page-count">' + studyMonth + " / 12\u304B\u6708</div></div>");
   }
   function yakuExample(y) {
     let ids = y.ids || [];
@@ -10222,10 +10224,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return ids;
   }
   function yakuGuide() {
-    return shell(headline("\u5F79\u56F3\u9451", "home", "YAKU REFERENCE") + '<div class="panel"><p class="lead">\u672D\u3092\u305D\u308D\u3048\u3066\u5F79\u3092\u4F5C\u308A\u307E\u3059\u3002\u5F79\u306E\u57FA\u790E\u70B9\u306F\u6539\u8A02\u7248\u8981\u4EF6\u306B\u6E96\u62E0\u3057\u3066\u3044\u307E\u3059\u3002</p>' + YAKU_TABLE.map((y) => '<div class="yaku"><div><strong>' + y.name + '</strong><div class="yaku-cards">' + yakuExample(y).map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + "</div><small>" + (y.group === "count" ? y.requires + "\u679A\u304B\u3089\u3001\u4EE5\u5F8C1\u679A\u306B\u3064\u304D+1\u70B9" : y.bonus ? "\u57FA\u672C\u70B9\uFF0B\u8FFD\u52A0\u672D\u306E\u30DC\u30FC\u30CA\u30B9\u3042\u308A" : "\u5FC5\u8981\u306A\u672D\u3092\u305D\u308D\u3048\u308B") + "</small></div><b>" + y.base + "\u70B9</b></div>").join("") + "</div>");
+    const y = YAKU_TABLE[selectedYakuIndex];
+    return shell('<div class="reference-page">' + headline("\u5F79\u3092\u304A\u307C\u3048\u308B", "learn", "\u3053\u3044\u3053\u3044\u306E\u5F79\u56F3\u9451") + '<div class="reference-top"><button data-action="yaku-prev">\u2039 \u524D\u306E\u5F79</button><strong>' + y.name + " \xB7 " + y.base + '\u70B9</strong><button data-action="yaku-next">\u6B21\u306E\u5F79 \u203A</button></div><div class="reference-yaku">' + yakuExample(y).map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + '</div><div class="reference-note"><strong>\u3069\u3046\u3084\u3063\u3066\u5B8C\u6210\u3059\u308B\uFF1F</strong><p>' + (y.group === "count" ? y.type + "\u306E\u672D\u3092" + y.requires + "\u679A\u96C6\u3081\u308B\u3068\u6210\u7ACB\u3002\u4EE5\u5F8C1\u679A\u3054\u3068\u306B1\u70B9\u8FFD\u52A0\u3002" : y.bonus ? "\u6307\u5B9A\u3055\u308C\u305F\u672D\u3092\u305D\u308D\u3048\u308B\u3068\u6210\u7ACB\u3002\u3055\u3089\u306B\u96C6\u3081\u305F\u672D\u3067\u5F97\u70B9\u304C\u5897\u3048\u307E\u3059\u3002" : "\u3053\u306E\u7D75\u67C4\u306E\u7D44\u307F\u5408\u308F\u305B\u3092\u305D\u308D\u3048\u308B\u3068\u6210\u7ACB\u3057\u307E\u3059\u3002") + '</p></div><div class="reference-page-count">' + (selectedYakuIndex + 1) + " / " + YAKU_TABLE.length + "\u5F79</div></div>");
   }
   function columns() {
-    return shell(headline("\u82B1\u3060\u3088\u308A", "home", "SEASONAL STORIES") + CHAPTERS.map((ch) => '<div class="panel"><div class="kicker">' + ch.month + "\u6708 / " + ch.place + "</div><h3>" + ch.flower + '\u306E\u4FBF\u308A</h3><p class="story">' + ch.story + "</p></div>").join(""));
+    const ch = CHAPTERS[studyMonth - 1];
+    return shell('<div class="reference-page">' + headline("\u82B1\u306E\u3082\u306E\u304C\u305F\u308A", "learn", "\u5341\u4E8C\u304B\u6708\u306E\u82B1\u3060\u3088\u308A") + '<div class="reference-top"><button data-action="study-prev">\u2039 \u524D\u306E\u6708</button><strong>' + ch.month + "\u6708 \xB7 " + ch.flower + '</strong><button data-action="study-next">\u6B21\u306E\u6708 \u203A</button></div><div class="season-art"><img src="' + photo(ch.month + "-1") + '" alt="' + esc(ch.flower) + '"></div><div class="reference-note"><strong>' + esc(ch.place) + '</strong><p class="story">' + esc(ch.story) + '</p></div><div class="reference-page-count">' + ch.month + " / 12\u304B\u6708</div></div>");
   }
   function newQuiz() {
     if (state.quiz.total % 2 === 0) {
@@ -10246,83 +10250,103 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function quizView() {
     if (!quiz) newQuiz();
-    const showMonth = quiz.kind === "month";
-    const c = showMonth ? card(quiz.cardId) : null;
-    const y = showMonth ? null : YAKU_TABLE.find((y2) => y2.id === quiz.yakuId);
-    const heading = showMonth ? "\u3053\u306E\u672D\u306F\u4F55\u6708\u306E\u672D\u3067\u3057\u3087\u3046\uFF1F" : "\u300C" + y.name + "\u300D\u3092\u5B8C\u6210\u3055\u305B\u308B\u672D\u306F\u3069\u308C\uFF1F";
-    const display = showMonth ? '<img src="' + photo(c.id) + '" alt="\u554F\u984C\u306E\u82B1\u672D" style="width:118px;border-radius:6px;box-shadow:0 8px 23px #0002">' : quiz.held.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '" style="height:142px;border-radius:5px">').join("");
-    const choices = showMonth ? quiz.options.map((m) => '<button class="quiz-option ' + (quiz.answered !== null ? m === c.month ? "correct" : m === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-month="' + m + '" ' + (quiz.answered !== null ? "disabled" : "") + ">" + m + "\u6708 " + MONTHS[m - 1].flower + "</button>").join("") : quiz.options.map((id) => '<button class="quiz-option ' + (quiz.answered !== null ? id === quiz.answer ? "correct" : id === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-id="' + id + '" ' + (quiz.answered !== null ? "disabled" : "") + '><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '" style="height:115px;max-width:100%;object-fit:contain"></button>').join("");
-    const isCorrect = quiz.answered === (showMonth ? c.month : quiz.answer);
-    const explanation = showMonth ? c.detail : "\u6B63\u3057\u3044\u672D\u306F " + card(quiz.answer).name + "\u3002" + y.name + " \u306E\u5B8C\u6210\u3067\u3059\u3002";
-    return shell(headline("\u82B1\u672D\u30AF\u30A4\u30BA", "home", "PRACTICE") + '<div class="panel"><div class="kicker">QUESTION / ' + (state.quiz.total + 1) + '</div><h2 class="quiz-title">' + heading + '</h2><div style="display:flex;justify-content:center;gap:8px;padding:16px">' + display + '</div><div class="quiz-options">' + choices + "</div>" + (quiz.answered !== null ? '<p class="notice">' + (isCorrect ? "\u6B63\u89E3\uFF01" : "\u60DC\u3057\u3044\uFF01 ") + " " + explanation + '</p><button class="primary full" data-action="next-quiz">\u6B21\u306E\u554F\u984C\u3078</button>' : "") + '<p class="lead">\u3053\u308C\u307E\u3067 ' + state.quiz.correct + " \u6B63\u89E3 / " + state.quiz.total + " \u554F</p></div>");
+    const showMonth = quiz.kind === "month", c = showMonth ? card(quiz.cardId) : null;
+    const y = showMonth ? null : YAKU_TABLE.find((v) => v.id === quiz.yakuId);
+    const heading = showMonth ? "\u3053\u306E\u672D\u306F\u3001\u4F55\u6708\u306E\u672D\uFF1F" : "\u300C" + y.name + "\u300D\u3092\u5B8C\u6210\u3055\u305B\u308B\u672D\u306F\u3069\u308C\uFF1F";
+    const display = showMonth ? '<img src="' + photo(c.id) + '" alt="\u554F\u984C\u306E\u82B1\u672D">' : quiz.held.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("");
+    const answered = quiz.answered !== null;
+    const choices = showMonth ? quiz.options.map((m) => '<button class="quiz-option ' + (answered ? m === c.month ? "correct" : m === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-month="' + m + '" ' + (answered ? "disabled" : "") + ">" + m + "\u6708 " + MONTHS[m - 1].flower + "</button>").join("") : quiz.options.map((id) => '<button class="quiz-option ' + (answered ? id === quiz.answer ? "correct" : id === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-id="' + id + '" ' + (answered ? "disabled" : "") + '><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("");
+    const correct = quiz.answered === (showMonth ? c.month : quiz.answer);
+    const explanation = showMonth ? c.detail : "\u6B63\u89E3\u306F " + card(quiz.answer).name + "\u3002" + y.name + "\u304C\u5B8C\u6210\u3057\u307E\u3059\u3002";
+    return shell('<div class="quiz-screen"><div class="quiz-head"><small>\u82B1\u672D\u30AF\u30A4\u30BA ' + (state.quiz.total + 1) + '\u554F\u76EE</small><h1 class="quiz-title">' + heading + '</h1></div><div class="quiz-art">' + display + '</div><div class="quiz-options">' + choices + '</div><div class="quiz-feedback">' + (answered ? '<p class="notice">' + (correct ? "\u6B63\u89E3\uFF01" : "\u60DC\u3057\u3044\uFF01") + " " + esc(explanation) + '</p><button class="primary" data-action="next-quiz">\u6B21\u306E\u554F\u984C\u3078 \u203A</button>' : "<p>\u672D\u306E\u300C\u6708\u30FB\u82B1\u30FB\u7D75\u67C4\u300D\u306B\u6CE8\u76EE\u3057\u3066\u7B54\u3048\u3066\u307F\u3088\u3046\u3002</p>") + '</div><div class="quiz-counter">\u3044\u307E\u307E\u3067 ' + state.quiz.correct + "\u554F\u6B63\u89E3 / " + state.quiz.total + "\u554F</div></div>");
   }
   function settingsView() {
-    return shell(headline("\u904A\u3073\u65B9\u306E\u8A2D\u5B9A", "home", "PREFERENCES") + '<div class="panel"><h3>\u521D\u5FC3\u8005\u30E2\u30FC\u30C9</h3><p class="lead">\u4E01\u5BE7\u306A\u89E3\u8AAC\u3001\u5F79\u306E\u8FD1\u3044\u672D\u306E\u30CF\u30A4\u30E9\u30A4\u30C8\u3001\u5F31\u3081\u306ECPU\u3067\u904A\u3073\u307E\u3059\u3002</p><div class="choicepair"><button class="chip ' + (state.settings.beginner ? "active" : "") + '" data-action="beginner" data-value="true">\u30AA\u30F3</button><button class="chip ' + (!state.settings.beginner ? "active" : "") + '" data-action="beginner" data-value="false">\u30AA\u30D5</button></div><p><button class="secondary full" data-action="start-tutorial">\u64CD\u4F5C\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u3092\u3082\u3046\u4E00\u5EA6</button></p><h3>\u89E3\u8AAC\u306E\u91CF</h3><div class="tabs">' + [["full", "\u89E3\u8AAC\u30D5\u30EB"], ["brief", "\u5B9F\u6CC1\u306E\u307F"], ["none", "\u306A\u3057"]].map(([value, label]) => '<button class="chip ' + (state.settings.narration === value ? "active" : "") + '" data-action="narration" data-value="' + value + '">' + label + "</button>").join("") + '</div><h3>CPU\u306E\u5F37\u3055\uFF08\u901A\u5E38\u30E2\u30FC\u30C9\uFF09</h3><div class="tabs">' + [1, 2, 3].map((i) => '<button class="chip ' + (state.settings.difficulty === i ? "active" : "") + '" data-action="difficulty" data-value="' + i + '">' + ["", "\u3084\u3055\u3057\u3044", "\u3075\u3064\u3046", "\u3064\u3088\u3044"][i] + "</button>").join("") + '</div><p class="lead">\u8A2D\u5B9A\u5909\u66F4\u306F\u6B21\u306B\u59CB\u3081\u308B\u5BFE\u5C40\u304B\u3089\u9069\u7528\u3055\u308C\u307E\u3059\u3002</p></div><div class="panel"><h3>\u6226\u7E3E</h3><p class="lead">\u52DD ' + state.stats.wins + " \uFF0F \u8CA0 " + state.stats.losses + " \uFF0F \u5F15\u5206 " + state.stats.draws + '</p><p class="lead">\u4FDD\u5B58\u30C7\u30FC\u30BF\u306F\u3053\u306E\u7AEF\u672B\u5185\u306B\u4FDD\u6301\u3055\u308C\u3001\u901A\u4FE1\u304C\u306A\u304F\u3066\u3082\u5BFE\u5C40\u3092\u518D\u958B\u3067\u304D\u307E\u3059\u3002</p><p class="lead">\u5E83\u544A\uFF1A' + esc(adsStatus) + "\u3002\u30A4\u30F3\u30BF\u30FC\u30B9\u30C6\u30A3\u30B7\u30E3\u30EB\u306F\u5BFE\u5C40\u306E\u5207\u308C\u76EE\u306E\u307F\u3002</p></div>");
+    return shell('<div class="settings-screen"><div class="settings-head"><h1>\u3042\u305D\u3073\u65B9\u306E\u8A2D\u5B9A</h1><small>\u3044\u3064\u3067\u3082\u5909\u66F4\u3067\u304D\u307E\u3059</small></div><div class="setting-row"><strong>\u521D\u5FC3\u8005\u30E2\u30FC\u30C9</strong><span>\u672D\u540D\u3068\u30D2\u30F3\u30C8\u3092\u8868\u793A</span><div><button class="chip ' + (state.settings.beginner ? "active" : "") + '" data-action="beginner" data-value="true">\u30AA\u30F3</button><button class="chip ' + (!state.settings.beginner ? "active" : "") + '" data-action="beginner" data-value="false">\u30AA\u30D5</button></div></div><div class="setting-row"><strong>\u5148\u751F\u306E\u89E3\u8AAC</strong><span>\u5BFE\u5C40\u4E2D\u306E\u30D2\u30F3\u30C8\u306E\u91CF</span><div>' + [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]].map(([v, t]) => '<button class="chip ' + (state.settings.narration === v ? "active" : "") + '" data-action="narration" data-value="' + v + '">' + t + "</button>").join("") + '</div></div><div class="setting-row"><strong>\u76F8\u624B\u306E\u3064\u3088\u3055</strong><span>\u30D5\u30EA\u30FC\u5BFE\u5C40\u3067\u9069\u7528</span><div>' + [1, 2, 3].map((i) => '<button class="chip ' + (state.settings.difficulty === i ? "active" : "") + '" data-action="difficulty" data-value="' + i + '">' + ["", "\u3084\u3055\u3057\u3044", "\u3075\u3064\u3046", "\u3064\u3088\u3044"][i] + "</button>").join("") + '</div></div><button class="settings-retry" data-action="start-tutorial">\u2726 \u3053\u3044\u3053\u3044\u3092\u7DF4\u7FD2\u3059\u308B \u203A</button><button class="settings-credits" data-action="credits">\u672D\u7D75\u306E\u8457\u4F5C\u6A29\u30FB\u5229\u7528\u306B\u3064\u3044\u3066 \u203A</button></div>');
   }
-  function tutorialCard(g) {
-    if (!g.tutorial) return "";
-    const r = g.round;
-    let body = "", heading = "";
-    if (!g.tutorialIntroDone) {
-      heading = "\u307E\u305A\u3001\u672D\u306E\u7F6E\u304D\u5834\u6240\u3092\u77E5\u308D\u3046";
-      body = "\u753B\u9762\u4E2D\u592E\u306E\u300C\u5834\u672D\u300D\u306F\u8868\u5411\u304D\u306E\u672D\u3001\u4E0B\u306E\u300C\u3042\u306A\u305F\u306E\u624B\u672D\u300D\u306F\u81EA\u5206\u304C\u51FA\u305B\u308B8\u679A\u3067\u3059\u3002\u540C\u3058\u6708\u306E\u672D\u30922\u679A\u5408\u308F\u305B\u308B\u3068\u3001\u81EA\u5206\u306E\u300C\u53D6\u308A\u672D\u300D\u306B\u306A\u308A\u307E\u3059\u3002\u672D\u306E\u4E0B\u306B\u306F\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092\u8868\u793A\u3057\u307E\u3059\u3002";
-    } else if (r.phase === "hand" && r.current === 0) {
-      if (!selectedHand) {
-        heading = r.turn ? "STEP 3\uFF5C\u5C71\u672D\u3092\u3081\u304F\u3063\u3066\u6B21\u306E\u624B\u3078" : "STEP 1\uFF5C\u624B\u672D\u304B\u30891\u679A\u9078\u307C\u3046";
-        body = r.turn ? "\u624B\u672D\u3092\u51FA\u3059\u3068\u3001\u5C71\u672D\u304B\u3089\u3082\u81EA\u52D5\u30671\u679A\u3081\u304F\u3063\u3066\u5834\u672D\u3068\u5408\u308F\u305B\u307E\u3059\u3002\u76F8\u624B\u3082\u540C\u3058\u3088\u3046\u306B\u9032\u307F\u307E\u3059\u3002\u3082\u3046\u4E00\u5EA6\u3001\u81EA\u5206\u306E\u624B\u672D\u304B\u30891\u679A\u9078\u3073\u307E\u3057\u3087\u3046\u3002" : "\u4E0B\u306B\u4E26\u3093\u3060\u624B\u672D\u30921\u679A\u30BF\u30C3\u30D7\u3057\u3066\u304F\u3060\u3055\u3044\u3002\u6708\u3068\u82B1\u304C\u540C\u3058\u5834\u672D\u3092\u63A2\u3059\u306E\u304C\u57FA\u672C\u3067\u3059\u3002\u672D\u306E\u540D\u524D\u306F\u7D75\u306E\u3059\u3050\u4E0B\u306B\u8868\u793A\u3057\u3066\u3044\u307E\u3059\u3002";
-      } else {
-        const c = card(selectedHand), hits = matching(r.field, selectedHand);
-        heading = "STEP 2\uFF5C\u9078\u3093\u3060\u672D\u3092\u51FA\u305D\u3046";
-        body = c.name + "\uFF08" + c.type + "\u672D\uFF09\u3092\u9078\u3073\u307E\u3057\u305F\u3002" + (hits.length === 0 ? "\u5834\u306B\u540C\u3058\u6708\u304C\u306A\u3044\u306E\u3067\u3001\u5834\u672D\u306B\u7F6E\u304D\u307E\u3059\u3002\u624B\u672D\u306E\u4E0B\u306E\u300C\u3053\u306E\u672D\u3092\u51FA\u3059\u300D\u3092\u62BC\u3057\u307E\u3057\u3087\u3046\u3002" : hits.length === 2 ? "\u5834\u306B\u540C\u3058\u6708\u304C2\u679A\u3042\u308A\u307E\u3059\u3002\u5149\u3063\u3066\u3044\u308B\u5834\u672D\u304B\u3089\u53D6\u308A\u305F\u30441\u679A\u3092\u30BF\u30C3\u30D7\u3057\u307E\u3057\u3087\u3046\u3002" : "\u540C\u3058" + c.month + "\u6708\u306E\u5834\u672D\u3068\u7D44\u306B\u306A\u308A\u307E\u3059\u3002\u624B\u672D\u306E\u4E0B\u306E\u300C\u3053\u306E\u672D\u3092\u51FA\u3059\u300D\u3092\u62BC\u3057\u307E\u3057\u3087\u3046\u3002");
-      }
-    } else if (r.phase === "draw-target" && r.current === 0) {
-      heading = "STEP 3\uFF5C\u5C71\u672D\u306E\u672D\u3092\u53D7\u3051\u53D6\u308D\u3046";
-      body = "\u624B\u672D\u3092\u51FA\u3059\u3068\u5C71\u672D\u304B\u3089\u81EA\u52D5\u7684\u306B1\u679A\u3081\u304F\u308A\u307E\u3059\u3002\u4ECA\u306F\u540C\u3058\u6708\u306E\u5834\u672D\u304C2\u679A\u3042\u308B\u306E\u3067\u3001\u5149\u3063\u3066\u3044\u308B\u672D\u3092\u30BF\u30C3\u30D7\u3057\u3066\u9078\u3073\u307E\u3057\u3087\u3046\u3002";
-    } else if (r.phase === "decision" && r.current === 0) {
-      heading = "STEP 4\uFF5C\u5F79\u304C\u3067\u304D\u305F\uFF01";
-      body = "\u300C\u52DD\u8CA0\u3059\u308B\u300D\u306F\u4ECA\u306E\u70B9\u6570\u3092\u78BA\u5B9A\u3057\u307E\u3059\u3002\u300C\u3053\u3044\u3053\u3044\u300D\u306F\u3055\u3089\u306B\u5F79\u3092\u72D9\u3063\u3066\u7D9A\u3051\u308B\u9078\u629E\u3067\u3059\u3002\u305F\u3060\u3057\u76F8\u624B\u306B\u5148\u306B\u5F79\u3092\u4F5C\u3089\u308C\u308B\u3068\u3001\u76F8\u624B\u306E\u70B9\u6570\u304C2\u500D\u306B\u306A\u308A\u307E\u3059\u3002";
-    } else if (r.phase === "round-end" || r.phase === "game-end") {
-      heading = "1\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01";
-      body = "\u672D\u306E\u540D\u524D\u3092\u898B\u306A\u304C\u3089\u904A\u3079\u305F\u3089\u7B2C\u4E00\u6B69\u3067\u3059\u3002\u3053\u306E\u7DF4\u7FD2\u7D50\u679C\u306F\u65C5\u306E\u9032\u6357\u3084\u6226\u7E3E\u306B\u306F\u52A0\u3048\u307E\u305B\u3093\u3002";
-    } else {
-      heading = "\u76F8\u624B\u306E\u756A";
-      body = "\u76F8\u624B\u3082\u624B\u672D\u30921\u679A\u51FA\u3057\u3001\u5C71\u672D\u30921\u679A\u3081\u304F\u308A\u307E\u3059\u3002\u53D6\u308A\u672D\u304C\u5897\u3048\u305F\u3089\u89E3\u8AAC\u3067\u72D9\u3044\u3092\u78BA\u8A8D\u3057\u307E\u3057\u3087\u3046\u3002";
+  function lessonFor(g, selected, guide) {
+    const r = g.round, teach = Boolean(g.tutorial);
+    if (g.tutorial && !g.tutorialIntroDone) return {
+      step: "\u306F\u3058\u3081\u3066\u306E\u3053\u3044\u3053\u3044 \xB7 \u2460",
+      title: "\u307E\u305A\u306F\u76E4\u9762\u3092\u898B\u3066\u307F\u3088\u3046",
+      description: "\u4E2D\u592E\u304C\u300C\u5834\u672D\u300D\u3001\u4E0B\u304C\u300C\u3042\u306A\u305F\u306E\u624B\u672D\u300D\u3002\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3066\u53D6\u308A\u307E\u3059\u3002",
+      action: '<button class="primary" data-action="tutorial-continue">\u3055\u3063\u305D\u304F\u7DF4\u7FD2\u3059\u308B</button>'
+    };
+    if (r.phase === "hand" && r.current === 0) {
+      if (!selected) return {
+        step: teach ? "\u7DF4\u7FD2 \xB7 \u2461 \u624B\u672D\u3092\u9078\u3076" : "\u3042\u306A\u305F\u306E\u756A",
+        title: "\u4E0B\u306E\u624B\u672D\u30921\u679A\u30BF\u30C3\u30D7",
+        description: teach ? "\u672D\u306E\u4E0B\u306B\u3042\u308B\u300C\u6708\u30FB\u82B1\u300D\u3092\u898B\u3066\u3001\u5834\u672D\u306B\u540C\u3058\u6708\u304C\u3042\u308B\u304B\u63A2\u305D\u3046\u3002" : guide.brief,
+        action: '<button class="coach-detail" data-action="show-guide">\u5148\u751F\u306B\u805E\u304F \u24D8</button>'
+      };
+      const c = card(selected), matches = matching(r.field, selected);
+      return {
+        step: teach ? "\u7DF4\u7FD2 \xB7 \u2462 \u672D\u3092\u5408\u308F\u305B\u308B" : "\u672D\u3092\u9078\u629E\u4E2D",
+        title: matches.length === 1 || matches.length === 2 ? "\u9EC4\u8272\u3044\u5834\u672D\u3092\u30BF\u30C3\u30D7\uFF01" : matches.length === 3 ? "\u540C\u3058\u6708\u306E4\u679A\u3092\u307E\u3068\u3081\u3066\u53D6\u308D\u3046" : "\u5834\u306B\u540C\u3058\u6708\u306E\u672D\u304C\u306A\u3044\u3088",
+        description: c.month + "\u6708 " + c.flower + "\u300C" + c.subject + "\u300D\u3092\u9078\u629E\u3002" + (matches.length === 0 ? "\u4ECA\u56DE\u306F\u5834\u306B\u51FA\u3059\u3060\u3051\u3067\u3059\u3002" : matches.length === 3 ? "\u624B\u672D\u3092\u51FA\u3057\u30664\u679A\u307E\u3068\u3081\u3066\u53D6\u308D\u3046\u3002" : "\u5149\u3063\u3066\u3044\u308B\u540C\u3058\u6708\u306E\u672D\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u53D6\u308C\u308B\u3088\u3002"),
+        action: matches.length === 1 || matches.length === 2 ? '<button class="coach-detail" data-action="show-guide">\u306A\u305C\u3053\u306E\u672D\uFF1F \u24D8</button>' : '<button class="primary" data-action="play-selected">' + (matches.length === 0 ? "\u5834\u306B\u51FA\u3059" : "\u3053\u306E\u672D\u3092\u51FA\u3059") + "</button>"
+      };
     }
-    return '<section class="tutorial-panel" aria-label="\u64CD\u4F5C\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB"><div class="tutor-kicker">\u306F\u3058\u3081\u3066\u306E\u3053\u3044\u3053\u3044 \xB7 \u64CD\u4F5C\u7DF4\u7FD2</div><strong>' + esc(heading) + "</strong><p>" + esc(body) + "</p>" + (!g.tutorialIntroDone ? '<button class="primary" data-action="tutorial-continue">\u624B\u672D\u3092\u9078\u3093\u3067\u307F\u308B</button>' : "") + "</section>";
+    if (r.phase === "draw-target" && r.current === 0) return {
+      step: teach ? "\u7DF4\u7FD2 \xB7 \u2463 \u5C71\u672D" : "\u5C71\u672D\u304B\u3089\u306E1\u679A",
+      title: "\u5149\u3063\u3066\u3044\u308B\u5834\u672D\u3092\u9078\u307C\u3046",
+      description: "\u5C71\u672D\u304B\u3089\u30821\u679A\u3081\u304F\u308A\u307E\u3057\u305F\u3002" + card(r.pendingDraw).month + "\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u307E\u3059\u3002",
+      action: '<button class="coach-detail" data-action="show-guide">\u5C71\u672D\u306E\u3057\u304F\u307F \u24D8</button>'
+    };
+    if (r.phase === "decision" && r.current === 0) return {
+      step: teach ? "\u7DF4\u7FD2 \xB7 \u2464 \u52DD\u8CA0\u304B\u3053\u3044\u3053\u3044" : "\u5F79\u304C\u5B8C\u6210\uFF01",
+      title: "\u3053\u3053\u3067\u52DD\u3064\uFF1F \u3082\u3046\u5C11\u3057\u7D9A\u3051\u308B\uFF1F",
+      description: "\u52DD\u8CA0\uFF1D\u4ECA\u306E\u70B9\u6570\u3092\u7372\u5F97\u3002\u3053\u3044\u3053\u3044\uFF1D\u3088\u308A\u9AD8\u3044\u5F79\u3092\u72D9\u3046\u3051\u308C\u3069\u3001\u76F8\u624B\u306B\u9006\u8EE2\u3055\u308C\u308B\u5371\u967A\u304C\u3042\u308A\u307E\u3059\u3002",
+      action: '<button class="primary" data-action="stop">\u52DD\u8CA0\u3059\u308B</button><button class="secondary" data-action="koi">\u3053\u3044\u3053\u3044\uFF01</button>'
+    };
+    if (r.phase === "round-end" || r.phase === "game-end") return {
+      step: teach ? "\u7DF4\u7FD2\u5B8C\u4E86" : "\u5BFE\u5C40\u7D50\u679C",
+      title: r.result.winner === 0 ? "\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : r.result.winner === 1 ? "\u76F8\u624B\u306E\u52DD\u3061" : "\u5F15\u304D\u5206\u3051",
+      description: "\u4ECA\u56DE\u306E\u70B9\u6570 " + r.result.points + "\u70B9\u3002" + (teach ? "\u7DF4\u7FD2\u306F\u6226\u7E3E\u306B\u52A0\u3048\u307E\u305B\u3093\u3002" : "\u6B21\u306E\u5C40\u3078\u9032\u307F\u307E\u3057\u3087\u3046\u3002"),
+      action: r.phase === "round-end" ? '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>' : teach ? '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>' : g.mode === "travel" ? '<button class="primary" data-action="travel">\u6708\u3081\u304F\u308A\u3078</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>'
+    };
+    return { step: "\u76F8\u624B\u306E\u756A", title: "\u76F8\u624B\u304C\u672D\u3092\u9078\u3093\u3067\u3044\u307E\u3059", description: "\u516C\u958B\u3055\u308C\u305F\u53D6\u308A\u672D\u304B\u3089\u3001\u6B21\u306E\u5F79\u3092\u8003\u3048\u307E\u3057\u3087\u3046\u3002", action: "" };
+  }
+  function gameDialogView(g, guide) {
+    if (!gameDialog) return "";
+    let title = "", body = "";
+    if (gameDialog === "guide") {
+      title = "\u5148\u751F\u306E\u89E3\u8AAC";
+      body = '<p class="dialog-text">' + esc(guide.full) + '</p><div class="howto-mini"><strong>\u899A\u3048\u3066\u304A\u304F\u3053\u3068</strong><span>\u2460 \u624B\u672D\u304B\u30891\u679A\u9078\u3076</span><span>\u2461 \u540C\u3058\u6708\u306E\u5834\u672D\u306B\u5408\u308F\u305B\u308B</span><span>\u2462 \u5C71\u672D\u30821\u679A\u3081\u304F\u3089\u308C\u308B</span><span>\u2463 \u5F79\u304C\u3067\u304D\u305F\u3089\u52DD\u8CA0\u304B\u3053\u3044\u3053\u3044</span></div>';
+    } else {
+      const mine = gameDialog === "mine", ids = g.round.captured[mine ? 0 : 1];
+      title = mine ? "\u81EA\u5206\u306E\u53D6\u308A\u672D" : "\u76F8\u624B\u306E\u53D6\u308A\u672D";
+      body = '<p class="dialog-text">\u53D6\u3063\u305F\u672D\u304C\u5F79\u306B\u3064\u306A\u304C\u308A\u307E\u3059\u3002' + (!ids.length ? "\u307E\u3060\u53D6\u308A\u672D\u306F\u3042\u308A\u307E\u305B\u3093\u3002" : "") + '</p><div class="dialog-cards">' + ids.map((id) => tile(id, { action: "inspect", label: true })).join("") + "</div>";
+    }
+    return '<div class="game-dialog" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="dialog-sheet"><div class="dialog-top"><strong>' + title + '</strong><button class="quiet" data-action="close-dialog">\u9589\u3058\u308B \xD7</button></div>' + body + "</div></div>";
   }
   function gameView() {
     const g = state.active;
     if (!g) return home();
     const r = g.round, me = evaluate(r.captured[0]), opp = evaluate(r.captured[1]), guide = guidance(g);
-    const turn = r.current === 0 ? "\u3042\u306A\u305F\u306E\u756A" : "\u76F8\u624B\u306E\u756A";
-    let interaction = "";
-    if (r.phase === "hand" && r.current === 0) {
-      interaction = '<p class="lead">\u624B\u672D\u30921\u679A\u30BF\u30C3\u30D7\u3057\u3001\u672D\u306E\u540D\u524D\u3092\u78BA\u8A8D\u3057\u3066\u304B\u3089\u51FA\u3057\u3066\u304F\u3060\u3055\u3044\u3002</p>' + (selectedHand ? '<div class="notice">' + esc(letterForCard(selectedHand)) + "</div>" : "");
-      if (selectedHand && matching(r.field, selectedHand).length === 2) interaction += '<p class="notice">\u540C\u3058\u6708\u306E\u5834\u672D\u304C2\u679A\u3002\u53D6\u308A\u305F\u3044\u5834\u672D\u3092\u76F4\u63A5\u30BF\u30C3\u30D7\u3057\u3066\u304F\u3060\u3055\u3044\u3002</p>';
-    }
-    if (r.phase === "draw-target" && r.current === 0) interaction = '<p class="notice">\u5C71\u672D\u304B\u3089 ' + esc(card(r.pendingDraw).name) + " \u304C\u51FA\u307E\u3057\u305F\u3002\u53D6\u308A\u305F\u3044\u5834\u672D\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044\u3002</p>";
-    if (r.phase === "decision" && r.current === 0) interaction = '<p class="notice">\u5F79\u304C\u6210\u7ACB\u3057\u307E\u3057\u305F\uFF01 ' + me.yakus.map((y) => y.name + " " + y.points + "\u70B9").join("\u30FB") + '</p><div class="choicepair"><button class="primary" data-action="stop">\u52DD\u8CA0\u3059\u308B</button><button class="secondary" data-action="koi">\u3053\u3044\u3053\u3044\uFF01</button></div>';
-    if (r.phase === "round-end" || r.phase === "game-end") {
-      const result = r.result;
-      const finalWinner = g.mode === "free" && g.finished ? Math.sign(g.scores[0] - g.scores[1]) : null;
-      const who = finalWinner !== null ? finalWinner > 0 ? "\u5BFE\u5C40\u5168\u4F53\u3067\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : finalWinner < 0 ? "\u5BFE\u5C40\u5168\u4F53\u3067\u76F8\u624B\u306E\u52DD\u3061" : "\u5BFE\u5C40\u5168\u4F53\u306F\u5F15\u304D\u5206\u3051" : result.winner === null ? "\u5F15\u304D\u5206\u3051" : result.winner === 0 ? "\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : "\u76F8\u624B\u306E\u52DD\u3061";
-      interaction = '<div class="result"><div class="big">' + (result.winner === 0 ? "\u82B1\u958B\u304F" : result.winner === 1 ? "\u518D\u6311\u6226" : "\u5F15\u5206") + "</div><h2>" + who + "</h2><p>" + result.raw + "\u70B9 \xD7 " + result.multiplier + "\u500D = " + result.points + "\u70B9<br>" + (["last-card", "agari"].includes(result.reason) ? "\u5F79\u3092\u6210\u7ACB\u3055\u305B\u3066\u5C40\u304C\u7D42\u4E86\u3057\u307E\u3057\u305F\u3002" : "\u6D41\u5C40\u3057\u307E\u3057\u305F\u3002") + "</p>" + (r.phase === "round-end" ? '<button class="primary full" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>' : g.tutorial ? '<p>\u64CD\u4F5C\u7DF4\u7FD2\u306F\u5B8C\u4E86\u3067\u3059\u3002\u4ECA\u5EA6\u306F\u5341\u4E8C\u304B\u6708\u306E\u65C5\u3084\u30D5\u30EA\u30FC\u5BFE\u5C40\u3078\uFF01</p><button class="primary full" data-action="home">\u30DB\u30FC\u30E0\u306B\u623B\u308B</button>' : g.mode === "travel" ? "<p>" + (result.winner === 0 ? g.month === 12 ? "\u5341\u4E8C\u304B\u6708\u306E\u65C5\u3092\u5236\u8987\u3057\u307E\u3057\u305F\uFF01" : "\u6B21\u306E\u6708\u304C\u958B\u304D\u307E\u3057\u305F\u3002" : "\u540C\u3058\u6708\u3078\u3082\u3046\u4E00\u5EA6\u6311\u6226\u3067\u304D\u307E\u3059\u3002") + '</p><button class="primary full" data-action="travel">\u6708\u3081\u304F\u308A\u3078</button>' : "<p>\u6700\u7D42\u5408\u8A08 " + g.scores[0] + "\u70B9 \u5BFE " + g.scores[1] + '\u70B9</p><button class="primary full" data-action="home">\u30DB\u30FC\u30E0\u306B\u623B\u308B</button>') + "</div>";
-    }
-    const targetHand = selectedHand && matching(r.field, selectedHand).length === 2;
+    const lesson = lessonFor(g, selectedHand, guide);
+    const selecting = selectedHand && r.current === 0 && r.phase === "hand";
+    const matchingNow = selecting ? matching(r.field, selectedHand) : [];
     const showNames = Boolean(g.tutorial || g.beginner);
-    let handAction = "";
-    if (r.phase === "hand" && r.current === 0) {
-      handAction = selectedHand ? '<div class="hand-help"><strong>\u9078\u629E\u4E2D\uFF1A' + esc(card(selectedHand).name) + "</strong>" + (targetHand ? "<p>\u9EC4\u8272\u304F\u5149\u308B\u540C\u3058\u6708\u306E\u5834\u672D\u3092\u30BF\u30C3\u30D7\u3057\u3066\u53D6\u308A\u307E\u3057\u3087\u3046\u3002</p>" : "<p>" + (matching(r.field, selectedHand).length ? "\u540C\u3058\u6708\u306E\u672D\u3092\u53D6\u308C\u307E\u3059\u3002" : "\u540C\u3058\u6708\u306E\u672D\u304C\u306A\u3044\u305F\u3081\u3001\u5834\u306B\u51FA\u3057\u307E\u3059\u3002") + '</p><button class="primary full" data-action="play-selected">\u3053\u306E\u672D\u3092\u51FA\u3059</button>') + "</div>" : '<p class="hand-instruction">\u2193 \u3053\u3053\u304B\u30891\u679A\u30BF\u30C3\u30D7\u3057\u3066\u9078\u3093\u3067\u304F\u3060\u3055\u3044</p>';
-    }
-    const field = r.field.map((id) => tile(id, {
-      action: r.phase === "draw-target" && r.current === 0 && matching(r.field, r.pendingDraw).includes(id) ? "draw-target" : targetHand && matching(r.field, selectedHand).includes(id) ? "field-target" : "inspect",
+    const fieldCount = r.field.length;
+    const field = r.field.map((id) => {
+      const chosen = r.phase === "draw-target" && r.current === 0 && matching(r.field, r.pendingDraw).includes(id);
+      const same = selecting && (matchingNow.length === 1 || matchingNow.length === 2) && matchingNow.includes(id);
+      return tile(id, {
+        action: chosen ? "draw-target" : same ? "field-target" : "inspect",
+        label: showNames,
+        className: chosen || same ? "target " : ""
+      });
+    }).join("");
+    const hand = r.hands[0].map((id) => tile(id, {
+      action: "select-hand",
       label: showNames,
-      className: r.phase === "draw-target" && r.current === 0 && matching(r.field, r.pendingDraw).includes(id) || targetHand && matching(r.field, selectedHand).includes(id) ? "target" : ""
+      className: (selectedHand === id ? "selected " : "") + (g.beginner && helpfulHandIds(g).includes(id) ? "hint " : "") + (r.current === 0 && r.phase === "hand" ? "playable" : "")
     })).join("");
-    const hand = r.hands[0].map((id) => tile(id, { action: "select-hand", label: showNames, className: (selectedHand === id ? "selected " : "") + (g.beginner && helpfulHandIds(g).includes(id) ? "hint" : "") + (r.phase === "hand" ? " playable" : "") })).join("");
-    return shell(
-      '<div class="gameheader"><div class="row"><div><small>' + (g.tutorial ? "\u64CD\u4F5C\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB" : g.mode === "travel" ? g.month + "\u6708 " + CHAPTERS[g.month - 1].flower + "\u306E\u65C5" : "\u30D5\u30EA\u30FC\u5BFE\u5C40 \xB7 " + g.length + "\u304B\u6708") + " / \u7B2C" + (g.index + 1) + '\u5C40</small><div class="game-score">' + n(g.scores[0]) + " <small>\u5BFE</small> " + n(g.scores[1]) + '</div></div><button class="quiet" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div><div class="row"><small>' + turn + "</small><small>\u5C71\u672D " + r.stock.length + '\u679A</small></div></div><div class="table-nav" aria-label="\u5BFE\u5C40\u76E4\u306E\u79FB\u52D5"><span>\u76E4\u9762\u3092\u79FB\u52D5</span><button class="nav-jump" data-action="jump-field">\u2191 \u5834\u672D\u3078</button><button class="nav-jump" data-action="jump-hand">\u2193 \u624B\u672D\u3078</button></div>' + tutorialCard(g) + '<div class="tabletop"><div class="deckline"><h3>\u76F8\u624B\u306E\u53D6\u308A\u672D <em>' + opp.raw + '\u70B9</em></h3><span class="sublabel">\u76F8\u624B\u624B\u672D ' + r.hands[1].length + "\u679A</span></div>" + mini(r.captured[1]) + '<div class="deckline"><h3>\u5834\u672D <em>' + r.field.length + '\u679A</em></h3><div class="back">\u82B1</div></div><div class="fieldcards">' + field + '</div><div class="deckline"><h3>\u3042\u306A\u305F\u306E\u53D6\u308A\u672D <em>' + me.raw + '\u70B9</em></h3><span class="sublabel">' + me.yakus.map((y) => y.name).join("\u30FB") + "</span></div>" + mini(r.captured[0]) + "<h3>\u3042\u306A\u305F\u306E\u624B\u672D <em>" + r.hands[0].length + '\u679A</em></h3><div class="handcards">' + hand + "</div>" + handAction + '</div><div class="controlpad"><div class="row"><strong>\u5BFE\u5C40\u30AC\u30A4\u30C9</strong><span class="tag">' + (g.beginner ? "\u521D\u5FC3\u8005\u30E2\u30FC\u30C9" : "\u901A\u5E38\u30E2\u30FC\u30C9") + "</span></div>" + (state.settings.narration === "none" ? "" : '<p class="explain">' + esc(state.settings.narration === "full" ? guide.full : guide.brief) + "</p>") + (g.beginner && guide.near.length ? '<p class="lead">' + guide.near.join("\uFF0F") + "</p>" : "") + interaction + "</div>"
-    );
+    const intro = Boolean(g.tutorial && !g.tutorialIntroDone);
+    const isEnd = r.phase === "round-end" || r.phase === "game-end";
+    const board = '<div class="tabletop"><div class="board-opponent"><span>\u76F8\u624B\u306E\u53D6\u308A\u672D ' + r.captured[1].length + "\u679A \xB7 " + opp.raw + '\u70B9</span><button data-action="show-taken" data-who="1">\u53D6\u308A\u672D\u3092\u898B\u308B \u203A</button></div><div class="board-zone board-field"><div class="board-zone-caption"><strong>\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>\u5C71\u672D " + r.stock.length + '\u679A</span></div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div><div class="board-taken"><span>\u3042\u306A\u305F\u306E\u53D6\u308A\u672D <strong>' + r.captured[0].length + '\u679A</strong></span><button data-action="show-taken" data-who="0">\u5F79 ' + me.raw + '\u70B9 \xB7 \u78BA\u8A8D \u203A</button></div><div class="board-zone board-hand"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D <small>' + r.hands[0].length + "\u679A</small></strong><span>" + (r.current === 0 ? "\u3042\u306A\u305F\u306E\u756A" : "\u76F8\u624B\u306E\u756A") + '</span></div><div class="handcards">' + hand + "</div></div></div>";
+    const endText = isEnd ? '<div class="result" role="status"><div class="result-symbol">' + (r.result.winner === 0 ? "\u273F" : r.result.winner === 1 ? "\u263E" : "\u25C7") + "</div><h2>" + esc(lesson.title) + "</h2><p>" + esc(lesson.description) + '</p><div class="result-action">' + lesson.action + "</div></div>" : "";
+    return shell('<div class="play-layout' + (g.tutorial ? " is-tutorial" : "") + '"><div class="gameheader"><div class="round-badge">' + (g.tutorial ? "\u7DF4\u7FD2" : g.mode === "travel" ? g.month + "\u6708\u306E\u65C5" : g.length + "\u304B\u6708\u5BFE\u5C40") + "<small>\u7B2C" + (g.index + 1) + '\u5C40</small></div><div class="game-score">' + g.scores[0] + " <span>\u5BFE</span> " + g.scores[1] + '</div><button class="coach-detail" data-action="show-guide">\u904A\u3073\u65B9 \u24D8</button></div><div class="game-board-wrap">' + board + (isEnd ? endText : "") + '</div><div class="controlpad tutorial-panel" aria-label="\u64CD\u4F5C\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB"><div class="coach-prompt"><span class="tutor-kicker">' + esc(lesson.step) + "</span><strong>" + esc(lesson.title) + "</strong><p>" + esc(lesson.description) + '</p></div><div class="coach-actions">' + (isEnd ? "" : lesson.action) + "</div></div>" + gameDialogView(g, guide) + "</div>");
   }
   function credits() {
     return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "home", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p></div>');
@@ -10331,6 +10355,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     document.title = "\u307E\u306A\u3079\u308B\u82B1\u672D \u3053\u3044\u3053\u3044";
     $("app").innerHTML = {
       home,
+      learn,
       travel: journey,
       chapter: () => chapter(selectedMonth),
       free,
@@ -10342,10 +10367,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       game: gameView,
       credits
     }[screen]();
-  }
-  function showRegion(selector) {
-    const target = document.querySelector(selector);
-    if (target) target.scrollIntoView({ behavior: "auto", block: "center" });
   }
   function recordIfDone() {
     const g = state.active;
@@ -10365,9 +10386,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     selectedHand = null;
     render();
     const r = state.active.round;
-    if (r.phase === "hand" && r.current === 0) showRegion(".handcards");
-    else if (r.phase === "draw-target") showRegion(".fieldcards");
-    else if (r.phase === "decision" || r.phase === "game-end" || r.phase === "round-end") showRegion(".controlpad");
     if ((r.phase === "round-end" || r.phase === "game-end") && !r.adBreakProcessed) {
       r.adBreakProcessed = true;
       save();
@@ -10388,6 +10406,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       state.active.tutorialIntroDone = false;
     }
     selectedHand = null;
+    gameDialog = null;
     screen = "game";
     save();
     render();
@@ -10404,24 +10423,36 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   async function clickAction(button, event) {
     const action = button.dataset.action, id = button.dataset.id, m = Number(button.dataset.month || 0), val = button.dataset.value;
-    if (action === "jump-hand") {
-      showRegion(".handcards");
+    if (action === "show-guide") {
+      gameDialog = "guide";
+      render();
       return;
     }
-    if (action === "jump-field") {
-      showRegion(".fieldcards");
+    if (action === "show-taken") {
+      gameDialog = button.dataset.who === "0" ? "mine" : "opp";
+      render();
+      return;
+    }
+    if (action === "close-dialog") {
+      gameDialog = null;
+      render();
       return;
     }
     if (action === "home") {
       screen = "home";
       selectedHand = null;
+      gameDialog = null;
     } else if (action === "resume") {
       screen = "game";
     } else if (action === "travel") {
       screen = "travel";
+    } else if (action === "learn") {
+      screen = "learn";
     } else if (action === "free") {
       screen = "free";
     } else if (action === "cards") {
+      studyMonth = 1;
+      selectedCard = null;
       screen = "cards";
     } else if (action === "yaku") {
       screen = "yaku";
@@ -10429,6 +10460,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       screen = "quiz";
       if (!quiz) newQuiz();
     } else if (action === "columns") {
+      studyMonth = 1;
       screen = "columns";
     } else if (action === "settings") {
       screen = "settings";
@@ -10438,6 +10470,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else if (action === "chapter") {
       selectedMonth = m;
       screen = "chapter";
+    } else if (action === "study-prev") {
+      studyMonth = studyMonth === 1 ? 12 : studyMonth - 1;
+      selectedCard = null;
+    } else if (action === "study-next") {
+      studyMonth = studyMonth === 12 ? 1 : studyMonth + 1;
+      selectedCard = null;
+    } else if (action === "yaku-prev") {
+      selectedYakuIndex = (selectedYakuIndex + YAKU_TABLE.length - 1) % YAKU_TABLE.length;
+    } else if (action === "yaku-next") {
+      selectedYakuIndex = (selectedYakuIndex + 1) % YAKU_TABLE.length;
     } else if (action === "start-tutorial") {
       start("travel", 3, 1, true);
       return;
@@ -10457,7 +10499,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         state.seen.push(id);
         save();
       }
-      toast(letterForCard(id));
+      if (screen === "game") toast(letterForCard(id));
     } else if (action === "select-hand") {
       if (state.active?.tutorial && !state.active.tutorialIntroDone) {
         toast("\u307E\u305A\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u306E\u300C\u624B\u672D\u3092\u9078\u3093\u3067\u307F\u308B\u300D\u3092\u62BC\u3057\u3066\u304F\u3060\u3055\u3044\u3002");
@@ -10512,10 +10554,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       newQuiz();
     }
     render();
-    if (action === "tutorial-continue") showRegion(".handcards");
-    if (action === "select-hand" && selectedHand) showRegion(
-      matching(state.active.round.field, selectedHand).length === 2 ? ".fieldcards" : ".hand-help"
-    );
   }
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-action]");
