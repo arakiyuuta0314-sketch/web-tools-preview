@@ -1,0 +1,219 @@
+/* Single-screen landscape legibility pass for the Hanafuda game.
+   These are layout-only corrections; no game rules or saved data change. */
+@media (orientation:landscape) and (max-height:620px) {
+  /* Keep the capture ribbon visible without sacrificing the shared table. */
+  .play-layout .tabletop{
+    grid-template-rows:32px minmax(0,1fr) 39px minmax(0,1.04fr);
+  }
+  .play-layout .board-taken{
+    display:flex;align-items:center;gap:7px;min-width:0;min-height:0;
+    padding:2px 5px;overflow:hidden;
+    background:linear-gradient(95deg,#ebdbad,#d5be8a);
+    border:1px solid #aa874d;border-radius:4px;
+    box-shadow:inset 0 0 0 1px #fff4c55e;
+    color:#2e523f;
+  }
+  .taken-label{
+    display:flex;flex-direction:column;justify-content:center;flex:0 0 auto;
+    gap:1px;min-width:100px;line-height:1.1;
+  }
+  .play-layout .taken-label strong{font-size:10px;color:#31513e}
+  .play-layout .taken-label span{font-size:10px;color:#80533a;font-weight:750;white-space:nowrap}
+  .taken-kinds{
+    display:flex;align-items:center;flex:0 1 auto;gap:3px;min-width:0;overflow:hidden;
+  }
+  .taken-kind{
+    flex:0 0 auto;white-space:nowrap;border:1px solid #c09b59;border-radius:3px;
+    background:#fff4d6;padding:2px 4px;font-size:10px!important;
+    color:#435441!important;font-weight:750;line-height:1.2;
+  }
+  .taken-empty{font-size:10px!important;color:#786852!important;white-space:nowrap}
+  .taken-preview{
+    display:flex;align-items:center;justify-content:flex-start;flex:1 1 auto;
+    min-width:0;max-height:100%;gap:3px;overflow:hidden;
+  }
+  .taken-preview img{
+    display:block;flex:0 0 auto;height:29px;width:auto;max-width:20px;
+    object-fit:contain;border:1px solid #765d3a;border-radius:2px;background:#fff4d9;
+  }
+  .taken-preview img.taken-new{border-color:#a04a32;box-shadow:0 0 0 1px #ba5d32}
+  .taken-preview small{font-size:10px;white-space:nowrap;color:#6b5036}
+  .play-layout .board-taken .taken-open{
+    flex:0 0 auto;min-height:29px!important;max-height:31px!important;
+    padding:4px 6px;margin:0;
+    background:#28523d;color:#fff1c9;border-color:#8b9169;
+    white-space:nowrap;font-size:10px;font-weight:750;
+  }
+
+  /* Collected-card detail: four named categories, legible face-up images.
+     Vertical scrolling is confined to each category when many cards are won. */
+  .capture-dialog{
+    display:flex;flex-direction:column;gap:5px;
+    width:96%;max-width:min(790px,96%);height:89%;max-height:89%;
+    padding:9px 12px;overflow:hidden;
+  }
+  .capture-dialog .dialog-top{flex:0 0 auto;padding:0 0 3px}
+  .capture-dialog .dialog-top strong{font-size:17px}
+  .capture-dialog .dialog-top .quiet{min-height:30px;padding:4px 8px}
+  .taken-detail-intro{margin:0;flex:0 0 auto;font-size:11px;line-height:1.25;color:#5a5541}
+  .taken-detail-status{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    flex:0 0 auto;padding:2px 7px;border-radius:3px;
+    background:#e7d4aa;color:#35533c;font-size:11px;font-weight:850;
+  }
+  .taken-detail-status span{color:#8a5339;font-size:10px;font-weight:650}
+  .taken-groups{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));gap:6px;
+    flex:1 1 auto;min-height:0;min-width:0;overflow:hidden;
+  }
+  .taken-group{
+    display:flex;flex-direction:column;min-height:0;min-width:0;gap:4px;
+    border:1px solid #bc9d67;border-radius:4px;background:#fff9e7;
+    padding:4px 6px;overflow:hidden;
+  }
+  .taken-group header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:5px;flex:0 0 auto;border-bottom:1px solid #cdb588;
+    color:#365542;padding-bottom:2px;
+  }
+  .taken-group header strong{font-size:12px;white-space:nowrap}
+  .taken-group header span{font-size:10px;color:#896744;white-space:nowrap}
+  .taken-group-cards{
+    display:flex;justify-content:flex-start;align-items:flex-start;
+    gap:4px;min-height:0;min-width:0;flex-wrap:wrap;overflow:auto;
+    scrollbar-width:thin;overscroll-behavior:contain;
+  }
+  .taken-card{flex:0 0 auto;appearance:none;padding:0;border:1px solid #8c754e;
+    background:#fcf5de;border-radius:2px;height:54px;width:auto;aspect-ratio:512/839;
+    cursor:pointer;overflow:hidden}
+  .taken-card img{width:100%;height:100%;object-fit:contain;display:block}
+  .taken-not-yet{font-size:11px;color:#857358}
+  .taken-cup-note{font-size:10px;color:#77614c;line-height:1.2;margin:0}
+
+  /* Fix the story article's overflowing intrinsic 976x1600 card.
+     All pages keep a single screen and never allow images to size the grid. */
+  .reference-page{min-width:0;max-width:100%;width:100%;
+    grid-template-columns:minmax(0,1fr)}
+  .reference-page>*{min-width:0;max-width:100%}
+  .scene-columns .reference-page{
+    grid-template-rows:44px 35px minmax(0,1fr) minmax(83px,.57fr) 16px;
+  }
+  .scene-columns .season-art{
+    min-width:0;min-height:0;max-width:100%;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:radial-gradient(ellipse at center,#d5c09a3b,transparent 66%);
+  }
+  .scene-columns .season-art img{
+    display:block;width:auto;height:auto;max-width:100%;max-height:100%;
+    min-width:0;min-height:0;object-fit:contain;flex:0 1 auto;
+    border:1px solid #9c774b;box-shadow:0 3px 9px #0617116d;
+  }
+  .scene-columns .reference-note{overflow:hidden;padding:5px 9px;gap:2px}
+  .scene-columns .reference-note strong{font-size:14px}
+  .scene-columns .reference-note p{font-size:12px;line-height:1.35;-webkit-line-clamp:3}
+  .reference-top strong{font-size:clamp(13px,1.6vw,16px)}
+  .reference-top button{font-size:12px;min-height:30px}
+  .reference-page .reference-cards .card-name strong{font-size:11px;line-height:13px}
+  .reference-page .reference-cards .card-name span{font-size:10px;line-height:12px}
+  .reference-note p{font-size:12px;line-height:1.45}
+
+  /* Make the quiz's question image readable, and keep "Next" visible
+     after an answer instead of clipping two controls into a 33px row. */
+  .scene-quiz .quiz-screen{
+    grid-template-columns:minmax(0,45fr) minmax(0,55fr);
+    grid-template-rows:42px minmax(0,1fr) 55px;min-width:0;overflow:hidden;
+  }
+  .scene-quiz .quiz-art{
+    min-height:0;min-width:0;overflow:hidden;padding:5px;
+    border:1px solid #baa071;border-radius:6px;
+    background:linear-gradient(130deg,#eee0bc,#d5c5a3);
+  }
+  .scene-quiz .quiz-art img{
+    width:auto;height:100%;max-height:100%;max-width:45%;
+    object-fit:contain;filter:drop-shadow(0 3px 4px #33271970);
+  }
+  .scene-quiz .quiz-options{min-width:0;min-height:0;overflow:hidden}
+  .scene-quiz .quiz-option{font-size:clamp(12px,1.6vw,15px);min-width:0;min-height:0}
+  .scene-quiz .quiz-option img{width:auto;height:91%;max-height:98%;max-width:96%;object-fit:contain}
+  .scene-quiz .quiz-feedback{
+    min-width:0;min-height:0;display:flex;flex-direction:row;
+    align-items:center;justify-content:space-between;gap:8px;overflow:hidden;
+    padding:3px 8px;background:#f1e4c7;border:1px solid #c6a87a;border-radius:5px;
+  }
+  .scene-quiz .quiz-feedback .notice{
+    flex:1 1 auto;min-width:0;overflow:hidden;
+    padding:3px 6px;margin:0;font-size:11px;line-height:1.3;-webkit-line-clamp:2;
+  }
+  .scene-quiz .quiz-feedback .primary{
+    flex:0 0 auto;min-height:34px;height:auto;width:auto;max-width:130px;
+    padding:4px 8px;font-size:12px;
+  }
+  .scene-quiz .quiz-feedback>p:not(.notice){
+    font-size:12px;text-align:left;line-height:1.3;color:#6c5a40;
+  }
+
+  /* Month choices were previously 6 across with 8px copy. A 4x3 map
+     gives each month a readable title without leaving the screen. */
+  .scene-travel .month-grid{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-rows:repeat(3,minmax(0,1fr));gap:5px;min-height:0;
+  }
+  .scene-travel .month{
+    padding:4px 8px;min-height:0;justify-content:center;
+  }
+  .scene-travel .month strong{font-size:clamp(18px,2.3vw,24px)}
+  .scene-travel .month>span:not(.mark){
+    width:62%;font-size:clamp(10px,1.2vw,12px);
+    -webkit-line-clamp:2;line-height:1.2;
+  }
+  .scene-travel .month img.month-art{
+    height:76%;max-width:34%;top:12%;right:8px;
+  }
+
+  /* Settings: no tiny 10px instructions on roomy panels. */
+  .scene-settings .setting-row>span{font-size:12px}
+  .scene-settings .setting-row strong{font-size:15px}
+  .scene-settings .setting-row .chip{font-size:12px;min-height:34px}
+  .scene-chapter .panel .story{font-size:12px;line-height:1.6}
+}
+@media (orientation:landscape) and (max-height:390px) {
+  .play-layout .tabletop{grid-template-rows:25px minmax(0,1.22fr) 32px minmax(0,.88fr)}
+  .taken-label{min-width:91px}
+  .taken-preview img{height:27px;max-width:19px}
+  .taken-kinds{gap:2px}
+  .taken-kind{font-size:9px!important;padding:2px 3px}
+  .play-layout .board-taken .taken-open{min-height:28px!important;padding:3px 5px}
+  .taken-detail-intro{font-size:10px}
+  .taken-card{height:43px}
+  .taken-group{gap:3px;padding:3px 5px}
+  .taken-groups{gap:4px}
+  .taken-group header{padding-bottom:1px}
+  .taken-group header strong{font-size:11px}
+  .taken-group header span{font-size:9px}
+  .scene-quiz .quiz-screen{grid-template-rows:38px minmax(0,1fr) 55px}
+  .scene-travel .month{padding:2px 5px}
+  .scene-travel .month img.month-art{right:3px;max-width:34%}
+  .scene-travel .month>span:not(.mark){font-size:10px}
+  .scene-settings .setting-row>span{font-size:11px}
+}
+
+/* The quiz heading used browser-default H1 margins and overlapped the art.
+   Keep both the topic and artwork inside their own grid rows. */
+@media (orientation:landscape) and (max-height:620px){
+  .scene-quiz .quiz-head{display:flex;flex-direction:column;justify-content:center;
+    align-items:flex-start;gap:2px;min-height:0;min-width:0;overflow:hidden}
+  .scene-quiz .quiz-head small{display:block;margin:0;font-size:11px;line-height:1.2}
+  .scene-quiz .quiz-head .quiz-title{margin:0!important;
+    font-size:clamp(15px,1.88vw,19px);line-height:1.2;white-space:normal}
+}
+
+/* Every yaku entry (including 10-card kasu) must fit within the reference stage. */
+@media (orientation:landscape) and (max-height:620px){
+  .scene-yaku .reference-yaku{display:flex;gap:5px;min-width:0;width:100%;
+    justify-content:center;align-items:center;overflow:hidden}
+  .scene-yaku .reference-yaku img{
+    flex:0 1 auto;min-width:0;width:auto;height:100%;max-height:100%;
+    max-width:calc(var(--yaku-share) - 6px);object-fit:contain;
+  }
+}
