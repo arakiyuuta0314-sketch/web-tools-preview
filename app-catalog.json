@@ -82,9 +82,9 @@
       "emoji": "🎴",
       "stage": "Webプレビュー",
       "kind": "game",
-      "description": "最初に花札の目的を学び、札の取り方と盤面を体験。旧版キャッシュの更新対策を追加した横画面版。",
-      "url": "./hanafuda/?v=20261111-intro-cache-v6",
-      "version": "花札の目的から学べる6段階チュートリアル v6",
+      "description": "場札が9枚以上に増えても、すべての札の絵柄を見ながら遊べる横画面の花札こいこい。",
+      "url": "./hanafuda/?v=20261111-field-visible-v7",
+      "version": "場札の絵柄表示修正 v7",
       "cta": "ゲームを開く"
     }
   ]

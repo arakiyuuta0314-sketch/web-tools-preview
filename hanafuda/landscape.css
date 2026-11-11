@@ -147,9 +147,11 @@
   .play-layout .fieldcards{display:flex;justify-content:center;align-items:stretch;
     flex-wrap:nowrap;min-height:0;height:100%;width:100%;padding:0;gap:3px;overflow:hidden}
   .play-layout .fieldcards .card-slot{flex:1;min-width:0;max-width:58px}
-  .play-layout .fieldcards.dense{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));
-    grid-template-rows:repeat(2,minmax(0,1fr));gap:2px}
-  .play-layout .fieldcards.dense .card-slot{max-width:none}
+  /* Keep every field card in one visible row when the field grows beyond 8.
+     Two rows leave less than 24px for artwork on landscape iPhones. */
+  .play-layout .fieldcards.dense{display:flex;flex-wrap:nowrap;gap:2px}
+  .play-layout .fieldcards.dense .card-slot{flex:1 1 0;min-width:0;max-width:58px}
+  .play-layout .fieldcards.dense .hana img{object-fit:contain;background:#f0e6d0}
   .field-stock{min-height:0;display:flex;flex-direction:column;align-items:center;
     justify-content:center;gap:4px;color:#545439;border-left:1px solid #927e573b}
   .stock-back{display:grid;place-items:center;width:27px;height:43px;border:2px solid #d6b982;
