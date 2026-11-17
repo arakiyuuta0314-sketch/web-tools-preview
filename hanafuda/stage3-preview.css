@@ -1,0 +1,292 @@
+/* Stage 3: generated scenic painting + physically composed signs.
+   Home only, opt-in ?theme=stage3. No external images or fonts. */
+.stage3-stones{display:none}
+@media (orientation:landscape) and (max-height:620px) {
+html[data-hanafuda-preview="stage3"] .scene-home{
+  background:linear-gradient(#071711,#14241b);
+}
+html[data-hanafuda-preview="stage3"] .scene-home::before{display:none}
+html[data-hanafuda-preview="stage3"] .scene-home .page{
+  padding:0;grid-template-rows:minmax(0,1fr);
+}
+html[data-hanafuda-preview="stage3"] .scene-home .scene-body{
+  height:100%;min-height:0;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .topbar{
+  position:absolute;z-index:12;right:15px;top:9px;
+  height:24px;width:auto;border:0;background:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .topbar .brand{display:none}
+html[data-hanafuda-preview="stage3"] .scene-home .topbar .quiet{
+  border-radius:2px 8px 2px 8px;min-height:29px;
+  background:linear-gradient(170deg,#fff2ce,#d6b67c);
+  border:2px solid #92652e;color:#443020;
+  box-shadow:0 3px 0 #4a301c,0 5px 8px #07180bc9;
+  font:700 12px "Yu Mincho",serif;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub{
+  display:block!important;position:relative;isolation:isolate;
+  overflow:hidden;width:100%;height:100%;padding:0;gap:0;
+  background:#142f2b url("assets/stage3-garden.jpg") center 45% / cover no-repeat;
+  box-shadow:inset 0 0 30px #0a1910;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 28% 20%,#101a15b7,transparent 55%),
+    linear-gradient(90deg,#0b1614e8 0%,#1a211a8f 28%,#121b16a2 55%,#07171120 100%),
+    linear-gradient(0deg,#0a170fc9 0%,transparent 28%,transparent 76%,#121b16a0 100%);
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub::after{
+  content:"";position:absolute;inset:5px;pointer-events:none;z-index:8;
+  border:1px solid #e6c98d6b;
+  box-shadow:inset 0 0 0 2px #101f169e,inset 0 0 25px #04110bb2;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;
+  display:block;border:0;border-radius:0;background:transparent;box-shadow:none;
+  pointer-events:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero::before,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero::after,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero>h1,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero>p{
+  display:none!important;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero .eyebrow{
+  top:11px;left:44px;color:#f0d8a5;
+  font:700 10px Georgia,serif;letter-spacing:.22em;
+  text-shadow:0 2px 5px #13130e;
+}
+/* Title is a real text layer on a hanging lacquered board. */
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title{
+  position:absolute;display:flex;top:46px;left:39px;
+  width:340px;max-width:46%;height:150px;
+  margin:0;padding:18px 28px 12px 26px;
+  background:
+    linear-gradient(90deg,transparent 2%,#f6c77e12 3%,transparent 4% 11%,#fff0ad0d 12%,transparent 15%),
+    repeating-linear-gradient(0deg,transparent 0 19px,#a7713c11 20px 21px),
+    linear-gradient(157deg,#5d321f 0%,#392318 51%,#201812 100%);
+  border:5px ridge #b58952;border-radius:26px 12px 28px 9px;
+  box-shadow:inset 0 0 0 2px #392217,inset 0 0 0 5px #d9ab644d,
+    inset 0 16px 18px #dcb57f26,7px 12px 3px #08100be0,11px 16px 25px #040909b5;
+  transform:rotate(-3deg);
+  text-align:left;justify-content:center;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title::before,
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title::after{
+  content:"";position:absolute;top:-43px;
+  width:3px;height:42px;background:repeating-linear-gradient(140deg,#bea16e 0 4px,#49341b 4px 7px);
+  box-shadow:1px 0 2px #111;z-index:-1;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title::before{left:33px;transform:rotate(-11deg)}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title::after{right:33px;transform:rotate(11deg)}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title>span{
+  font:700 12px "Yu Mincho",serif;
+  color:#f2dfb3;letter-spacing:.21em;
+  margin:0 0 6px 0;text-shadow:0 2px 2px #1b100d;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title strong{
+  font:900 32px "Yu Mincho","Hiragino Mincho ProN",serif;
+  color:#f5d18d;line-height:1.17;white-space:nowrap;
+  letter-spacing:.08em;
+  text-shadow:1px 1px #fbe7b0,2px 3px 0 #7b3e17,0 6px 7px #140c09;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title b{
+  font:900 46px "Yu Mincho",serif;line-height:1.12;
+  letter-spacing:.18em;margin-top:1px;
+  color:#f8e1a1;text-shadow:1px 1px #fff5bd,3px 4px #975526,0 7px 8px #17100e;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title b::after{
+  content:"";height:3px;width:88%;margin-top:5px;
+  background:linear-gradient(90deg,#963c30,#d2a45e,#d8b57400);
+}
+/* The three existing CC BY-SA cards remain original pixels, only larger and tilted. */
+html[data-hanafuda-preview="stage3"] .scene-home .hub-hero .hero-cards{
+  position:absolute;left:380px;top:53px;right:auto;
+  transform:rotate(8deg) scale(1.25);
+  filter:drop-shadow(6px 10px 5px #050d09e0);
+  z-index:2;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hero-cards img{
+  border:2px solid #f5e1ae;border-radius:2px;
+  box-shadow:1px 2px #5c3320,4px 6px 10px #04130bdd;
+}
+/* Menu signs: four different physical props, NOT a uniform row. */
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn{
+  position:absolute;z-index:5;
+  overflow:visible;margin:0;
+  background:repeating-linear-gradient(0deg,#a1703410 0 1px,transparent 1px 6px),
+    linear-gradient(160deg,#fcf1d0,#d7ae79 62%,#b48253);
+  border:5px ridge #82512c;border-radius:13px 6px 16px 5px;
+  box-shadow:inset 0 0 0 2px #faf0c5,inset 0 0 0 5px #ac764a50,
+    4px 7px 2px #08110abc,6px 10px 14px #020c09aa;
+  color:#3e2c20;text-align:left;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial:focus-visible,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode:focus-visible,
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn:focus-visible{
+  outline:3px solid #fff0a0;outline-offset:4px;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial{
+  left:35px;top:216px;bottom:auto;width:329px;height:107px;min-height:107px;
+  padding:12px 12px 12px 65px;
+  display:flex;flex-direction:column;justify-content:center;gap:3px;
+  transform:rotate(-3deg);
+  background:
+    radial-gradient(circle at 17% 40%,#d87d414e 0 10%,transparent 21%),
+    repeating-linear-gradient(0deg,#a1703410 0 1px,transparent 1px 6px),
+    linear-gradient(160deg,#fff3cf,#deb985 58%,#ad7b4c);
+  border-color:#a7743e;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial::before{
+  content:"✿";position:absolute;left:10px;top:24px;
+  font:700 49px Georgia,serif;color:#ad4339;text-shadow:1px 2px #f8e5be;
+  pointer-events:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial::after{
+  content:"";position:absolute;top:-17px;left:36px;width:200px;height:16px;
+  background:linear-gradient(120deg,transparent 0 49%,#dbb479 50% 51%,transparent 52%);
+  filter:drop-shadow(0 1px 1px #1e1913);pointer-events:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial .hub-badge{
+  font:800 10px sans-serif;color:#963d31;letter-spacing:.03em;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial strong{
+  font:900 24px "Yu Mincho",serif;color:#31271c;white-space:nowrap;
+  text-shadow:0 1px #fff8df;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial>span:not(.hub-badge){
+  font-size:11px;color:#57402d;white-space:nowrap;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial b{
+  font-size:11px;color:#912d25;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes{
+  position:absolute;z-index:5;left:0;top:0;width:0;height:0;
+  display:block!important;overflow:visible;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode{
+  display:flex!important;flex-direction:column;justify-content:center;
+  gap:1px;padding:9px 11px 8px 40px;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode::before{
+  content:"";position:absolute;left:11px;top:14px;width:20px;height:25px;
+  border:2px solid #af783e;border-radius:3px;
+  box-shadow:0 2px 0 #a97c48;pointer-events:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode::after{
+  content:"";position:absolute;left:23px;top:-20px;
+  width:2px;height:17px;background:#d8b781;
+  transform:rotate(10deg);right:auto;pointer-events:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes .hub-journey{
+  left:399px;top:236px;width:190px;height:74px;min-height:74px;
+  transform:rotate(4deg);
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes .hub-journey::before{
+  content:"❀";font:700 19px Georgia,serif;display:grid;place-items:center;color:#985132;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes .hub-free{
+  left:601px;top:188px;width:184px;height:76px;min-height:76px;
+  transform:rotate(-5deg);background:linear-gradient(160deg,#ffebc5,#d9a46c 72%,#ae7951);
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes .hub-free::before{
+  content:"♧";font:700 20px Georgia,serif;display:grid;place-items:center;color:#8e5739;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode span{
+  font:800 10px sans-serif;color:#925134;letter-spacing:.04em;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode strong{
+  font:900 19px "Yu Mincho",serif;color:#312d22;white-space:nowrap;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-mode small{
+  font:700 10px sans-serif;color:#6b4b32;white-space:nowrap;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn{
+  left:601px;top:280px;width:188px;height:56px;min-height:56px;
+  padding:8px 13px 7px 39px;
+  display:flex;flex-direction:column;justify-content:center;
+  transform:rotate(3deg);
+  background:linear-gradient(154deg,#f3e2bb,#c9a070 72%,#ad7e4e);
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn::before{
+  content:"▣";position:absolute;left:13px;top:15px;
+  font:700 23px "Yu Mincho",serif;color:#745032;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn::after{
+  content:"";position:absolute;top:-12px;left:48%;height:12px;
+  border-left:2px solid #d8bd88;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn strong{
+  color:#2e3429;font:900 17px "Yu Mincho",serif;white-space:nowrap;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn span{
+  font:700 9px sans-serif;line-height:1.35;color:#65503b;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn b{display:none}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-progress{
+  position:absolute;z-index:5;left:37px;right:36px;bottom:8px;
+  width:auto;height:27px;display:flex!important;
+  justify-content:space-around;align-items:center;gap:5px;
+  padding:1px 13px 0;border:2px solid #c8ab78;border-radius:2px 10px 3px 12px;
+  background:transparent;border:0;box-shadow:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-progress>span:not(.stage3-stones){
+  position:relative;z-index:2;white-space:nowrap;
+  font:700 11px "Yu Mincho",serif;color:#f6deb0;text-shadow:0 1px #241509;
+  border:1px solid #b9a180;border-radius:7px 3px 9px 4px;
+  background:linear-gradient(145deg,#615f54ee,#292e2af0);
+  padding:4px 22px;min-width:140px;text-align:center;
+  box-shadow:0 2px 5px #05140dd9,inset 0 1px #d3c1a456;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-progress::before{
+  content:"旅の足跡";position:absolute;left:4px;bottom:100%;
+  color:#f2deb1;font:800 10px "Yu Mincho",serif;
+  text-shadow:0 2px 5px #0b1710;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-progress .stage3-stones{
+  display:flex!important;position:absolute;left:115px;right:60px;
+  top:-26px;height:25px;z-index:2;gap:5px;justify-content:space-between;pointer-events:none;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .stage3-stones i{
+  display:grid;place-items:center;flex:1 1 0;min-width:0;
+  background:linear-gradient(142deg,#9c9b81,#535950 64%,#2e3933);
+  border:1px solid #c8bf99;border-radius:41% 39% 37% 33%;
+  box-shadow:1px 3px 2px #07170bad,inset 0 1px #f8e8bc83;
+  font:900 11px Georgia,serif;color:#f7efd8;
+  transform:rotate(-4deg);
+}
+html[data-hanafuda-preview="stage3"] .scene-home .stage3-stones i:nth-child(even){transform:rotate(5deg) translateY(2px)}
+html[data-hanafuda-preview="stage3"] .scene-home .stage3-stones i.passed{
+  background:linear-gradient(140deg,#d5b16f,#8b643a);color:#fff3ca;
+  border-color:#ffe4a6;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .stage3-stones i.current{
+  background:linear-gradient(155deg,#e8dbad,#e4b965);
+  border-color:#fff0ad;color:#8b362b;
+  box-shadow:0 0 8px #fff4a266,0 2px 3px #08180ec9;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-resume{
+  position:absolute;z-index:7;left:395px;top:188px;
+  border:2px solid #e4c080;background:#e7c38e;
+  color:#39291b;border-radius:5px;
+}
+}
+@media (orientation:landscape) and (max-height:365px) {
+html[data-hanafuda-preview="stage3"] .scene-home .landscape-title{
+  top:30px;height:128px;width:315px;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-tutorial{
+  top:183px;height:99px;min-height:99px;
+}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes .hub-journey{top:204px}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-modes .hub-free{top:169px}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-learn{top:248px}
+html[data-hanafuda-preview="stage3"] .scene-home .hub-progress{bottom:5px}
+}
+@media (prefers-reduced-motion:reduce) {
+html[data-hanafuda-preview="stage3"] *{animation:none!important;transition:none!important}
+}

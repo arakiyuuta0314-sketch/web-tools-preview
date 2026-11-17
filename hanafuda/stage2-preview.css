@@ -1,0 +1,429 @@
+/* Prototype 2: composition-first, self-authored seasonal SVG and CSS only.
+ * Opt-in ?theme=stage2. Default + ?theme=table stay unchanged.
+ * 844 x 390 primary target; no gameplay or text changes.
+ */
+.score-sticks{display:none}
+@media (orientation:landscape) and (max-height:620px){
+html[data-hanafuda-preview="stage2"] .scene-home,
+html[data-hanafuda-preview="stage2"] .scene-game{
+  background:#142721;
+}
+html[data-hanafuda-preview="stage2"] .scene-home::before,
+html[data-hanafuda-preview="stage2"] .scene-game::before{display:none}
+html[data-hanafuda-preview="stage2"] .scene-home .page{
+  padding:0;grid-template-rows:minmax(0,1fr);
+}
+html[data-hanafuda-preview="stage2"] .scene-home .topbar{
+  top:12px;right:14px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .topbar .quiet{
+  border:2px solid #c4a16b;border-radius:2px;
+  background:linear-gradient(#846346,#3d2b1d);color:#fff1ca;
+  font-family:"Yu Mincho",serif;
+  box-shadow:inset 0 0 0 2px #3c2b1c,0 3px 5px #050f0db2;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .scene-body{height:100%}
+html[data-hanafuda-preview="stage2"] .scene-home .hub{
+  display:block;position:relative;overflow:hidden;
+  height:100%;padding:0;gap:0;
+  background:#101f1f url("stage2-scene.svg") center 49% / cover no-repeat;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(90deg,#0616149c 0%,#10261d4d 41%,transparent 76%),
+   linear-gradient(0deg,#0b1e1bbc 0%,transparent 40%);
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-hero{
+  position:absolute;inset:0;display:block;
+  width:100%;height:100%;border:0;border-radius:0;box-shadow:none;
+  background:none;z-index:1;pointer-events:none;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-hero::before,
+html[data-hanafuda-preview="stage2"] .scene-home .hub-hero::after{display:none}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-hero .eyebrow{
+  top:49px;left:48px;font-size:10px;
+  color:#e9c996;letter-spacing:.24em;text-shadow:0 2px 5px #07150f;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .landscape-title{
+  display:flex;top:91px;left:48px;width:400px;max-width:53%;
+  text-shadow:0 3px 10px #030a09;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .landscape-title>span{
+  margin-bottom:6px;color:#f1d8ad;font-size:12px;
+  letter-spacing:.21em;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .landscape-title strong{
+  font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+  font-size:clamp(32px,4.2vw,46px);letter-spacing:.13em;
+  color:#fff0d6;white-space:nowrap;font-weight:800;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .landscape-title b{
+  font:800 clamp(38px,5vw,56px) "Yu Mincho","Hiragino Mincho ProN",serif;
+  color:#f0cd91;letter-spacing:.3em;line-height:1.13;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .landscape-title b::after{
+  height:3px;margin-top:10px;width:80%;background:linear-gradient(90deg,#c94e3c,#ecb369,#eaca8a33);
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-hero .hero-cards{
+  display:block;top:84px;right:21%;transform:rotate(7deg) scale(.94);
+  filter:drop-shadow(4px 7px 6px #05140db5);
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-hero .hero-cards img{
+  border:2px solid #e4d1ab;box-shadow:0 3px 12px #020d0bd6;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial,
+html[data-hanafuda-preview="stage2"] .scene-home .hub-mode,
+html[data-hanafuda-preview="stage2"] .scene-home .hub-learn{
+  position:absolute;z-index:3;
+  height:68px;min-height:68px;
+  padding:8px 13px 7px 14px;overflow:hidden;
+  border:3px solid #ab8050;border-radius:2px 8px 2px 8px;
+  background:
+    repeating-linear-gradient(0deg,#ffffff0a 0px 1px,transparent 1px 9px),
+    linear-gradient(168deg,#775435,#4d3527 65%,#30251e);
+  box-shadow:inset 0 0 0 2px #493223,
+    inset 0 1px 0 3px #ddbb865e,
+    0 4px 1px #231710,0 8px 10px #0008;
+  color:#fff2cc;text-align:left;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial::after,
+html[data-hanafuda-preview="stage2"] .scene-home .hub-mode::after,
+html[data-hanafuda-preview="stage2"] .scene-home .hub-learn::after{
+  content:"";position:absolute;top:10px;bottom:10px;right:9px;
+  width:1px;background:#e6c48a8c;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial{
+  left:4%;bottom:65px;width:34%;
+  display:flex;flex-direction:column;justify-content:center;gap:1px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial::before{
+  content:"初";top:0;right:17px;font:700 53px "Yu Mincho",serif;color:#e7c39340;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial .hub-badge{
+  font:700 9px sans-serif;letter-spacing:.035em;color:#f8c37f;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial strong{
+  font:800 clamp(17px,2.25vw,23px) "Yu Mincho",serif;
+  color:#fff2d9;text-shadow:0 2px #261710;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial>span:not(.hub-badge){
+  font-size:10px;color:#f0d9b7;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial b{display:none}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-modes{
+  position:absolute;z-index:3;left:39%;bottom:65px;width:40%;height:68px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-modes .hub-mode{
+  position:relative;width:100%;bottom:auto;left:auto;height:68px;
+  display:flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:7px 10px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-journey{
+  background:repeating-linear-gradient(0deg,#ffffff0b 0 1px,transparent 1px 9px),
+    linear-gradient(150deg,#526a41,#273b2b 77%);
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-free{
+  background:repeating-linear-gradient(0deg,#ffffff0b 0 1px,transparent 1px 9px),
+    linear-gradient(150deg,#815237,#4b3022 77%);
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-mode strong{
+  font:800 clamp(15px,2vw,19px) "Yu Mincho",serif;
+  color:#fff0d2;white-space:nowrap;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-mode span{
+  color:#eac58b;font-size:9px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-mode small{
+  font-size:9px;color:#efe0c1;white-space:nowrap;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-learn{
+  right:3%;bottom:65px;width:17%;height:68px;
+  display:flex;flex-direction:column;justify-content:center;gap:2px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-learn strong{
+  color:#fff1d5;font:700 clamp(13px,1.6vw,16px) "Yu Mincho",serif;
+  white-space:nowrap;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-learn span{
+  color:#ebd1a8;font-size:9px;line-height:1.3;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-learn b{
+  position:absolute;right:9px;top:24px;color:#edcd93;font-size:20px;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-progress{
+  z-index:3;position:absolute;bottom:15px;left:4%;width:92%;height:30px;
+  display:flex;align-items:center;justify-content:space-around;
+  border-radius:30px;border:1px solid #c8a064;
+  background:linear-gradient(90deg,#201d1aee,#392d24eb 50%,#201d1aee);
+  box-shadow:inset 0 0 0 2px #7555376b,0 4px 5px #07110ba6;
+  color:#f6e2b9;font:700 11px "Yu Mincho",serif;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-progress::before{
+  content:"✿  一月  ━  二月  ━  三月  ━  十二月";position:absolute;left:4%;
+  bottom:100%;color:#eed3a8;font-size:9px;white-space:nowrap;
+  text-shadow:0 2px 3px #06100c;
+}
+html[data-hanafuda-preview="stage2"] .scene-home .hub-resume{
+  bottom:145px;left:40%;position:absolute;z-index:5;
+  background:#f0d8a3;color:#3a2d1d;border:2px solid #89643b;
+}
+/* Opposing table: far-side CPU seat, felt center, close-up human hand. */
+html[data-hanafuda-preview="stage2"] .scene-game .page{
+  padding:3px 9px 4px;grid-template-rows:28px minmax(0,1fr);
+}
+html[data-hanafuda-preview="stage2"] .scene-game .topbar{
+  height:28px;padding:0 3px 2px;border-bottom:1px solid #987143;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .topbar .quiet{
+  min-height:23px;padding:2px 10px;background:linear-gradient(#775134,#3b281b);
+  border:1px solid #c49d64;border-radius:2px 6px;color:#f7e4bd;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout{
+  height:100%;grid-template-columns:minmax(0,1fr) 179px;
+  grid-template-rows:29px minmax(0,1fr);gap:5px;padding:2px 2px 2px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .gameheader{
+  grid-column:1/-1;grid-row:1;min-height:0;
+  border:2px solid #a48453;border-radius:2px 3px 2px 3px;
+  background:linear-gradient(90deg,#2c201c,#254337 34%,#203c32 66%,#31221c);
+  box-shadow:inset 0 0 0 1px #302119,inset 0 0 0 3px #d6a56c29;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .round-badge{
+  font-family:"Yu Mincho",serif;letter-spacing:.08em;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .game-score{
+  display:flex;align-items:center;gap:5px;font-size:16px;
+  color:#f2d3a5;text-shadow:0 1px 2px #14110d;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .score-sticks{
+  display:inline-flex;gap:2px;align-items:center;
+  margin-right:5px;margin-left:3px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .score-sticks i{
+  display:block;width:5px;height:13px;transform:skewX(-8deg);
+  border:1px solid #b78b51;background:#2a3128;box-shadow:0 1px #120c09;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .score-sticks i.scored{
+  background:linear-gradient(90deg,#d1ac60,#f6dc94,#9d713c);
+  box-shadow:0 0 5px #e2ba7c66;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .score-sticks.rival i.scored{
+  background:linear-gradient(90deg,#af583e,#e9996c,#733a2e);
+}
+html[data-hanafuda-preview="stage2"] .scene-game .gameheader .coach-detail{
+  min-height:23px;font-size:10px;
+  border-radius:2px 6px 2px 6px;background:#dfbf86;color:#392f21;
+}
+/* 4 explicitly layered regions, opposite player across the top edge */
+html[data-hanafuda-preview="stage2"] .scene-game .game-board-wrap{
+  grid-column:1;grid-row:2;min-height:0;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .tabletop{
+  display:grid;position:relative;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:44px minmax(0,.96fr) 31px minmax(0,1.26fr);
+  padding:5px 8px;gap:3px;overflow:hidden;
+  border:6px ridge #86572f;border-radius:13px;
+  outline:1px solid #d3ac72;
+  background:
+    radial-gradient(ellipse at 50% 38%,#5980668c,transparent 75%),
+    repeating-linear-gradient(37deg,#f4e9b908 0px 1px,transparent 1px 5px),
+    repeating-linear-gradient(-37deg,#f4e9b908 0px 1px,transparent 1px 5px),
+    linear-gradient(#1c4b3c,#1e513c 59%,#153c2e);
+  box-shadow:inset 0 0 0 2px #c29961,inset 0 0 35px #08261ad9,0 6px 14px #020e09b5;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-opponent{
+  grid-column:1;grid-row:1;display:grid;grid-template-columns:128px 1fr 132px;
+  align-items:center;gap:5px;min-height:0;padding:1px 6px 3px;
+  border:1px solid #bc965a;
+  border-radius:14px 14px 3px 3px;
+  background:linear-gradient(#101e1ddd,#283c30b8);
+  box-shadow:inset 0 0 0 2px #6a55383d,0 2px 6px #021a0e8c;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .opponent-label{
+  min-width:0;height:100%;padding:4px 7px;
+  border-left:4px solid #bd9061;
+  background:linear-gradient(90deg,#4e3b2bb3,transparent);
+  display:flex;flex-direction:column;gap:1px;justify-content:center;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .opponent-label strong{
+  font:700 12px "Yu Mincho",serif;color:#f3ddaf;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .opponent-label span{font-size:9px;color:#e2d1ab}
+html[data-hanafuda-preview="stage2"] .scene-game .opponent-backs{
+  display:flex!important;min-width:0;justify-content:center;gap:2px;
+  transform:perspective(230px) rotateX(-9deg);
+}
+html[data-hanafuda-preview="stage2"] .scene-game .opponent-card-back{
+  display:grid!important;width:22px;height:30px;flex:0 1 22px;
+  border:1px solid #f0d2a0;border-radius:2px;
+  box-shadow:1px 3px 3px #071b13,0 0 0 1px #533d29;
+  background:repeating-linear-gradient(45deg,#782622 0 4px,#b64b36 4px 8px);
+}
+html[data-hanafuda-preview="stage2"] .scene-game .opponent-card-back i{
+  display:grid!important;width:12px;height:16px;font-size:9px;color:#ead39d;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-opponent .capture-link{
+  font-size:10px;background:linear-gradient(#795132,#3b3027);
+  border:1px solid #bc9865;border-radius:3px;
+  color:#fff0c9;min-height:27px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-field{
+  grid-column:1;grid-row:2;display:flex;flex-direction:column;
+  min-height:0;padding:2px 6px 2px;
+  background:linear-gradient(#1b4f3b,#226048 55%,#174532);
+  border:1px solid #8a9c69;border-radius:3px;
+  box-shadow:inset 0 0 0 2px #103624,inset 0 4px 10px #102d21ac;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-field .board-zone-caption strong{
+  color:#f6dfaa;text-shadow:0 1px #0a1911;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-field .board-zone-caption span,
+html[data-hanafuda-preview="stage2"] .scene-game .board-field .board-zone-caption small{color:#e1d4b0}
+html[data-hanafuda-preview="stage2"] .scene-game .landscape-fieldline{
+  display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:5px;flex:1;min-height:0;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .field-stock{
+  display:flex!important;border-left:1px solid #cfa56c77;
+  align-items:center;justify-content:center;gap:3px;
+  font-size:9px;color:#f1dcad;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .stock-back{
+  display:grid!important;position:relative;z-index:1;
+  width:27px;height:41px;margin:0 4px 4px 0;
+  border:2px solid #d6b482;background:repeating-linear-gradient(45deg,#69251f 0px 5px,#a84232 5px 9px);
+  box-shadow:2px 2px 0 #d7be8e,4px 4px 0 #512b25,6px 6px 0 #d7c39f,
+    9px 9px 6px #07180cb8;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .field-stock small{font-size:9px;color:#f3d6a7}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .fieldcards{
+  align-items:stretch;gap:3px;min-height:0;height:100%;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .fieldcards .card-slot{
+  max-width:62px;min-width:0;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-taken{
+  grid-column:1;grid-row:3;display:flex;align-items:center;
+  border-top:1px solid #bca472;border-bottom:1px solid #9a8154;
+  border-radius:3px;min-height:0;
+  background:linear-gradient(#092f24,#265340);
+  box-shadow:inset 0 0 0 2px #0e3026;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .taken-kind{
+  background:#e8cb92;border:1px solid #aa7c4a;color:#3e3625;border-radius:8px 2px;
+  font-size:10px;box-shadow:0 1px #9e6d39;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-hand{
+  grid-column:1;grid-row:4;min-height:0;
+  border:0;border-top:3px double #cfa76a;border-radius:2px 2px 10px 10px;
+  padding:3px 5px 2px;
+  background:
+    radial-gradient(ellipse at 50% 110%,#44715785,transparent 65%),
+    linear-gradient(#194333,#275941);
+  box-shadow:inset 0 8px 12px #0b2b22a5;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-hand .board-zone-caption strong{
+  font:800 13px "Yu Mincho",serif;color:#fff0c4;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .board-hand .board-zone-caption span{
+  color:#f9dcac;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .handcards{
+  display:flex;justify-content:center;align-items:stretch;gap:4px;
+  perspective:360px;overflow:visible;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot{
+  min-width:0;max-width:65px;flex:1 1 0;
+  transform-origin:50% 100%;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot:nth-child(1){transform:rotate(-4deg) translateY(2px)}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot:nth-child(2){transform:rotate(-3deg)}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot:nth-child(3){transform:rotate(-2deg)}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot:nth-child(6){transform:rotate(2deg)}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot:nth-child(7){transform:rotate(3deg)}
+html[data-hanafuda-preview="stage2"] .scene-game .handcards .card-slot:nth-child(8){transform:rotate(4deg) translateY(2px)}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .handcards .hana{
+  border:1px solid #f0dbb7;box-shadow:0 3px 5px #04170c,1px 0 0 #4e3c27;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .card-slot .card-name{
+  background:linear-gradient(#fff1c7,#d9c38f);color:#293d2d;
+  border:1px solid #a6874e;border-radius:2px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .card-name strong{
+  color:#27402e;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .card-name span{
+  color:#58452d;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .hana.selected{
+  transform:translateY(-3px);outline:3px solid #ffd56a;outline-offset:1px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .hana.hint{
+  box-shadow:0 0 0 3px #b4eea5,0 3px 5px #04170c;
+}
+/* Right side hanging scroll; distinct silhouette and scroll rods */
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .controlpad{
+  grid-column:2;grid-row:2;
+  position:relative;display:flex;flex-direction:column;
+  border:0;border-left:13px solid #6a4530;border-right:13px solid #6a4530;
+  border-radius:3px;padding:20px 8px 20px;
+  background:repeating-linear-gradient(0deg,#b598620e 0 1px,transparent 1px 7px),
+    linear-gradient(90deg,#b49c70,#faebcb 12%,#f4e4c6 88%,#b79d75);
+  box-shadow:inset 0 0 0 2px #d0b581,0 0 0 2px #9e8056,0 4px 10px #060e0bb8;
+  overflow:visible;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .controlpad::before,
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .controlpad::after{
+  content:"";display:block!important;position:absolute;z-index:2;
+  left:-16px;right:-16px;height:10px;border:1px solid #c49b63;
+  background:linear-gradient(180deg,#4b2e20,#ac8050 47%,#3e271e 100%);
+  box-shadow:0 2px 4px #1a130dc5;border-radius:6px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .controlpad::before{top:-3px}
+html[data-hanafuda-preview="stage2"] .scene-game .play-layout .controlpad::after{bottom:-3px}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-mast{
+  display:flex!important;align-items:center;gap:4px;
+  border-bottom:1px solid #916d3f;padding-bottom:5px;min-height:30px;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-monogram{
+  display:grid!important;background:#8b412d;border:2px solid #be995e;
+  font:700 16px "Yu Mincho",serif;color:#fff1d4;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-mast strong{
+  font:800 14px "Yu Mincho",serif;color:#483c2c;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-prompt{
+  justify-content:center;gap:5px;min-height:0;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-prompt strong{
+  font:800 16px "Yu Mincho",serif;color:#413c2c;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-prompt p{
+  font-size:11px;line-height:1.44;color:#51462f;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-actions button{
+  min-height:34px;border-radius:2px 8px;
+  border:2px solid #ab804d;color:#fff0c7;
+  background:linear-gradient(#795436,#412d20);
+  box-shadow:inset 0 1px #d5b27e,0 3px #2d2119;
+}
+html[data-hanafuda-preview="stage2"] .scene-game .coach-footer{
+  color:#775838;
+}
+}
+@media (orientation:landscape) and (max-height:365px) {
+ html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial,
+ html[data-hanafuda-preview="stage2"] .scene-home .hub-modes,
+ html[data-hanafuda-preview="stage2"] .scene-home .hub-learn{bottom:56px;height:61px;min-height:61px}
+ html[data-hanafuda-preview="stage2"] .scene-home .hub-progress{bottom:8px;height:27px}
+ html[data-hanafuda-preview="stage2"] .scene-home .landscape-title{top:63px}
+ html[data-hanafuda-preview="stage2"] .scene-game .play-layout .tabletop{
+  grid-template-rows:38px minmax(0,.9fr) 27px minmax(0,1.2fr);
+  border-width:4px;padding:3px 5px;
+ }
+ html[data-hanafuda-preview="stage2"] .scene-game .play-layout .controlpad{padding:15px 7px}
+}
+@media (prefers-reduced-motion:reduce){
+ html[data-hanafuda-preview="stage2"] *{animation:none!important;transition:none!important}
+}

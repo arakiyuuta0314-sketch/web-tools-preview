@@ -12,7 +12,7 @@ html,body,#app{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavi
 .topbar .seal{width:31px;height:31px;margin-right:3px}
 .topbar .quiet{min-height:39px;padding:7px 10px;font-size:12px}
 .scene-body{min-height:0;min-width:0;overflow:hidden;display:flex;flex-direction:column}
-.scene-nav{min-height:0;height:56px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+.scene-nav{min-height:0;height:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
   border-top:1px solid #d1b88c;padding-top:5px;background:linear-gradient(180deg,#f4ebd9,#f1e4ca)}
 .scene-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
   color:#52634e;background:transparent;border:0;border-radius:8px;font-size:20px;line-height:1}
@@ -20,7 +20,6 @@ html,body,#app{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavi
 .scene-nav button:focus-visible{outline:2px solid #b88745}
 .scene-home .scene-nav button[data-action=home],
 .scene-learn .scene-nav button[data-action=learn],
-.scene-travel .scene-nav button[data-action=travel],
 .scene-cards .scene-nav button[data-action=learn],
 .scene-yaku .scene-nav button[data-action=learn],
 .scene-columns .scene-nav button[data-action=learn]{
