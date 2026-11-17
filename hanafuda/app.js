@@ -689,7 +689,7 @@
   var app_config_default = {
     "schemaVersion": 1,
     "appId": "com.yuta.hanafudakoikoi",
-    "appName": "\u307E\u306A\u3079\u308B\u82B1\u672D \u3053\u3044\u3053\u3044",
+    "appName": "\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044",
     "storageNamespace": "hanafuda-koikoi",
     "privacyPolicyUrl": "https://arakiyuuta0314-sketch.github.io/app-legal-pages/privacy/",
     "supportUrl": "https://arakiyuuta0314-sketch.github.io/",
@@ -9737,8 +9737,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     fieldFourOfMonth: "redeal",
     threeMatch: "capture-all",
     noAgari: "zero-both",
-    travelLoss: "retry",
-    travelTie: "retry",
     lateYaku: "auto-stop",
     scoreGrowth: "higher-total"
   });
@@ -9860,18 +9858,41 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     return a;
   }
+  function initialHandBonus(ids) {
+    if (!Array.isArray(ids) || ids.length !== 8 || new Set(ids).size !== 8) throw new Error("Invalid initial hand");
+    const counts = /* @__PURE__ */ new Map();
+    for (const id of ids) {
+      const month = card(id).month;
+      counts.set(month, (counts.get(month) || 0) + 1);
+    }
+    if ([...counts.values()].includes(4)) return "te-shi";
+    if (counts.size === 4 && [...counts.values()].every((count) => count === 2)) return "kuttsuki";
+    return null;
+  }
+  function initialDealClaim(hands) {
+    if (!Array.isArray(hands) || hands.length !== 2) throw new Error("Both initial hands required");
+    const claims = hands.map(initialHandBonus);
+    if (claims[0] && claims[1]) return { redeal: true };
+    if (claims[0]) return { winner: 0, reason: claims[0] };
+    if (claims[1]) return { winner: 1, reason: claims[1] };
+    return null;
+  }
   function createRound({ dealer = 0, rng = Math.random } = {}) {
-    let deck, field;
+    let deck, field, bonus;
     for (let attempt = 0; attempt < 500; attempt++) {
       deck = shuffle(cardIds, rng);
       field = deck.slice(16, 24);
-      if (!field.some((id) => field.filter((x) => card(x).month === card(id).month).length === 4)) break;
-      if (attempt === 499) throw new Error("Unable to deal a valid field");
+      if (field.some((id) => field.filter((x) => card(x).month === card(id).month).length === 4)) continue;
+      const claim = initialDealClaim([deck.slice(0, 8), deck.slice(8, 16)]);
+      if (claim?.redeal) continue;
+      bonus = claim;
+      break;
     }
+    if (!deck || bonus === void 0) throw new Error("Unable to deal a valid round");
     const round = {
       dealer,
       current: dealer,
-      phase: "hand",
+      phase: bonus ? "round-end" : "hand",
       hands: [deck.slice(0, 8), deck.slice(8, 16)],
       field,
       stock: deck.slice(24),
@@ -9882,19 +9903,29 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       pendingHand: null,
       event: null,
       turn: 0,
-      result: null,
+      result: bonus ? { ...bonus, raw: 6, multiplier: 1, points: 6 } : null,
       log: []
     };
     assertConservation(round);
     return round;
   }
+  function applyInitialBonus(g) {
+    const result = g.round.result;
+    if (!result) return g;
+    g.scores[result.winner] += result.points;
+    if (g.index + 1 >= g.length) {
+      g.finished = true;
+      g.round.phase = "game-end";
+    }
+    return g;
+  }
   function createGame({ mode = "free", length = 3, month = 1, difficulty = 2, beginner = false, rng = Math.random } = {}) {
-    if (!["free", "travel"].includes(mode) || ![3, 6, 12].includes(length) || month < 1 || month > 12) throw new Error("Invalid game mode");
+    if (mode !== "free" || ![3, 6, 12].includes(length) || month < 1 || month > 12) throw new Error("Invalid game mode");
     if (![1, 2, 3].includes(difficulty)) throw new Error("Invalid difficulty");
-    return {
+    return applyInitialBonus({
       version: 1,
       mode,
-      length: mode === "travel" ? 1 : length,
+      length,
       month,
       difficulty: beginner ? 1 : difficulty,
       beginner,
@@ -9902,7 +9933,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       index: 0,
       round: createRound({ dealer: 0, rng }),
       finished: false
-    };
+    });
   }
   function assertConservation(r) {
     const all = [...r.hands[0], ...r.hands[1], ...r.field, ...r.stock, ...r.captured[0], ...r.captured[1]];
@@ -9920,7 +9951,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return matches.length === 2 ? matches.map((target) => ({ cardId: id, targetId: target })) : [{ cardId: id, targetId: matches.length === 1 ? matches[0] : null }];
     });
   }
-  function capture(r, id, targetId, actor) {
+  function capture(r, id, targetId, actor, source) {
+    if (source !== "hand" && source !== "stock") throw new Error("Unknown move source");
     const matches = matching(r.field, id);
     const acquired = [id];
     if (matches.length === 1) {
@@ -9939,8 +9971,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       r.field = r.field.filter((x) => !taken.has(x));
       r.captured[actor].push(...acquired);
     }
-    r.event = { actor, played: id, taken: acquired.length > 1 ? acquired : [], source: "" };
-    r.log.push({ actor, card: id, taken: [...r.event.taken] });
+    r.event = { actor, played: id, taken: acquired.length > 1 ? acquired : [], source };
+    r.log.push({ actor, card: id, taken: [...r.event.taken], source });
     return acquired;
   }
   function playHand(g, id, targetId = null) {
@@ -9950,8 +9982,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (!r.hands[actor].includes(id)) throw new Error("Card not in current hand");
     if (matching(r.field, id).length === 2 && !matching(r.field, id).includes(targetId)) throw new Error("Choose one matching field card");
     r.hands[actor].splice(r.hands[actor].indexOf(id), 1);
-    capture(r, id, targetId, actor);
-    r.event.source = "hand";
+    capture(r, id, targetId, actor, "hand");
     r.pendingHand = r.event;
     r.phase = "draw";
     return drawStock(g);
@@ -9971,8 +10002,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function resolveDraw(g, id, targetId) {
     const r = g.round;
     const actor = r.current;
-    capture(r, id, targetId, actor);
-    r.event.source = "stock";
+    capture(r, id, targetId, actor, "stock");
     r.pendingDraw = null;
     r.pendingHand = null;
     const score = evaluate(r.captured[actor]);
@@ -10016,7 +10046,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (winner !== null) g.scores[winner] += settled.points;
     r.phase = "round-end";
     r.result = { winner, reason, ...settled };
-    if (g.mode === "travel" || g.index + 1 >= g.length) {
+    if (g.index + 1 >= g.length) {
       g.finished = true;
       r.phase = "game-end";
     }
@@ -10028,7 +10058,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     g.index++;
     const dealer = previous.winner === null ? 1 - g.round.dealer : previous.winner;
     g.round = createRound({ dealer, rng });
-    return g;
+    return applyInitialBonus(g);
   }
   var weight = (id) => card(id).type === "\u5149" ? 11 : card(id).type === "\u30BF\u30CD" ? 6 : card(id).type === "\u77ED\u518A" ? 4 : 1;
   function potentialValue(r, actor, ids) {
@@ -10103,13 +10133,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const win = g.round.result.winner;
     if (win !== null && win !== 0 && win !== 1) throw new Error("Invalid winner");
     let outcome;
-    if (g.mode === "travel") {
-      outcome = win === 0 ? 1 : win === 1 ? -1 : 0;
-      if (outcome === 1) {
-        state2.travelCleared = Math.max(state2.travelCleared, g.month);
-        state2.travelUnlocked = Math.max(state2.travelUnlocked, Math.min(12, g.month + 1));
-      }
-    } else if (g.mode === "free") {
+    if (g.mode === "free") {
       outcome = Math.sign(g.scores[0] - g.scores[1]);
     } else throw new Error("Unknown game mode");
     state2.stats[outcome === 1 ? "wins" : outcome === -1 ? "losses" : "draws"]++;
@@ -10118,25 +10142,55 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
 
   // src/game/narration.mjs
+  function reachable(y, ownIds, opponentIds) {
+    const own = new Set(ownIds), opponent = new Set(opponentIds);
+    const rule = YAKU_BY_ID[y.id];
+    if (!rule) throw new Error("Unknown near yaku: " + y.id);
+    if (rule.group === "set") return rule.ids.every((id) => own.has(id) || !opponent.has(id));
+    if (rule.group === "count") {
+      const remaining = DECK.filter((c) => c.type === rule.type && !opponent.has(c.id)).length + (rule.type === "\u30AB\u30B9" && !opponent.has(CUP) ? 1 : 0);
+      return remaining >= rule.requires;
+    }
+    const available = LIGHTS.filter((id) => !opponent.has(id));
+    const nonRain = available.filter((id) => id !== RAIN);
+    if (rule.id === "goko") return available.length === 5;
+    if (rule.id === "shiko") return !own.has(RAIN) && nonRain.length === 4;
+    if (rule.id === "sanko") return !own.has(RAIN) && nonRain.length >= 3;
+    if (rule.id === "ame-shiko") return available.includes(RAIN) && available.length >= 4;
+    throw new Error("Unknown light yaku: " + rule.id);
+  }
+  function reachableNearYaku(ownIds, opponentIds) {
+    return probableYaku(ownIds).filter((y) => reachable(y, ownIds, opponentIds));
+  }
   function guidance(g) {
     const r = g.round;
     const mine = evaluate(r.captured[0]);
     const opp = evaluate(r.captured[1]);
-    const short = probableYaku(r.captured[0]).map((y) => y.name + "\u307E\u3067\u3042\u30681\u679A");
+    const nearMine = reachableNearYaku(r.captured[0], r.captured[1]);
+    const short = nearMine.map((y) => y.name + "\u307E\u3067\u3042\u30681\u679A");
     const summary = [];
     const recent = r.log.slice(-4);
     if (recent.length) {
       for (const move of recent) {
         const c = card(move.card);
         const who = move.actor === 0 ? "\u3042\u306A\u305F" : "\u76F8\u624B";
-        summary.push(who + "\u304C" + c.flower + "\u306E" + c.type + "\u672D\u3092\u51FA\u3057\u307E\u3057\u305F\u3002" + (move.taken.length ? move.taken.length + "\u679A\u3092\u53D6\u308A\u307E\u3057\u305F\u3002" : "\u5834\u306B\u7F6E\u304D\u307E\u3057\u305F\u3002"));
+        const action = move.source === "stock" ? who + "\u304C\u5C71\u672D\u304B\u3089" + c.flower + "\u306E" + c.type + "\u672D\u3092\u3081\u304F\u308A\u307E\u3057\u305F\u3002" : move.source === "hand" ? who + "\u304C" + c.flower + "\u306E" + c.type + "\u672D\u3092\u51FA\u3057\u307E\u3057\u305F\u3002" : who + "\u306E" + c.flower + "\u306E" + c.type + "\u672D\u304C\u516C\u958B\u3055\u308C\u307E\u3057\u305F\u3002";
+        summary.push(action + (move.taken.length ? move.taken.length + "\u679A\u3092\u53D6\u308A\u307E\u3057\u305F\u3002" : "\u5834\u306B\u7F6E\u304D\u307E\u3057\u305F\u3002"));
       }
       if (mine.yakus.length) summary.push("\u3042\u306A\u305F\u306E\u6210\u7ACB\u5F79\u306F" + mine.yakus.map((y) => y.name + " " + y.points + "\u70B9").join("\u3001") + "\u3002");
       if (r.captured[1].length) {
-        const hint = probableYaku(r.captured[1]);
+        const hint = reachableNearYaku(r.captured[1], r.captured[0]);
         if (hint.length) summary.push("\u76F8\u624B\u306E\u516C\u958B\u53D6\u308A\u672D\u3092\u898B\u308B\u3068\u3001" + hint[0].name + "\u304C\u8FD1\u3044\u304B\u3082\u3057\u308C\u307E\u305B\u3093\u3002");
       }
     } else summary.push("\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u308B\u3068\u3001\u53D6\u308A\u672D\u306B\u306A\u308A\u307E\u3059\u3002\u307E\u305A\u624B\u672D\u3092\u9078\u3073\u307E\u3057\u3087\u3046\u3002");
+    const blocked = probableYaku(r.captured[0]).filter((y) => !nearMine.some((n) => n.id === y.id));
+    for (const y of blocked.slice(0, 2)) {
+      const rule = YAKU_BY_ID[y.id];
+      if (rule.group === "set" && typeof y.needed === "string" && r.captured[1].includes(y.needed)) {
+        const name = y.needed === CUP ? "\u83CA\u306B\u76C3" : card(y.needed).name;
+        summary.push("\u76F8\u624B\u304C" + name + "\u3092\u53D6\u3063\u3066\u3044\u308B\u305F\u3081\u3001" + y.name + "\u306F\u3053\u306E\u5C40\u3067\u306F\u4F5C\u308C\u307E\u305B\u3093\u3002");
+      }
+    }
     if (short.length) summary.push("\u3082\u3046\u5C11\u3057\u3067\u6210\u7ACB\uFF1A" + short.slice(0, 3).join("\uFF0F") + "\u3002");
     if (r.phase === "decision" && r.current === 0) {
       const settlement = settlePoints(mine.raw, r.koiCalls, 0);
@@ -10149,17 +10203,65 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const r = g.round;
     if (r.phase !== "hand" || r.current !== 0) return [];
     const before = evaluate(r.captured[0]);
+    const beforeNear = reachableNearYaku(r.captured[0], r.captured[1]);
     return r.hands[0].filter((id) => {
       const matches = r.field.filter((x) => card(x).month === card(id).month);
       return matches.some((mid) => {
-        const after = evaluate([...r.captured[0], id, mid]);
-        return after.raw > before.raw || after.near.length > before.near.length;
+        const next = [...r.captured[0], id, mid];
+        const after = evaluate(next);
+        return after.raw > before.raw || reachableNearYaku(next, r.captured[1]).length > beforeNear.length;
       });
     });
   }
   function letterForCard(id) {
     const c = card(id);
     return c.name + "\u3002" + c.detail;
+  }
+
+  // src/game/tutorial-script.mjs
+  var TEACHING_CAPTURE_ORDER = Object.freeze(["2-1", "4-1", "5-1", "6-1", "7-1"]);
+  var TEACHING_PLAYER_HAND = Object.freeze([...TEACHING_CAPTURE_ORDER, "1-3", "3-3", "8-3"]);
+  var TEACHING_FIELD = Object.freeze(["2-3", "4-3", "5-3", "6-3", "7-3", "1-4", "3-4", "8-4"]);
+  var TEACHING_OPPONENT_HAND = Object.freeze(["9-3", "9-4", "9-2", "10-3", "10-4", "11-3", "11-4", "12-3"]);
+  var SAFE_STOCK = ["1-2", "3-2", "10-2", "11-2", "12-4", "1-1", "3-1", "8-1", "11-1", "12-1"];
+  function createTeachingGame() {
+    const game = createGame({ mode: "free", length: 3, month: 1, beginner: true, difficulty: 1, rng: () => 0.42 });
+    const chosen = [...TEACHING_PLAYER_HAND, ...TEACHING_OPPONENT_HAND, ...TEACHING_FIELD];
+    const rest = cardIds.filter((id) => !chosen.includes(id));
+    const stock = [...SAFE_STOCK, ...rest.filter((id) => !SAFE_STOCK.includes(id))];
+    if ((/* @__PURE__ */ new Set([...chosen, ...stock])).size !== 48 || stock.length !== 24) throw Error("Invalid teaching script deck");
+    if (initialHandBonus(TEACHING_PLAYER_HAND) || initialHandBonus(TEACHING_OPPONENT_HAND)) throw Error("Unexpected initial bonus");
+    game.round = {
+      dealer: 0,
+      current: 0,
+      phase: "hand",
+      hands: [[...TEACHING_PLAYER_HAND], [...TEACHING_OPPONENT_HAND]],
+      field: [...TEACHING_FIELD],
+      stock,
+      captured: [[], []],
+      lastRaw: [0, 0],
+      koiCalls: [0, 0],
+      pendingDraw: null,
+      pendingHand: null,
+      event: null,
+      turn: 0,
+      result: null,
+      log: []
+    };
+    game.length = 1;
+    game.tutorial = true;
+    game.tutorialStandalone = true;
+    game.tutorialIntroDone = false;
+    game.tutorialIntroStep = 0;
+    game.tutorialIntroVersion = 8;
+    game.tutorialMonthAnswers = [];
+    game.tutorialLabelsOff = false;
+    game.tutorialCaptureShown = false;
+    assertConservation(game.round);
+    return game;
+  }
+  function expectedTeachingHand(game) {
+    return TEACHING_CAPTURE_ORDER[8 - game.round.hands[0].length] ?? null;
   }
 
   // src/main.mjs
@@ -10185,10 +10287,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var screen = "home";
   var selectedHand = null;
   var selectedCard = null;
-  var selectedMonth = state.travelUnlocked;
-  if (state.active?.tutorial && !state.active.tutorialIntroDone && state.active.tutorialIntroVersion !== 6) {
+  if (state.active?.tutorial && !state.active.tutorialIntroDone && state.active.tutorialIntroVersion !== 8) {
     state.active.tutorialIntroStep = 0;
-    state.active.tutorialIntroVersion = 6;
+    state.active.tutorialIntroVersion = 8;
     store2.write(state);
   }
   var quiz = null;
@@ -10243,31 +10344,20 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function shell(content, right = "") {
     const gaming = screen === "game";
-    return '<div class="shell scene-' + screen + '"><main class="page"><header class="topbar"><button type="button" class="brand brand-home" data-action="home" aria-label="Home"><span class="seal">\u82B1</span><span class="brand-name">\u307E\u306A\u3079\u308B\u82B1\u672D <small>\u3053\u3044\u3053\u3044</small></span></button><div class="row">' + (gaming ? '<button class="quiet" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button>' : right || '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u64CD\u4F5C\u3092\u5B66\u3076">\u2726<span>\u7DF4\u7FD2</span></button><button data-action="travel" aria-label="\u5341\u4E8C\u304B\u6708\u306E\u65C5">\u2740<span>\u65C5</span></button><button data-action="learn" aria-label="\u82B1\u672D\u3092\u5B66\u3076">\u25A3<span>\u5B66\u3076</span></button></nav>') + "</main></div>";
+    return '<div class="shell scene-' + screen + '"><main class="page"><header class="topbar"><button type="button" class="brand brand-home" data-action="home" aria-label="Home"><span class="seal">\u82B1</span><span class="brand-name">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044</span></button><div class="row">' + (gaming ? '<button class="quiet" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button>' : right || '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB">\u2726<span>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span></button><button data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA">\u25A3<span>\u56F3\u9451</span></button></nav>') + "</main></div>";
   }
   function headline(title, back = "home", subtitle = "") {
-    return '<div class="row"><div><div class="kicker">' + esc(subtitle || "\u82B1\u672D\u306E\u65C5") + '</div><h1 class="chapter-title">' + esc(title) + '</h1></div><button class="quiet" data-action="' + back + '">\u623B\u308B</button></div>';
+    return '<div class="row"><div><div class="kicker">' + esc(subtitle || "\u82B1\u672D\u3092\u697D\u3057\u3082\u3046") + '</div><h1 class="chapter-title">' + esc(title) + '</h1></div><button class="quiet" data-action="' + back + '">\u623B\u308B</button></div>';
   }
   function home() {
-    const canResume = state.active !== null && !state.active.finished;
-    return shell('<div class="hub"><section class="hub-hero"><div class="eyebrow">LEARN & PLAY \xB7 HANAFUDA</div><h1>\u82B1\u3092\u3081\u3050\u308A\u3001<br>\u672D\u3092\u899A\u3048\u308B\u3002</h1><p>\u306F\u3058\u3081\u3066\u3067\u3082\u3001\u82B1\u672D\u304C\u308F\u304B\u308B\u3002</p><div class="hero-cards"><img src="' + photo("1-1") + '" alt=""><img src="' + photo("3-1") + '" alt=""><img src="' + photo("8-1") + '" alt=""></div><div class="landscape-title"><span>\u82B1\u3092\u77E5\u308A\u3001\u5B63\u7BC0\u3092\u904A\u3076\u3002</span><strong>\u307E\u306A\u3079\u308B\u82B1\u672D</strong><b>\u3053\u3044\u3053\u3044</b></div></section><button class="hub-tutorial" data-action="start-tutorial"><span class="hub-badge">\u306F\u3058\u3081\u3066\u306E\u65B9\u306F\u3001\u3053\u3053\u304B\u3089</span><strong>\u306F\u3058\u3081\u3066\u306E\u3053\u3044\u3053\u3044</strong><span>\u4F55\u3092\u3059\u308B\u904A\u3073\u304B\u77E5\u3063\u3066\u3001\u5148\u751F\u3068\u4E00\u5C40\u7DF4\u7FD2</span><b>\u57FA\u672C\u304B\u3089\u5B66\u3076 \u203A</b></button>' + (canResume ? '<button class="hub-resume" data-action="resume">\u25B6 \u7D9A\u304D\u304B\u3089\u518D\u958B <small>' + (state.active.tutorial ? "\u64CD\u4F5C\u7DF4\u7FD2\u4E2D" : state.active.mode === "travel" ? state.active.month + "\u6708\u306E\u65C5" : "\u30D5\u30EA\u30FC\u5BFE\u5C40") + "</small></button>" : "") + '<div class="hub-modes"><button class="hub-mode hub-journey" data-action="travel"><span>\u3082\u306E\u304C\u305F\u308A</span><strong>\u5341\u4E8C\u304B\u6708\u306E\u65C5</strong><small>\u677E\u304B\u3089\u6850\u3078\u3001\u5B63\u7BC0\u3092\u3081\u3050\u308B</small></button><button class="hub-mode hub-free" data-action="free"><span>\u81EA\u7531\u306B\u3042\u305D\u3076</span><strong>\u30D5\u30EA\u30FC\u5BFE\u5C40</strong><small>3\u30FB6\u30FB12\u304B\u6708</small></button></div><button class="hub-learn" data-action="learn"><strong>\u2461 \u82B1\u672D\u3092\u5B66\u3076</strong><span>\u672D\u56F3\u9451\u30FB\u5F79\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u30FB\u82B1\u3060\u3088\u308A</span><b>\u203A</b></button><div class="hub-progress"><span>\u65C5 ' + state.travelCleared + "/12</span><span>\u899A\u3048\u305F\u672D " + state.seen.length + "/48</span><span>\u30AF\u30A4\u30BA " + (state.quiz.total ? Math.round(state.quiz.correct / state.quiz.total * 100) : 0) + "%</span></div></div>");
+    const canResume = state.active !== null && !state.active.finished && state.active.mode !== "travel";
+    return shell('<div class="hub home-redesign"><div class="engawa-heading engawa-title-art" role="img" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></div>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u30D5\u30EA\u30FC\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label">\u30D5\u30EA\u30FC\u5BFE\u5C40</span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
   }
   function learn() {
-    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u3069\u3046\u3084\u3063\u3066\u5B66\u3076\uFF1F</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u30681\u5C40\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
-  }
-  function journey() {
-    return shell(headline("\u6708\u3092\u3081\u304F\u308B\u65C5", "home", "TWELVE MONTHS") + '<div class="panel"><p class="lead">\u52DD\u3063\u305F\u6708\u306E\u6B21\u3078\u9032\u3081\u307E\u3059\u3002\u6557\u5317\u30FB\u5F15\u5206\u3051\u3067\u306F\u305D\u306E\u6708\u306B\u518D\u6311\u6226\u3057\u307E\u3059\u3002</p><div class="month-grid">' + CHAPTERS.map((ch) => {
-      const lock = ch.month > state.travelUnlocked, done = ch.month <= state.travelCleared;
-      return '<button class="month ' + (lock ? "locked" : done ? "cleared" : ch.month === state.travelUnlocked ? "ready" : "") + '" data-action="chapter" data-month="' + ch.month + '" ' + (lock ? "disabled" : "") + '><span class="mark">' + (done ? "\u2713" : lock ? "\uFF0D" : "\u25CF") + "</span><strong>" + String(ch.month).padStart(2, "0") + "</strong><span>" + ch.flower + " \xB7 " + ch.place + '</span><img class="month-art" src="' + photo(ch.month + "-1") + '" alt="" aria-hidden="true"></button>';
-    }).join("") + "</div></div>" + (state.travelCleared === 12 ? '<div class="panel result"><div class="big">\u5341\u4E8C\u82B1</div><h2>\u5341\u4E8C\u304B\u6708\u306E\u65C5\u3001\u5B8C\u8D70\uFF01</h2><p>\u677E\u304B\u3089\u6850\u307E\u3067\u3001\u3059\u3079\u3066\u306E\u82B1\u3068\u51FA\u4F1A\u3044\u307E\u3057\u305F\u3002</p></div>' : ""));
-  }
-  function chapter(month = selectedMonth) {
-    const ch = CHAPTERS[month - 1];
-    selectedMonth = month;
-    return shell(headline(ch.month + "\u6708 \xB7 " + ch.flower, "travel", ch.season + " / " + ch.place) + '<div class="panel"><div class="kicker">CHAPTER ' + String(month).padStart(2, "0") + '</div><div class="row"><div><h2 class="chapter-title">' + ch.flower + '\u306E\u4FBF\u308A</h2><span class="tag">\u5BFE\u6226\u76F8\u624B ' + ch.opponent + '</span></div><img src="' + photo(month + "-1") + '" alt="' + ch.flower + '" style="width:83px;border-radius:7px"></div><p class="story">' + ch.story + '</p><p class="quote">' + ch.quote + '</p><button class="primary full" data-action="start-travel" data-month="' + month + '">\u3053\u306E\u6708\u306E\u5BFE\u5C40\u3078</button></div>');
+    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u30681\u5C40\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
   }
   function free() {
-    return shell(headline("\u81EA\u7531\u306B\u5BFE\u5C40", "home", "FREE MATCH") + '<div class="panel"><p class="lead">\u5BFE\u5C40\u306F\u5408\u8A08\u70B9\u3067\u52DD\u6557\u3092\u6C7A\u3081\u307E\u3059\u3002\u89E3\u8AAC\u306F\u65C5\u30E2\u30FC\u30C9\u3068\u540C\u3058\u3088\u3046\u306B\u4F7F\u3048\u307E\u3059\u3002</p><h3>\u5BFE\u5C40\u306E\u9577\u3055</h3><div class="stack">' + [3, 6, 12].map((k) => '<button class="secondary full" data-action="start-free" data-length="' + k + '">' + k + "\u304B\u6708\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button>").join("") + "</div></div>");
+    return shell(headline("\u30D5\u30EA\u30FC\u5BFE\u5C40", "home", "FREE MATCH") + '<div class="panel"><p class="lead">\u5BFE\u5C40\u306F\u5408\u8A08\u70B9\u3067\u52DD\u6557\u3092\u6C7A\u3081\u307E\u3059\u3002\u5148\u751F\u306E\u89E3\u8AAC\u3092\u805E\u304D\u306A\u304C\u3089\u904A\u3079\u307E\u3059\u3002</p><h3>\u5BFE\u5C40\u306E\u9577\u3055</h3><div class="stack">' + [3, 6, 12].map((k) => '<button class="secondary full" data-action="start-free" data-length="' + k + '">' + k + "\u304B\u6708\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button>").join("") + "</div></div>");
   }
   function cardCollection() {
     const m = MONTHS[studyMonth - 1], cards = DECK.filter((c) => c.month === studyMonth);
@@ -10322,13 +10412,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function lessonFor(g, selected, guide) {
     const r = g.round, teach = Boolean(g.tutorial);
     if (g.tutorial && !g.tutorialIntroDone) {
-      const phase = Math.min(g.tutorialIntroStep ?? 0, 5);
+      const phase = Math.min(g.tutorialIntroStep ?? 0, 6);
       const basics = [
         {
           step: "\u306F\u3058\u3081\u306B \xB7 1 / 6",
           title: "\u3053\u3044\u3053\u3044\u306F\u3001\u70B9\u6570\u3092\u7AF6\u30462\u4EBA\u306E\u30B2\u30FC\u30E0",
           description: "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3066\u53D6\u308A\u3001\u300C\u5F79\u300D\u3068\u3044\u3046\u7D44\u307F\u5408\u308F\u305B\u3092\u4F5C\u308A\u307E\u3059\u3002\u5F79\u3067\u70B9\u6570\u3092\u53D6\u308A\u3001\u76F8\u624B\u3088\u308A\u591A\u304F\u306E\u70B9\u6570\u3092\u76EE\u6307\u3059\u904A\u3073\u3067\u3059\u3002"
         },
+        { step: "\u6708\u306E\u898B\u5206\u3051\u65B9 \xB7 \u8FFD\u52A0", title: "\u63CF\u304B\u308C\u305F\u82B1\u3067\u6708\u3092\u898B\u5206\u3051\u3088\u3046", description: "12\u304B\u6708\u305D\u308C\u305E\u308C\u306E\u82B1\u3092\u898B\u3066\u3001\u672D\u306E\u6708\u3092\u5F53\u3066\u308B\u554F\u984C\u306B2\u554F\u7B54\u3048\u3066\u307F\u3088\u3046\u3002" },
         {
           step: "\u904A\u3073\u65B9\u306E\u6D41\u308C \xB7 2 / 6",
           title: "\u51FA\u3059\u30FB\u3081\u304F\u308B\u30FB\u96C6\u3081\u308B",
@@ -10355,7 +10446,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           description: "\u5149\u30FB\u30BF\u30CD\u30FB\u77ED\u518A\u30FB\u30AB\u30B9\u3002\u3069\u308C\u3082\u5F79\u3092\u4F5C\u308B\u6750\u6599\u3067\u3059\u3002\u540D\u524D\u3068\u7D75\u67C4\u306F\u30D7\u30EC\u30A4\u4E2D\u3082\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002"
         }
       ][phase];
-      return { ...basics, action: phase < 5 ? '<button class="primary" data-action="tutorial-next">\u6B21\u3092\u898B\u308B \u203A</button>' : '<button class="primary" data-action="tutorial-continue">\u672D\u3092\u53D6\u3063\u3066\u307F\u3088\u3046 \u203A</button>' };
+      return { ...basics, action: phase === 1 && (g.tutorialMonthAnswers?.length ?? 0) < 2 ? '<span class="tutorial-quiz-hint">\u4E0B\u306E\u5F53\u3066\u3063\u3053\u306B2\u554F\u7B54\u3048\u3088\u3046</span>' : phase < 6 ? '<button class="primary" data-action="tutorial-next">\u6B21\u3092\u898B\u308B \u203A</button>' : '<button class="primary" data-action="tutorial-continue">\u672D\u3092\u53D6\u3063\u3066\u307F\u3088\u3046 \u203A</button>' };
     }
     if (g.tutorialLearning) {
       const ids = g.tutorialLearning.ids;
@@ -10399,8 +10490,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (r.phase === "round-end" || r.phase === "game-end") return {
       step: teach ? "\u7DF4\u7FD2\u5B8C\u4E86" : "\u5BFE\u5C40\u7D50\u679C",
       title: r.result.winner === 0 ? "\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : r.result.winner === 1 ? "\u76F8\u624B\u306E\u52DD\u3061" : "\u5F15\u304D\u5206\u3051",
-      description: "\u4ECA\u56DE\u306E\u70B9\u6570 " + r.result.points + "\u70B9\u3002" + (teach ? "\u7DF4\u7FD2\u306F\u6226\u7E3E\u306B\u52A0\u3048\u307E\u305B\u3093\u3002" : "\u6B21\u306E\u5C40\u3078\u9032\u307F\u307E\u3057\u3087\u3046\u3002"),
-      action: r.phase === "round-end" ? '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>' : teach ? '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>' : g.mode === "travel" ? '<button class="primary" data-action="travel">\u6708\u3081\u304F\u308A\u3078</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>'
+      description: (r.result.reason === "te-shi" ? "\u914D\u672D\u6642\u306B\u624B\u56DB\u304C\u6210\u7ACB\u3002" : r.result.reason === "kuttsuki" ? "\u914D\u672D\u6642\u306B\u304F\u3063\u3064\u304D\u304C\u6210\u7ACB\u3002" : "") + "\u4ECA\u56DE\u306E\u70B9\u6570 " + r.result.points + "\u70B9\u3002" + (teach ? "\u7DF4\u7FD2\u306F\u6226\u7E3E\u306B\u52A0\u3048\u307E\u305B\u3093\u3002" : "\u6B21\u306E\u5C40\u3078\u9032\u307F\u307E\u3057\u3087\u3046\u3002"),
+      action: r.phase === "round-end" ? '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>' : teach ? '<button class="primary" data-action="tutorial-free">\u30D5\u30EA\u30FC\u5BFE\u5C40\u3078\uFF08\u521D\u5FC3\u8005\uFF09</button><button class="secondary" data-action="yaku">\u5F79\u56F3\u9451\u3092\u898B\u308B</button><button class="secondary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button><button class="coach-detail" data-action="tutorial-extra">\u3082\u3046\u5C11\u3057\u7DF4\u7FD2</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>'
     };
     return { step: "\u76F8\u624B\u306E\u756A", title: "\u76F8\u624B\u304C\u672D\u3092\u9078\u3093\u3067\u3044\u307E\u3059", description: "\u516C\u958B\u3055\u308C\u305F\u53D6\u308A\u672D\u304B\u3089\u3001\u6B21\u306E\u5F79\u3092\u8003\u3048\u307E\u3057\u3087\u3046\u3002", action: "" };
   }
@@ -10428,9 +10519,15 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return '<div class="tutorial-exhibit goal-exhibit" aria-label="\u82B1\u672D\u3053\u3044\u3053\u3044\u306E\u76EE\u7684"><div class="goal-title">\u273F \u672D\u3092\u96C6\u3081\u3066\u3001\u5F79\u3092\u4F5C\u308D\u3046</div><div class="goal-steps"><div class="goal-step"><strong>\u2460 \u540C\u3058\u6708\u306E\u672D\u3092\u53D6\u308B</strong>' + mini(["1-1", "1-2"]) + '</div><div class="goal-step"><strong>\u2461 \u672D\u3092\u96C6\u3081\u3066\u5F79\u3092\u4F5C\u308B</strong>' + mini(["7-1", "10-1", "6-1"]) + '<small>\u4F8B\uFF1A\u732A\u9E7F\u8776\u306F5\u70B9</small></div><div class="goal-step"><strong>\u2462 \u52DD\u8CA0\u3057\u3066\u70B9\u6570\u3092\u53D6\u308B</strong><span class="goal-points">5 <small>\u70B9</small></span><small>\u5F79\u304C\u3067\u304D\u305F\u3089\u52DD\u8CA0\u304B\u3053\u3044\u3053\u3044\uFF01</small></div></div><p>\u4E8C\u4EBA\u3067\u4EA4\u4E92\u306B\u672D\u3092\u51FA\u3057\u5408\u3044\u3001\u5F97\u70B9\u3092\u7AF6\u3046\u904A\u3073\u3067\u3059\u3002</p></div>';
     }
     if (phase === 1) {
+      const correct = g.tutorialMonthAnswers?.length ?? 0;
+      const questions = [{ id: "2-1", month: 2, choices: [1, 2, 3] }, { id: "7-1", month: 7, choices: [6, 7, 8] }];
+      const q = questions[correct];
+      return '<div class="tutorial-exhibit added-month-exhibit" aria-label="\u6708\u306E\u898B\u5206\u3051\u65B9"><div class="added-month-grid">' + MONTHS.map((m, i) => '<div><img src="' + photo(i + 1 + "-1") + '" alt=""><small>' + (i + 1) + "\u6708 " + esc(m.flower) + "</small></div>").join("") + "</div>" + (q ? '<div class="added-month-question"><strong>\u3053\u306E\u672D\u306F\u4F55\u6708\uFF1F ' + (correct + 1) + '/2</strong><img src="' + photo(q.id) + '" alt="\u6708\u3092\u5F53\u3066\u308B\u672D">' + q.choices.map((v) => '<button data-action="tutorial-month-answer" data-month="' + v + '">' + v + "\u6708</button>").join("") + "</div>" : '<strong class="added-month-complete">2\u554F\u6B63\u89E3\uFF01 \u6B21\u306E\u30B9\u30C6\u30C3\u30D7\u3078\u9032\u3082\u3046\u3002</strong>') + "</div>";
+    }
+    if (phase === 2) {
       return '<div class="tutorial-exhibit concept-exhibit" aria-label="\u672D\u3092\u5408\u308F\u305B\u308B\u4ED5\u7D44\u307F"><strong>\u540C\u3058\u6708\u306E2\u679A\u3092\u3042\u308F\u305B\u308B</strong><div class="tutorial-examples">' + mini(["1-1", "1-2"]) + "</div><span>\u624B\u672D\u304B\u30891\u679A \u2192 \u5834\u672D\u3068\u5408\u308F\u305B\u308B \u2192 \u5C71\u672D\u3092\u3081\u304F\u308B</span></div>";
     }
-    if (phase === 5) {
+    if (phase === 6) {
       return '<div class="tutorial-exhibit family-exhibit" aria-label="4\u7A2E\u985E\u306E\u672D">' + CARD_FAMILIES.map((f) => '<div class="family-example"><img src="' + photo(f.sample) + '" alt="' + esc(f.type) + '\u672D\u306E\u898B\u672C"><div><strong>' + esc(f.type) + "</strong><span>" + esc(f.meaning) + "</span></div></div>").join("") + "</div>";
     }
     return "";
@@ -10444,7 +10541,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const r = g.round;
     if (r.phase !== "decision" || r.current !== 0) return "";
     const score = completedYakuSummary(r.captured[0], r.koiCalls);
-    return '<section class="role-reveal" aria-label="\u6210\u7ACB\u3057\u305F\u5F79\u3068\u5F97\u70B9"><div class="role-reveal-title">\u2726 \u5F79\u304C\u5B8C\u6210\uFF01</div><div class="role-scored">' + score.yakus.map((y) => '<div class="role-scored-item"><strong>' + esc(y.name) + " <b>" + y.points + '\u70B9</b></strong><div class="role-cards">' + y.cards.slice(0, 10).map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + "</div></div>").join("") + "</div><p>\u5F79\u306E\u5408\u8A08 " + score.raw + "\u70B9" + (score.multiplier > 1 ? " \xD7 " + score.multiplier + "\u500D" : "") + "\u3002\u4ECA\u300C\u52DD\u8CA0\u300D\u3059\u308B\u3068 <strong>" + score.points + "\u70B9</strong>\u3092\u7372\u5F97\uFF01</p></section>";
+    return '<section class="role-reveal" aria-label="\u6210\u7ACB\u3057\u305F\u5F79\u3068\u5F97\u70B9"><div class="role-reveal-title">\u2726 \u5F79\u304C\u5B8C\u6210\uFF01</div><div class="role-scored">' + score.yakus.map((y) => '<div class="role-scored-item"><strong>' + esc(y.name) + " <b>" + y.points + '\u70B9</b></strong><div class="role-cards">' + y.cards.slice(0, 10).map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + "</div></div>").join("") + "</div><p>\u5F79\u306E\u5408\u8A08 " + score.raw + "\u70B9" + (score.multiplier > 1 ? " \xD7 " + score.multiplier + "\u500D" : "") + "\u3002\u4ECA\u300C\u52DD\u8CA0\u300D\u3059\u308B\u3068 <strong>" + score.points + "\u70B9</strong>\u3092\u7372\u5F97\uFF01</p>" + (g.tutorial ? '<div class="tutorial-added-score"><span>\u52DD\u8CA0\u306A\u3089 ' + score.points + "\u70B9\u78BA\u5B9A</span><span>\u3053\u3044\u3053\u3044\u5F8C\u3001\u76F8\u624B\u304C\u4EEE\u306B3\u70B9\u306A\u3089 \u81EA\u52060\u70B9\u30FB\u76F8\u624B6\u70B9</span><span>7\u70B9\u4EE5\u4E0A\u306E\u5F79\u306F2\u500D\uFF087\u219214\u70B9\uFF09</span></div>" : "") + "</section>";
   }
   function gameView() {
     const g = state.active;
@@ -10453,20 +10550,22 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const lesson = lessonFor(g, selectedHand, guide);
     const selecting = selectedHand && r.current === 0 && r.phase === "hand";
     const matchingNow = selecting ? matching(r.field, selectedHand) : [];
-    const showNames = Boolean(g.tutorial || g.beginner);
+    const labelStage = g.tutorial ? g.tutorialLabelStage ?? (g.tutorialLabelsOff ? 2 : 0) : 0;
+    const showFieldNames = Boolean(g.tutorial ? labelStage < 2 : g.beginner);
+    const showHandNames = Boolean(g.tutorial ? labelStage < 1 : g.beginner);
     const fieldCount = r.field.length;
     const field = r.field.map((id) => {
       const chosen = r.phase === "draw-target" && r.current === 0 && matching(r.field, r.pendingDraw).includes(id);
       const same = selecting && (matchingNow.length === 1 || matchingNow.length === 2) && matchingNow.includes(id);
       return tile(id, {
         action: chosen ? "draw-target" : same ? "field-target" : "inspect",
-        label: showNames,
+        label: showFieldNames,
         className: chosen || same ? "target " : ""
       });
     }).join("");
     const hand = r.hands[0].map((id) => tile(id, {
       action: "select-hand",
-      label: showNames,
+      label: showHandNames,
       className: (selectedHand === id ? "selected " : "") + (g.beginner && helpfulHandIds(g).includes(id) ? "hint " : "") + (r.current === 0 && r.phase === "hand" ? "playable" : "")
     })).join("");
     const intro = Boolean(g.tutorial && !g.tutorialIntroDone);
@@ -10475,18 +10574,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const introStep = intro ? g.tutorialIntroStep ?? 0 : -1;
     const board = '<div class="tabletop" data-intro-step="' + introStep + '"><section class="board-opponent region-opponent" aria-label="\u76F8\u624B\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>\u76F8\u624B\u306E\u624B\u672D</strong><span>\u88CF\u5411\u304D \xB7 \u4E2D\u8EAB\u306F\u898B\u3048\u307E\u305B\u3093</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div><button class="capture-link" data-action="show-taken" data-who="1">\u76F8\u624B\u306E\u53D6\u308A\u672D ' + r.captured[1].length + '\u679A \u203A</button></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + '\u679A</small></strong><span>\u3069\u3061\u3089\u3082\u53D6\u308C\u308B \xB7 \u540C\u3058\u6708\u3092\u5408\u308F\u305B\u308B</span></div><div class="landscape-fieldline"><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div><div class="field-stock"><span class="stock-back" aria-hidden="true">\u273F</span><small>\u5C71\u672D ' + r.stock.length + '\u679A</small></div></div></section><div class="board-taken" aria-label="\u3042\u306A\u305F\u304C\u53D6\u3063\u305F\u672D\u306E\u4E00\u89A7">' + takenStrip(r.captured[0], me.raw) + '</div><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D <small>' + r.hands[0].length + "\u679A</small></strong><span>" + (r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section></div>";
     const endText = isEnd ? '<div class="result" role="status"><div class="result-symbol">' + (r.result.winner === 0 ? "\u273F" : r.result.winner === 1 ? "\u263E" : "\u25C7") + "</div><h2>" + esc(lesson.title) + "</h2><p>" + esc(lesson.description) + '</p><div class="result-action">' + lesson.action + "</div></div>" : "";
-    return shell('<div class="play-layout' + (g.tutorial ? " is-tutorial" : "") + (intro ? " tutorial-intro intro-step-" + introStep : "") + '"><div class="gameheader"><div class="round-badge">' + (g.tutorial ? "\u7DF4\u7FD2" : g.mode === "travel" ? g.month + "\u6708\u306E\u65C5" : g.length + "\u304B\u6708\u5BFE\u5C40") + "<small>\u7B2C" + (g.index + 1) + '\u5C40</small></div><div class="game-score">' + g.scores[0] + " <span>\u5BFE</span> " + g.scores[1] + '</div><button class="coach-detail" data-action="show-guide">\u904A\u3073\u65B9 \u24D8</button></div><div class="game-board-wrap">' + board + tutorialExhibit(g) + capturedTutorialView(g) + (g.tutorialLearning ? "" : completedRoleView(g)) + (isEnd ? endText : "") + '</div><aside class="controlpad tutorial-panel" aria-label="\u5148\u751F\u306E\u89E3\u8AAC"><div class="coach-mast"><span class="coach-monogram">\u5B66</span><strong>\u5148\u751F\u306E\u624B\u307B\u3069\u304D</strong><small>LEARN AS YOU PLAY</small></div><div class="coach-prompt"><span class="tutor-kicker">' + esc(lesson.step) + "</span><strong>" + esc(lesson.title) + "</strong><p>" + esc(lesson.description) + '</p></div><div class="coach-actions">' + (isEnd && !g.tutorialLearning ? "" : lesson.action) + '</div><div class="coach-footer"><span>\u273F</span> \u540C\u3058\u6708\u306E\u672D\u3092\u3042\u308F\u305B\u3088\u3046</div></aside>' + gameDialogView(g, guide) + "</div>");
+    return shell('<div class="play-layout' + (g.tutorial ? " is-tutorial tutorial-label-stage-" + labelStage : "") + (intro ? " tutorial-intro intro-step-" + (introStep === 1 ? "month" : introStep > 1 ? introStep - 1 : introStep) + " tutorial-current-" + introStep : "") + '"><div class="gameheader"><div class="round-badge">' + (g.tutorial ? "\u7DF4\u7FD2" : g.length + "\u304B\u6708\u5BFE\u5C40") + "<small>\u7B2C" + (g.index + 1) + '\u5C40</small></div><div class="game-score"><span class="score-sticks" aria-hidden="true">' + Array.from({ length: 5 }, (_, i) => '<i class="' + (g.scores[0] >= (i + 1) * 2 ? "scored" : "") + '"></i>').join("") + "</span>" + g.scores[0] + " <span>\u5BFE</span> " + g.scores[1] + '<span class="score-sticks rival" aria-hidden="true">' + Array.from({ length: 5 }, (_, i) => '<i class="' + (g.scores[1] >= (i + 1) * 2 ? "scored" : "") + '"></i>').join("") + '</span></div><button class="coach-detail" data-action="show-guide">\u904A\u3073\u65B9 \u24D8</button></div><div class="game-board-wrap">' + board + tutorialExhibit(g) + capturedTutorialView(g) + (g.tutorialLearning ? "" : completedRoleView(g)) + (isEnd ? endText : "") + '</div><aside class="controlpad tutorial-panel" aria-label="\u5148\u751F\u306E\u89E3\u8AAC"><div class="coach-mast"><span class="coach-monogram">\u5B66</span><strong>\u5148\u751F\u306E\u624B\u307B\u3069\u304D</strong><small>LEARN AS YOU PLAY</small></div><div class="coach-prompt"><span class="tutor-kicker">' + esc(lesson.step) + "</span><strong>" + esc(lesson.title) + "</strong><p>" + esc(lesson.description) + '</p></div><div class="coach-actions">' + (isEnd && !g.tutorialLearning ? "" : lesson.action) + '</div><div class="coach-footer"><span>\u273F</span> \u540C\u3058\u6708\u306E\u672D\u3092\u3042\u308F\u305B\u3088\u3046</div></aside>' + gameDialogView(g, guide) + "</div>");
   }
   function credits() {
-    return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "home", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p></div>');
+    return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "home", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p><p class="lead">\u30DB\u30FC\u30E0\u770B\u677F\u306E\u66F8\u4F53\uFF1AYuji Syuku\uFF08Kinuta Font Factory\uFF0FThe Yuji Project Authors\uFF09\u3002SIL Open Font License 1.1\u3002\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F docs/licenses/YujiSyuku-OFL.txt \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002</p></div>');
   }
   function render() {
-    document.title = "\u307E\u306A\u3079\u308B\u82B1\u672D \u3053\u3044\u3053\u3044";
+    document.title = "\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044";
     $("app").innerHTML = {
       home,
       learn,
-      travel: journey,
-      chapter: () => chapter(selectedMonth),
       free,
       cards: cardCollection,
       yaku: yakuGuide,
@@ -10517,7 +10614,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         g.tutorialCaptureShown = true;
       }
     }
-    if (!g.tutorialLearning && g.round.current === 1 && !g.finished) runCpu(g);
+    if (!g.tutorialLearning && g.round.current === 1 && !g.finished) runCpu(g, g.tutorial ? () => 0 : Math.random);
     recordIfDone();
     save();
     selectedHand = null;
@@ -10536,7 +10633,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       length: len,
       month,
       beginner: tutorial || state.settings.beginner,
-      difficulty: tutorial ? 1 : mode === "travel" ? CHAPTERS[month - 1].difficulty : state.settings.difficulty
+      difficulty: tutorial ? 1 : state.settings.difficulty
     });
     if (tutorial) {
       state.active.tutorial = true;
@@ -10548,6 +10645,38 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     gameDialog = null;
     gameDialogReturn = null;
     screen = "game";
+    recordIfDone();
+    save();
+    render();
+  }
+  function startTeaching(optional = false) {
+    if (state.active && !state.active.finished && !window.confirm("\u73FE\u5728\u306E\u5BFE\u5C40\u3092\u65B0\u3057\u304F\u59CB\u3081\u76F4\u3057\u307E\u3059\u304B\uFF1F")) return;
+    if (optional) {
+      const game = createGame({ mode: "free", length: 3, month: 1, beginner: true, difficulty: 1 });
+      game.tutorial = true;
+      game.tutorialOptional = true;
+      game.tutorialStandalone = true;
+      game.length = 1;
+      game.tutorialIntroDone = true;
+      game.tutorialLabelsOff = false;
+      state.active = game;
+    } else state.active = createTeachingGame();
+    selectedHand = null;
+    gameDialog = null;
+    gameDialogReturn = null;
+    screen = "game";
+    recordIfDone();
+    save();
+    render();
+  }
+  function startBeginnerFree() {
+    if (state.active && !state.active.finished && !window.confirm("\u73FE\u5728\u306E\u5BFE\u5C40\u3092\u65B0\u3057\u304F\u59CB\u3081\u76F4\u3057\u307E\u3059\u304B\uFF1F")) return;
+    state.active = createGame({ mode: "free", length: 3, month: 1, beginner: true, difficulty: 1 });
+    selectedHand = null;
+    gameDialog = null;
+    gameDialogReturn = null;
+    screen = "game";
+    recordIfDone();
     save();
     render();
   }
@@ -10570,7 +10699,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return;
     }
     if (state.active?.tutorial && screen === "game") {
-      if (!state.active.tutorialIntroDone && !["tutorial-next", "tutorial-continue", "home"].includes(action)) return;
+      if (!state.active.tutorialIntroDone && !["tutorial-next", "tutorial-continue", "tutorial-month-answer", "home"].includes(action)) return;
       if (state.active.tutorialLearning && !["tutorial-learned", "home"].includes(action)) return;
     }
     if (action === "show-guide") {
@@ -10598,8 +10727,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       gameDialogReturn = null;
     } else if (action === "resume") {
       screen = "game";
-    } else if (action === "travel") {
-      screen = "travel";
     } else if (action === "learn") {
       screen = "learn";
     } else if (action === "free") {
@@ -10621,9 +10748,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else if (action === "credits") {
       event.preventDefault();
       screen = "credits";
-    } else if (action === "chapter") {
-      selectedMonth = m;
-      screen = "chapter";
     } else if (action === "study-prev") {
       studyMonth = studyMonth === 1 ? 12 : studyMonth - 1;
       selectedCard = null;
@@ -10635,11 +10759,31 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else if (action === "yaku-next") {
       selectedYakuIndex = (selectedYakuIndex + 1) % YAKU_TABLE.length;
     } else if (action === "start-tutorial") {
-      start("travel", 3, 1, true);
+      startTeaching();
       return;
+    } else if (action === "tutorial-extra") {
+      startTeaching(true);
+      return;
+    } else if (action === "tutorial-free") {
+      startBeginnerFree();
+      return;
+    } else if (action === "tutorial-month-answer") {
+      const g = state.active;
+      if (!g?.tutorial || g.tutorialIntroStep !== 1) throw Error("Month quiz inactive");
+      const correct = [2, 7][g.tutorialMonthAnswers?.length ?? 0];
+      if (correct === void 0) throw Error("Quiz already completed");
+      if (m !== correct) {
+        toast("\u82B1\u306E\u7D75\u3092\u898B\u3066\u3082\u3046\u4E00\u5EA6\u8003\u3048\u3088\u3046");
+        return;
+      }
+      g.tutorialMonthAnswers ??= [];
+      g.tutorialMonthAnswers.push(m);
+      save();
     } else if (action === "tutorial-next") {
       if (!state.active?.tutorial || state.active.tutorialIntroDone) throw new Error("Tutorial is not at the introduction");
-      state.active.tutorialIntroStep = Math.min(5, (state.active.tutorialIntroStep ?? 0) + 1);
+      if (state.active.tutorialIntroStep === 1 && (state.active.tutorialMonthAnswers?.length ?? 0) < 2)
+        throw Error("2\u554F\u306E\u5F53\u3066\u3063\u3053\u3092\u7D42\u3048\u3066\u304F\u3060\u3055\u3044");
+      state.active.tutorialIntroStep = Math.min(6, (state.active.tutorialIntroStep ?? 0) + 1);
       save();
     } else if (action === "tutorial-learned") {
       if (!state.active?.tutorialLearning) throw new Error("No capture lesson to acknowledge");
@@ -10651,9 +10795,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       if (!state.active?.tutorial) throw new Error("Tutorial is not active");
       state.active.tutorialIntroDone = true;
       save();
-    } else if (action === "start-travel") {
-      start("travel", 3, m);
-      return;
     } else if (action === "start-free") {
       start("free", Number(button.dataset.length), 1);
       return;
@@ -10673,6 +10814,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         return;
       }
       if (state.active?.round.phase === "hand" && state.active.round.current === 0) {
+        const need = state.active?.tutorialStandalone && !state.active?.tutorialOptional ? expectedTeachingHand(state.active) : null;
+        if (need && need !== id) {
+          toast("\u3053\u306E\u5C40\u3067\u306F\u307E\u305A " + card(need).month + "\u6708\u306E\u672D\u3092\u9078\u307C\u3046");
+          return;
+        }
         selectedHand = id;
         selectedCard = id;
         if (!state.seen.includes(id)) {
@@ -10685,12 +10831,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       }
     } else if (action === "play-selected") {
       if (!selectedHand) throw new Error("\u5148\u306B\u624B\u672D\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044");
+      if (state.active.tutorialLabelStage === 1) state.active.tutorialLabelStage = 2;
       const logStart = state.active.round.log.length;
       playHand(state.active, selectedHand);
       await advanceAfterMove(logStart);
       return;
     } else if (action === "field-target") {
       if (!selectedHand) throw new Error("\u624B\u672D\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044");
+      if (state.active.tutorialLabelStage === 1) state.active.tutorialLabelStage = 2;
       const logStart = state.active.round.log.length;
       playHand(state.active, selectedHand, id);
       await advanceAfterMove(logStart);
@@ -10701,6 +10849,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       await advanceAfterMove(logStart);
       return;
     } else if (action === "stop" || action === "koi") {
+      if (state.active.tutorial && action === "koi") state.active.tutorialLabelStage = 1;
       decide(state.active, action);
       await advanceAfterMove();
       return;

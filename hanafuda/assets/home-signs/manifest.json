@@ -1,0 +1,175 @@
+{
+  "title": {
+    "file": "title.png",
+    "source": "title-source.png",
+    "canvas": [
+      1774,
+      887
+    ],
+    "type": "generated hanging wooden sign with braided ropes, carved frame, gold trim, parchment, floral and hanafuda-card decoration",
+    "text": [
+      "はじめての花札 こいこい",
+      "花を知り、季節を遊ぶ。"
+    ],
+    "font": "Yuji Syuku",
+    "license": "SIL OFL 1.1",
+    "text_bounds": [
+      [
+        223.0,
+        365,
+        1551.0,
+        472
+      ],
+      [
+        513.0,
+        500,
+        1261.0,
+        565
+      ]
+    ],
+    "face_bounds": [
+      180,
+      300,
+      1590,
+      610
+    ],
+    "validation": "Each rasterized glyph bbox is checked inside the safe face before saving; fail-fast on overflow",
+    "background_removal": "Neutral checkerboard pixels connected to canvas edge removed; sign, rope, hanafuda cards, flowers and shadows retained"
+  },
+  "tutorial": {
+    "file": "tutorial.png",
+    "canvas": [
+      800,
+      580
+    ],
+    "text": [
+      "チュートリアル",
+      "先生と一局、遊び方を練習"
+    ],
+    "font": "Yuji Syuku",
+    "license": "SIL OFL 1.1",
+    "face_bounds": [
+      63,
+      99,
+      737,
+      473
+    ],
+    "text_bounds": [
+      [
+        151.5,
+        227,
+        648.5,
+        286
+      ],
+      [
+        130.0,
+        318,
+        670.0,
+        358
+      ]
+    ],
+    "style": "matching carved walnut frame, gold bevel, recessed textured parchment, braided hanging cords, botanical accents"
+  },
+  "free": {
+    "file": "free.png",
+    "canvas": [
+      710,
+      540
+    ],
+    "text": [
+      "フリー対局",
+      "CPUと対戦、3・6・12か月"
+    ],
+    "font": "Yuji Syuku",
+    "license": "SIL OFL 1.1",
+    "face_bounds": [
+      63,
+      99,
+      647,
+      433
+    ],
+    "text_bounds": [
+      [
+        170.0,
+        211,
+        540.0,
+        276
+      ],
+      [
+        136.0,
+        305,
+        574.0,
+        335
+      ]
+    ],
+    "style": "matching carved walnut frame, gold bevel, recessed textured parchment, braided hanging cords, botanical accents"
+  },
+  "dictionary": {
+    "file": "dictionary.png",
+    "canvas": [
+      710,
+      540
+    ],
+    "text": [
+      "図鑑・クイズ",
+      "札と役を調べる、腕試し"
+    ],
+    "font": "Yuji Syuku",
+    "license": "SIL OFL 1.1",
+    "face_bounds": [
+      63,
+      99,
+      647,
+      433
+    ],
+    "text_bounds": [
+      [
+        145.0,
+        209,
+        565.0,
+        270
+      ],
+      [
+        135.0,
+        299,
+        575.0,
+        336
+      ]
+    ],
+    "style": "matching carved walnut frame, gold bevel, recessed textured parchment, braided hanging cords, botanical accents"
+  },
+  "settings": {
+    "file": "settings.png",
+    "canvas": [
+      560,
+      450
+    ],
+    "text": [
+      "設定",
+      "音・表示"
+    ],
+    "font": "Yuji Syuku",
+    "license": "SIL OFL 1.1",
+    "face_bounds": [
+      63,
+      99,
+      497,
+      343
+    ],
+    "text_bounds": [
+      [
+        223.0,
+        177,
+        337.0,
+        228
+      ],
+      [
+        218.0,
+        250,
+        342.0,
+        279
+      ]
+    ],
+    "style": "matching carved walnut frame, gold bevel, recessed textured parchment, braided hanging cords, botanical accents"
+  }
+}

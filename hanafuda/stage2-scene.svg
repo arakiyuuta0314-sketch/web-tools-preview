@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 690" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0.1" y2="1"><stop stop-color="#101f2e"/><stop offset=".48" stop-color="#314e53"/><stop offset=".82" stop-color="#5c6660"/><stop offset="1" stop-color="#ab8b68"/></linearGradient>
+ <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#51736e"/><stop offset=".46" stop-color="#203f3d"/><stop offset="1" stop-color="#102a29"/></linearGradient>
+ <linearGradient id="ground" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#122d29"/><stop offset="1" stop-color="#071d1d"/></linearGradient>
+ <radialGradient id="moonGlow"><stop stop-color="#f6dfaf" stop-opacity=".54"/><stop offset=".36" stop-color="#edc88c" stop-opacity=".16"/><stop offset="1" stop-color="#edc88c" stop-opacity="0"/></radialGradient>
+ <linearGradient id="arch" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#211a16"/><stop offset=".25" stop-color="#604831"/><stop offset=".5" stop-color="#987044"/><stop offset=".75" stop-color="#604831"/><stop offset="1" stop-color="#251912"/></linearGradient>
+ <pattern id="grain" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M0 4h40M0 23h40" stroke="#f9ecc3" stroke-opacity=".035"/><circle cx="6" cy="12" r="1" fill="#f0dfa4" fill-opacity=".05"/></pattern>
+ <pattern id="waves" width="115" height="22" patternUnits="userSpaceOnUse"><path d="M0 14q28 -6 55 0t60 0" fill="none" stroke="#b9bfa5" stroke-opacity=".14" stroke-width="1.5"/></pattern>
+</defs>
+<rect width="1440" height="690" fill="url(#sky)"/>
+<rect width="1440" height="690" fill="url(#grain)"/>
+<circle cx="1062" cy="163" r="260" fill="url(#moonGlow)"/>
+<circle cx="1062" cy="163" r="70" fill="#f0d9a7" opacity=".95"/>
+<circle cx="1048" cy="149" r="60" fill="#f8e5be" opacity=".35"/>
+<path d="M0 366Q100 251 200 330T410 320Q525 215 668 320Q794 235 901 318Q1000 270 1161 335Q1293 237 1440 310V499H0Z" fill="#233c40"/>
+<path d="M0 402Q152 285 305 361T609 338Q789 300 913 359T1197 324Q1345 283 1440 363V515H0Z" fill="#284640" opacity=".86"/>
+<path d="M0 456Q170 356 309 440T605 415Q776 351 895 420T1184 400Q1314 329 1440 418V524H0Z" fill="#19332f"/>
+<path d="M0 477Q320 429 560 468T1046 452T1440 466V690H0Z" fill="url(#water)"/>
+<rect y="478" width="1440" height="210" fill="url(#waves)"/>
+<path d="M961 470q100 18 207 0M991 489q77 15 137 0M1006 518q63 6 109 0M1031 543q35 6 70 0M996 572q72 5 148 0M974 603q94 6 177 0" fill="none" stroke="#dfc998" stroke-opacity=".28" stroke-width="2"/>
+<!-- Foot bridge and shrine pavilion across the lake -->
+<path d="M785 451L1180 451M820 459L1170 459" stroke="#c39a66" stroke-width="4" opacity=".75"/>
+<g transform="translate(958 318)" opacity=".92">
+ <path d="M-90 97h181v13H-90Z" fill="#231b17"/>
+ <path d="M-66 41h132v61H-66Z" fill="#47372d"/>
+ <path d="M-79 57h159v8H-79Z" fill="#b68c58"/>
+ <path d="M-101 38Q-25 -19 0 -11Q36 -11 101 38L87 45Q20 17 0 18Q-28 16 -87 45Z" fill="#1d2421" stroke="#ba9568" stroke-width="4"/>
+ <path d="M-63 13h126M-27 -11h54" stroke="#c49b65" stroke-width="3"/>
+ <path d="M-52 65h27v35h-27ZM-13 65h27v35h-27ZM27 65h27v35H27Z" fill="#211c1a"/>
+ <path d="M-50 70h18v25h-18ZM-7 70h15v25H-7ZM33 70h16v25H33Z" fill="#c09a64" opacity=".5"/>
+ <path d="M-97 113h195" stroke="#271f1b" stroke-width="7"/>
+</g>
+<!-- Large pine silhouettes at frame edges -->
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M96 692Q106 535 87 402T75 45" stroke="#101f1b" stroke-width="33"/>
+ <path d="M84 220Q-2 215 -83 120M88 313Q200 279 252 197M96 435Q-35 401 -87 332" stroke="#142b22" stroke-width="23"/>
+ <path d="M72 136Q10 101 -50 90M118 270Q167 244 215 220M61 373Q13 363 -25 323" stroke="#17392a" stroke-width="9"/>
+ <path d="M1333 690Q1300 535 1351 310T1377 -62" stroke="#10211d" stroke-width="30"/>
+ <path d="M1331 396Q1228 337 1181 256M1350 270Q1454 216 1506 175M1307 524Q1444 471 1493 412" stroke="#1a2b25" stroke-width="21"/>
+</g>
+<!-- wind-blown pine needle clusters -->
+<g stroke="#183b2d" stroke-width="6" fill="none" stroke-linecap="round" opacity=".97">
+<path d="M24 103l-63 -56m93 74l-41 -78m109 89l0 -88M165 236l-20 -65m42 55l17 -74M-7 302l-20 -81M85 215l-44 -82"/>
+<path d="M1270 268l-17 -81m-25 100l-55 -58m126 22l11 -83m33 25l50 -76m14 56l65 -42M1279 467l-56 -56m105 54l12 -91"/>
+</g>
+<!-- Sakura branch with blossoms cascading from upper left -->
+<g stroke="#2b2924" fill="none" stroke-width="12"><path d="M-32 -10Q196 87 367 151T555 228"/><path d="M197 86Q256 36 327 29"/><path d="M358 148Q406 104 446 102"/></g>
+<g fill="#e9bdad" opacity=".96">
+ <circle cx="183" cy="81" r="9"/><circle cx="210" cy="97" r="12"/><circle cx="244" cy="109" r="8"/><circle cx="272" cy="119" r="10"/><circle cx="300" cy="134" r="11"/><circle cx="336" cy="150" r="7"/><circle cx="379" cy="167" r="11"/><circle cx="410" cy="186" r="9"/><circle cx="450" cy="195" r="12"/><circle cx="477" cy="208" r="9"/><circle cx="512" cy="225" r="7"/>
+ <circle cx="263" cy="47" r="10"/><circle cx="280" cy="40" r="9"/><circle cx="317" cy="30" r="11"/><circle cx="353" cy="29" r="8"/><circle cx="386" cy="125" r="10"/><circle cx="421" cy="113" r="11"/>
+</g>
+<g fill="#f9e6d8" opacity=".85">
+ <circle cx="197" cy="66" r="4"/><circle cx="252" cy="101" r="4"/><circle cx="319" cy="145" r="4"/><circle cx="394" cy="159" r="5"/><circle cx="464" cy="192" r="5"/><circle cx="317" cy="18" r="4"/><circle cx="430" cy="99" r="4"/>
+</g>
+<g fill="#efc2b3" opacity=".8"><ellipse cx="520" cy="289" rx="6" ry="3" transform="rotate(-22 520 289)"/><ellipse cx="595" cy="327" rx="6" ry="3" transform="rotate(26 595 327)"/><ellipse cx="434" cy="306" rx="5" ry="3"/></g>
+<!-- Lanterns along path -->
+<g transform="translate(1233 378)">
+ <path d="M0 0v160" stroke="#34261b" stroke-width="8"/>
+ <path d="M-23 5h46l-5 49h-36Z" fill="#e3ba78" stroke="#5c3927" stroke-width="6"/>
+ <path d="M-31 5h62l-18 -19h-26Z" fill="#35271d"/>
+ <path d="M-17 54h34" stroke="#5c3927" stroke-width="6"/>
+ <path d="M-13 9v42M13 9v42" stroke="#87603d" stroke-width="3"/>
+ <ellipse cy="32" rx="47" ry="54" fill="#edbe73" opacity=".06"/>
+</g>
+<path d="M0 643Q320 550 595 605T1130 577T1440 620V690H0Z" fill="url(#ground)" opacity=".8"/>
+<!-- pavilion rug-like inner vignette darkens title/menu locations -->
+<rect width="1440" height="690" fill="none" stroke="url(#arch)" stroke-width="24"/>
+<rect x="19" y="18" width="1402" height="654" rx="7" fill="none" stroke="#c79b5c" stroke-width="3" opacity=".86"/>
+<rect x="30" y="29" width="1380" height="632" fill="none" stroke="#ddc08a" stroke-width="1" opacity=".36"/>
+</svg>

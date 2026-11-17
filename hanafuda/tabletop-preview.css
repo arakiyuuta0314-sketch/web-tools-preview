@@ -1,0 +1,260 @@
+/* Preview A — wa-fu tabletop game.
+   Opt in only via ?theme=table. Scope exclusively to home + live match.
+   No third-party images/fonts are embedded; original 48 card images stay intact. */
+@media (orientation:landscape) and (max-height:620px) {
+html[data-hanafuda-preview="table"] .scene-home,
+html[data-hanafuda-preview="table"] .scene-game {
+  --wood-highlight:#c39858;--lacquer:#281e19;--washi:#f4e7c6;
+  background:
+    radial-gradient(ellipse at 52% 3%,#956f373b 0%,transparent 49%),
+    repeating-linear-gradient(90deg,transparent 0 34px,#d6a25c09 35px 36px),
+    repeating-linear-gradient(0deg,#fff6c907 0 1px,transparent 1px 4px),
+    linear-gradient(145deg,#192b25,#111e19 53%,#26362b);
+}
+html[data-hanafuda-preview="table"] .scene-home::before,
+html[data-hanafuda-preview="table"] .scene-game::before{
+  inset:3px;border:2px solid #ba884d55;box-shadow:inset 0 0 0 2px #0b1c18a9,inset 0 0 25px #0008;
+}
+html[data-hanafuda-preview="table"] .scene-home .topbar .quiet,
+html[data-hanafuda-preview="table"] .scene-game .topbar .quiet{
+  border:1px solid #d1a26a;border-radius:2px 10px 2px 10px;
+  background:linear-gradient(180deg,#836040 0%,#68472f 48%,#3e2b22 100%);
+  box-shadow:inset 0 1px 0 #edd09a77,inset 0 0 0 2px #3b281b,0 3px 5px #060e0bb3;
+  color:#fff0cd;font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub{
+  gap:8px 14px;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-hero{
+  border:6px solid #79512f;border-radius:5px 27px 5px 5px;
+  background:
+    radial-gradient(circle at 73% 35%,#b3a06024 0 14%,transparent 46%),
+    radial-gradient(ellipse at 38% 90%,#49705a88 0%,transparent 63%),
+    repeating-linear-gradient(35deg,#b8dcaa05 0 1px,transparent 1px 5px),
+    repeating-linear-gradient(-45deg,#b8dcaa04 0 1px,transparent 1px 5px),
+    linear-gradient(125deg,#234b39,#153b30 69%,#102a25);
+  box-shadow:inset 0 0 0 2px #c99e60,inset 0 0 0 7px #4a3523,
+    inset 0 22px 28px #051c199c,0 3px 0 #3b281d,0 11px 22px #020a08bd;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-hero::before{
+  border:3px double #c9a66965;
+  box-shadow:0 0 0 18px #c9a6690a,inset 0 0 25px #e9cc8420;
+  background:radial-gradient(circle,#d2b27317 0 45%,transparent 45%);
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-hero::after{
+  inset:auto 25px 17px 25px;
+  border-top:1px solid #e1ba7c96;
+  box-shadow:0 1px #07160fac;
+}
+html[data-hanafuda-preview="table"] .scene-home .landscape-title{
+  top:30%;left:6%;
+}
+html[data-hanafuda-preview="table"] .scene-home .landscape-title strong{
+  font-weight:750;color:#fcf3d9;letter-spacing:.15em;
+  text-shadow:0 3px 1px #0a1c16,1px 1px 7px #d1ab5244;
+}
+html[data-hanafuda-preview="table"] .scene-home .landscape-title b{
+  color:#f3cc83;font-weight:700;letter-spacing:.22em;
+  text-shadow:0 2px 2px #071713,0 0 14px #bb834e4a;
+}
+html[data-hanafuda-preview="table"] .scene-home .hero-cards{
+  right:17%;top:17%;filter:drop-shadow(6px 7px 8px #041410ce);
+}
+html[data-hanafuda-preview="table"] .scene-home .hero-cards img{
+  border:2px solid #dfca9c;box-shadow:1px 2px 1px #fff3ce7a,4px 7px 10px #020e0a;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-tutorial{
+  border:4px solid #69432d;border-radius:3px 15px 3px 15px;
+  background:radial-gradient(ellipse at 90% 20%,#fff4d872,transparent 50%),
+    repeating-linear-gradient(0deg,#936d390b 0 1px,transparent 1px 5px),
+    linear-gradient(120deg,#f8ebc9,#d4b784);
+  box-shadow:inset 0 0 0 2px #eacb8d,inset 0 0 0 5px #f6e9c1,
+    0 2px 0 #38231a,0 7px 13px #030a08ac;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-tutorial::before{
+  color:#955a3930;right:22px;font-size:90px;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-tutorial .hub-badge{
+  color:#8c4a32;letter-spacing:.09em;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-tutorial strong{
+  font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+  color:#293d30;text-shadow:0 1px #fff7d9;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-tutorial b{
+  color:#7b3023;border-bottom:2px solid #b67a44;padding-bottom:1px;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-mode{
+  position:relative;overflow:hidden;border:3px solid #7d5739;
+  border-radius:2px 10px 2px 10px;
+  background:linear-gradient(125deg,#365a43,#173629);
+  box-shadow:inset 0 0 0 1px #cdaa75,inset 0 0 0 4px #193526,
+    inset 0 13px 11px #f6dd9120,0 4px 7px #06100cc2;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-free{
+  background:linear-gradient(125deg,#674832,#332520);
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-mode::before{
+  content:"";position:absolute;inset:4px;border:1px solid #d4af715b;
+  border-radius:2px 7px 2px 7px;pointer-events:none;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-mode strong{
+  font-family:"Yu Mincho",serif;letter-spacing:.06em;color:#ffefc5;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-learn{
+  border:3px solid #705038;border-radius:2px 12px 2px 12px;
+  background:repeating-linear-gradient(0deg,#9370400b 0 1px,transparent 1px 5px),
+    linear-gradient(130deg,#f7e9c4,#d0b481);
+  box-shadow:inset 0 0 0 2px #f9e8be,0 4px 9px #050a08ae;
+}
+html[data-hanafuda-preview="table"] .scene-home .hub-progress{
+  border-top:1px solid #d0a96d80;color:#eed6a2;
+}
+/* Live match: make the actual field feel like a cloth-covered wooden tray. */
+html[data-hanafuda-preview="table"] .scene-game .play-layout .gameheader{
+  border:3px solid #654a30;border-radius:3px 9px 3px 9px;
+  background:radial-gradient(ellipse at 53% 10%,#65896d33,transparent 61%),
+    linear-gradient(160deg,#162e25,#365038 58%,#1c2b23);
+  box-shadow:inset 0 0 0 1px #be9b60,inset 0 0 0 4px #182b22,
+    0 3px 6px #020b08aa;
+}
+html[data-hanafuda-preview="table"] .scene-game .round-badge{
+  font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+  color:#f4e1b2;letter-spacing:.055em;
+}
+html[data-hanafuda-preview="table"] .scene-game .game-score{
+  position:relative;padding:0 13px 0 20px;
+  background:linear-gradient(90deg,transparent,#a77e3539,transparent);
+  color:#ffe8a7;text-shadow:0 2px #0b1914;
+}
+html[data-hanafuda-preview="table"] .scene-game .game-score::before{
+  content:"✿";position:absolute;left:0;top:0;
+  font:13px Georgia,serif;color:#ddb77a;
+}
+html[data-hanafuda-preview="table"] .scene-game .play-layout .tabletop{
+  position:relative;border:7px solid #745031;border-radius:9px;
+  padding:4px 7px;
+  background:radial-gradient(ellipse at 45% 15%,#5680644c,transparent 68%),
+    repeating-linear-gradient(45deg,#e9f8d607 0 1px,transparent 1px 5px),
+    repeating-linear-gradient(-45deg,#e9f8d606 0 1px,transparent 1px 5px),
+    linear-gradient(130deg,#285d46,#153e33 70%,#173c32);
+  box-shadow:inset 0 0 0 2px #d1a36b,inset 0 0 0 5px #47301e,
+    inset 0 0 33px #041a12de,0 3px 0 #3c281e,0 9px 14px #030b08bd;
+  outline:1px solid #c8a46b7c;
+}
+html[data-hanafuda-preview="table"] .scene-game .board-field{
+  background:repeating-linear-gradient(0deg,#9aba8f08 0 1px,transparent 1px 7px),
+    linear-gradient(130deg,#25533f,#17432f);
+  border:1px solid #ad8e58;border-radius:3px;
+  box-shadow:inset 0 0 0 2px #183b2b,inset 0 0 14px #091f19a5;
+}
+html[data-hanafuda-preview="table"] .scene-game .board-field .board-zone-caption strong{
+  color:#f4ddb0;text-shadow:0 1px #061b14;
+}
+html[data-hanafuda-preview="table"] .scene-game .board-field .board-zone-caption span,
+html[data-hanafuda-preview="table"] .scene-game .board-field .board-zone-caption small{
+  color:#e7d5ab;
+}
+html[data-hanafuda-preview="table"] .scene-game .board-hand{
+  border:1px solid #b48c55;border-radius:4px;
+  background:linear-gradient(180deg,#224d3c,#16392e);
+  box-shadow:inset 0 0 0 2px #254938,inset 0 2px 10px #071d17b7;
+}
+html[data-hanafuda-preview="table"] .scene-game .board-opponent{
+  border-bottom:1px solid #d7b27673;
+}
+html[data-hanafuda-preview="table"] .scene-game .opponent-label{
+  padding:3px 5px 3px 8px;border-left:3px solid #cba369;
+  background:linear-gradient(90deg,#312b2063,transparent);
+}
+html[data-hanafuda-preview="table"] .scene-game .opponent-label strong{
+  font-family:"Yu Mincho",serif;letter-spacing:.07em;
+}
+html[data-hanafuda-preview="table"] .scene-game .opponent-card-back{
+  background:repeating-linear-gradient(40deg,#7c2323 0 3px,#b54837 3px 6px);
+  border-color:#e8cb87;
+  box-shadow:inset 0 0 0 2px #63251d,0 2px 4px #071b17ad;
+}
+html[data-hanafuda-preview="table"] .scene-game .play-layout .board-taken{
+  border-top:1px solid #d4af7252;border-bottom:1px solid #d4af7252;
+  background:linear-gradient(90deg,#0b291c8a,#30573d33,#0b291c8a);
+}
+html[data-hanafuda-preview="table"] .scene-game .taken-kind{
+  border-radius:2px 7px 2px 7px;background:#f2dbae;
+  color:#3d3b27;border-color:#b58e52;
+  box-shadow:0 1px 0 #8a623b;
+}
+html[data-hanafuda-preview="table"] .scene-game .board-taken .taken-open,
+html[data-hanafuda-preview="table"] .scene-game .capture-link,
+html[data-hanafuda-preview="table"] .scene-game .coach-detail{
+  border:1px solid #d0ae76;border-radius:2px 7px 2px 7px;
+  background:linear-gradient(180deg,#805c3c,#4c3325);
+  color:#f9e6bd;box-shadow:inset 0 1px #e0b77b67,0 2px 2px #0718109c;
+}
+html[data-hanafuda-preview="table"] .scene-game .play-layout .card-slot .hana{
+  border:1px solid #e1d0a3;
+  box-shadow:1px 2px 3px #06180fd9,0 0 0 1px #463b29;
+}
+html[data-hanafuda-preview="table"] .scene-game .card-name{
+  border:1px solid #c39e62;border-radius:2px;
+  background:linear-gradient(180deg,#fff3cb,#e8d19f);
+  box-shadow:0 1px #704e29b5;
+}
+html[data-hanafuda-preview="table"] .scene-game .play-layout .hana.selected{
+  outline:3px solid #ffdb65;box-shadow:0 0 0 3px #fff5be,0 3px 5px #051b13;
+}
+html[data-hanafuda-preview="table"] .scene-game .play-layout .hana.hint{
+  box-shadow:0 0 0 3px #bdeea1,0 3px 6px #081f16;
+}
+html[data-hanafuda-preview="table"] .scene-game .play-layout .controlpad{
+  border:4px solid #7c5735;border-radius:3px 13px 3px 13px;
+  background:radial-gradient(ellipse at 91% 1%,#fff9e8,transparent 55%),
+    repeating-linear-gradient(0deg,#b693570c 0 1px,transparent 1px 5px),
+    linear-gradient(120deg,#fcf0d3,#ddc39a);
+  box-shadow:inset 0 0 0 1px #e0b978,inset 0 0 0 4px #f9e9ca,
+    0 3px 0 #422c1b,0 7px 13px #04120daa;
+}
+html[data-hanafuda-preview="table"] .scene-game .coach-mast{
+  border-bottom:1px solid #a7804c8f;
+}
+html[data-hanafuda-preview="table"] .scene-game .coach-mast strong{
+  font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+  color:#344735;text-shadow:0 1px #fff7e4;
+}
+html[data-hanafuda-preview="table"] .scene-game .coach-monogram{
+  border-radius:1px 5px 1px 5px;
+  background:#a64636;border:2px solid #d6af70;
+}
+html[data-hanafuda-preview="table"] .scene-game .coach-prompt strong{
+  color:#344b36;
+}
+html[data-hanafuda-preview="table"] .scene-game .coach-actions button{
+  border-radius:2px 8px 2px 8px;
+  border:1px solid #bd9155;
+  box-shadow:inset 0 1px #fff4ce,0 2px #6f4b32;
+}
+html[data-hanafuda-preview="table"] .scene-game .coach-footer{
+  color:#75603b;
+}
+html[data-hanafuda-preview="table"] .scene-game .dialog-sheet{
+  border:5px double #b38a54;border-radius:3px 12px 3px 12px;
+  background:repeating-linear-gradient(0deg,#a889540b 0 1px,transparent 1px 6px),
+    linear-gradient(#fff6df,#e6ce9f);
+  box-shadow:inset 0 0 0 3px #fffbea,0 11px 27px #07120dc4;
+}
+html[data-hanafuda-preview="table"] .scene-home button:active,
+html[data-hanafuda-preview="table"] .scene-game button:active{
+  filter:brightness(1.13);
+}
+}
+@media (orientation:landscape) and (max-height:390px){
+  html[data-hanafuda-preview="table"] .scene-game .play-layout .tabletop{
+    border-width:5px;padding:3px 5px;
+  }
+  html[data-hanafuda-preview="table"] .scene-game .play-layout .controlpad{
+    border-width:3px;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  html[data-hanafuda-preview="table"] *{transition:none!important;animation:none!important}
+}

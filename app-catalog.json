@@ -83,8 +83,8 @@
       "stage": "Webプレビュー",
       "kind": "game",
       "description": "対局中の取り札を絵柄・種類別に見られます。図鑑、クイズ、花の物語、旅の画面も見直した横画面の花札こいこい。",
-      "url": "./hanafuda/?v=20261111-seasonal-stage-01",
-      "version": "和風デザイン・試遊更新版",
+      "url": "./hanafuda/?v=20261117-cloudflare-84dfe64",
+      "version": "2026-11-17 latest",
       "cta": "ゲームを開く"
     }
   ]
