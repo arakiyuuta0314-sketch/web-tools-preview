@@ -1,0 +1,890 @@
+/* Shared landscape game board: play area left, captured cards and yaku on the right. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) clamp(108px,16vw,132px)!important;
+    grid-template-rows:minmax(0,1fr)!important;
+    gap:6px!important;
+    padding:5px 6px!important;
+  }
+  .play-layout .tabletop-main{
+    grid-column:1;grid-row:1;min-width:0;min-height:0;height:100%;
+    display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:30px minmax(0,1fr) minmax(0,.82fr);
+    gap:3px;
+  }
+  .play-layout .tabletop-main>.board-opponent,
+  .play-layout .tabletop-main>.board-field,
+  .play-layout .tabletop-main>.board-hand{grid-column:1;min-width:0;min-height:0}
+  .play-layout .tabletop-main>.board-opponent{grid-row:1}
+  .play-layout .tabletop-main>.board-field{grid-row:2}
+  .play-layout .tabletop-main>.board-hand{grid-row:3}
+  .play-layout .tabletop-main .landscape-fieldline{
+    grid-template-columns:43px minmax(0,1fr);gap:4px;
+  }
+  .play-layout .tabletop-main .field-stock{
+    grid-column:1;grid-row:1;border-left:0;border-right:1px solid #927e573b;padding-right:3px;
+  }
+  .play-layout .tabletop-main .fieldcards{grid-column:2;grid-row:1;min-width:0;}
+  .play-layout .tabletop-main .fieldcards>.hana{max-width:52px}
+  .play-layout .tabletop-main .fieldcards.dense>.hana{max-width:52px}
+  .play-layout .board-side{
+    grid-column:2;grid-row:1;min-width:0;min-height:0;height:100%;
+    display:grid;grid-template-rows:minmax(0,1.55fr) minmax(76px,1fr);gap:5px;
+  }
+  .play-layout .board-taken,.play-layout .board-yaku{
+    min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+    border:1px solid #b89b67;border-radius:5px;padding:4px;
+    background:linear-gradient(145deg,#f6e9c9,#dfc99d);
+    box-shadow:inset 0 0 0 2px #fff4d65c,0 2px 4px #071b1266;color:#3d4b36;
+  }
+  .play-layout .board-side-heading{
+    flex:0 0 17px;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:3px;
+    border-bottom:1px solid #a88a5b77;padding:0 1px 2px;white-space:nowrap;
+  }
+  .play-layout .board-side-heading strong{font:800 10px "Yu Mincho","Hiragino Mincho ProN",serif;color:#35513d;}
+  .play-layout .board-side-heading span{font-size:9px;font-weight:800;color:#925139;}
+  .play-layout .board-taken-grid{
+    flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-auto-rows:46px;align-content:start;justify-items:center;gap:3px;padding:4px 0;
+    overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  }
+  .play-layout .board-taken-card{
+    width:100%;height:45px;min-height:0;padding:1px;display:grid;place-items:center;
+    border:1px solid #92764d;border-radius:2px;background:#fff6df;overflow:hidden;
+  }
+  .play-layout .board-taken-card img{display:block;height:100%;width:auto;max-width:100%;object-fit:contain;}
+  .play-layout .board-taken .taken-open{
+    flex:0 0 22px;width:100%;min-height:22px!important;max-height:22px!important;
+    margin:0;padding:2px 3px!important;border-radius:3px;font-size:9px!important;
+    background:#28523d;color:#fff1c9;border-color:#8b9169;
+  }
+  .play-layout .board-side-empty{display:flex;flex:1;align-items:center;justify-content:center;padding:4px;text-align:center;font-size:9px;line-height:1.45;color:#78684d;}
+  .play-layout .board-yaku-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px;padding:4px 0;overflow-y:auto;overscroll-behavior:contain;}
+  .play-layout .board-yaku-item{min-width:0;display:flex;flex-direction:column;gap:2px;padding:2px 3px;border:1px solid #c4aa77;border-radius:3px;background:#fff5dc;}
+  .play-layout .board-yaku-item>strong{font-size:9px;line-height:1.25;color:#3e563e;white-space:normal;}
+  .play-layout .board-yaku-item>strong small{font-size:9px;color:#a24b32;white-space:nowrap;}
+  .play-layout .board-yaku-cards{display:flex;align-items:center;gap:2px;min-width:0;overflow:hidden;}
+  .play-layout .board-yaku-cards img{height:28px;width:auto;max-width:18px;object-fit:contain;border:1px solid #b39a6d;background:#fff8e6;}
+  .play-layout .board-yaku-empty{flex:1;display:grid;place-items:center;margin:0;padding:3px;text-align:center;font-size:9px;line-height:1.4;color:#806c4e;}
+  .play-layout .board-yaku-multiplier{flex:0 0 auto;text-align:right;font-size:8px;font-weight:800;color:#9b5035;}
+  .play-layout .board-opponent,.play-layout .board-hand{padding-left:2px;padding-right:2px;}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout .tabletop{grid-template-columns:minmax(0,1fr) 104px!important;gap:4px!important;padding:4px!important;}
+  .play-layout .tabletop-main{grid-template-rows:25px minmax(0,1fr) minmax(0,.82fr);gap:2px;}
+  .play-layout .board-side{grid-template-rows:minmax(0,1.5fr) minmax(70px,1fr);gap:3px;}
+  .play-layout .board-taken-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:40px;gap:2px;}
+  .play-layout .board-taken-card{height:39px;}
+  .play-layout .board-side-heading strong{font-size:9px;}
+  .play-layout .board-yaku-cards img{height:24px;max-width:16px;}
+  .play-layout .tabletop-main .landscape-fieldline{grid-template-columns:37px minmax(0,1fr);gap:2px;}
+  .play-layout .tabletop-main .stock-back{width:23px;height:36px;}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop-main .fieldcards .hana{flex:0 0 auto;height:100%;max-height:100%;width:auto;min-width:0;min-height:0;max-width:52px;aspect-ratio:512/839;}
+}
+
+
+
+
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop-main .fieldcards.dense>.hana{flex:0 0 clamp(16px,3.4vw,28px);width:clamp(16px,3.4vw,28px);height:auto;max-height:100%;max-width:28px;aspect-ratio:512/839;}
+}
+
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop-main .fieldcards.dense .card-slot .hana{width:100%;height:auto;max-width:100%;max-height:100%;}
+}
+/* 2026-11-17: larger, readable shared tutorial/free-play board. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop{
+    grid-template-columns:minmax(0,1fr) clamp(144px,19vw,164px)!important;
+  }
+  .play-layout.tutorial-engawa .tabletop{
+    grid-template-columns:minmax(0,1fr) clamp(172px,22vw,188px)!important;
+  }
+  .play-layout.tutorial-engawa{grid-template-rows:28px minmax(0,1fr) 70px}
+  .play-layout .tabletop-main{
+    grid-template-rows:22px minmax(0,1fr) minmax(0,1fr);
+    gap:3px;
+  }
+  .play-layout .tabletop-main .landscape-fieldline{
+    grid-template-columns:36px minmax(0,1fr);gap:5px;
+  }
+  .play-layout .tabletop-main .board-field,
+  .play-layout .tabletop-main .board-hand{padding:0 4px}
+  .play-layout .tabletop-main .board-zone-caption{
+    flex:0 0 10px;height:10px;min-height:10px;line-height:10px;gap:3px;
+  }
+  .play-layout .tabletop-main .board-zone-caption strong{font-size:13px;line-height:10px}
+  .play-layout .tabletop-main .board-zone-caption small,
+  .play-layout .tabletop-main .board-zone-caption span{font-size:10px;line-height:10px}
+  .play-layout .tabletop-main .fieldcards,
+  .play-layout .tabletop-main .handcards{
+    gap:5px;align-items:center;justify-content:center;
+  }
+  .play-layout .tabletop-main .fieldcards>.hana,
+  .play-layout .tabletop-main .handcards>.hana{
+    flex:0 1 auto;width:auto;height:100%;min-width:0;max-width:58px;
+    max-height:100%;aspect-ratio:512/839;align-self:center;
+  }
+  .play-layout .tabletop-main .fieldcards.dense>.hana{flex:0 1 34px;width:34px;max-width:34px}
+  .play-layout .tabletop-main .card-slot{align-items:center;justify-content:center}
+  .play-layout .tabletop-main .card-slot .hana{
+    flex:0 1 auto;width:auto;height:100%;max-width:58px;max-height:100%;
+    aspect-ratio:512/839;align-self:center;
+  }
+  .play-layout .board-side{
+    grid-column:2;grid-row:1;min-width:0;min-height:0;height:100%;
+    display:grid;grid-template-rows:minmax(0,1.8fr) minmax(78px,1fr);gap:5px;
+  }
+  .play-layout.tutorial-engawa .board-side{grid-template-rows:minmax(0,1.25fr) minmax(92px,1fr)}
+  .play-layout .board-taken,
+  .play-layout .board-yaku{
+    min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+    border:1px solid #b89b67;border-radius:5px;padding:3px;
+    background:linear-gradient(145deg,#f6e9c9,#dfc99d);
+    box-shadow:inset 0 0 0 2px #fff4d65c,0 2px 4px #071b1266;color:#3d4b36;
+  }
+  .play-layout .board-side-heading{
+    flex:0 0 16px;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:5px;
+    border-bottom:1px solid #a88a5b77;padding:0 2px 2px;white-space:nowrap;
+  }
+  .play-layout .board-side-heading strong{font:800 13px "Yu Mincho","Hiragino Mincho ProN",serif;color:#35513d}
+  .play-layout .board-side-heading span{font-size:12px;font-weight:800;color:#925139}
+  .play-layout .board-taken{align-items:stretch;width:100%}
+  .play-layout .board-taken-grid{
+    flex:1 1 auto;min-height:0;width:100%;align-self:stretch;display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:72px;
+    align-content:start;justify-items:center;gap:4px;padding:3px 0;
+    overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  }
+  .play-layout .board-taken-card{
+    display:grid!important;place-items:center!important;flex:none!important;
+    width:100%;height:70px!important;min-height:70px!important;max-height:70px!important;
+    padding:2px!important;border:1px solid #92764d;border-radius:3px;
+    background:#fff6df;overflow:hidden!important;
+  }
+  .play-layout .board-taken-card img{
+    display:block!important;height:64px!important;min-height:64px!important;max-height:64px!important;
+    width:auto!important;max-width:100%!important;object-fit:contain!important;
+  }
+  .play-layout .board-taken .taken-open{
+    flex:0 0 18px!important;width:100%;height:18px!important;min-height:18px!important;max-height:18px!important;
+    margin:0;padding:1px 3px!important;border-radius:3px;font-size:10px!important;line-height:14px!important;
+    background:#28523d;color:#fff1c9;border-color:#8b9169;
+  }
+  .play-layout .board-side-empty{display:flex;flex:1;align-items:center;justify-content:center;padding:4px;text-align:center;font-size:11px;line-height:1.4;color:#78684d}
+  .play-layout .board-yaku-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:5px;padding:5px 0;overflow-y:auto;overscroll-behavior:contain}
+  .play-layout .board-yaku-item{min-width:0;display:flex;flex-direction:column;gap:3px;padding:3px 4px;border:1px solid #c4aa77;border-radius:3px;background:#fff5dc}
+  .play-layout .board-yaku-item>strong{font-size:12px;line-height:1.3;color:#3e563e;white-space:normal}
+  .play-layout .board-yaku-item>strong small{font-size:12px;color:#a24b32;white-space:nowrap}
+  .play-layout .board-yaku-cards{display:flex;align-items:center;gap:3px;min-width:0;overflow:hidden}
+  .play-layout .board-yaku-cards img{height:40px;width:auto;max-width:27px;object-fit:contain;border:1px solid #b39a6d;background:#fff8e6}
+  .play-layout .board-yaku-empty{flex:1;display:grid;place-items:center;margin:0;padding:3px;text-align:center;font-size:11px;line-height:1.4;color:#806c4e}
+  .play-layout .board-yaku-multiplier{flex:0 0 auto;text-align:right;font-size:10px;font-weight:800;color:#9b5035}
+  .play-layout .card-name strong{font-size:11px}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout .tabletop{grid-template-columns:minmax(0,1fr) 140px!important;gap:4px!important;padding:4px!important}
+  .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) 156px!important}
+  .play-layout.tutorial-engawa{grid-template-rows:26px minmax(0,1fr) 68px}
+  .play-layout .tabletop-main{grid-template-rows:22px minmax(0,1fr) minmax(0,1fr);gap:2px}
+  .play-layout .tabletop-main .landscape-fieldline{grid-template-columns:33px minmax(0,1fr);gap:3px}
+  .play-layout .tabletop-main .board-field,
+  .play-layout .tabletop-main .board-hand{padding:0 3px}
+  .play-layout .tabletop-main .fieldcards>.hana,
+  .play-layout .tabletop-main .handcards>.hana{max-width:50px}
+  .play-layout .tabletop-main .fieldcards.dense>.hana{flex:0 1 28px;width:28px;max-width:28px}
+  .play-layout .tabletop-main .card-slot .hana{max-width:50px}
+  .play-layout .tabletop-main .board-zone-caption strong{font-size:11px}
+  .play-layout .tabletop-main .board-zone-caption small,
+  .play-layout .tabletop-main .board-zone-caption span{font-size:9px}
+  .play-layout .board-side{grid-template-rows:minmax(0,1.5fr) minmax(78px,1fr);gap:3px}
+  .play-layout.tutorial-engawa .board-side{grid-template-rows:minmax(0,1.15fr) minmax(88px,1fr)}
+  .play-layout .board-taken-grid{grid-auto-rows:68px;gap:3px}
+  .play-layout .board-taken-card{height:66px!important;min-height:66px!important;max-height:66px!important}
+  .play-layout .board-taken-card img{height:60px!important;min-height:60px!important;max-height:60px!important}
+  .play-layout .board-yaku-cards img{height:32px;max-width:21px}
+}
+/* 2026-11-17: spend the remaining 844x390 landscape space on legibility. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop{grid-template-columns:minmax(0,1fr) clamp(176px,22vw,194px)!important}
+  .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) clamp(196px,25vw,212px)!important}
+  .play-layout.tutorial-engawa{grid-template-rows:24px minmax(0,1fr) 60px!important;gap:4px!important}
+  .play-layout .tabletop-main{grid-template-rows:18px minmax(0,1fr) minmax(0,1fr);gap:2px}
+  .play-layout .tabletop-main .fieldcards>.hana,
+  .play-layout .tabletop-main .handcards>.hana,
+  .play-layout .tabletop-main .card-slot .hana{max-width:68px}
+  .play-layout .board-side{grid-template-rows:minmax(0,1.55fr) minmax(100px,1fr);gap:4px}
+  .play-layout.tutorial-engawa .board-side{grid-template-rows:minmax(0,1.15fr) minmax(100px,1fr)}
+  .play-layout .board-side-heading{flex-basis:18px}
+  .play-layout .board-side-heading strong{font-size:14px}
+  .play-layout .board-side-heading span{font-size:13px}
+  .play-layout .board-taken-grid{grid-auto-rows:84px;gap:4px}
+  .play-layout .board-taken-card{height:82px!important;min-height:82px!important;max-height:82px!important}
+  .play-layout .board-taken-card img{height:76px!important;min-height:76px!important;max-height:76px!important}
+  .play-layout .board-taken .taken-open{flex-basis:20px!important;height:20px!important;min-height:20px!important;max-height:20px!important;font-size:11px!important}
+  .play-layout .board-side-empty{font-size:12px}
+  .play-layout .board-yaku-list{gap:4px;padding:4px 0}
+  .play-layout .board-yaku-item{gap:3px;padding:4px 5px}
+  .play-layout .board-yaku-item>strong{font-size:14px;line-height:1.25}
+  .play-layout .board-yaku-item>strong small{font-size:14px}
+  .play-layout .board-yaku-cards{gap:4px}
+  .play-layout .board-yaku-cards img{height:44px;max-width:30px}
+  .play-layout .board-yaku-empty{font-size:12px}
+  .play-layout .board-yaku-multiplier{font-size:11px}
+  .play-layout.tutorial-engawa .tutorial-guide-panel{grid-template-columns:58px minmax(0,1fr) minmax(112px,170px);gap:6px;padding:3px 6px}
+  .play-layout.tutorial-engawa .teacher-companion .teacher-avatar{width:38px;height:42px}
+  .play-layout.tutorial-engawa .teacher-companion{font-size:10px}
+  .play-layout.tutorial-engawa .teacher-speech{padding:3px 7px}
+  .play-layout.tutorial-engawa .teacher-speech h3{font-size:12px}
+  .play-layout.tutorial-engawa .teacher-speech p{font-size:10px;line-height:1.2;-webkit-line-clamp:2}
+  .play-layout.tutorial-engawa .teacher-actions button{min-height:27px;padding:2px 5px;font-size:11px}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout .tabletop{grid-template-columns:minmax(0,1fr) 154px!important}
+  .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) 168px!important}
+  .play-layout.tutorial-engawa{grid-template-rows:26px minmax(0,1fr) 66px!important}
+  .play-layout .tabletop-main .fieldcards>.hana,
+  .play-layout .tabletop-main .handcards>.hana,
+  .play-layout .tabletop-main .card-slot .hana{max-width:60px}
+  .play-layout .board-side{grid-template-rows:minmax(0,1.45fr) minmax(90px,1fr)}
+  .play-layout.tutorial-engawa .board-side{grid-template-rows:minmax(0,1.1fr) minmax(90px,1fr)}
+  .play-layout .board-taken-grid{grid-auto-rows:76px}
+  .play-layout .board-taken-card{height:74px!important;min-height:74px!important;max-height:74px!important}
+  .play-layout .board-taken-card img{height:68px!important;min-height:68px!important;max-height:68px!important}
+  .play-layout .board-yaku-cards img{height:38px;max-width:26px}
+  .play-layout.tutorial-engawa .tutorial-guide-panel{grid-template-columns:50px minmax(0,1fr) 126px;gap:4px;padding:3px}
+  .play-layout.tutorial-engawa .teacher-companion .teacher-avatar{width:34px;height:38px}
+}
+/* 2026-11-17 follow-up: keep the complete teacher strip inside the landscape viewport. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.tutorial-engawa{grid-template-rows:24px minmax(0,1fr) 74px!important}
+  .play-layout.tutorial-engawa .tutorial-guide-panel{box-sizing:border-box;height:100%;min-height:0;padding:4px 7px;overflow:hidden}
+  .play-layout.tutorial-engawa .teacher-companion{align-self:stretch;justify-content:center}
+  .play-layout.tutorial-engawa .teacher-speech{box-sizing:border-box;min-height:0;max-height:100%;overflow:hidden;padding:4px 7px}
+  .play-layout.tutorial-engawa .teacher-speech p{display:block;-webkit-line-clamp:unset;line-height:1.25;overflow:hidden}
+  .play-layout.tutorial-engawa .teacher-actions{min-height:0;justify-content:center;overflow:hidden}
+  .play-layout.tutorial-engawa .board-side{grid-template-rows:minmax(0,1.85fr) minmax(72px,1fr)}
+  .play-layout.tutorial-engawa .teacher-actions button{min-height:27px;padding:2px 5px}
+  .play-layout .board-taken-grid{overflow-y:scroll;scrollbar-width:auto;scrollbar-color:#8a623d #ead8b4;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+  .play-layout .board-taken-grid::-webkit-scrollbar{width:8px}
+  .play-layout .board-taken-grid::-webkit-scrollbar-track{background:#ead8b4;border-radius:5px}
+  .play-layout .board-taken-grid::-webkit-scrollbar-thumb{background:#8a623d;border:1px solid #ead8b4;border-radius:5px}
+  .play-layout .board-side-heading span{font-size:10px;white-space:nowrap}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout.tutorial-engawa{grid-template-rows:24px minmax(0,1fr) 74px!important}
+}
+
+/* Make the tutorial's captured-card continuation explicit without consuming another board row. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .board-side-heading .taken-browse-button{
+    flex:0 0 auto;width:auto;min-width:0;height:16px;min-height:16px!important;max-height:16px!important;
+    margin:0;padding:0 4px!important;border:1px solid #8b9169;border-radius:3px;
+    background:#28523d;color:#fff1c9;font-size:9px!important;font-weight:800;line-height:14px;
+    white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;
+  }
+}
+
+/* 2026-11-17: warm wood field surface, visually tied to the moonlit veranda. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop-main .board-field{
+    position:relative;isolation:isolate;overflow:hidden;
+    border:2px solid #76502f;border-radius:5px;
+    background:
+      linear-gradient(90deg,#4b2d1c22 0 1px,transparent 1px 100%),
+      repeating-linear-gradient(0deg,transparent 0 15px,#70452218 16px 17px,transparent 18px 24px),
+      repeating-linear-gradient(90deg,transparent 0 112px,#f5d39a18 113px 114px,transparent 115px 116px),
+      linear-gradient(112deg,#d9ae78 0%,#c9955d 28%,#b77d49 62%,#d0a06b 100%);
+    box-shadow:inset 0 0 0 2px #efd19a,inset 0 0 0 4px #8b5a35,inset 0 0 18px #57331d66,0 2px 5px #071b1266;
+  }
+  .play-layout .tabletop-main .board-field::before{
+    content:"";position:absolute;inset:5px 7px;z-index:-1;pointer-events:none;
+    border-top:1px solid #fff0cf70;border-bottom:1px solid #74452255;
+    background:radial-gradient(ellipse at 50% 0%,#fff0d32b,transparent 72%),repeating-linear-gradient(0deg,transparent 0 7px,#6f432014 8px 9px,transparent 10px 14px);
+  }
+  .play-layout .tabletop-main .board-field .board-zone-caption{color:#f9e6c5;text-shadow:0 1px 2px #492d1d;}
+  .play-layout .tabletop-main .board-field .board-zone-caption strong{color:#fff0d2;text-shadow:0 1px 2px #4a2a18;}
+  .play-layout .tabletop-main .board-field .board-zone-caption span{color:#f7e2c1;text-shadow:0 1px 2px #4a2a18;}
+  .play-layout .tabletop-main .board-field .fieldcards .hana{filter:drop-shadow(1px 2px 2px #382314a8);}
+  .play-layout.tutorial-engawa .board-side{grid-template-rows:minmax(0,1.55fr) minmax(90px,1fr)!important;}
+  .play-layout.tutorial-engawa .board-side-heading{flex-basis:14px!important;}
+  .play-layout.tutorial-engawa .board-taken{padding:0 4px 3px!important;}
+  .play-layout.tutorial-engawa .board-taken .board-side-heading{flex:0 0 14px!important;height:14px!important;min-height:14px!important;padding:0!important;line-height:14px;}
+  .play-layout.tutorial-engawa .board-taken .board-side-heading strong{font-size:12px!important;line-height:14px;}
+  .play-layout .board-taken-grid{grid-auto-rows:84px!important;gap:4px;}
+  .play-layout .board-taken-card{height:82px!important;min-height:82px!important;max-height:82px!important;}
+  .play-layout .board-taken-card img{height:76px!important;min-height:76px!important;max-height:76px!important;}
+  .play-layout .board-yaku-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;gap:3px;padding:2px 0;}
+  .play-layout .board-yaku-item{flex:0 0 auto;gap:2px;padding:2px 3px;}
+  .play-layout .board-yaku-item>strong{flex:0 0 auto;line-height:1.2;}
+  .play-layout .board-yaku-cards{flex:0 0 auto;min-height:0;overflow:visible;gap:3px;}
+  .play-layout .board-yaku-cards img{flex:0 0 auto;height:32px!important;min-height:32px;max-height:32px;width:auto;max-width:22px;object-fit:contain;}
+}
+
+/* 2026-11-17: generated Japanese tabletop and indigo cloth mat. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout{
+    background-color:#25170f!important;
+    background-image:url("images/japanese-wooden-table-indigo-mat.jpg")!important;
+    background-repeat:no-repeat!important;
+    background-position:60% center!important;
+    background-size:110% 100%!important;
+  }
+  .play-layout .game-board-wrap{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;}
+  .play-layout .tabletop{background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important;}
+  .play-layout .tabletop-main>.board-opponent,
+  .play-layout .tabletop-main>.board-field,
+  .play-layout .tabletop-main>.board-hand,
+  .play-layout .board-zone,
+  .play-layout .board-field,
+  .play-layout .board-hand,
+  .play-layout .fieldcards,
+  .play-layout .handcards{background:transparent!important;border:0!important;box-shadow:none!important;outline:0!important;}
+  .play-layout .tabletop-main .board-field::before{content:none!important;display:none!important;}
+  .play-layout .board-opponent{border:0!important;background:transparent!important;color:#f6e6c8!important;text-shadow:0 1px 3px #24140c;}
+  .play-layout .opponent-label strong,.play-layout .board-zone-caption strong{color:#fff0d2!important;text-shadow:0 1px 3px #21130d!important;}
+  .play-layout .opponent-label span,.play-layout .board-zone-caption small,.play-layout .board-zone-caption span{color:#f0d6a9!important;text-shadow:0 1px 3px #21130d!important;}
+  .play-layout .board-side{background:transparent!important;border:0!important;box-shadow:none!important;}
+  .play-layout .board-taken,.play-layout .board-yaku{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#f5e7cc!important;padding:3px 2px!important;}
+  .play-layout .board-side-heading{border-bottom:1px solid #e8c98b8a!important;}
+  .play-layout .board-side-heading strong{color:#fff0d2!important;text-shadow:0 1px 3px #24140c!important;}
+  .play-layout .board-side-heading span{color:#f4d18f!important;text-shadow:0 1px 3px #24140c!important;}
+  .play-layout .board-taken-grid{background:transparent!important;}
+  .play-layout .board-taken-card{background:transparent!important;border:0!important;box-shadow:none!important;}
+  .play-layout .board-taken-card img{filter:drop-shadow(1px 3px 3px #170d08b8)!important;}
+  .play-layout .board-yaku-item{background:transparent!important;border:0!important;border-bottom:1px solid #e8c98b66!important;border-radius:0!important;box-shadow:none!important;padding:2px 1px!important;}
+  .play-layout .board-yaku-item>strong{color:#fff0d2!important;text-shadow:0 1px 3px #24140c!important;}
+  .play-layout .board-yaku-item>strong small,.play-layout .board-yaku-multiplier{color:#f4d18f!important;text-shadow:0 1px 3px #24140c!important;}
+  .play-layout .board-yaku-cards img{border:0!important;background:transparent!important;filter:drop-shadow(1px 2px 2px #170d08b8)!important;}
+  .play-layout .board-side-empty{color:#f1dfc0!important;text-shadow:0 1px 3px #24140c;}
+  .play-layout .board-taken .taken-open,.play-layout .board-side-heading .taken-browse-button{background:linear-gradient(145deg,#243d37,#102b27)!important;color:#fff0d2!important;border:1px solid #c3a36b!important;box-shadow:0 2px 4px #160d08a8!important;}
+  .play-layout .board-zone-caption{background:transparent!important;}
+  .play-layout .tabletop-main .fieldcards .hana,.play-layout .tabletop-main .handcards .hana{filter:drop-shadow(1px 3px 3px #170d08b8);}
+}
+
+/* 2026-11-17 detail pass: separate opponent labels, keep captured cards to
+   complete rows, and reserve room for the outermost field/stock captions. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout .tabletop-main{grid-template-rows:30px minmax(0,1fr) minmax(0,1fr)!important;gap:3px!important}
+  .play-layout .board-opponent{align-items:center;padding-top:2px;padding-bottom:2px}
+  .play-layout .opponent-label{gap:3px}
+  .play-layout .opponent-label strong{line-height:1.15}
+  .play-layout .opponent-label span{line-height:1.15}
+  .play-layout .tabletop-main .landscape-fieldline{grid-template-columns:46px minmax(0,1fr)!important;gap:5px!important}
+  .play-layout .tabletop-main .field-stock{padding-left:1px;padding-right:3px}
+  .play-layout .tabletop-main .field-stock small{font-size:9px;line-height:11px;white-space:nowrap}
+  .play-layout .tabletop-main .fieldcards{padding-right:7px!important;box-sizing:border-box}
+  .play-layout .tabletop-main .fieldcards .card-slot{min-width:0}
+  .play-layout .board-taken-grid{
+    flex:0 0 82px!important;height:82px!important;max-height:82px!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-rows:82px!important;align-content:start;
+    gap:4px!important;padding:0!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+  }
+  .play-layout .board-taken-card{height:80px!important;min-height:80px!important;max-height:80px!important}
+  .play-layout .board-taken-card img{height:74px!important;min-height:74px!important;max-height:74px!important}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout .tabletop-main{grid-template-rows:30px minmax(0,1fr) minmax(0,1fr)!important}
+  .play-layout .tabletop-main .landscape-fieldline{grid-template-columns:44px minmax(0,1fr)!important;gap:4px!important}
+  .play-layout .tabletop-main .fieldcards{padding-right:6px!important}
+  .play-layout .board-taken-grid{flex-basis:78px!important;height:78px!important;max-height:78px!important;grid-auto-rows:78px!important}
+  .play-layout .board-taken-card{height:76px!important;min-height:76px!important;max-height:76px!important}
+  .play-layout .board-taken-card img{height:70px!important;min-height:70px!important;max-height:70px!important}
+}
+
+/* 2026-11-17 seated-table redesign: teacher opposite, player hands below,
+   symmetric public capture/yaku rails, and stock on the shared cloth mat. */
+@media (orientation:landscape) and (max-height:620px){
+  .scene-game .page{
+    display:flex!important;flex-direction:column!important;
+    width:100%!important;max-width:none!important;height:100dvh!important;
+    min-height:0!important;padding:0!important;margin:0!important;
+    overflow:hidden!important;background:transparent!important;
+  }
+  .scene-game .topbar{display:none!important}
+  .scene-game .scene-body{flex:1 1 auto!important;height:100%!important;min-height:0!important;overflow:hidden!important;padding:0!important}
+  .play-layout.seated-layout{
+    position:relative!important;display:block!important;
+    width:100%!important;height:100%!important;min-height:0!important;
+    padding:0!important;margin:0!important;overflow:hidden!important;
+    background-color:#25170f!important;
+    background-image:url("images/japanese-wooden-table-indigo-mat.jpg")!important;
+    background-repeat:no-repeat!important;background-position:center center!important;
+    background-size:150% 100%!important;
+  }
+  .play-layout.seated-layout>.gameheader[hidden]{display:none!important}
+  .play-layout.seated-layout .game-board-wrap{
+    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    min-height:0!important;padding:0!important;margin:0!important;
+    border:0!important;border-radius:0!important;background:transparent!important;
+    box-shadow:none!important;overflow:hidden!important;
+  }
+  .play-layout.seated-layout .game-board-wrap::before{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:url("images/opponent-arms-fan-watercolor.png") center center/100% 100% no-repeat;
+  }
+  .play-layout.seated-layout .tabletop{
+    position:absolute!important;inset:0!important;z-index:2!important;
+    display:grid!important;grid-template-columns:124px minmax(0,1fr) 124px!important;
+    grid-template-rows:minmax(0,1fr)!important;gap:0!important;
+    width:100%!important;height:100%!important;min-height:0!important;
+    padding:0!important;margin:0!important;border:0!important;outline:0!important;
+    border-radius:0!important;background:transparent!important;box-shadow:none!important;
+    overflow:hidden!important;
+  }
+  .play-layout.seated-layout .tabletop-main{
+    grid-column:2!important;grid-row:1!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:116px minmax(0,1fr) 92px!important;
+    gap:0!important;min-width:0!important;min-height:0!important;height:100%!important;
+    padding:0!important;margin:0!important;background:transparent!important;
+    position:relative!important;z-index:3!important;
+  }
+  .play-layout.seated-layout .tabletop-main>.board-opponent,
+  .play-layout.seated-layout .tabletop-main>.board-field,
+  .play-layout.seated-layout .tabletop-main>.board-hand{
+    grid-column:1!important;min-width:0!important;min-height:0!important;
+    margin:0!important;border:0!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;outline:0!important;
+    overflow:visible!important;
+  }
+  .play-layout.seated-layout .tabletop-main>.board-opponent{
+    grid-row:1!important;position:relative!important;
+    display:flex!important;align-items:flex-end!important;justify-content:center!important;
+    padding:0 4px 4px!important;
+  }
+  .play-layout.seated-layout .opponent-label{
+    position:absolute!important;top:4px!important;left:7px!important;
+    display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+    gap:1px!important;padding:2px 5px!important;border-radius:4px!important;
+    background:#2b241a70!important;color:#fff0d2!important;
+    text-shadow:0 1px 2px #1b100b!important;z-index:2!important;
+  }
+  .play-layout.seated-layout .opponent-label strong{font:700 10px/1.2 "Yu Mincho",serif!important;color:#fff0d2!important}
+  .play-layout.seated-layout .opponent-label span{font:9px/1.1 sans-serif!important;color:#f1d8b1!important}
+  .play-layout.seated-layout .opponent-backs{
+    display:flex!important;align-items:flex-end!important;justify-content:center!important;
+    gap:3px!important;width:100%!important;min-width:0!important;
+    position:relative!important;z-index:3!important;padding:0!important;margin:0!important;
+  }
+  .play-layout.seated-layout .opponent-card-back{
+    flex:0 1 34px!important;width:34px!important;height:51px!important;min-width:0!important;
+    border:1px solid #e6c98d!important;border-radius:3px!important;
+    background:linear-gradient(135deg,#a23b36,#d17b61 48%,#8e2f2e)!important;
+    box-shadow:0 2px 5px #21140e99,inset 0 0 0 2px #f0d7a3!important;
+    display:grid!important;place-items:center!important;color:#f8e6c4!important;
+  }
+  .play-layout.seated-layout .opponent-card-back i{display:block!important;width:14px!important;height:14px!important;border-radius:50%!important;background:radial-gradient(circle at 50% 50%,#e9b967 0 1.5px,transparent 2px),radial-gradient(circle at 50% 10%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 88% 36%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 73% 86%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 27% 86%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 12% 36%,#f5dfb3 0 2.4px,transparent 2.9px)!important}
+  .play-layout.seated-layout .tabletop-main>.board-field{
+    grid-row:2!important;display:flex!important;flex-direction:column!important;
+    justify-content:center!important;gap:4px!important;
+    padding:4px 6px!important;position:relative!important;
+    background:transparent!important;
+  }
+  .play-layout.seated-layout .board-field .board-zone-caption{
+    flex:0 0 auto!important;display:flex!important;align-items:center!important;
+    justify-content:space-between!important;gap:6px!important;
+    padding:0 5px!important;margin:0!important;background:transparent!important;
+    color:#fff0d2!important;text-shadow:0 1px 3px #21130d!important;
+  }
+  .play-layout.seated-layout .board-field .board-zone-caption strong{
+    font:700 11px/1.2 "Yu Mincho",serif!important;color:#fff0d2!important;
+  }
+  .play-layout.seated-layout .board-field .board-zone-caption small{
+    font:9px sans-serif!important;color:#f2d5a4!important;
+  }
+  .play-layout.seated-layout .board-field .board-zone-caption span{
+    font:9px/1.2 sans-serif!important;color:#f2d5a4!important;
+  }
+  .play-layout.seated-layout .landscape-fieldline{
+    display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;
+    grid-template-rows:minmax(0,1fr)!important;gap:4px!important;
+    align-items:center!important;min-height:0!important;height:100%!important;
+    padding:0!important;margin:0!important;background:transparent!important;
+  }
+  .play-layout.seated-layout .field-stock{
+    grid-column:1!important;grid-row:1!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;
+    justify-content:center!important;gap:2px!important;
+    min-width:0!important;height:100%!important;padding:0!important;
+    border:0!important;background:transparent!important;
+  }
+  .play-layout.seated-layout .field-stock .stock-back::after{content:"";display:block;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#e9b967 0 1.5px,transparent 2px),radial-gradient(circle at 50% 10%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 88% 36%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 73% 86%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 27% 86%,#f5dfb3 0 2.4px,transparent 2.9px),radial-gradient(circle at 12% 36%,#f5dfb3 0 2.4px,transparent 2.9px)}
+.play-layout.seated-layout .field-stock .stock-back{
+    display:grid!important;place-items:center!important;width:31px!important;height:46px!important;
+    border:2px solid #e7cb94!important;border-radius:3px!important;
+    background:linear-gradient(135deg,#8d3531,#b94c40)!important;color:#f9e9c9!important;
+    box-shadow:0 3px 5px #1a100b99!important;font-size:12px!important;
+  }
+  .play-layout.seated-layout .field-stock small{
+    display:block!important;font:8px/1.1 sans-serif!important;white-space:nowrap!important;
+    color:#fff0d2!important;text-shadow:0 1px 3px #21130d!important;
+  }
+  .play-layout.seated-layout .fieldcards{
+    grid-column:2!important;grid-row:1!important;
+    display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+    align-content:center!important;align-items:center!important;justify-content:center!important;
+    gap:4px!important;min-width:0!important;min-height:0!important;height:100%!important;
+    padding:2px 4px!important;margin:0!important;overflow:visible!important;
+    background:transparent!important;border:0!important;box-shadow:none!important;
+  }
+  .play-layout.seated-layout .fieldcards>.hana,
+  .play-layout.seated-layout .fieldcards>.card-slot>.hana{
+    flex:0 1 43px!important;width:43px!important;min-width:0!important;max-width:43px!important;
+    height:auto!important;min-height:0!important;max-height:70px!important;
+    aspect-ratio:512/839!important;object-fit:contain!important;
+    border:0!important;border-radius:2px!important;background:transparent!important;
+    box-shadow:none!important;filter:drop-shadow(1px 3px 3px #1a100bcc)!important;
+  }
+  .play-layout.seated-layout .fieldcards .card-slot{display:contents!important}
+  .play-layout.seated-layout .fieldcards .card-name{display:none!important}
+  .play-layout.seated-layout .tabletop-main>.board-hand{
+    grid-row:3!important;position:relative!important;display:flex!important;
+    flex-direction:column!important;justify-content:flex-end!important;align-items:center!important;
+    padding:0 4px 5px!important;background:transparent!important;
+  }
+  .play-layout.seated-layout .board-hand .board-zone-caption{
+    position:absolute!important;top:0!important;left:7px!important;
+    display:flex!important;gap:5px!important;align-items:center!important;
+    padding:1px 5px!important;margin:0!important;border-radius:3px!important;
+    background:#2b241a70!important;color:#fff0d2!important;text-shadow:0 1px 2px #1b100b!important;
+  }
+  .play-layout.seated-layout .board-hand .board-zone-caption strong{font:700 10px/1.2 "Yu Mincho",serif!important;color:#fff0d2!important}
+  .play-layout.seated-layout .board-hand .board-zone-caption span{font:9px/1.2 sans-serif!important;color:#f2d5a4!important}
+  .play-layout.seated-layout .handcards{
+    display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+    justify-content:center!important;align-items:flex-end!important;gap:3px!important;
+    width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+    padding:0 0 1px!important;margin:0!important;overflow:visible!important;
+    background:transparent!important;border:0!important;box-shadow:none!important;
+  }
+  .play-layout.seated-layout .handcards>.hana,
+  .play-layout.seated-layout .handcards>.card-slot>.hana{
+    flex:0 1 37px!important;width:37px!important;min-width:0!important;max-width:37px!important;
+    height:auto!important;min-height:0!important;max-height:63px!important;
+    aspect-ratio:512/839!important;object-fit:contain!important;
+    border:0!important;border-radius:2px!important;background:transparent!important;
+    box-shadow:0 2px 5px #130c08bb!important;
+  }
+  .play-layout.seated-layout .handcards .card-slot{display:contents!important}
+  .play-layout.seated-layout .handcards .card-name{display:none!important}
+  .play-layout.seated-layout .board-side{
+    position:relative!important;z-index:4!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(0,1.1fr) minmax(0,1fr)!important;
+    gap:5px!important;min-width:0!important;min-height:0!important;height:100%!important;
+    padding:112px 3px 34px!important;margin:0!important;
+    background:transparent!important;border:0!important;box-shadow:none!important;
+  }
+  .play-layout.seated-layout .board-side.opponent-side{grid-column:1!important;grid-row:1!important}
+  .play-layout.seated-layout .board-side.player-side{grid-column:3!important;grid-row:1!important}
+  .play-layout.seated-layout .board-taken,
+  .play-layout.seated-layout .board-yaku{
+    display:flex!important;flex-direction:column!important;
+    min-width:0!important;min-height:0!important;overflow:hidden!important;
+    padding:3px 3px 2px!important;margin:0!important;
+    border:1px solid #e1c38a88!important;border-radius:5px!important;
+    background:#1d241c70!important;box-shadow:inset 0 0 9px #120d0870!important;
+    color:#fff0d2!important;
+  }
+  .play-layout.seated-layout .board-side-heading{
+    flex:0 0 16px!important;min-width:0!important;height:16px!important;
+    display:flex!important;align-items:center!important;justify-content:space-between!important;
+    gap:2px!important;padding:0 1px 2px!important;margin:0!important;
+    border-bottom:1px solid #e8c98b88!important;white-space:nowrap!important;
+  }
+  .play-layout.seated-layout .board-side-heading strong{
+    min-width:0!important;font:700 8px/1.1 "Yu Mincho",serif!important;
+    color:#fff0d2!important;text-shadow:0 1px 2px #100a07!important;
+  }
+  .play-layout.seated-layout .board-side-heading span{
+    flex:0 0 auto!important;font:8px/1 sans-serif!important;
+    color:#f4d18f!important;text-shadow:0 1px 2px #100a07!important;
+  }
+  .play-layout.seated-layout .board-taken-grid{
+    flex:1 1 auto!important;display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-auto-rows:36px!important;align-content:start!important;justify-items:center!important;
+    gap:2px!important;min-width:0!important;min-height:0!important;
+    padding:3px 0!important;margin:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+    background:transparent!important;scrollbar-width:thin!important;
+    scrollbar-color:#c5a16b #37291f!important;overscroll-behavior:contain!important;
+  }
+  .play-layout.seated-layout .board-taken-card{
+    display:grid!important;place-items:center!important;
+    width:100%!important;height:35px!important;min-height:0!important;max-height:35px!important;
+    padding:0!important;margin:0!important;border:0!important;border-radius:1px!important;
+    background:transparent!important;box-shadow:none!important;overflow:visible!important;
+  }
+  .play-layout.seated-layout .board-taken-card img{
+    display:block!important;width:auto!important;height:33px!important;min-height:33px!important;
+    max-width:22px!important;max-height:33px!important;object-fit:contain!important;
+    filter:drop-shadow(1px 2px 2px #100a07bb)!important;
+  }
+  .play-layout.seated-layout .taken-browse-button{
+    flex:0 0 15px!important;display:flex!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;height:15px!important;min-height:15px!important;max-height:15px!important;
+    padding:0!important;margin:0!important;border:1px solid #c7a56e!important;border-radius:3px!important;
+    background:linear-gradient(145deg,#243d37,#102b27)!important;color:#fff0d2!important;
+    font:700 8px/13px sans-serif!important;white-space:nowrap!important;
+  }
+  .play-layout.seated-layout .board-yaku-list{
+    flex:1 1 auto!important;display:flex!important;flex-direction:column!important;
+    gap:3px!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+    padding:3px 0!important;margin:0!important;overscroll-behavior:contain!important;
+  }
+  .play-layout.seated-layout .board-yaku-item{
+    flex:0 0 auto!important;display:flex!important;flex-direction:column!important;
+    gap:2px!important;min-width:0!important;padding:2px 1px!important;margin:0!important;
+    border:0!important;border-bottom:1px solid #e8c98b55!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;
+  }
+  .play-layout.seated-layout .board-yaku-item>strong{
+    flex:0 0 auto!important;font:700 8px/1.15 "Yu Mincho",serif!important;
+    color:#fff0d2!important;text-shadow:0 1px 2px #100a07!important;
+  }
+  .play-layout.seated-layout .board-yaku-item>strong small{
+    color:#f4d18f!important;font:8px sans-serif!important;
+  }
+  .play-layout.seated-layout .board-yaku-item.is-near>strong small{color:#f7c36c!important}
+  .play-layout.seated-layout .board-yaku-cards{
+    display:flex!important;align-items:center!important;gap:2px!important;
+    min-height:0!important;overflow:visible!important;
+  }
+  .play-layout.seated-layout .board-yaku-cards img{
+    flex:0 0 auto!important;width:auto!important;height:27px!important;min-height:27px!important;
+    max-width:18px!important;max-height:27px!important;object-fit:contain!important;
+    filter:drop-shadow(1px 2px 2px #100a07bb)!important;
+  }
+  .play-layout.seated-layout .board-side-empty{
+    display:block!important;margin:auto!important;padding:3px!important;
+    color:#f1dfc0!important;font:8px/1.3 sans-serif!important;text-align:center!important;
+    text-shadow:0 1px 2px #100a07!important;
+  }
+  .play-layout.seated-layout .board-yaku-multiplier{
+    flex:0 0 auto!important;color:#f4d18f!important;font-size:8px!important;
+  }
+  .play-layout.seated-layout .table-edge-controls{
+    position:absolute!important;top:5px!important;right:5px!important;z-index:7!important;
+    display:flex!important;align-items:center!important;gap:4px!important;
+    padding:3px!important;border:1px solid #b98c56!important;border-radius:4px!important;
+    background:linear-gradient(145deg,#573b27e8,#2b2118e8)!important;
+    box-shadow:0 2px 4px #160d08a0!important;
+  }
+  .play-layout.seated-layout .round-score-plaque{
+    display:flex!important;flex-direction:column!important;gap:1px!important;
+    padding:0 3px!important;color:#fff0d2!important;white-space:nowrap!important;
+  }
+  .play-layout.seated-layout .round-score-plaque strong{font:700 8px/1.1 "Yu Mincho",serif!important}
+  .play-layout.seated-layout .round-score-plaque small{font:8px/1.1 sans-serif!important;color:#f4d18f!important}
+  .play-layout.seated-layout .edge-save-button{
+    flex:0 0 auto!important;min-height:18px!important;height:18px!important;
+    padding:1px 5px!important;border:1px solid #b89565!important;border-radius:3px!important;
+    background:linear-gradient(#e7d2ad,#c2a074)!important;color:#4b3525!important;
+    font:700 8px/14px sans-serif!important;white-space:nowrap!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide{
+    position:absolute!important;top:5px!important;left:132px!important;z-index:6!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr) 118px!important;
+    grid-template-rows:minmax(0,1fr)!important;align-items:center!important;gap:5px!important;
+    width:clamp(205px,29vw,255px)!important;max-width:calc(100% - 300px)!important;
+    min-width:0!important;min-height:0!important;max-height:105px!important;
+    padding:5px 6px!important;margin:0!important;overflow:hidden!important;
+    border:1px solid #c6a36e!important;border-left:3px solid #a94b39!important;
+    border-radius:5px!important;background:linear-gradient(115deg,#fff3d9ed,#e8d2a9ed)!important;
+    box-shadow:0 3px 7px #160d0870!important;color:#4b3525!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-companion{display:none!important}
+  .play-layout.seated-layout .teacher-seat-guide .teacher-speech{
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    min-width:0!important;min-height:0!important;max-height:100%!important;
+    padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;overflow:hidden!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-speech small{
+    flex:0 0 auto!important;margin:0 0 2px!important;color:#93623d!important;
+    font:9px/1.1 "Yu Mincho",serif!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-speech h3{
+    flex:0 0 auto!important;margin:0 0 2px!important;color:#4f3425!important;
+    font:700 11px/1.2 "Yu Mincho",serif!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-speech p{
+    display:-webkit-box!important;flex:0 1 auto!important;min-height:0!important;
+    margin:0!important;color:#5e4935!important;font:9px/1.25 "Yu Mincho",serif!important;
+    -webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-visual{display:none!important}
+  .play-layout.seated-layout .teacher-seat-guide .teacher-actions{
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    align-items:stretch!important;gap:3px!important;min-width:0!important;min-height:0!important;
+    max-height:100%!important;margin:0!important;overflow:hidden!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-actions button{
+    width:100%!important;min-width:0!important;min-height:27px!important;height:auto!important;
+    padding:3px 4px!important;border:1px solid #a77d4e!important;border-radius:4px!important;
+    background:linear-gradient(#f8e8c6,#dfc18d)!important;color:#533824!important;
+    box-shadow:0 1px 2px #6b4b2d55!important;font:700 9px/1.2 "Yu Mincho",serif!important;
+  }
+  .play-layout.seated-layout.tutorial-decision-only .teacher-seat-guide{
+    grid-template-columns:minmax(0,1fr)!important;width:220px!important;max-width:calc(100% - 300px)!important;
+  }
+  .play-layout.seated-layout.tutorial-decision-only .teacher-speech{display:none!important}
+  .play-layout.seated-layout.tutorial-decision-only .teacher-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;
+  }
+  .play-layout.seated-layout.tutorial-decision-only .teacher-actions button{
+    min-height:38px!important;font-size:11px!important;
+  }
+  .play-layout.seated-layout .result{z-index:8!important;inset:112px 128px 100px!important}
+  .play-layout.seated-layout .game-dialog{z-index:20!important}
+  .play-layout.seated-layout .board-taken-grid::-webkit-scrollbar{width:5px}
+  .play-layout.seated-layout .board-taken-grid::-webkit-scrollbar-track{background:#37291f;border-radius:3px}
+  .play-layout.seated-layout .board-taken-grid::-webkit-scrollbar-thumb{background:#c5a16b;border-radius:3px}
+  .play-layout.seated-layout .board-yaku-list::-webkit-scrollbar{width:4px}
+  .play-layout.seated-layout .board-yaku-list::-webkit-scrollbar-thumb{background:#c5a16b;border-radius:3px}
+  .play-layout.seated-layout .hana.selected{transform:translateY(-3px)!important}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:108px minmax(0,1fr) 108px!important}
+  .play-layout.seated-layout .tabletop-main{grid-template-rows:108px minmax(0,1fr) 86px!important}
+  .play-layout.seated-layout .board-side{padding-top:108px!important;padding-bottom:31px!important}
+  .play-layout.seated-layout .teacher-seat-guide{left:114px!important;max-width:calc(100% - 250px)!important}
+  .play-layout.seated-layout .opponent-card-back{flex-basis:30px!important;width:30px!important;height:45px!important}
+  .play-layout.seated-layout .fieldcards>.hana{flex-basis:39px!important;width:39px!important;max-width:39px!important}
+  .play-layout.seated-layout .handcards>.hana{flex-basis:34px!important;width:34px!important;max-width:34px!important}
+}
+@media (orientation:landscape) and (max-height:620px){
+  .teacher-avatar img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+  .teacher-avatar svg{display:none}
+}
+
+
+/* Refinement: readable upper dialogue and visible learning illustrations. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:132px minmax(0,1fr) 132px!important}
+  .play-layout.seated-layout .board-side{padding-left:4px!important;padding-right:4px!important}
+  .play-layout.seated-layout .board-side-heading strong{font-size:9px!important}
+  .play-layout.seated-layout .board-side-heading span{font-size:9px!important}
+  .play-layout.seated-layout .board-yaku-item>strong{font-size:9px!important}
+  .play-layout.seated-layout .board-yaku-item>strong small{font-size:9px!important}
+  .play-layout.seated-layout .teacher-seat-guide.no-actions{
+    grid-template-columns:minmax(0,1fr)!important;width:245px!important;max-width:calc(100% - 300px)!important;
+  }
+  .play-layout.seated-layout .teacher-seat-guide .teacher-visual{display:flex!important;flex:0 0 auto!important;margin-top:2px!important}
+  .play-layout.seated-layout .teacher-seat-guide .teacher-capture{gap:2px!important;max-height:25px!important;overflow:hidden!important}
+  .play-layout.seated-layout .teacher-seat-guide .teacher-capture img{height:23px!important;max-height:23px!important;width:auto!important}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:116px minmax(0,1fr) 116px!important}
+  .play-layout.seated-layout .teacher-seat-guide.no-actions{left:124px!important;max-width:calc(100% - 270px)!important}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:148px minmax(0,1fr) 148px!important}
+  .play-layout.seated-layout .board-side{padding-left:5px!important;padding-right:5px!important}
+  .play-layout.seated-layout .board-side-heading{flex-basis:18px!important;height:18px!important}
+  .play-layout.seated-layout .board-side-heading strong{font-size:10px!important}
+  .play-layout.seated-layout .board-side-heading span{font-size:9px!important}
+  .play-layout.seated-layout .board-taken-grid{grid-auto-rows:39px!important}
+  .play-layout.seated-layout .board-taken-card{height:38px!important;max-height:38px!important}
+  .play-layout.seated-layout .board-taken-card img{height:36px!important;min-height:36px!important;max-height:36px!important;max-width:24px!important}
+  .play-layout.seated-layout .board-yaku-item>strong{font-size:10px!important}
+  .play-layout.seated-layout .board-yaku-item>strong small{font-size:9px!important}
+  .play-layout.seated-layout .board-yaku-cards img{height:29px!important;min-height:29px!important;max-height:29px!important;max-width:20px!important}
+  .play-layout.seated-layout .board-side-empty{font-size:9px!important}
+  .play-layout.seated-layout .board-field .board-zone-caption strong{font-size:12px!important}
+  .play-layout.seated-layout .board-field .board-zone-caption span{font-size:10px!important}
+  .play-layout.seated-layout .board-hand .board-zone-caption strong{font-size:11px!important}
+  .play-layout.seated-layout .round-score-plaque strong{font-size:9px!important}
+  .play-layout.seated-layout .round-score-plaque small{font-size:9px!important}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:126px minmax(0,1fr) 126px!important}
+  .play-layout.seated-layout .board-side{padding-top:108px!important}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:160px minmax(0,1fr) 160px!important}
+  .play-layout.seated-layout .board-side{padding-left:5px!important;padding-right:5px!important}
+  .play-layout.seated-layout .board-side-heading{flex-basis:19px!important;height:19px!important}
+  .play-layout.seated-layout .board-side-heading strong{font-size:11px!important}
+  .play-layout.seated-layout .board-side-heading span{font-size:10px!important}
+  .play-layout.seated-layout .board-taken-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:44px!important}
+  .play-layout.seated-layout .board-taken-card{height:43px!important;max-height:43px!important}
+  .play-layout.seated-layout .board-taken-card img{height:41px!important;min-height:41px!important;max-height:41px!important;max-width:28px!important}
+  .play-layout.seated-layout .board-yaku-item>strong{font-size:10.5px!important}
+  .play-layout.seated-layout .board-yaku-item>strong small{font-size:10px!important}
+  .play-layout.seated-layout .board-yaku-cards img{height:33px!important;min-height:33px!important;max-height:33px!important;max-width:22px!important}
+  .play-layout.seated-layout .board-side-empty{font-size:10px!important}
+  .play-layout.seated-layout .board-field .board-zone-caption strong{font-size:12px!important}
+  .play-layout.seated-layout .board-field .board-zone-caption span{font-size:10px!important}
+  .play-layout.seated-layout .board-hand .board-zone-caption strong{font-size:11px!important}
+  .play-layout.seated-layout .round-score-plaque strong{font-size:10px!important}
+  .play-layout.seated-layout .round-score-plaque small{font-size:9px!important}
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout.seated-layout .tabletop{grid-template-columns:136px minmax(0,1fr) 136px!important}
+  .play-layout.seated-layout .board-side{padding-top:108px!important}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .tabletop-main{row-gap:3px!important}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .handcards>.hana,
+  .play-layout.seated-layout .handcards>.card-slot>.hana{
+    flex-basis:40px!important;width:40px!important;max-width:40px!important;max-height:66px!important;
+  }
+}
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+  .play-layout.seated-layout .handcards>.hana,
+  .play-layout.seated-layout .handcards>.card-slot>.hana{
+    flex-basis:34px!important;width:34px!important;max-width:34px!important;max-height:56px!important;
+  }
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout.tutorial-decision-only .board-taken,
+  .play-layout.seated-layout.tutorial-decision-only .board-yaku,
+  .play-layout.seated-layout.tutorial-decision-only .board-zone-caption,
+  .play-layout.seated-layout.tutorial-decision-only .field-stock small{
+    display:none!important;
+  }
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .fieldcards{flex-wrap:nowrap!important}
+  .play-layout.seated-layout .fieldcards.dense{gap:2px!important}
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .scene-game:not(:has(.seated-layout)) .topbar{display:flex!important}
+}
+
+/* 2026-11-17 review: faceless opponent arms and fully visible decision state. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .teacher-seat-guide{top:9px!important;align-items:start!important;padding:7px 8px!important;}
+  .play-layout.seated-layout .opponent-label{left:auto!important;right:7px!important;top:4px!important;}
+  .play-layout.seated-layout .teacher-seat-guide .teacher-speech{justify-content:flex-start!important;overflow:visible!important;}
+  .play-layout.seated-layout .teacher-seat-guide .teacher-speech small{display:block!important;flex:0 0 auto!important;line-height:14px!important;min-height:14px!important;margin:0 0 4px!important;padding:1px 0 0!important;color:#59391f!important;font-weight:700!important;overflow:visible!important;}
+  .play-layout.seated-layout .board-side{padding-bottom:5px!important;}
+  .play-layout.seated-layout .board-hand .board-zone-caption{top:1px!important;z-index:5!important;min-height:15px!important;line-height:15px!important;}
+  .play-layout.seated-layout .handcards{height:calc(100% - 18px)!important;max-height:calc(100% - 18px)!important;position:relative!important;z-index:1!important;}
+  .play-layout.seated-layout.tutorial-decision-only .board-taken,
+  .play-layout.seated-layout.tutorial-decision-only .board-yaku{display:flex!important;}
+  .play-layout.seated-layout.tutorial-decision-only .board-side{padding-top:112px!important;padding-bottom:5px!important;}
+}
+/* Reserve enough vertical space for both current-yaku rows, including their card thumbnails. */
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout .board-side{grid-template-rows:minmax(0,.82fr) minmax(0,1.18fr)!important;}
+  .play-layout.seated-layout .board-yaku-cards img{height:28px!important;min-height:28px!important;max-height:28px!important;}
+}
