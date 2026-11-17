@@ -10299,6 +10299,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var selectedYakuIndex = 0;
   var gameDialog = null;
   var gameDialogReturn = null;
+  var pendingStart = null;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
@@ -10535,6 +10536,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function credits() {
     return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "home", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p><p class="lead">\u30DB\u30FC\u30E0\u770B\u677F\u306E\u66F8\u4F53\uFF1AYuji Syuku\uFF08Kinuta Font Factory\uFF0FThe Yuji Project Authors\uFF09\u3002SIL Open Font License 1.1\u3002\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F docs/licenses/YujiSyuku-OFL.txt \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002</p></div>');
   }
+  function replacementConfirmView() {
+    return '<div class="replace-game-backdrop"><section class="replace-game-dialog" role="alertdialog" aria-modal="true" aria-labelledby="replace-game-title" aria-describedby="replace-game-description"><span class="replace-game-kicker">NEW GAME</span><h2 id="replace-game-title">\u65B0\u3057\u3044\u5BFE\u5C40\u3092\u59CB\u3081\u307E\u3059\u304B\uFF1F</h2><p id="replace-game-description">\u4ECA\u306E\u5BFE\u5C40\u306E\u9014\u4E2D\u72B6\u614B\u306F\u7F6E\u304D\u63DB\u308F\u308A\u307E\u3059\u3002\u7D9A\u304D\u304B\u3089\u518D\u958B\u3059\u308B\u3053\u3068\u306F\u3067\u304D\u306A\u304F\u306A\u308A\u307E\u3059\u304C\u3001\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u306E\u8A18\u9332\u3084\u8A2D\u5B9A\u306F\u305D\u306E\u307E\u307E\u6B8B\u308A\u307E\u3059\u3002</p><div class="replace-game-actions"><button type="button" class="replace-game-cancel" data-action="cancel-replace-game">\u4ECA\u306E\u5BFE\u5C40\u306B\u623B\u308B</button><button type="button" class="replace-game-confirm" data-action="confirm-replace-game">\u65B0\u3057\u304F\u59CB\u3081\u308B</button></div></section></div>';
+  }
+  function requestStartConfirmation(retry) {
+    if (!state.active || state.active.finished) return false;
+    pendingStart = retry;
+    render();
+    $("app").querySelector('[data-action="cancel-replace-game"]')?.focus();
+    return true;
+  }
   function render() {
     document.title = "\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044";
     $("app").innerHTML = {
@@ -10548,7 +10559,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       settings: settingsView,
       game: gameView,
       credits
-    }[screen]();
+    }[screen]() + (pendingStart ? replacementConfirmView() : "");
   }
   function recordIfDone() {
     const g = state.active;
@@ -10583,8 +10594,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       await ads.recordCommittedAction();
     }
   }
-  function start(mode, len, month, tutorial = false) {
-    if (state.active && !state.active.finished && !window.confirm("\u73FE\u5728\u306E\u5BFE\u5C40\u3092\u65B0\u3057\u304F\u59CB\u3081\u76F4\u3057\u307E\u3059\u304B\uFF1F")) return;
+  function start(mode, len, month, tutorial = false, confirmed = false) {
+    if (!confirmed && requestStartConfirmation(() => start(mode, len, month, tutorial, true))) return;
     state.active = createGame({
       mode,
       length: len,
@@ -10607,8 +10618,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     save();
     render();
   }
-  function startTeaching(optional = false) {
-    if (state.active && !state.active.finished && !window.confirm("\u73FE\u5728\u306E\u5BFE\u5C40\u3092\u65B0\u3057\u304F\u59CB\u3081\u76F4\u3057\u307E\u3059\u304B\uFF1F")) return;
+  function startTeaching(optional = false, confirmed = false) {
+    if (!confirmed && requestStartConfirmation(() => startTeaching(optional, true))) return;
     if (optional) {
       const game = createGame({ mode: "free", length: 3, month: 1, beginner: true, difficulty: 1 });
       game.tutorial = true;
@@ -10628,8 +10639,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     save();
     render();
   }
-  function startBeginnerFree() {
-    if (state.active && !state.active.finished && !window.confirm("\u73FE\u5728\u306E\u5BFE\u5C40\u3092\u65B0\u3057\u304F\u59CB\u3081\u76F4\u3057\u307E\u3059\u304B\uFF1F")) return;
+  function startBeginnerFree(confirmed = false) {
+    if (!confirmed && requestStartConfirmation(() => startBeginnerFree(true))) return;
     state.active = createGame({ mode: "free", length: 3, month: 1, beginner: true, difficulty: 1 });
     selectedHand = null;
     gameDialog = null;
@@ -10655,6 +10666,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const action = button.dataset.action, id = button.dataset.id, m = Number(button.dataset.month || 0), val = button.dataset.value;
     if (action === "dismiss-toast") {
       hideToast();
+      return;
+    }
+    if (action === "cancel-replace-game") {
+      pendingStart = null;
+      render();
+      return;
+    }
+    if (action === "confirm-replace-game") {
+      const retry = pendingStart;
+      pendingStart = null;
+      if (retry) retry();
       return;
     }
     if (state.active?.tutorial && screen === "game") {
