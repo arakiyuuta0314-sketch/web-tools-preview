@@ -33,9 +33,9 @@ for app in apps:
     status="開発中" if app["stage"]=="開発中" else "Web版"
     items.append('''<a class="app" href="{url}">
       <span class="emoji" aria-hidden="true">{emoji}</span>
-      <span class="body"><strong>{name}</strong><small>{status}</small></span>
+      <span class="body"><strong>{name}</strong><small>{status}</small><small class="version">{version}</small></span>
       <span class="arrow" aria-hidden="true">→</span>
-    </a>'''.format(url=e(app["url"]),emoji=e(app["emoji"]),name=e(app["name"]),status=e(status)))
+    </a>'''.format(url=e(app["url"]),emoji=e(app["emoji"]),name=e(app["name"]),status=e(status),version=e(app.get("version", ""))))
 
 html='''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
