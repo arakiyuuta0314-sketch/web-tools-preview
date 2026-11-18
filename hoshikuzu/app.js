@@ -17060,7 +17060,7 @@
     if (!Number.isFinite(W2) || !Number.isFinite(H2) || W2 < 220 || H2 < 165)
       throw Error("Side-view battle viewport too small");
     const horizon = Math.round(H2 * 0.59), groundY = Math.round(H2 * 0.71), foot = Math.round(H2 * 0.84);
-    const enemyX = Math.round(W2 * 0.5), heroX = Math.round(W2 * 0.86);
+    const enemyX = Math.round(W2 * 0.26), heroX = Math.round(W2 * 0.86);
     return Object.freeze({
       horizon,
       groundY,
@@ -18566,7 +18566,7 @@
     const enemyFoot = layout.foot;
     ctx.save();
     ctx.translate(layout.enemyX + foeRecoil, enemyFoot);
-    ctx.scale(enemyScale, enemyScale);
+    ctx.scale(-enemyScale, enemyScale);
     if (b.hp === 0) ctx.globalAlpha = impact?.defeated && progress < 0.85 ? (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8) : 0;
     if (area === "cave" && b.id === "m06" && retroAssetsReady()) {
       ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
@@ -18997,12 +18997,12 @@
     $panel.removeAttribute("data-panel-type");
     $content.replaceChildren();
   }
-  function markMenu() {
+  function markMenu(scroll = true) {
     (panelMode ? [...$content.querySelectorAll("button[data-command-index]")] : battleButtons).forEach((btn, i) => {
       const active = i === menuIndex;
       btn.classList.toggle("is-selected", active);
       btn.setAttribute("aria-current", active ? "true" : "false");
-      if (panelMode && active && document.activeElement !== btn) btn.scrollIntoView({ block: "nearest", inline: "nearest" });
+      if (scroll && panelMode && active && document.activeElement !== btn) btn.scrollIntoView({ block: "nearest", inline: "nearest" });
     });
   }
   function steerMenu(dir) {
@@ -19052,7 +19052,8 @@
       });
       $content.append(btn);
     });
-    markMenu();
+    $panel.scrollTop = 0;
+    markMenu(false);
   }
   function fatal(err) {
     console.error("[RPG]", err);
@@ -19129,15 +19130,44 @@
   function spellCost(sp) {
     return Math.max(1, sp.mp - (state?.equipment.accessory === "star-orb" ? 1 : 0));
   }
+  function spellDescription(sp) {
+    switch (sp.kind) {
+      case "heal":
+        return `\u81EA\u5206\u306EHP\u3092\u6700\u5927${sp.power}\u56DE\u5FA9\u3059\u308B\u3002`;
+      case "damage":
+        return `\u6575\u306B\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3002\u5A01\u529B${sp.power}\u306B\u22123\u301C+3\u306E\u4E71\u6570\u3092\u52A0\u3048\u3001\u6575\u306E\u5B88\u5099\u529B\u306E3\u5206\u306E1\uFF08\u5207\u308A\u6368\u3066\uFF09\u3092\u5F15\u304F\u3002\u6700\u4F4E1\u30C0\u30E1\u30FC\u30B8\u3002`;
+      case "sleep":
+        return "\u6575\u3092\u7720\u3089\u305B\u3001\u5531\u3048\u305F\u30BF\u30FC\u30F3\u304B\u30893\u30BF\u30FC\u30F3\u884C\u52D5\u3092\u6B62\u3081\u308B\u3002\u9B54\u738B\u30F4\u30A9\u30EB\u30C9\u306B\u306F\u52B9\u304B\u306A\u3044\u3002";
+      case "silence":
+        return "\u5531\u3048\u305F\u30BF\u30FC\u30F3\u304B\u30894\u30BF\u30FC\u30F3\u3001\u6575\u306E\u546A\u6587\u3092\u5C01\u3058\u308B\u3002\u9B54\u738B\u30F4\u30A9\u30EB\u30C9\u306B\u306F\u52B9\u304B\u306A\u3044\u3002";
+      case "ward":
+        return "\u5531\u3048\u305F\u30BF\u30FC\u30F3\u304B\u30894\u30BF\u30FC\u30F3\u3001\u6575\u306E\u653B\u6483\u3084\u8853\u3067\u53D7\u3051\u308B\u30C0\u30E1\u30FC\u30B8\u3092\u534A\u5206\uFF08\u7AEF\u6570\u5207\u308A\u4E0A\u3052\uFF09\u306B\u3059\u308B\u3002";
+      case "light":
+        return "\u6B21\u306E45\u6B69\u3001\u9B54\u7269\u3068\u306E\u906D\u9047\u7387\u304C\u901A\u5E38\u306E45%\u306B\u306A\u308A\u3001\u30C0\u30F3\u30B8\u30E7\u30F3\u3067\u306F\u8DB3\u5143\u306B\u5149\u304C\u51FA\u308B\u3002\u30DE\u30C3\u30D7\u306E\u51FA\u5165\u53E3\u3092\u901A\u308B\u3068\u52B9\u679C\u304C\u5207\u308C\u308B\u3002";
+      case "return":
+        return "\u30EA\u30FC\u30D5\u30A1\u306E\u753A\u3078\u623B\u308B\u3002\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3067\u306F\u4F7F\u3048\u306A\u3044\u3002";
+      case "escape":
+        return "\u8A66\u7DF4\u306E\u6D1E\u7A9F\u30FB\u6C88\u9ED9\u306E\u907A\u8DE1\u30FB\u9ED2\u66DC\u57CE\u30AA\u30CB\u30AD\u30B9\u306E\u5916\u306B\u51FA\u308B\u3002";
+    }
+  }
   function spellMenu(inBattle = false) {
     const known = CATALOG.spells.filter((sp) => state.player.level >= sp.level);
     const choices = known.map((sp) => ({
       label: sp.name + " / " + spellCost(sp) + "MP",
-      disabled: state.player.mp < spellCost(sp) || (inBattle ? !["heal", "damage", "sleep", "silence", "ward"].includes(sp.kind) : !["heal", "light", "return", "escape"].includes(sp.kind)),
-      run: () => inBattle ? performBattle({ type: "spell", id: sp.id }) : castFieldSpell(sp)
+      run: () => spellDetails(sp, inBattle)
     }));
     choices.push({ label: "\u3082\u3069\u308B", run: () => inBattle ? battleChoices() : showMenu(), wide: true });
-    openPanel("\u3058\u3085\u3082\u3093", choices, inBattle ? "" : "\u899A\u3048\u3066\u3044\u308B\u546A\u6587\uFF1A" + known.map((sp) => sp.name).join("\u30FB"));
+    openPanel("\u3058\u3085\u3082\u3093", choices);
+  }
+  function spellDetails(sp, inBattle) {
+    const back = () => spellMenu(inBattle);
+    const cost = spellCost(sp);
+    const usableKinds = inBattle ? ["heal", "damage", "sleep", "silence", "ward"] : ["heal", "light", "return", "escape"];
+    const unavailable = !usableKinds.includes(sp.kind) ? "\u3053\u3053\u3067\u306F\u4F7F\u3048\u306A\u3044\u546A\u6587\u3067\u3059\u3002" : state.player.mp < cost ? "MP\u304C\u8DB3\u308A\u307E\u305B\u3093\u3002" : "";
+    openPanel(sp.name, [
+      { label: "\u5531\u3048\u308B", disabled: Boolean(unavailable), run: () => inBattle ? performBattle({ type: "spell", id: sp.id }) : castFieldSpell(sp) },
+      { label: "\u3084\u3081\u308B", run: back }
+    ], ["\u6D88\u8CBBMP " + cost + "\u3002" + spellDescription(sp), unavailable].filter(Boolean).join("\n"), back);
   }
   function castFieldSpell(sp) {
     closePanel();
@@ -19190,19 +19220,39 @@
   function itemMenu(inBattle = false) {
     const choices = CATALOG.items.filter((i) => state.inventory[i.id] > 0).map((item) => ({
       label: item.name + " \xD7" + state.inventory[item.id],
-      disabled: item.id === "iron-key" || (inBattle ? false : item.id === "smoke"),
-      run: () => {
-        if (inBattle) performBattle({ type: "item", id: item.id });
-        else {
-          const r2 = useItem(state, item.id);
-          closePanel();
-          storeAndSet(r2.state, r2.used);
-          message([r2.message]);
-        }
-      }
+      run: () => itemDetails(item, inBattle)
     }));
     choices.push({ label: "\u3082\u3069\u308B", run: () => inBattle ? battleChoices() : showMenu(), wide: true });
     openPanel("\u3069\u3046\u3050", choices, inBattle ? "" : "\u6240\u6301\u54C1\u306E\u4E00\u89A7\u3067\u3059\u3002" + (state.relics.includes("beginning-sword") ? " \u5927\u5207\u306A\u3082\u306E\uFF1A\u306F\u3058\u307E\u308A\u306E\u5263\uFF08\u58F2\u5374\u3067\u304D\u307E\u305B\u3093\uFF09" : ""));
+  }
+  function itemDescription(item) {
+    switch (item.effect) {
+      case "hp":
+        return `\u81EA\u5206\u306EHP\u3092\u6700\u5927${item.amount}\u56DE\u5FA9\u3059\u308B\u3002`;
+      case "poison":
+        return "\u81EA\u5206\u306E\u6BD2\u3092\u6CBB\u3059\u3002";
+      case "escape":
+        return "\u30E9\u30F3\u30C0\u30E0\u906D\u9047\u306E\u6226\u95D8\u304B\u3089\u78BA\u5B9F\u306B\u9003\u3052\u308B\u3002\u30A4\u30D9\u30F3\u30C8\u6226\u3067\u306F\u4F7F\u3048\u306A\u3044\u3002";
+      case "gate":
+        return "\u9244\u306E\u9580\u3084\u907A\u8DE1\u306E\u5BC4\u308A\u9053\u306E\u6249\u3092\u958B\u3051\u308B\u3002\u5BFE\u8C61\u3092\u8ABF\u3079\u308B\u3068\u4F7F\u3048\u308B\u3002";
+    }
+  }
+  function itemDetails(item, inBattle) {
+    const back = () => itemMenu(inBattle);
+    const disabled = item.effect === "gate" || !inBattle && item.effect === "escape";
+    openPanel(item.name, [
+      { label: "\u4F7F\u3046", disabled, run: () => {
+        if (inBattle) {
+          performBattle({ type: "item", id: item.id });
+          return;
+        }
+        const r2 = useItem(state, item.id);
+        closePanel();
+        storeAndSet(r2.state, r2.used);
+        message([r2.message]);
+      } },
+      { label: "\u3084\u3081\u308B", run: back }
+    ], itemDescription(item), back);
   }
   function equipmentMenu() {
     const owned = Object.entries(CATALOG.equipment).flatMap(([category, list]) => list.filter((e) => ownsEquipment(state, category, e.id)).map((e) => ({ ...e, category })));
