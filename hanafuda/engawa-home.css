@@ -15,7 +15,7 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-object.engawa-board{
  position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;
  margin:0;padding:0;border:0;min-width:0;min-height:0;width:auto;height:auto;background:transparent;
  box-shadow:none;outline-offset:1px;z-index:4;cursor:pointer;touch-action:manipulation;
- transform:none;filter:drop-shadow(0 4px 4px #2b1c1466);
+ transform:none;filter:drop-shadow(2px 6px 3px #100b09c7);
  transition:transform 110ms ease,filter 110ms ease;
 }
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{
@@ -24,12 +24,11 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{
 }
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board:active{animation:none!important;transform:translateY(2px)!important;filter:drop-shadow(0 2px 2px #241b1455) brightness(.96)!important}
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board:focus-visible{outline:3px solid #fff0aa;outline-offset:1px;border-radius:15px}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board span{position:relative;z-index:1;display:block;text-align:center;white-space:nowrap;letter-spacing:.01em;line-height:1.1;color:#482719;text-shadow:0 1px 0 #f9d9a073,0 1px 1px #4b24162e;font-family:"EngawaYuji",serif;font-weight:normal}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-board span{position:relative;z-index:1;display:block;text-align:center;white-space:nowrap;letter-spacing:.01em;line-height:1.1;color:#482719;text-shadow:0 1px 1px #23150f55;font-family:"EngawaYuji",serif;font-weight:normal}
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board .engawa-caption{color:#613b27}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
- left:26%;top:43%;width:49%;height:35%;z-index:6;filter:drop-shadow(0 5px 5px #38251c99) drop-shadow(0 0 7px #ffca7166);
+ left:26%;top:43%;width:49%;height:35%;z-index:6;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::before{background-image:url("assets/engawa-home/plaque-primary.png")}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main{font-size:clamp(25px,4.55vw,45px);margin-top:0}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(9px,1.6vw,16px);margin-top:3px}
 html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board,
@@ -38,14 +37,11 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{
 }
 html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{left:25%}
 html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board{left:51%}
-html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board::before,
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board::before{background-image:url("assets/engawa-home/plaque-secondary.png")}
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(16px,2.5vw,24px)}
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-caption{font-size:clamp(9px,1.3vw,13px)}
 html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{
  left:81%;top:81%;width:16%;height:16%;z-index:8;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board::before{background-image:url("assets/engawa-home/plaque-settings.png")}
 html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(16px,2.4vw,23px)}
 html[data-hanafuda-preview="stage5"] .scene-home .home-resume{left:7%;top:85%;width:17%;height:12%;z-index:9;font-family:"EngawaYuji",serif}
 @media (max-height:340px) and (orientation:landscape){
@@ -58,25 +54,14 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{
 
 
 
-/* The plaques stand on the actual veranda floor, not in front of the garden.
-   Separate compressed contact shadows from softer directional cast shadows. */
 html[data-hanafuda-preview="stage5"] .scene-home .home-object.engawa-board{
  isolation:isolate;transform-origin:50% 94%;
  transform:perspective(850px) rotateX(7deg);
- filter:drop-shadow(2px 6px 2px #261714a8) saturate(.91) sepia(.07);
-}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::after{
- content:"";position:absolute;z-index:0;left:7%;right:7%;bottom:-4%;
- height:21%;border-radius:50%;
- background:radial-gradient(ellipse at center,#170b08b8 0%,#240f0c89 44%,#311c122e 69%,transparent 85%);
- filter:blur(4px);transform:scaleX(.94) translate(3px,2px);
- pointer-events:none;
 }
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{z-index:1}
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board span{z-index:2}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
  top:48%;height:32%;
- filter:drop-shadow(3px 8px 3px #21120d9e) saturate(.93) sepia(.05);
 }
 html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board,
 html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{top:78.5%;height:20%}
@@ -112,4 +97,53 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::be
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {
   font-size:clamp(23px,4.2vw,42px);
   transform:translateX(-4%);
+}
+
+html[data-hanafuda-preview="stage5"] .scene-home{
+ position:fixed;
+ inset:auto;
+ top:var(--home-top,0px);
+ left:var(--home-left,0px);
+ width:min(100%,var(--home-width,100%));
+ height:min(100dvh,var(--home-height,100dvh));
+ min-height:0;
+ padding:0;
+ overflow:hidden;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .page{
+ width:100%;
+ height:100%;
+ max-width:none;
+ margin:0;
+}
+
+/* Darken the cast shadow painted into the bottom of each plaque. */
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::after{
+ content:"";
+ position:absolute;
+ pointer-events:none;
+ inset:0;
+ height:auto;
+ z-index:1;
+ border-radius:0;
+ background:var(--plaque) center/100% 100% no-repeat;
+ filter:brightness(.20);
+ transform:none;
+ mask-image:linear-gradient(transparent 90%,#000 96%);
+}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{
+ background-image:var(--plaque);
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
+ --plaque:url("assets/engawa-home/plaque-primary.png");
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::after{
+ inset:-6% -3% 0;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board,
+html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board{
+ --plaque:url("assets/engawa-home/plaque-secondary.png");
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{
+ --plaque:url("assets/engawa-home/plaque-settings.png");
 }
