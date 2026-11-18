@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0f171b">
 <meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=21d9aab">
+<link rel="stylesheet" href="rpg.css?v=20261118-battle-panel-01">
 </head>
 <body>
 <main class="game-shell" id="rpg">
@@ -23,8 +24,8 @@
       <span class="objective-caption">つぎの目的</span>
       <span id="objective-text" class="objective-text" aria-live="polite">城の魔物から人を守る</span>
     </div>
-    <div class="screen-shell">
-      <canvas id="game" width="288" height="340" aria-label="探索中のマップと登場人物、または戦闘中の敵"></canvas>
+    <div class="screen-shell" id="screen-shell">
+      <canvas id="game" width="480" height="270" aria-label="探索中のマップと登場人物、または戦闘中の敵と主人公"></canvas>
       <div class="dialogue" id="dialogue" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
         <p id="message"></p><span class="message-arrow" id="message-arrow" aria-hidden="true" hidden>▼</span>
       </div>
@@ -36,7 +37,11 @@
       </section>
     </div>
   </section>
-  <section class="controls" aria-label="ゲームコントローラー">
+  <section class="controls" id="controls" aria-label="ゲームコントローラー">
+      <div class="battle-status" id="battle-status" hidden aria-label="戦闘中の味方ステータス">
+        <strong id="battle-status-name">アレン</strong>
+        <span id="battle-status-hp">HP 0</span><span id="battle-status-mp">MP 0</span>
+      </div>
     <div class="controls-label" aria-hidden="true"><span>✦</span> ADVENTURE</div>
     <div class="dpad" role="group" aria-label="移動と選択">
       <button class="up" data-dir="up" aria-label="上" type="button"><span>▲</span></button>
@@ -45,8 +50,8 @@
       <button class="right" data-dir="right" aria-label="右" type="button"><span>▶</span></button>
       <button class="down" data-dir="down" aria-label="下" type="button"><span>▼</span></button>
     </div>
-    <div class="control-actions">
-      <div class="shortcut-grid" role="group" aria-label="ショートカット">
+    <div class="control-actions" id="control-actions">
+      <div class="shortcut-grid" id="shortcut-grid" role="group" aria-label="ショートカット">
         <button id="talk-shortcut" type="button">はなす</button>
         <button id="item-shortcut" type="button">どうぐ</button>
         <button id="spell-shortcut" type="button">じゅもん</button>
@@ -77,6 +82,6 @@
     <div class="legal"><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a><span>·</span><a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></div>
   </section>
 </div>
-<script defer src="app.js?v=21d9aab"></script>
+<script defer src="app.js?v=20261118-battle-panel-01"></script>
 </body>
 </html>

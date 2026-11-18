@@ -235,24 +235,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  position:absolute;bottom:max(5px,env(safe-area-inset-bottom));left:0;right:0;
  font-size:9px;color:#a0aba7;text-align:center;letter-spacing:.02em;pointer-events:none
 }
-/* Battle choices are a readable, scrollable window in the controller area:
-   monster art remains completely visible above. */
-.controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .shortcut-grid{visibility:hidden}
-.controls .action-panel[data-panel-type="battle"]{
- position:absolute;top:7px;right:12px;left:auto;bottom:48%;
- width:min(186px,48%);height:auto;max-height:none;
- padding:5px 8px;background:#0d1828f7;
- border:2px solid #f5f0df;box-shadow:0 3px 14px #05090fa3
-}
-.controls .action-panel[data-panel-type="battle"] .panel-head{margin-bottom:2px;padding-bottom:2px}
-.controls .action-panel[data-panel-type="battle"] .panel-content{grid-template-columns:1fr;gap:1px}
-.controls .action-panel[data-panel-type="battle"] .panel-content button{
- min-height:32px;padding:4px 5px;font-size:12px
-}
-.controls .action-panel[data-panel-type="battle"] .panel-content p{font-size:10px;margin:0}
-.controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .control-actions{
- height:100%;justify-content:flex-end;padding-bottom:9px
-}
 .start-overlay{
  position:fixed;inset:0;z-index:40;
  display:flex;align-items:center;justify-content:center;
@@ -305,10 +287,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .start-error{font-size:12px;color:#f4b09c;white-space:pre-wrap}
 .legal{display:flex;justify-content:center;gap:12px;padding-top:9px}
 .legal a,.legal span{font-size:10px;color:#b7c7c4}
-.screen-shell.is-hit{animation:hit .15s ease-out}
-.screen-shell.is-magic{animation:magic .25s ease-out}
-@keyframes hit{0%,100%{filter:none}33%{filter:brightness(1.6)}66%{filter:brightness(.6)}}
-@keyframes magic{0%,100%{filter:none}40%{filter:brightness(1.35) saturate(1.3)}}
 @media(max-width:355px){
  .game-shell{grid-template-rows:minmax(252px,1.55fr) minmax(206px,.98fr)}
  .dpad{grid-template-columns:repeat(3,45px);grid-template-rows:repeat(3,45px)}
@@ -337,8 +315,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .shortcut-grid button{min-height:44px}
  .face{width:52px;height:52px;min-width:52px;min-height:52px}
  .face-b{width:48px;height:48px;min-width:48px;min-height:48px}
- .controls .action-panel[data-panel-type="battle"]{top:3px;bottom:48%}
- .controls .action-panel[data-panel-type="battle"] .panel-content button{min-height:28px;font-size:11px}
  .dialogue{min-height:60px;padding:7px 26px 7px 9px}
  .dialogue p{font-size:12px}
  .control-tip{font-size:8px}
@@ -348,7 +324,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .world-zone{border-radius:10px 10px 0 0;overflow:hidden}
 }
 @media(prefers-reduced-motion:reduce){
- .screen-shell.is-hit,.screen-shell.is-magic,.message-arrow{animation:none}
+ .message-arrow{animation:none}
 }
 
 /* Landscape is the primary presentation: scenery and side-view combat on the
@@ -423,27 +399,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .face span{font-size:18px}
  .face small{font-size:8px}
  .control-tip{display:none}
- .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .shortcut-grid{display:none}
- .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .controls-label{display:none}
- .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .dpad{margin-top:auto}
- .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .control-actions{
-  height:auto;justify-content:flex-end;padding:0 5px
- }
- .controls .action-panel[data-panel-type="battle"]{
-  top:9px;right:7px;left:7px;bottom:auto;
-  width:calc(100% - 14px);height:auto;max-height:min(155px,45%);
-  padding:4px 6px;overflow:auto;z-index:10
- }
- .controls .action-panel[data-panel-type="battle"] .panel-head{
-  padding-bottom:2px;margin-bottom:3px
- }
- .controls .action-panel[data-panel-type="battle"] .panel-content{
-  grid-template-columns:repeat(2,minmax(0,1fr));gap:3px
- }
- .controls .action-panel[data-panel-type="battle"] .panel-content button{
-  min-height:44px;font-size:10px;padding:2px
- }
- .controls .action-panel[data-panel-type="battle"] .panel-content p{font-size:10px}
  .start-overlay{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
  .start-box{
   width:min(720px,96%);max-height:96dvh;
@@ -475,8 +430,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .control-actions{gap:2px}
  .shortcut-grid button{min-height:44px}
  .face,.face-b{width:44px;height:44px;min-width:44px;min-height:44px}
- .controls .action-panel[data-panel-type="battle"]{max-height:125px;top:4px}
- .controls .action-panel[data-panel-type="battle"] .panel-content button{min-height:44px}
  .start-box{padding:5px 16px}
  .start-spark,.start-story{display:none}
  .start-box h1{font-size:19px}
@@ -486,7 +439,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 
 /* 2026-11-11 UI v1.1 — gameplay-wide immersive landscape controls.
    Only positioning and presentation change. Portrait styles above are retained. */
-.battle-status{display:none}
 @media (orientation:landscape) and (min-width:560px){
  .game-shell{
    width:100%;max-width:none;height:100dvh;max-height:none;
@@ -510,7 +462,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
    background:transparent;border:0;box-shadow:none;
    pointer-events:none;
  }
- .controls::before,.controls-label,.control-tip,.shortcut-grid{display:none!important}
+ .controls::before,.controls-label,.control-tip,.game-shell:not(.in-battle) .shortcut-grid{display:none!important}
  .dpad{
    position:absolute;left:max(12px,env(safe-area-inset-left));
    bottom:max(38px,calc(env(safe-area-inset-bottom) + 17px));
@@ -545,39 +497,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
    top:7px;max-height:calc(100% - 14px);
    width:min(365px,calc(100% - 265px));overflow:auto;
  }
- .action-panel[data-panel-type="battle"]{
-   position:absolute;
-   left:max(151px,calc(env(safe-area-inset-left) + 145px));
-   top:auto;bottom:8px;right:auto;
-   width:clamp(200px,28vw,280px);
-   max-height:min(154px,56%);overflow:auto;
-   padding:5px 8px;background:#0d1828f2;
-   border:2px solid #f5f0df;z-index:16;
-   box-shadow:inset 0 0 0 2px #243447,0 3px 15px #030a15a1
- }
- .action-panel[data-panel-type="battle"] .panel-head{
-   padding-bottom:2px;margin-bottom:3px
- }
- .action-panel[data-panel-type="battle"] .panel-content{
-   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px
- }
- .action-panel[data-panel-type="battle"] .panel-content button{
-   min-height:44px;font-size:11px;padding:2px
- }
- .action-panel[data-panel-type="battle"] .panel-content p{
-   font-size:10px;margin:2px 0;grid-column:1/-1
- }
- .battle-status:not([hidden]){
-   position:absolute;z-index:13;
-   right:max(94px,calc(env(safe-area-inset-right) + 85px));
-   bottom:9px;display:grid;grid-template-columns:1fr 1fr;
-   gap:5px 9px;width:clamp(135px,19vw,188px);
-   padding:7px 12px 9px;background:#0d1828ed;
-   border:2px solid #f5f0df;color:#fff4e2;
-   font-size:12px;box-shadow:inset 0 0 0 2px #25374a,0 3px 15px #030a1580;
- }
- .battle-status strong{grid-column:1/-1;font-size:12px}
- .battle-status span{font:700 12px monospace}
  .dialogue{bottom:10px;left:clamp(145px,20vw,185px);right:clamp(87px,12vw,115px)}
  .context-hint{right:max(97px,calc(env(safe-area-inset-right) + 88px));bottom:9px}
  .action-panel:has(.overworld-atlas){
@@ -591,8 +510,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .game-topline{height:26px;min-height:26px}
  .objective{min-height:27px}
  .dpad,.control-actions{bottom:max(24px,calc(env(safe-area-inset-bottom) + 8px))}
- .action-panel[data-panel-type="battle"]{max-height:min(140px,58%);bottom:4px}
- .battle-status:not([hidden]){bottom:5px;padding:4px 8px;font-size:11px}
+
 }
 
 /* Town-v2: remove both upper game bands across landscape AND portrait.
@@ -603,4 +521,75 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 @media (orientation:landscape) and (min-width:560px){
  .world-zone{grid-template-rows:minmax(0,1fr)!important}
  .screen-shell{grid-row:1!important}
+}
+
+
+/* Keep battle controls and messages outside the canvas drawing area. */
+.game-shell,.start-overlay{
+ user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation
+}
+.game-shell button.pressed,.start-overlay button.pressed,
+.game-shell button:active,.start-overlay button:active{
+ filter:brightness(1.3);translate:0 2px
+}
+.dpad button:active,.dpad button.pressed{transform:none}
+.dialogue.can-advance{cursor:pointer}
+.in-battle .screen-shell{
+ display:grid;grid-template-rows:minmax(0,1fr) 64px
+}
+.in-battle .dialogue{
+ position:relative;inset:auto;grid-row:2;min-height:0;max-height:none;
+ margin:2px 7px 4px;box-shadow:none
+}
+.in-battle .completion{top:auto;bottom:64px;transform:translateX(-50%);pointer-events:none}
+.in-battle .controls{
+ display:grid;grid-template-columns:auto minmax(0,225px);
+ grid-template-rows:auto minmax(0,1fr);justify-content:center;
+ padding:5px 11px max(8px,env(safe-area-inset-bottom));gap:5px 10px
+}
+.in-battle .controls-label,.in-battle .control-tip{display:none}
+.battle-status:not([hidden]){
+ grid-column:1/-1;z-index:2;
+ display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);
+ min-height:27px;padding:4px 8px;background:#0d1828;color:#fff4e2;
+ border:1px solid #a5afae;font-size:12px
+}
+.battle-status span{font:700 12px monospace;white-space:nowrap}
+.battle-status.is-damaged{animation:battle-damage .31s ease-in-out 2 alternate}
+@keyframes battle-damage{50%{background:#842f41}}
+.in-battle .control-actions{height:100%;min-height:0;gap:5px}
+.in-battle .shortcut-grid button.is-selected{border-color:#f4d6a6;background:#3b4a55}
+.in-battle .action-panel[data-panel-type="battle"]{
+ position:relative;inset:auto;width:100%;min-height:0;max-height:100%;overflow:auto;
+ padding:4px;background:#0d1828
+}
+.in-battle .panel-head{position:sticky;top:0;background:#0d1828;margin-bottom:3px;padding-bottom:2px}
+.in-battle .panel-content{gap:3px}
+.in-battle .panel-content button{min-height:44px;padding:3px}
+@media (orientation:landscape) and (min-width:560px){
+ .game-shell.in-battle{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+ .in-battle .world-zone{position:relative}
+ .in-battle .screen-shell{grid-template-rows:minmax(0,1fr) 49px}
+ .in-battle .completion{bottom:49px}
+ .in-battle .controls{
+  position:relative;inset:auto;pointer-events:auto;min-height:142px;
+  grid-template-columns:132px minmax(0,470px);grid-template-rows:auto 103px;
+  padding-inline:max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right));
+  background:#202b30
+ }
+ .in-battle .dpad{position:static;grid-row:1/-1}
+ .in-battle .battle-status{grid-column:2}
+ .in-battle .control-actions{
+  position:relative;inset:auto;display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  width:auto;min-width:0;max-width:none;pointer-events:auto
+ }
+ .in-battle .shortcut-grid,.in-battle .action-panel[data-panel-type="battle"]{grid-column:1;grid-row:1}
+ .in-battle .shortcut-grid{grid-template-rows:repeat(2,minmax(44px,1fr))}
+ .in-battle .action-pair{grid-column:2;grid-row:1;width:auto;flex-direction:row;gap:5px;align-self:center}
+ .in-battle .face{width:48px;height:48px;min-width:48px;min-height:48px}
+ .in-battle .dialogue{max-width:660px;width:calc(100% - 14px);justify-self:center}
+}
+@media(prefers-reduced-motion:reduce){
+ .battle-status.is-damaged{animation:none;background:#842f41}
 }
