@@ -108,3 +108,8 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{lef
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{inset:0;}
 
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::before{inset:-6% -3% 0;}
+
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {
+  font-size:clamp(23px,4.2vw,42px);
+  transform:translateX(-4%);
+}
