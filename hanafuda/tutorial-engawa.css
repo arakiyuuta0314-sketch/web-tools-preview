@@ -165,8 +165,7 @@
 @media(max-height:360px) and (orientation:landscape){.play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:28px;width:28px;max-width:28px}}
 
 /* Tutorial scenes share the same table treatment as the playing board. */
-.scene-game .tutorial-welcome,
-.tutorial-step-menu {
+.scene-game .tutorial-welcome {
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -178,6 +177,10 @@
   color:#fff5dc;
 }
 .scene-game .tutorial-welcome > * {flex-shrink:0}
+.tutorial-intro-step-0 > .tutorial-welcome-copy,
+.tutorial-intro-step-1 > .tutorial-welcome-copy {margin-block-start:auto}
+.tutorial-intro-step-0 > .tutorial-next,
+.tutorial-intro-step-1 > .tutorial-next {margin-block-end:auto}
 .tutorial-welcome .tutorial-welcome-copy h1,
 .tutorial-welcome .tutorial-welcome-copy p,
 .tutorial-welcome .almanac-month b,
@@ -239,30 +242,104 @@
 }
 .tutorial-welcome .tutorial-month-quiz > small {color:#fff5dc}
 .tutorial-welcome .tutorial-quiz-complete {margin-top:auto}
-.tutorial-step-menu {width:100%;height:100%;border-radius:12px}
-.tutorial-step-menu h1 {margin:0;font:24px "TutorialYuji",serif}
+.tutorial-step-menu {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(112px,29%);
+  gap:clamp(8px,3vw,30px);
+  align-items:stretch;
+  width:100%;
+  height:100%;
+  overflow:auto;
+  padding:clamp(10px,2.5vh,18px) clamp(10px,3.5vw,34px);
+  box-sizing:border-box;
+  border:2px solid #785030;
+  border-radius:12px;
+  box-shadow:inset 0 0 0 1px #bd9359,inset 0 0 22px #1a0e09;
+  background:#382216 url("images/japanese-wooden-table-indigo-mat.jpg") center/cover no-repeat;
+  color:#fff5dc;
+}
+.tutorial-step-picker {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  gap:8px;
+  padding:10px clamp(8px,2vw,18px);
+  border:1px solid #c5945366;
+  border-radius:8px;
+  background:#142437ca;
+}
+.tutorial-step-menu h1 {
+  margin:0;
+  text-align:center;
+  text-shadow:0 2px 4px #141017;
+  font:clamp(20px,4.3vh,26px)/1.2 "TutorialYuji",serif;
+}
 .tutorial-step-menu ol {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr));
-  gap:8px;
-  width:min(100%,720px);
+  gap:clamp(4px,1.5vh,8px);
   margin:0;
   padding:0;
   list-style:none;
 }
-.tutorial-step-menu li button {width:100%;min-height:42px}
+.tutorial-step-menu button.tutorial-step-plaque {
+  position:relative;
+  width:100%;
+  min-height:40px;
+  padding:5px 30px 5px 11px;
+  border:1px solid #98704a;
+  border-radius:5px;
+  box-shadow:inset 0 0 0 2px #ffdf9a66,0 2px 0 #5d3622;
+  background:repeating-linear-gradient(177deg,#bc793515 0 1px,transparent 2px 5px),
+    linear-gradient(#e9c98e,#cf9e5f);
+  color:#312014;
+  text-align:left;
+  font:700 clamp(12px,3vw,15px)/1.25 system-ui,sans-serif;
+}
+.tutorial-step-plaque:focus-visible {outline:2px solid #fff5dc;outline-offset:2px}
+.tutorial-step-plaque[aria-describedby]::after {
+  content:"✿";
+  position:absolute;
+  inset-inline-end:9px;
+  inset-block-start:50%;
+  transform:translateY(-50%);
+  color:#8c294a;
+  font-size:19px;
+}
+.tutorial-teacher-figure {
+  min-height:0;
+  border:1px solid #c59453;
+  border-radius:7px;
+  box-shadow:0 0 0 3px #3b2419,0 0 0 4px #8a5e3d;
+  background-color:#172a3c;
+  background-image:var(--teacher-figure,none),url("assets/engawa-home/garden-engawa.jpg");
+  background-size:cover;
+  background-position:center 48%;
+}
+@media (max-height:360px) and (orientation:landscape) {
+  .tutorial-step-picker {gap:5px;padding-block:6px}
+  .tutorial-step-menu button.tutorial-step-plaque {min-height:36px}
+}
 @media (max-width:540px) and (orientation:portrait) {
   .tutorial-welcome .tutorial-purpose-art {grid-template-columns:repeat(2,minmax(0,1fr))}
   .tutorial-welcome .almanac-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
-/* The scrim and speech never intercept taps on the practice cards. */
 .teacher-dim {
   position:fixed;
   inset:0;
   z-index:5;
   background:rgb(0 0 0 / 48%);
   pointer-events:none;
+}
+.teacher-dim[data-teacher-tap] {
+  width:100%;
+  height:100%;
+  padding:0;
+  border:0;
+  border-radius:0;
+  pointer-events:auto;
+  cursor:pointer;
 }
 .teacher-bubble {
   position:absolute;
@@ -282,6 +359,7 @@
   box-shadow:0 5px 18px #0007;
   pointer-events:none;
 }
+.teacher-bubble[data-teacher-tap] {pointer-events:auto;cursor:pointer}
 .tutorial-welcome {position:relative}
 .scene-game .tutorial-welcome .teacher-bubble {flex:none}
 .tutorial-intro-step-2 .month-quiz-choices {position:relative;z-index:6}
@@ -303,7 +381,8 @@
   height:34px;
   border:1px solid #a27b4e;
   border-radius:50%;
-  background:#e4d3b5;
+  background:#e4d3b5 url("./assets/teacher-icon.png") center / cover no-repeat;
+  overflow:hidden;
 }
 .play-layout.tutorial-engawa .teacher-bubble .teacher-speech,
 .teacher-bubble .teacher-speech {
@@ -344,13 +423,11 @@
 }
 .teacher-bubble .teacher-capture img,
 .teacher-bubble .teacher-role-cards img {height:38px}
-.scene-game .teacher-guide-dialog {background:transparent;align-items:center}
-.teacher-guide-dialog .dialog-sheet {border-radius:16px}
-.teacher-guide-dialog .dialog-text {font-size:16px}
 
 .teacher-bubble .teacher-speech p {
   -webkit-line-clamp:unset;
 }
+.tutorial-decision-only .teacher-bubble .teacher-speech p {white-space:pre-line}
 .scene-game .tutorial-intro-step-2 .tutorial-month-quiz {
   margin-block:auto 16px;
 }
@@ -366,4 +443,113 @@
     background-size:135% 100%;
     background-position:14% center;
   }
+}
+
+/* Both game modes share the same player yaku presentation. */
+.yaku-celebration {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
+  margin:0;
+  padding:16px;
+  border:0;
+  background:transparent;
+  color:#422b1e;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+.yaku-celebration[open] {display:grid;place-items:center}
+.yaku-celebration::backdrop {background:#17100955}
+.yaku-celebration-1::backdrop {background:#17100930}
+.yaku-celebration-bubble {
+  position:relative;
+  display:grid;
+  justify-items:center;
+  gap:6px;
+  width:min(100%,480px);
+  padding:12px 18px;
+  box-sizing:border-box;
+  border:1px solid #d5b67f;
+  border-radius:16px;
+  background:#fff5df;
+  box-shadow:0 5px 22px #170f0a66;
+}
+.yaku-celebration-bubble .teacher-icon-frame {position:absolute;inset:10px auto auto 10px}
+.yaku-celebration-bubble h2 {margin:0;font:700 16px/1.2 system-ui,sans-serif}
+.yaku-celebration-names {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:4px 12px;
+  margin:0;
+  padding:0;
+  list-style:none;
+  font:800 clamp(22px,5vw,32px)/1.2 system-ui,sans-serif;
+}
+.yaku-celebration-names b {color:#784e20}
+.yaku-celebration-cards {display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding-block:7px 2px}
+.yaku-celebration-cards img {
+  height:clamp(55px,22vh,100px);
+  width:auto;
+  max-width:13vw;
+  object-fit:contain;
+  border-radius:4px;
+  box-shadow:0 3px 8px #43281855;
+  animation:yaku-rise 420ms ease-out both;
+}
+.yaku-celebration-2 .yaku-celebration-cards img,
+.yaku-celebration-3 .yaku-celebration-cards img {
+  outline:1px solid #cda248;
+  box-shadow:0 0 12px #eab24c;
+  animation:yaku-rise 420ms ease-out both,yaku-glow 1050ms ease-out both;
+}
+.celebrating-card {animation:yaku-rise 420ms ease-out both}
+.celebrating-card-2,.celebrating-card-3 {outline:1px solid #e9bf62!important}
+@media (max-height:450px) {
+  .yaku-celebration-cards:has(img:nth-child(9)) img {height:clamp(38px,16vh,66px)}
+}
+.yaku-celebration-skip {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  padding:0;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0;
+  box-shadow:none!important;
+  cursor:pointer;
+}
+.yaku-celebration-skip:focus-visible {outline:2px solid #e9bf62;outline-offset:-5px}
+.yaku-celebration-petals {position:absolute;inset:0;pointer-events:none}
+.yaku-celebration-petals i {
+  position:absolute;
+  top:-20px;
+  left:calc(10% + var(--petal)*15%);
+  width:12px;
+  height:17px;
+  border-radius:68% 32% 65% 35%;
+  background:linear-gradient(140deg,#fff2ef,#e89bae);
+  animation:yaku-petal 1350ms calc(var(--petal)*30ms) ease-in both;
+}
+@keyframes yaku-glow {
+  0%,100% {box-shadow:0 0 6px #eab24c}
+  35% {box-shadow:0 0 18px 3px #f2c15c}
+}
+@keyframes yaku-rise {
+  from {transform:translateY(8px) scale(.82)}
+  65% {transform:translateY(-5px) scale(1.04)}
+  to {transform:translateY(-3px) scale(1)}
+}
+@keyframes yaku-petal {
+  from {transform:translate(12px,0) rotate(10deg);opacity:0}
+  20% {opacity:.92}
+  to {transform:translate(-42px,82vh) rotate(310deg);opacity:0}
+}
+@media(prefers-reduced-motion:reduce) {
+  .yaku-celebration .yaku-celebration-cards img,.celebrating-card {animation:none}
+  .yaku-celebration-petals {display:none}
 }
