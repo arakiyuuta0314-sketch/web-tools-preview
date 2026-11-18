@@ -553,3 +553,20 @@
   .yaku-celebration .yaku-celebration-cards img,.celebrating-card {animation:none}
   .yaku-celebration-petals {display:none}
 }
+
+@media (orientation:landscape) and (max-height:440px) {
+  .tutorial-step-picker {gap:4px;padding-block:4px}
+  .tutorial-step-menu ol {gap:3px}
+  .tutorial-step-menu button.tutorial-step-plaque {min-height:32px;padding-block:3px}
+}
+.lesson-pending-draw {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:#291b14;
+  color:#fff5dc;
+  font-size:12px;
+}
+.lesson-pending-draw img {height:32px;width:auto}
