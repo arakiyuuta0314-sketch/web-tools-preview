@@ -594,3 +594,27 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 @media(prefers-reduced-motion:reduce){
  .battle-status.is-damaged{animation:none;background:#842f41}
 }
+
+.in-prologue .dialogue {
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: 2rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+.in-prologue .dialogue p {
+  max-width: 32ch;
+  font-size: clamp(16px, 3.6vw, 22px);
+  line-height: 1.9;
+}
+.in-prologue .message-arrow {
+  left: 50%;
+  right: auto;
+  bottom: 12%;
+}
+.in-intro .dpad, .in-intro .control-tip {
+  visibility: hidden;
+}
