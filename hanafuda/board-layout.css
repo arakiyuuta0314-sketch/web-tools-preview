@@ -941,12 +941,27 @@
   z-index:2;
 }
 .play-layout .stock-back{position:relative}
-.turn-flying-card{
+.board-taken-card.incoming-card{visibility:hidden}
+.turn-motion-layer{
   position:fixed;
+  inset:0;
   pointer-events:none;
-  z-index:9;
-  transform-origin:top left;
-  filter:drop-shadow(1px 3px 3px #1a100bcc);
+  z-index:100;
+}
+.turn-flying-card{
+  position:absolute;
+  top:0;
+  left:0;
+  object-fit:contain;
+  border-radius:2px;
+  filter:drop-shadow(2px 5px 4px #170e0be6);
+}
+/* Cyan identifies the drawn card independently of the gold match targets. */
+.stock-face.drawn-card,
+.turn-flying-card.drawn-card,
+.play-layout.seated-layout .fieldcards .hana.drawn-card img{
+  outline:2px solid #9ffff3;
+  box-shadow:0 0 9px 2px #34dfcb;
 }
 .play-layout.seated-layout .fieldcards .hana.target{
   outline:2px solid #ffdf77;
