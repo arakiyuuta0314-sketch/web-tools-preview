@@ -14181,11 +14181,12 @@
     const direction2 = dx === 1 ? "right" : dx === -1 ? "left" : dy === 1 ? "down" : "up";
     next.pos.facing = direction2;
     const map = MAPS[s.pos.map], x = s.pos.x + dx, y = s.pos.y + dy;
-    if (!within(map, x, y)) return { state: next, kind: "blocked", message: "\u3053\u308C\u4EE5\u4E0A\u306F\u9032\u3081\u306A\u3044\u3002" };
+    if (!within(map, x, y)) return { state: next, kind: "blocked" };
     const obstacle = entityAt(s, map, x, y);
+    if (obstacle?.kind === "gate") return { state: next, kind: "blocked" };
     if (obstacle) return { state: next, kind: "entity", entity: obstacle, message: obstacle.name + "\u304C\u3044\u308B\u3002\u6C7A\u5B9A\u3067\u8A71\u3059\uFF0F\u8ABF\u3079\u308B\u3002" };
     const legacyPropEgress = map.id === "leaf" && leafPropBlocked(s.pos.x, s.pos.y) && leafPropBlocked(x, y) && ![1, 2, 10].includes(map.tiles[y][x]) || map.id === "sailun" && SAILUN_LEGACY_BUILDING_FOOTPRINT.has(s.pos.x + "," + s.pos.y) && SAILUN_LEGACY_BUILDING_FOOTPRINT.has(x + "," + y);
-    if (tileBlocked(s, map, x, y) && !legacyPropEgress) return { state: next, kind: "blocked", message: map.tiles[y][x] === 6 ? "\u9244\u306E\u9580\u306F\u9589\u3056\u3055\u308C\u3066\u3044\u308B\u3002\u6C7A\u5B9A\u3067\u8ABF\u3079\u3088\u3046\u3002" : "\u3053\u3061\u3089\u3078\u306F\u901A\u308C\u306A\u3044\u3002" };
+    if (tileBlocked(s, map, x, y) && !legacyPropEgress) return { state: next, kind: "blocked" };
     const portal = map.portals.find((p) => p.x === x && p.y === y);
     if (portal) {
       if (s.pos.map === "castle" && s.stage === "S00") return { state: next, kind: "blocked", message: "\u907F\u96E3\u8005\u3092\u5B88\u3089\u306A\u3051\u308C\u3070\uFF01" };
@@ -15262,7 +15263,6 @@
     caveCrystal: "../cave/cave_crystal_256x256.png",
     caveMural: "../cave/cave_mural_384x256.png",
     caveChest: "../cave/cave_chest_128x112.png",
-    caveWatchman: "../cave/cave_watchman_128x160.png",
     caveChief: "../cave/cave_chief_192x192.png",
     caveTorch: "../cave/cave_wall_torch_47x144_v2.png",
     ruinsEnvironment: "../ruins/environment-552x432.png",
@@ -17265,7 +17265,12 @@
       }
       cache3.set(key, bg);
     }
+    c.save();
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.globalAlpha = 1;
+    c.globalCompositeOperation = "copy";
     c.drawImage(bg, 0, 0, W2, H2);
+    c.restore();
     return battleComposition(W2, H2);
   }
   function paintSfcBattleEffects(c, W2, H2, fx, now, layout) {
@@ -17324,12 +17329,9 @@
     }
     if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX, Math.max(61, foot - layout.enemySize - 8), fx.type === "spell" ? "#d9caff" : "#fff1d5");
     if (fx.playerDamage > 0) {
-      floating("-" + fx.playerDamage, heroX + 34, heroY - 35, "#ffc2af");
-      if (t < 0.4) {
-        rect(c, heroX - 35, foot - 105, 70, 3, "#ffb7a1");
-      }
+      floating("-" + fx.playerDamage, heroX, Math.max(60, heroY - 34), "#ffc2af");
     }
-    if (fx.healing > 0) floating("+" + fx.healing, heroX, Math.max(61, heroY - 28), "#baf4c9");
+    if (fx.healing > 0) floating("+" + fx.healing, heroX - (fx.playerDamage > 0 ? 36 : 0), Math.max(61, heroY - 28), "#baf4c9");
   }
 
   // src/game/retro-decoration.mjs
@@ -18373,13 +18375,10 @@
     c.fillText("Lv." + st.level + "  " + st.gold + "G", maxWidth, H2 - 12);
     c.textAlign = "left";
   }
-  function addMapActors(s, m, light, npcFacing = {}) {
+  function addMapActors(s, m, npcFacing = {}) {
     const drawables = [];
     for (const n of m.npcs) {
-      drawables.push({ x: n.x, y: n.y, depth: n.y, draw: (c, screen) => m.id === "leaf" ? paintLeafNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : m.id === "sailun" ? paintSailunNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : m.id === "cave" && n.id === "watchman" && retroAssetsReady() ? (() => {
-        const [x, y] = screen(n.x, n.y);
-        c.drawImage(retroAsset("caveWatchman"), x - 6, y - 23, 36, 47);
-      })() : paintActor(c, ...screen(n.x, n.y), actors[n.kind] || n.kind, "down", 0) });
+      drawables.push({ x: n.x, y: n.y, depth: n.y, draw: (c, screen) => m.id === "leaf" ? paintLeafNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : m.id === "sailun" ? paintSailunNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : paintActor(c, ...screen(n.x, n.y), actors[n.kind] || n.kind, "down", 0) });
     }
     for (const obj of m.objects) {
       if (!entityAt(s, m, obj.x, obj.y)) continue;
@@ -18397,7 +18396,7 @@
     const dx = Math.round(v.ox - v.cx * TILE), dy = Math.round(v.oy - v.cy * TILE);
     c.drawImage(bg, dx, dy);
     const screen = (x, y) => [Math.round(x * TILE + dx), Math.round(y * TILE + dy)];
-    const drawables = addMapActors(s, m, light, npcFacing);
+    const drawables = addMapActors(s, m, npcFacing);
     const minY = Math.max(0, Math.floor(v.cy) - 3), maxY = Math.min(m.height, Math.ceil(v.cy + v.rows) + 4);
     const minX = Math.max(0, Math.floor(v.cx) - 4), maxX = Math.min(m.width, Math.ceil(v.cx + v.cols) + 5);
     for (let y = minY; y < maxY; y++) for (let x = minX; x < maxX; x++) {
@@ -18559,20 +18558,26 @@
     const progress = impact ? combatFeedbackProgress(impact, now) : 1;
     const attacking = Boolean(impact && impact.enemyDamage > 0 && impact.type === "blade" && progress < 0.7);
     const advance = attacking ? Math.round(16 * Math.sin(Math.PI * progress / 0.7)) : 0;
-    const recoil = impact && impact.playerDamage > 0 && progress < 0.55 ? Math.round(5 * Math.sin(progress * 20)) : 0;
+    const hurt = impact?.playerDamage > 0 && progress < 0.65 && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const recoil = hurt ? Math.round(13 * (1 - progress / 0.65) * Math.cos(progress * 30)) : 0;
     const foeRecoil = impact && impact.enemyDamage > 0 && progress < 0.55 ? Math.round(5 * Math.sin(progress * 19)) : 0;
     const enemySize = Math.min(W2 * 0.36, layout.foot - 60, b.id === "vold" ? 174 : 144);
     const enemyScale = enemySize / (b.id === "vold" ? 158 : 144);
     const enemyFoot = layout.foot;
+    if (b.hp > 0 || impact?.defeated && progress < 0.85) {
+      ctx.save();
+      ctx.translate(layout.enemyX + foeRecoil, enemyFoot);
+      ctx.scale(-enemyScale, enemyScale);
+      if (b.hp === 0) ctx.globalAlpha = (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8);
+      if (area === "cave" && b.id === "m06" && retroAssetsReady()) {
+        ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
+      } else paintMonster(ctx, b.id, 0, 0);
+      ctx.restore();
+    }
     ctx.save();
-    ctx.translate(layout.enemyX + foeRecoil, enemyFoot);
-    ctx.scale(-enemyScale, enemyScale);
-    if (b.hp === 0) ctx.globalAlpha = impact?.defeated && progress < 0.85 ? (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8) : 0;
-    if (area === "cave" && b.id === "m06" && retroAssetsReady()) {
-      ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
-    } else paintMonster(ctx, b.id, 0, 0);
-    ctx.restore();
+    if (hurt && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
     paintSharedHero(ctx, layout.heroX - advance + recoil, layout.foot, "left", 0, layout.heroScale);
+    ctx.restore();
     paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, enemySize });
     function nameplate(name, x, color2) {
       ctx.font = "bold 14px sans-serif";
@@ -18973,10 +18978,10 @@
   }
   function afterMessage() {
     if (battleEnding) {
-      if (!battleFx) {
-        battleEnding = null;
-        battle = null;
-      }
+      stopBattleFx();
+      battleEnding = null;
+      battle = null;
+      battleArea = "";
     } else if (battle && !panelMode) battleChoices();
   }
   function notice(text) {
@@ -19083,7 +19088,6 @@
     }
     if (combatFeedbackProgress(battleFx, performance.now()) >= 1) {
       stopBattleFx();
-      if (battleEnding && !queue.length) afterMessage();
       paint();
       return;
     }
@@ -19096,7 +19100,8 @@
     stopMoving();
     audio.cue("attack");
     battle = beginCombat(id, tag);
-    battleArea = state.pos.map === "castle" ? "castle" : monsterById(id).area;
+    const map = state.pos.map;
+    battleArea = ["castle", "cave", "ruins", "onyx"].includes(map) ? map : monsterById(id).area;
     closePanel();
     message([...lines, tag === "tutorial" ? "\u300C\u305F\u305F\u304B\u3046\u300D\u3067\u9B54\u7269\u306B\u7ACB\u3061\u5411\u304B\u304A\u3046\uFF01" : monsterById(id).name + "\u304C\u73FE\u308C\u305F\uFF01"]);
   }
@@ -19426,8 +19431,7 @@
       } else {
         interior = moved.room;
         if (moved.kind === "walk") roomMotion = { id: interior.id, fromX: previous2.x, fromY: previous2.y, start: performance.now(), duration: 145, step: roomStep++ };
-        if (moved.kind === "blocked") hint = "\u5BB6\u5177\u3084\u58C1\u304C\u3042\u3063\u3066\u9032\u3081\u306A\u3044\u3002";
-        else hint = "";
+        hint = "";
         paint();
         if (roomMotion) roomFrame = requestAnimationFrame(animateRoomFrame);
       }
@@ -19442,12 +19446,8 @@
       walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145, step: walkStep++ };
     }
     if (r2.kind === "portal") audio.cue("run");
+    hint = r2.message || "";
     storeAndSet(r2.state, Boolean(r2.autoSave));
-    if (r2.message) notice(r2.message);
-    else {
-      hint = "";
-      paint();
-    }
     if (walkMotion) walkFrame = requestAnimationFrame(animateWalkFrame);
     if (r2.kind === "walk") {
       startRandom();
