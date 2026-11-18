@@ -14627,8 +14627,11 @@
       const r2 = useItem(s, action.id);
       s = r2.state;
       if (!r2.used) return { state: s, battle: b, lines: [r2.message], outcome: "continue" };
-      lines.push(r2.message);
+      const recovered = s.player.hp - state2.player.hp;
+      lines.push(r2.message + (recovered > 0 ? " HP\u304C" + recovered + "\u56DE\u5FA9\u3057\u305F\u3002" : ""));
     } else throw Error("\u672A\u5B9A\u7FA9\u306E\u6226\u95D8\u30B3\u30DE\u30F3\u30C9: " + action.type);
+    const hpAfterAction = s.player.hp;
+    const healing = Math.max(0, hpAfterAction - state2.player.hp);
     if (b.hp === 0) {
       const win = gainVictory(s, b.id, b.tag);
       return { state: win.state, battle: null, lines: [...lines, ...win.messages], outcome: "won", autoSave: win.autoSave };
@@ -14659,7 +14662,7 @@
     }
     if (s.player.hp === 0) {
       const lost = defeat(s);
-      return { state: lost.state, battle: null, lines: [...lines, ...lost.messages], outcome: "lost", autoSave: true };
+      return { state: lost.state, battle: null, lines: [...lines, ...lost.messages], outcome: "lost", autoSave: true, healing, playerDamage: hpAfterAction };
     }
     if (s.player.status === "poison") {
       const poison = Math.min(s.player.hp - 1, 2);
@@ -14671,7 +14674,7 @@
     if (b.silenced > 0) b.silenced--;
     if (b.ward > 0) b.ward--;
     b.round++;
-    return { state: s, battle: b, lines, outcome: "continue" };
+    return { state: s, battle: b, lines, outcome: "continue", healing, playerDamage: hpAfterAction - s.player.hp };
   }
 
   // src/game/combat-visuals.mjs
@@ -14682,8 +14685,8 @@
     if (!Number.isFinite(now)) throw Error("Combat feedback timestamp invalid");
     const currentEnemyHp = result.battle?.hp ?? (result.outcome === "won" ? 0 : beforeBattle.hp);
     const enemyDamage = Math.max(0, beforeBattle.hp - currentEnemyHp);
-    const playerDamage = Math.max(0, beforeState.player.hp - result.state.player.hp);
-    const healing = Math.max(0, result.state.player.hp - beforeState.player.hp);
+    const playerDamage = result.playerDamage ?? Math.max(0, beforeState.player.hp - result.state.player.hp);
+    const healing = result.healing ?? (result.outcome === "won" ? 0 : Math.max(0, result.state.player.hp - beforeState.player.hp));
     const type = action.type === "attack" ? "blade" : action.type === "spell" ? "spell" : action.type === "item" ? "item" : action.type === "run" ? "escape" : null;
     if (!type) throw Error("Unsupported combat feedback command " + action.type);
     return Object.freeze({
@@ -14693,7 +14696,8 @@
       healing,
       startedAt: now,
       duration: DUR,
-      enemyId: beforeBattle.id
+      enemyId: beforeBattle.id,
+      defeated: result.outcome === "won"
     });
   }
   function combatFeedbackProgress(fx, now) {
@@ -17053,7 +17057,7 @@
     if (!Number.isFinite(W2) || !Number.isFinite(H2) || W2 < 220 || H2 < 165)
       throw Error("Side-view battle viewport too small");
     const horizon = Math.round(H2 * 0.59), groundY = Math.round(H2 * 0.71), foot = Math.round(H2 * 0.84);
-    const enemyX = Math.round(W2 * 0.29), heroX = Math.round(W2 * 0.79);
+    const enemyX = Math.round(W2 * 0.5), heroX = Math.round(W2 * 0.86);
     return Object.freeze({
       horizon,
       groundY,
@@ -17240,7 +17244,7 @@
           sx = Math.round((plate.naturalWidth - sw) / 2);
         } else {
           sh = Math.round(sw / dstRatio);
-          sy = Math.round((plate.naturalHeight - sh) / 2);
+          sy = plate.naturalHeight - sh;
         }
         target.imageSmoothingEnabled = true;
         target.drawImage(plate, sx, sy, sw, sh, 0, 0, W2, H2);
@@ -17266,13 +17270,13 @@
     const t = combatFeedbackProgress(fx, now);
     if (t >= 1) return;
     const { enemyX, heroX, foot } = layout;
-    const enemyY = (layout.enemyFoot ?? foot) - 65, heroY = foot - 54;
+    const enemyY = foot - layout.enemySize * 0.48, heroY = foot - 54;
     if (fx.type === "blade" && fx.enemyDamage > 0) {
       const alpha = t < 0.5 ? 1 : 1 - (t - 0.5) * 2;
       c.save();
       c.globalAlpha = alpha;
       for (let i = 0; i < 3; i++) {
-        const y = enemyY - 30 + i * 17 + Math.round(t * 11);
+        const y = enemyY - 26 + i * 15 + Math.round(t * 11);
         c.strokeStyle = ["#fff2d3", "#b8d4e0", "#f1d5a7"][i];
         c.lineWidth = 3 - i * 0.5;
         c.beginPath();
@@ -17282,7 +17286,14 @@
       }
       c.restore();
     }
-    if (fx.type === "spell") {
+    if (fx.type === "spell" && fx.enemyDamage > 0) {
+      c.save();
+      c.globalAlpha = (1 - t) * 0.55;
+      c.fillStyle = "#ab9aff";
+      c.beginPath();
+      c.ellipse(enemyX, enemyY, 32 + t * 36, 22 + t * 22, 0, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
       for (let i = 0; i < 9; i++) {
         const phase = t * 7 + i * 2 * Math.PI / 9, r2 = 41 + (1 - t) * 21;
         const x = enemyX + Math.cos(phase) * r2, y = enemyY + Math.sin(phase) * r2 * 0.6;
@@ -17290,7 +17301,7 @@
         rect(c, x + 2, y + 2, 2, 2, "#f9ffdf");
       }
     }
-    if (fx.type === "item" || fx.healing > 0) {
+    if (fx.healing > 0) {
       for (let i = 0; i < 6; i++) {
         const x = heroX - 22 + i * 9, y = heroY + 8 - Math.round(t * 49) - i % 3 * 9;
         rect(c, x, y, 4, 12, "#81cbae");
@@ -17308,34 +17319,14 @@
       c.fillText(String(n), x, y - Math.round(27 * t));
       c.restore();
     }
-    if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX + 39, enemyY - 47, "#fff1d5");
+    if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX, Math.max(61, foot - layout.enemySize - 8), fx.type === "spell" ? "#d9caff" : "#fff1d5");
     if (fx.playerDamage > 0) {
       floating("-" + fx.playerDamage, heroX + 34, heroY - 35, "#ffc2af");
       if (t < 0.4) {
         rect(c, heroX - 35, foot - 105, 70, 3, "#ffb7a1");
       }
     }
-    if (fx.healing > 0) floating("+" + fx.healing, heroX + 38, heroY - 35, "#baf4c9");
-  }
-
-  // src/game/battle-formation-layout.mjs
-  function battleFormationSlots(width, height, { enemies = 1, allies = 1 } = {}) {
-    if (!Number.isFinite(width) || !Number.isFinite(height) || width < 220 || height < 165)
-      throw Error("Invalid formation view dimensions");
-    if (!Number.isInteger(enemies) || enemies < 1 || enemies > 3 || !Number.isInteger(allies) || allies < 1 || allies > 3)
-      throw Error("Formation preview supports 1-3 visual slots per side");
-    const enemyFeet = Math.round(height * 0.48);
-    const allyFeet = Math.round(height * 0.84);
-    const foeCenter = width * 0.29, friendCenter = width * 0.79;
-    const stride = Math.min(58, Math.round(width * 0.1));
-    const positions = (count, center, feet) => Array.from({ length: count }, (_, i) => Object.freeze({
-      x: Math.round(center + (i - (count - 1) / 2) * stride),
-      feet: feet - i % 2 * Math.round(Math.min(12, height * 0.04))
-    }));
-    return Object.freeze({
-      enemies: positions(enemies, foeCenter, enemyFeet),
-      allies: positions(allies, friendCenter, allyFeet)
-    });
+    if (fx.healing > 0) floating("+" + fx.healing, heroX, Math.max(61, heroY - 28), "#baf4c9");
   }
 
   // src/game/retro-decoration.mjs
@@ -18515,10 +18506,10 @@
     const ox = Math.round((W2 - bg.width) / 2), oy = Math.round((H2 - bg.height) / 2);
     ctx.drawImage(bg, ox, oy);
     const resident2 = { x: 6, y: 3 };
-    const moving2 = motion && motion.id === room.id;
-    const t = moving2 ? clamp3((performance.now() - motion.start) / motion.duration, 0, 1) : 1;
-    const x = moving2 ? motion.fromX + (room.x - motion.fromX) * t : room.x;
-    const y = moving2 ? motion.fromY + (room.y - motion.fromY) * t : room.y;
+    const moving = motion && motion.id === room.id;
+    const t = moving ? clamp3((performance.now() - motion.start) / motion.duration, 0, 1) : 1;
+    const x = moving ? motion.fromX + (room.x - motion.fromX) * t : room.x;
+    const y = moving ? motion.fromY + (room.y - motion.fromY) * t : room.y;
     const drawables = [
       { y: resident2.y, fn: () => paintActor(
         ctx,
@@ -18554,33 +18545,32 @@
       { hp: state2.player.hp, mp: state2.player.mp, level: state2.player.level, gold: state2.player.gold }
     );
   }
-  function drawFight(canvas, s, b, impact = null) {
+  function drawFight(canvas, s, b, impact = null, area = monsterById(b.id).area) {
     const W2 = canvas.width, H2 = canvas.height;
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.imageSmoothingEnabled = false;
     const enemy = monsterById(b.id);
     if (!enemy) throw Error("Invalid battle monster " + b.id);
     const now = performance.now();
-    const area = s.pos.map === "castle" ? "castle" : enemy.area;
     const layout = paintSfcBattleBackground(ctx, W2, H2, area);
     const progress = impact ? combatFeedbackProgress(impact, now) : 1;
     const attacking = Boolean(impact && impact.enemyDamage > 0 && impact.type === "blade" && progress < 0.7);
     const advance = attacking ? Math.round(16 * Math.sin(Math.PI * progress / 0.7)) : 0;
     const recoil = impact && impact.playerDamage > 0 && progress < 0.55 ? Math.round(5 * Math.sin(progress * 20)) : 0;
     const foeRecoil = impact && impact.enemyDamage > 0 && progress < 0.55 ? Math.round(5 * Math.sin(progress * 19)) : 0;
-    const cssRatio = (canvas.getBoundingClientRect().width || W2) / W2;
-    const targetCss = b.id === "vold" ? Math.min(140, Math.round(W2 * 0.24 * cssRatio)) : Math.min(96, Math.max(64, Math.round(83 * cssRatio / 1.72)));
-    const enemyScale = targetCss / ((b.id === "vold" ? 158 : 144) * cssRatio);
-    const enemyFoot = battleFormationSlots(W2, H2).enemies[0].feet;
+    const enemySize = Math.min(W2 * 0.36, layout.foot - 60, b.id === "vold" ? 174 : 144);
+    const enemyScale = enemySize / (b.id === "vold" ? 158 : 144);
+    const enemyFoot = layout.foot;
     ctx.save();
     ctx.translate(layout.enemyX + foeRecoil, enemyFoot);
     ctx.scale(enemyScale, enemyScale);
+    if (b.hp === 0) ctx.globalAlpha = impact?.defeated && progress < 0.85 ? (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8) : 0;
     if (area === "cave" && b.id === "m06" && retroAssetsReady()) {
       ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
     } else paintMonster(ctx, b.id, 0, 0);
     ctx.restore();
     paintSharedHero(ctx, layout.heroX - advance + recoil, layout.foot, "left", 0, layout.heroScale);
-    paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, enemyFoot });
+    paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, enemySize });
     function nameplate(name, x, color2) {
       ctx.font = "bold 14px sans-serif";
       const width = Math.min(Math.max(105, Math.round(ctx.measureText(name).width + 26)), Math.round(W2 * 0.38));
@@ -18595,9 +18585,8 @@
       ctx.fillText(name, x, 21);
     }
     nameplate(enemy.name, layout.enemyX, "#d3b5a0");
-    nameplate(s.name, layout.heroX, "#a9b8cb");
     const barW = Math.min(120, Math.round(W2 * 0.27)), barX = Math.round(layout.enemyX - barW / 2);
-    const barY = Math.round(enemyFoot + 7);
+    const barY = Math.round(enemyFoot + 8);
     shot(ctx, barX - 1, barY - 1, barW + 2, 10, "#18283a");
     shot(ctx, barX, barY, barW, 8, "#442c43");
     shot(ctx, barX, barY, Math.max(0, Math.round(barW * Math.max(0, b.hp) / enemy.hp)), 7, "#c88d91");
@@ -18849,6 +18838,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
+  $("build-id").textContent = "20261118-battle-panel-01";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -18859,7 +18849,6 @@
   var queue = [];
   var hint = "";
   var panelMode = "";
-  var moving = null;
   var lightSteps = 0;
   var menuChoices = [];
   var menuIndex = -1;
@@ -18874,6 +18863,8 @@
   var leafNpcFacing = {};
   var battleFx = null;
   var battleFrame = 0;
+  var battleEnding = null;
+  var battleArea = "";
   var audio = new GameAudio();
   var musicFor = () => !state ? "title" : state.stage === "CLEAR" ? "ending" : battle ? battle.id === "vold" ? "boss" : "battle" : interior ? state.pos.map === "castle" ? "castle" : "town" : { castle: "castle", field: "field", leaf: "town", sailun: "town", cave: "cave", ruins: "ruins", onyx: "onyx" }[state.pos.map] || "field";
   function soundButtons() {
@@ -18895,6 +18886,8 @@
   soundButtons();
   var $panel = $("action-panel");
   var $content = $("panel-content");
+  var $shortcuts = $("shortcut-grid");
+  var battleButtons = ["talk-shortcut", "item-shortcut", "spell-shortcut", "menu-button"].map($);
   var setError = (err) => {
     console.error("[RPG]", err);
     $("start-error").textContent = String(err.message || err);
@@ -18928,9 +18921,10 @@
   }
   function paint() {
     if (!state) return;
+    $("rpg").classList.toggle("in-battle", Boolean(battle));
     sizeGameCanvas();
     audio.setTheme(musicFor());
-    if (battle) drawFight($("game"), state, battle, battleFx);
+    if (battle) drawFight($("game"), state, battle, battleFx, battleArea);
     else if (interior) paintCurrentRoom();
     else paintCurrentWorld();
     const goal = STAGE_GOALS[state.stage];
@@ -18945,15 +18939,17 @@
     $("context-hint").textContent = interior ? roomPrompt : door ? "A  " + door.name + "\u3078\u5165\u308B" : gate ? "A  \u9244\u306E\u9580\u3092\u8ABF\u3079\u308B" : visible ? "A  " + (MAPS[state.pos.map].npcs.some((n) => n === visible) ? "\u306F\u306A\u3059\uFF1A" : "\u3057\u3089\u3079\u308B\uFF1A") + visible.name : "";
     $("message-arrow").hidden = queue.length === 0;
     $("talk-shortcut").textContent = battle ? "\u305F\u305F\u304B\u3046" : "\u306F\u306A\u3059";
-    $("battle-status").hidden = !battle;
+    $("menu-button").textContent = battle ? "\u306B\u3052\u308B" : "\u30E1\u30CB\u30E5\u30FC";
+    $("dialogue").classList.toggle("can-advance", queue.length > 0);
+    const status = $("battle-status");
+    status.hidden = !battle;
+    status.classList.toggle("is-damaged", Boolean(battleFx?.playerDamage));
     if (battle) {
       $("battle-status-name").textContent = state.name + "  Lv." + state.player.level;
-      $("battle-status-hp").textContent = "HP " + state.player.hp;
+      $("battle-status-hp").textContent = "HP " + (battleEnding === "lost" ? 0 : state.player.hp);
       $("battle-status-mp").textContent = "MP " + state.player.mp;
     }
-    $("item-shortcut").disabled = queue.length > 0;
-    $("spell-shortcut").disabled = queue.length > 0;
-    $("menu-button").disabled = Boolean(battle || queue.length);
+    for (const [index, button] of battleButtons.entries()) button.disabled = battleEnding || queue.length > 0 && (Boolean(battle) || index !== 0);
     const milestone = queue.find((line) => /【第一幕クリア】|【第二幕クリア】|【第三幕】|【終幕】/.test(line));
     $("completion").hidden = !milestone;
     $("completion").textContent = milestone?.includes("\u7D42\u5E55") ? "\u2726 THE END \xB7 \u661F\u5C51\u306E\u52C7\u8005" : milestone?.includes("\u7B2C\u4E09\u5E55") ? "\u2726 \u9ED2\u66DC\u57CE\u306E\u7D50\u754C\u89E3\u9664\uFF01" : milestone?.includes("\u7B2C\u4E8C\u5E55") ? "\u2726 \u9ECE\u660E\u306E\u93E1 \u5165\u624B\uFF01" : "\u2726 \u9244\u306E\u9580 \u958B\u901A\uFF01";
@@ -18968,12 +18964,17 @@
   function advanceMessage() {
     if (!queue.length) return false;
     queue.shift();
-    paint();
     if (!queue.length) afterMessage();
+    paint();
     return true;
   }
   function afterMessage() {
-    if (battle && !panelMode) battleChoices();
+    if (battleEnding) {
+      if (!battleFx) {
+        battleEnding = null;
+        battle = null;
+      }
+    } else if (battle && !panelMode) battleChoices();
   }
   function notice(text) {
     hint = text;
@@ -18984,16 +18985,21 @@
     menuChoices = [];
     menuIndex = -1;
     menuBack = null;
+    $shortcuts.hidden = false;
+    for (const button of battleButtons) {
+      button.classList.remove("is-selected");
+      button.removeAttribute("aria-current");
+    }
     $panel.hidden = true;
     $panel.removeAttribute("data-panel-type");
     $content.replaceChildren();
   }
   function markMenu() {
-    [...$content.querySelectorAll("button[data-command-index]")].forEach((btn, i) => {
+    (panelMode ? [...$content.querySelectorAll("button[data-command-index]")] : battleButtons).forEach((btn, i) => {
       const active = i === menuIndex;
       btn.classList.toggle("is-selected", active);
       btn.setAttribute("aria-current", active ? "true" : "false");
-      if (active && document.activeElement !== btn) btn.scrollIntoView({ block: "nearest", inline: "nearest" });
+      if (panelMode && active && document.activeElement !== btn) btn.scrollIntoView({ block: "nearest", inline: "nearest" });
     });
   }
   function steerMenu(dir) {
@@ -19014,8 +19020,9 @@
     menuChoices = choices;
     menuIndex = firstMenuSelection(choices);
     menuBack = back || (battle ? battleChoices : title === "\u5192\u967A\u30E1\u30CB\u30E5\u30FC" || title.includes("\u9053\u5177\u5C4B") || title.includes("\u5BBF") ? closePanel : showMenu);
-    const panelHost = document.querySelector(".screen-shell");
-    if ($panel.parentElement !== panelHost) panelHost.append($panel);
+    const panelHost = battle ? $("control-actions") : $("screen-shell");
+    $shortcuts.hidden = Boolean(battle);
+    if ($panel.parentElement !== panelHost) panelHost.prepend($panel);
     $panel.hidden = false;
     $panel.dataset.panelType = battle ? "battle" : "field";
     $("panel-title").textContent = title;
@@ -19072,55 +19079,49 @@
     }
     if (combatFeedbackProgress(battleFx, performance.now()) >= 1) {
       stopBattleFx();
+      if (battleEnding && !queue.length) afterMessage();
       paint();
       return;
     }
-    paint();
+    drawFight($("game"), state, battle, battleFx, battleArea);
     battleFrame = requestAnimationFrame(animateBattleFx);
   }
   function beginFight(id, tag, lines = []) {
     stopBattleFx();
     stopWalkAnimation();
+    stopMoving();
     audio.cue("attack");
     battle = beginCombat(id, tag);
+    battleArea = state.pos.map === "castle" ? "castle" : monsterById(id).area;
     closePanel();
     message([...lines, tag === "tutorial" ? "\u300C\u305F\u305F\u304B\u3046\u300D\u3067\u9B54\u7269\u306B\u7ACB\u3061\u5411\u304B\u304A\u3046\uFF01" : monsterById(id).name + "\u304C\u73FE\u308C\u305F\uFF01"]);
-    paint();
   }
   function performBattle(action) {
-    if (queue.length) return;
+    if (!battle || queue.length || battleEnding) return;
     const result = combatTurn(state, battle, action);
+    validateState(result.state);
+    if (result.autoSave) auto.write(result.state);
     stopBattleFx();
-    if (result.battle) battleFx = combatFeedback(state, battle, result, action, performance.now());
+    const impact = combatFeedback(state, battle, result, action, performance.now());
+    if (impact.enemyDamage || impact.playerDamage || impact.healing || impact.defeated) battleFx = impact;
     audio.cue(action.type === "spell" ? "spell" : action.type === "item" ? "heal" : action.type === "run" ? "run" : "attack");
-    const screen = $("game").parentElement;
-    screen.classList.remove("is-hit", "is-magic");
-    if (action.type === "attack" || action.type === "spell") {
-      screen.classList.add(action.type === "spell" ? "is-magic" : "is-hit");
-      setTimeout(() => screen.classList.remove("is-hit", "is-magic"), 240);
-    }
     if (result.outcome === "won") audio.cue("victory");
     if (result.outcome === "lost") audio.cue("defeat");
-    if (result.outcome === "continue" && result.state.player.hp < state.player.hp) audio.cue("hit");
+    if (result.outcome === "continue" && impact.playerDamage) audio.cue("hit");
     closePanel();
-    battle = result.battle;
-    storeAndSet(result.state, Boolean(result.autoSave));
+    battleEnding = result.battle ? null : result.outcome;
+    battle = result.battle || (result.outcome === "won" ? { ...battle, hp: 0 } : battle);
+    state = result.state;
     message(result.lines);
     if (battleFx) battleFrame = requestAnimationFrame(animateBattleFx);
-    if (result.outcome !== "continue") {
-      hint = "";
-    }
   }
   function battleChoices() {
-    if (!battle || queue.length) return;
+    if (!battle || queue.length || battleEnding) return;
     stopWalkAnimation();
-    const enemy = monsterById(battle.id);
-    openPanel("\u6226\u95D8\u30B3\u30DE\u30F3\u30C9", [
-      { label: "\u2694 \u305F\u305F\u304B\u3046", run: () => performBattle({ type: "attack" }) },
-      { label: "\u2726 \u3058\u3085\u3082\u3093", run: () => spellMenu(true) },
-      { label: "\u{1F9EA} \u3069\u3046\u3050", run: () => itemMenu(true) },
-      { label: "\u2197 \u306B\u3052\u308B", run: () => performBattle({ type: "run" }), disabled: battle.tag !== "random" }
-    ]);
+    closePanel();
+    menuChoices = battleButtons.map((button) => ({ run: () => button.click() }));
+    menuIndex = firstMenuSelection(menuChoices);
+    markMenu();
   }
   function spellCost(sp) {
     return Math.max(1, sp.mp - (state?.equipment.accessory === "star-orb" ? 1 : 0));
@@ -19133,7 +19134,7 @@
       run: () => inBattle ? performBattle({ type: "spell", id: sp.id }) : castFieldSpell(sp)
     }));
     choices.push({ label: "\u3082\u3069\u308B", run: () => inBattle ? battleChoices() : showMenu(), wide: true });
-    openPanel("\u3058\u3085\u3082\u3093", choices, "\u899A\u3048\u3066\u3044\u308B\u546A\u6587\uFF1A" + known.map((sp) => sp.name).join("\u30FB"));
+    openPanel("\u3058\u3085\u3082\u3093", choices, inBattle ? "" : "\u899A\u3048\u3066\u3044\u308B\u546A\u6587\uFF1A" + known.map((sp) => sp.name).join("\u30FB"));
   }
   function castFieldSpell(sp) {
     closePanel();
@@ -19198,7 +19199,7 @@
       }
     }));
     choices.push({ label: "\u3082\u3069\u308B", run: () => inBattle ? battleChoices() : showMenu(), wide: true });
-    openPanel("\u3069\u3046\u3050", choices, "\u6240\u6301\u54C1\u306E\u4E00\u89A7\u3067\u3059\u3002" + (state.relics.includes("beginning-sword") ? " \u5927\u5207\u306A\u3082\u306E\uFF1A\u306F\u3058\u307E\u308A\u306E\u5263\uFF08\u58F2\u5374\u3067\u304D\u307E\u305B\u3093\uFF09" : ""));
+    openPanel("\u3069\u3046\u3050", choices, inBattle ? "" : "\u6240\u6301\u54C1\u306E\u4E00\u89A7\u3067\u3059\u3002" + (state.relics.includes("beginning-sword") ? " \u5927\u5207\u306A\u3082\u306E\uFF1A\u306F\u3058\u307E\u308A\u306E\u5263\uFF08\u58F2\u5374\u3067\u304D\u307E\u305B\u3093\uFF09" : ""));
   }
   function equipmentMenu() {
     const owned = Object.entries(CATALOG.equipment).flatMap(([category, list]) => list.filter((e) => ownsEquipment(state, category, e.id)).map((e) => ({ ...e, category })));
@@ -19356,7 +19357,7 @@
   }
   function direction(dir) {
     if (!state) return;
-    if (panelMode) {
+    if (panelMode || battle && !queue.length) {
       steerMenu(dir);
       return;
     }
@@ -19415,7 +19416,7 @@
     if (!battle) audio.cue("confirm");
     if (advanceMessage()) return;
     if (battle) {
-      battleChoices();
+      chooseMenu();
       return;
     }
     if (interior) {
@@ -19485,31 +19486,51 @@
     }
     if (!battle) showMenu();
   }
+  var pressedButtons = /* @__PURE__ */ new Map();
+  var movePointer = null;
+  var moveTimer = null;
   function stopMoving() {
-    if (moving) {
-      clearInterval(moving);
-      moving = null;
-    }
-    document.querySelectorAll("[data-dir]").forEach((n) => n.classList.remove("pressed"));
+    clearTimeout(moveTimer);
+    moveTimer = null;
+    movePointer = null;
   }
-  for (const button of document.querySelectorAll("[data-dir]")) {
-    button.addEventListener("pointerdown", (ev) => {
-      if (ev.button !== 0) return;
-      ev.preventDefault();
-      stopMoving();
+  function releaseButton(pointerId) {
+    const button = pressedButtons.get(pointerId);
+    pressedButtons.delete(pointerId);
+    if (button && ![...pressedButtons.values()].includes(button)) button.classList.remove("pressed");
+    if (pointerId === movePointer) stopMoving();
+  }
+  function releaseAllButtons() {
+    for (const pointerId of pressedButtons.keys()) releaseButton(pointerId);
+  }
+  for (const surface of [$("rpg"), $("start-overlay")]) {
+    surface.addEventListener("contextmenu", (ev) => ev.preventDefault());
+    surface.addEventListener("pointerdown", (ev) => {
+      const button = ev.target.closest("button");
+      if (!button || button.disabled || ev.button !== 0) return;
+      pressedButtons.set(ev.pointerId, button);
       button.classList.add("pressed");
-      direction(button.dataset.dir);
-      moving = setInterval(() => direction(button.dataset.dir), 165);
-      if (button.setPointerCapture) button.setPointerCapture(ev.pointerId);
+      const dir = button.dataset.dir;
+      if (!dir || movePointer !== null) return;
+      ev.preventDefault();
+      button.setPointerCapture(ev.pointerId);
+      movePointer = ev.pointerId;
+      direction(dir);
+      const repeat = () => {
+        direction(dir);
+        if (movePointer === ev.pointerId) moveTimer = setTimeout(repeat, 165);
+      };
+      if (movePointer === ev.pointerId) moveTimer = setTimeout(repeat, 280);
     });
-    button.addEventListener("pointerup", stopMoving);
-    button.addEventListener("pointercancel", stopMoving);
-    button.addEventListener("lostpointercapture", stopMoving);
+    surface.addEventListener("lostpointercapture", (ev) => releaseButton(ev.pointerId));
+  }
+  for (const event of ["pointerup", "pointercancel"]) {
+    window.addEventListener(event, (ev) => releaseButton(ev.pointerId), true);
   }
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopMoving();
+    if (document.hidden) releaseAllButtons();
   });
-  window.addEventListener("blur", stopMoving);
+  window.addEventListener("blur", releaseAllButtons);
   $("confirm").addEventListener("click", confirm);
   $("cancel").addEventListener("click", cancel);
   $("talk-shortcut").addEventListener("click", () => {
@@ -19519,7 +19540,11 @@
       return;
     }
     if (battle) {
-      performBattle({ type: "attack" });
+      try {
+        performBattle({ type: "attack" });
+      } catch (err) {
+        fatal(err);
+      }
       return;
     }
     if (panelMode) closePanel();
@@ -19533,8 +19558,20 @@
     if (!state || queue.length) return;
     spellMenu(Boolean(battle));
   });
-  $("menu-button").addEventListener("click", () => panelMode ? closePanel() : showMenu());
-  $("panel-close").addEventListener("click", closePanel);
+  $("menu-button").addEventListener("click", () => {
+    if (battle) {
+      try {
+        performBattle({ type: "run" });
+      } catch (err) {
+        fatal(err);
+      }
+      return;
+    }
+    if (panelMode) closePanel();
+    else showMenu();
+  });
+  $("panel-close").addEventListener("click", () => battle ? battleChoices() : closePanel());
+  $("dialogue").addEventListener("click", advanceMessage);
   document.addEventListener("keydown", (ev) => {
     if (!$("start-overlay").hidden || ev.target.tagName === "INPUT") return;
     const dirs = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
@@ -19553,7 +19590,9 @@
     }
     if (ev.key.toLowerCase() === "m" && !ev.repeat) {
       ev.preventDefault();
-      panelMode ? closePanel() : showMenu();
+      if (!battle) {
+        panelMode ? closePanel() : showMenu();
+      }
     }
   });
   function begin(s, intro = false) {
@@ -19564,6 +19603,7 @@
     validateState(s);
     state = s;
     battle = null;
+    battleEnding = null;
     interior = null;
     leafNpcFacing = {};
     queue = [];
@@ -19628,5 +19668,5 @@
   window.addEventListener("resize", () => {
     if (state) paint();
   });
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();
