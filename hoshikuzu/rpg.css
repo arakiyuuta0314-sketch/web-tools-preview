@@ -135,7 +135,9 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  gap:6px;
 }
-.panel-content p,.panel-content button.wide{grid-column:1/-1}
+.panel-content p,.panel-content button.wide,.panel-content .overworld-atlas{grid-column:1/-1}
+.overworld-atlas{display:block;width:100%;height:auto;max-width:100%;image-rendering:pixelated;border:1px solid #a7bbaf;background:#193d52;border-radius:2px;}
+.action-panel:has(.overworld-atlas){top:5px;max-height:calc(100% - 10px);width:calc(100% - 16px);padding:6px 9px;}
 .panel-content p{
  margin:3px 0 7px;white-space:pre-line;
  font-size:12px;line-height:1.55;color:#dfe8dd
@@ -347,4 +349,258 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 @media(prefers-reduced-motion:reduce){
  .screen-shell.is-hit,.screen-shell.is-magic,.message-arrow{animation:none}
+}
+
+/* Landscape is the primary presentation: scenery and side-view combat on the
+   broad left screen, physical controls on a compact right-hand rail.
+   Portrait is kept as an accessible fallback for browser windows that cannot
+   rotate. No forced CSS rotation or fake viewport transformation. */
+@media (orientation:landscape) and (min-width:560px){
+ html,body{width:100%;height:100%;overflow:hidden}
+ body{background:#0b141c}
+ .game-shell{
+  width:100%;max-width:1440px;
+  height:100dvh;max-height:none;margin:0 auto;border-radius:0;
+  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(208px,26vw,268px);
+  grid-template-rows:minmax(0,1fr);gap:0;
+  overflow:hidden;box-shadow:0 0 0 1px #40525a
+ }
+ .world-zone{
+  min-height:0;min-width:0;overflow:hidden;border-radius:0;
+  grid-template-rows:31px minmax(30px,auto) minmax(0,1fr);
+  border:0;border-right:1px solid #78817d;
+ }
+ .game-topline{height:31px;min-height:31px;padding:0 10px}
+ .game-title{font-size:16px;letter-spacing:.07em}
+ .sound{min-height:26px}
+ .objective{min-height:30px;max-height:49px;padding:3px 9px;gap:5px}
+ .objective-caption{font-size:10px}
+ .objective-text{font-size:11px;line-height:1.2}
+ .screen-shell{border:2px solid #30414a;border-top:0;min-height:0}
+ #game{width:100%;height:100%}
+ .dialogue{
+  left:7px;right:7px;bottom:7px;min-height:51px;max-height:41%;
+  padding:8px 25px 8px 11px
+ }
+ .dialogue p{font-size:12px;line-height:1.4}
+ .context-hint{right:8px;bottom:8px;font-size:10px;padding:5px 8px}
+ .completion{top:42%;padding:8px 11px;font-size:15px}
+ .action-panel{
+  top:7px;left:7px;width:min(340px,64%);
+  max-height:calc(100% - 14px);padding:6px 8px
+ }
+ .panel-head{padding-bottom:2px;margin-bottom:4px}
+ .panel-content{gap:4px}
+ .panel-content button{min-height:40px;font-size:11px}
+ .action-panel:has(.overworld-atlas){top:4px;left:7px;max-height:calc(100% - 8px);width:min(540px,83%)}
+ .controls{
+  min-height:0;min-width:0;position:relative;
+  display:flex;flex-direction:column;justify-content:space-between;
+  gap:4px;align-items:center;flex-wrap:nowrap;
+  padding:24px 8px max(7px,env(safe-area-inset-bottom));
+  border-top:0;border-left:3px solid #101a21;
+  box-shadow:inset 2px 0 #6b7973,-4px 0 10px #0007
+ }
+ .controls::before{inset:7px 5px;border-radius:12px}
+ .controls-label{top:7px;left:13px}
+ .dpad{
+  margin:0;transform:none;
+  grid-template-columns:repeat(3,44px);
+  grid-template-rows:repeat(3,44px);
+ }
+ .dpad button,.dpad-center{width:44px;height:44px;min-width:44px;min-height:44px}
+ .dpad-center::before{margin:13px auto}
+ .control-actions{
+  width:100%;max-width:none;min-width:0;
+  flex:0 0 auto;display:flex;flex-direction:column;
+  justify-content:flex-end;gap:5px;padding:0 5px;
+ }
+ .shortcut-grid{gap:5px}
+ .shortcut-grid button{min-height:44px;padding:4px 1px;font-size:11px}
+ .action-pair{justify-content:space-around;gap:5px}
+ .face,.face-b{width:48px;height:48px;min-width:48px;min-height:48px}
+ .face span{font-size:18px}
+ .face small{font-size:8px}
+ .control-tip{display:none}
+ .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .shortcut-grid{display:none}
+ .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .controls-label{display:none}
+ .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .dpad{margin-top:auto}
+ .controls:has(.action-panel[data-panel-type="battle"]:not([hidden])) .control-actions{
+  height:auto;justify-content:flex-end;padding:0 5px
+ }
+ .controls .action-panel[data-panel-type="battle"]{
+  top:9px;right:7px;left:7px;bottom:auto;
+  width:calc(100% - 14px);height:auto;max-height:min(155px,45%);
+  padding:4px 6px;overflow:auto;z-index:10
+ }
+ .controls .action-panel[data-panel-type="battle"] .panel-head{
+  padding-bottom:2px;margin-bottom:3px
+ }
+ .controls .action-panel[data-panel-type="battle"] .panel-content{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:3px
+ }
+ .controls .action-panel[data-panel-type="battle"] .panel-content button{
+  min-height:44px;font-size:10px;padding:2px
+ }
+ .controls .action-panel[data-panel-type="battle"] .panel-content p{font-size:10px}
+ .start-overlay{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+ .start-box{
+  width:min(720px,96%);max-height:96dvh;
+  padding:10px 20px 12px;
+  display:grid;grid-template-columns:1fr 1fr;column-gap:18px;
+  align-items:center
+ }
+ .start-box h1,.start-subtitle,.start-mountain,.start-story,.start-spark,.start-error,.legal{grid-column:1/-1}
+ .start-spark{font-size:18px}
+ .start-box h1{font-size:23px;margin:0}
+ .start-subtitle{margin:0 0 3px}
+ .start-mountain{display:none}
+ .start-story{font-size:11px;line-height:1.35;margin:0 0 4px}
+ .start-story br{display:none}
+ .start-box label{text-align:center;grid-column:1/-1;margin:0}
+ .start-box input{grid-column:1/-1;height:34px;margin-bottom:3px;font-size:14px}
+ .start-box button{min-height:34px;margin:3px 0}
+ .start-sound{grid-column:1/-1}
+ .legal{padding-top:2px}
+}
+@media (orientation:landscape) and (min-width:560px) and (max-height:350px){
+ .game-shell{grid-template-columns:minmax(0,1fr) 198px}
+ .world-zone{grid-template-rows:26px minmax(27px,auto) minmax(0,1fr)}
+ .game-topline{height:26px;min-height:26px}
+ .game-title{font-size:14px}
+ .objective{min-height:27px}
+ .controls{padding-top:16px;padding-bottom:4px;gap:2px}
+ .controls-label{display:none}
+ .control-actions{gap:2px}
+ .shortcut-grid button{min-height:44px}
+ .face,.face-b{width:44px;height:44px;min-width:44px;min-height:44px}
+ .controls .action-panel[data-panel-type="battle"]{max-height:125px;top:4px}
+ .controls .action-panel[data-panel-type="battle"] .panel-content button{min-height:44px}
+ .start-box{padding:5px 16px}
+ .start-spark,.start-story{display:none}
+ .start-box h1{font-size:19px}
+ .start-box button{min-height:30px}
+}
+
+
+/* 2026-11-11 UI v1.1 — gameplay-wide immersive landscape controls.
+   Only positioning and presentation change. Portrait styles above are retained. */
+.battle-status{display:none}
+@media (orientation:landscape) and (min-width:560px){
+ .game-shell{
+   width:100%;max-width:none;height:100dvh;max-height:none;
+   display:block;position:relative;overflow:hidden;margin:0;
+   padding:0;border-radius:0;box-shadow:none;
+ }
+ .world-zone{
+   position:absolute;inset:0;min-height:0;min-width:0;
+   display:grid;grid-template-rows:30px minmax(29px,auto) minmax(0,1fr);
+   border:0;border-radius:0;overflow:hidden;
+   padding-left:env(safe-area-inset-left);
+   padding-right:env(safe-area-inset-right);
+ }
+ .game-topline{height:30px;min-height:30px;padding:0 13px}
+ .objective{min-height:29px;max-height:50px}
+ .screen-shell{border:0;min-height:0;overflow:hidden}
+ .controls{
+   position:absolute;inset:0;z-index:18;
+   display:block;min-width:0;min-height:0;
+   padding:0;margin:0;overflow:visible;
+   background:transparent;border:0;box-shadow:none;
+   pointer-events:none;
+ }
+ .controls::before,.controls-label,.control-tip,.shortcut-grid{display:none!important}
+ .dpad{
+   position:absolute;left:max(12px,env(safe-area-inset-left));
+   bottom:max(38px,calc(env(safe-area-inset-bottom) + 17px));
+   display:grid;grid-template-columns:repeat(3,44px);
+   grid-template-rows:repeat(3,44px);width:132px;height:132px;
+   margin:0;transform:none;pointer-events:auto;
+   filter:drop-shadow(0 2px 4px #010509a8);
+ }
+ .dpad button,.dpad-center{
+   width:44px;height:44px;min-width:44px;min-height:44px;
+ }
+ .dpad-center::before{margin:13px auto}
+ .control-actions{
+   position:absolute;right:max(17px,calc(env(safe-area-inset-right) + 10px));
+   bottom:max(38px,calc(env(safe-area-inset-bottom) + 17px));
+   height:auto;width:58px;min-width:58px;max-width:58px;
+   display:block;padding:0;margin:0;flex:none;pointer-events:none;
+ }
+ .action-pair{
+   width:58px;display:flex;flex-direction:column-reverse;
+   align-items:center;justify-content:flex-start;gap:11px;
+   pointer-events:auto;
+ }
+ .face,.face-b{
+   width:58px;height:58px;min-width:58px;min-height:58px;
+   transform:none;touch-action:manipulation;
+ }
+ .face span{font-size:21px}
+ .face small{font-size:8px}
+ .action-panel{
+   position:absolute;left:max(150px,calc(env(safe-area-inset-left) + 146px));
+   top:7px;max-height:calc(100% - 14px);
+   width:min(365px,calc(100% - 265px));overflow:auto;
+ }
+ .action-panel[data-panel-type="battle"]{
+   position:absolute;
+   left:max(151px,calc(env(safe-area-inset-left) + 145px));
+   top:auto;bottom:8px;right:auto;
+   width:clamp(200px,28vw,280px);
+   max-height:min(154px,56%);overflow:auto;
+   padding:5px 8px;background:#0d1828f2;
+   border:2px solid #f5f0df;z-index:16;
+   box-shadow:inset 0 0 0 2px #243447,0 3px 15px #030a15a1
+ }
+ .action-panel[data-panel-type="battle"] .panel-head{
+   padding-bottom:2px;margin-bottom:3px
+ }
+ .action-panel[data-panel-type="battle"] .panel-content{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px
+ }
+ .action-panel[data-panel-type="battle"] .panel-content button{
+   min-height:44px;font-size:11px;padding:2px
+ }
+ .action-panel[data-panel-type="battle"] .panel-content p{
+   font-size:10px;margin:2px 0;grid-column:1/-1
+ }
+ .battle-status:not([hidden]){
+   position:absolute;z-index:13;
+   right:max(94px,calc(env(safe-area-inset-right) + 85px));
+   bottom:9px;display:grid;grid-template-columns:1fr 1fr;
+   gap:5px 9px;width:clamp(135px,19vw,188px);
+   padding:7px 12px 9px;background:#0d1828ed;
+   border:2px solid #f5f0df;color:#fff4e2;
+   font-size:12px;box-shadow:inset 0 0 0 2px #25374a,0 3px 15px #030a1580;
+ }
+ .battle-status strong{grid-column:1/-1;font-size:12px}
+ .battle-status span{font:700 12px monospace}
+ .dialogue{bottom:10px;left:clamp(145px,20vw,185px);right:clamp(87px,12vw,115px)}
+ .context-hint{right:max(97px,calc(env(safe-area-inset-right) + 88px));bottom:9px}
+ .action-panel:has(.overworld-atlas){
+   top:4px;left:max(149px,calc(env(safe-area-inset-left) + 145px));
+   width:min(540px,calc(100% - 260px));max-height:calc(100% - 8px);
+ }
+ .start-overlay{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+}
+@media (orientation:landscape) and (min-width:560px) and (max-height:350px){
+ .world-zone{grid-template-rows:26px minmax(27px,auto) minmax(0,1fr)}
+ .game-topline{height:26px;min-height:26px}
+ .objective{min-height:27px}
+ .dpad,.control-actions{bottom:max(24px,calc(env(safe-area-inset-bottom) + 8px))}
+ .action-panel[data-panel-type="battle"]{max-height:min(140px,58%);bottom:4px}
+ .battle-status:not([hidden]){bottom:5px;padding:4px 8px;font-size:11px}
+}
+
+/* Town-v2: remove both upper game bands across landscape AND portrait.
+   Their metadata hooks remain nonvisual, with BGM toggled in adventure menu. */
+.game-topline,.objective{display:none!important}
+.world-zone{grid-template-rows:minmax(0,1fr)!important}
+.screen-shell{grid-row:1!important;min-height:0;border-top:0}
+@media (orientation:landscape) and (min-width:560px){
+ .world-zone{grid-template-rows:minmax(0,1fr)!important}
+ .screen-shell{grid-row:1!important}
 }
