@@ -284,7 +284,8 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .start-primary{background:#6a5552;border:2px solid #d7c8aa!important;font-size:15px!important}
 .start-secondary{background:#243943;border:1px solid #789192}
 .start-sound{background:transparent;color:#b8cbbd!important;border:1px solid #4e6d6c;font-size:11px!important}
-.start-error{font-size:12px;color:#f4b09c;white-space:pre-wrap}
+.start-loading{margin:4px 0;color:#fff1cf;font-size:13px}
+.start-error{font-size:12px;color:#f4b09c;white-space:pre-wrap;overflow-wrap:anywhere}
 .legal{display:flex;justify-content:center;gap:12px;padding-top:9px}
 .legal a,.legal span{font-size:10px;color:#b7c7c4}
 @media(max-width:355px){
@@ -406,7 +407,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
   display:grid;grid-template-columns:1fr 1fr;column-gap:18px;
   align-items:center
  }
- .start-box h1,.start-subtitle,.start-mountain,.start-story,.start-spark,.start-error,.legal{grid-column:1/-1}
+ .start-box h1,.start-subtitle,.start-mountain,.start-story,.start-spark,.start-loading,.start-error,.legal{grid-column:1/-1}
  .start-spark{font-size:18px}
  .start-box h1{font-size:23px;margin:0}
  .start-subtitle{margin:0 0 3px}
