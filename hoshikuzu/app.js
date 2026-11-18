@@ -13830,17 +13830,18 @@
   function preloadLeafProps() {
     if (ready) return ready;
     ready = Promise.all(Object.entries(LEAF_PROP_DISPLAY).map(([kind, [w, h]]) => new Promise((resolve, reject) => {
+      const src = "assets/leaf-props-v8/" + kind + ".png";
       const im = new Image();
       im.onload = () => {
         if (im.naturalWidth !== w || im.naturalHeight !== h) {
-          reject(Error("Leaf prop has wrong size: " + kind));
+          reject(Error("Leaf prop has wrong size: " + src));
           return;
         }
         pictures.set(kind, im);
         resolve();
       };
-      im.onerror = () => reject(Error("Leaf prop image unavailable: " + kind));
-      im.src = "assets/leaf-props-v8/" + kind + ".png";
+      im.onerror = () => reject(Error("Leaf prop image unavailable: " + src));
+      im.src = src;
     })));
     return ready;
   }
@@ -13916,14 +13917,15 @@
   function preloadSailunArt() {
     if (promise) return promise;
     promise = Promise.all(Object.entries(sizes).map(([kind, size]) => new Promise((resolve, reject) => {
+      const src = "assets/sailun-v1/" + (kind === "ground" ? "ground-552x360" : kind.startsWith("npc_") ? kind.replaceAll("_", "-") + "-4dir" : kind.replaceAll("_", "-")) + ".png";
       const image = new Image();
       image.onload = () => {
-        if (image.naturalWidth !== size[0] || image.naturalHeight !== size[1]) return reject(Error("Sailun asset dimensions invalid: " + kind));
+        if (image.naturalWidth !== size[0] || image.naturalHeight !== size[1]) return reject(Error("Sailun asset dimensions invalid: " + src));
         sprites.set(kind, image);
         resolve();
       };
-      image.onerror = () => reject(Error("Missing Sailun art: " + kind));
-      image.src = "assets/sailun-v1/" + (kind === "ground" ? "ground-552x360" : kind.startsWith("npc_") ? kind.replaceAll("_", "-") + "-4dir" : kind.replaceAll("_", "-")) + ".png";
+      image.onerror = () => reject(Error("Missing Sailun art: " + src));
+      image.src = src;
     })));
     return promise;
   }
@@ -14779,6 +14781,7 @@
     }
     if (cache.loading) return cache.loading.then(onReady);
     cache.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
+      const path = "assets/castle/" + file;
       const image = new Image();
       image.onload = () => {
         cache.images[name] = image;
@@ -14786,12 +14789,12 @@
       };
       image.onerror = () => {
         cache.failed = true;
-        reject(Error("Castle art missing: " + file));
+        reject(Error("Castle art missing: " + path));
       };
-      image.src = "assets/castle/" + file + "?v=" + ART_VERSION;
+      image.src = path + "?v=" + ART_VERSION;
     }))).then(() => {
       const bg = cache.images.background;
-      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions");
+      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions: assets/castle/" + scenes.background);
       cache.ready = true;
       onReady();
     });
@@ -15302,17 +15305,17 @@
     if (loading) return loading;
     if (typeof Image === "undefined") throw Error("Retro art preload requires browser Image");
     loading = Promise.all(Object.entries(IMAGES).map(([key, filename]) => new Promise((resolve, reject) => {
+      const assetPath = filename.startsWith("../") ? "assets/" + filename.slice(3) : "assets/retro/" + filename;
       const img2 = new Image();
       img2.onload = () => {
         if (img2.naturalWidth < 32 || img2.naturalHeight < 32) {
-          reject(Error("Corrupt retro PNG: " + filename));
+          reject(Error("Corrupt retro PNG: " + assetPath));
           return;
         }
         cache2.set(key, img2);
         resolve();
       };
-      img2.onerror = () => reject(Error("Could not load retro art " + filename));
-      const assetPath = filename.startsWith("../") ? "assets/" + filename.slice(3) : "assets/retro/" + filename;
+      img2.onerror = () => reject(Error("Could not load retro art: " + assetPath));
       img2.src = assetPath + "?v=" + RETRO_ASSET_VERSION;
     }))).then(() => {
       ready2 = true;
@@ -16864,7 +16867,7 @@
       image.onload = () => {
         const [w, h] = expected[key];
         if (image.naturalWidth !== w || image.naturalHeight !== h) {
-          reject(Error("Invalid Leaf source: " + key));
+          reject(Error("Invalid Leaf source: " + src));
           return;
         }
         images.set(key, image);
@@ -16937,12 +16940,12 @@
       const art = new Image();
       art.onload = () => {
         if (art.naturalWidth !== 960 || art.naturalHeight !== 540) {
-          reject(Error("Wrong " + label2 + " battle image dimensions"));
+          reject(Error("Wrong " + label2 + " battle image dimensions: " + src.split("?")[0]));
           return;
         }
         resolve(art);
       };
-      art.onerror = () => reject(Error(label2 + " battle backdrop failed to load"));
+      art.onerror = () => reject(Error(label2 + " battle backdrop failed to load: " + src.split("?")[0]));
       art.src = src;
     });
     castleLoading = Promise.all([
@@ -19656,15 +19659,46 @@
     setError(err);
   }
   for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
-  if (!saveSlotError) {
-    Promise.all([preloadRetroAssets(), preloadCastleArt(), preloadSfcBattleArt(), preloadLeafRedoArt(), preloadSailunArt()]).then(() => {
+  async function prepareTitle() {
+    const status = $("start-loading");
+    if (saveSlotError) {
+      status.hidden = true;
+      return;
+    }
+    try {
+      const loading2 = [
+        preloadRetroAssets(),
+        preloadCastleArt(),
+        preloadSfcBattleArt(),
+        preloadLeafRedoArt(),
+        preloadSailunArt()
+      ];
+      let completed = 0;
+      const showProgress = () => {
+        status.textContent = `\u7D20\u6750\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026 ${completed}/${loading2.length} \u30B0\u30EB\u30FC\u30D7`;
+      };
+      showProgress();
+      await Promise.all(loading2.map(async (group) => {
+        await group;
+        if (status.hidden) return;
+        completed++;
+        showProgress();
+      }));
+    } catch (err) {
+      setError(Error("\u7D20\u6750\u306E\u8AAD\u307F\u8FBC\u307F\u306B\u5931\u6557\u3057\u305F\u305F\u3081\u3001\u5192\u967A\u3092\u958B\u59CB\u3067\u304D\u307E\u305B\u3093\u3002\n" + (err.message || err)));
+      return;
+    } finally {
+      status.hidden = true;
+    }
+    try {
       verifySlots();
       $("new-game").disabled = false;
-    }).catch((err) => {
+    } catch (err) {
       setError(err);
       for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
-    });
+    }
   }
+  prepareTitle();
   window.addEventListener("resize", () => {
     if (state) paint();
   });
