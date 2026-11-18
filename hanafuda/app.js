@@ -10513,9 +10513,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return '<div class="card-slot">' + button + '<div class="card-name" aria-hidden="true"><strong>' + c.month + "\u6708 " + esc(c.flower) + "</strong><span>" + esc(c.subject) + "\u30FB" + esc(c.type) + "</span></div></div>";
   }
   var TAKEN_FAMILIES = Object.freeze(["\u5149", "\u30BF\u30CD", "\u77ED\u518A", "\u30AB\u30B9"]);
-  function boardTakenPanel(ids, allowDetails, who = 0) {
+  function boardTakenPanel(ids, allowDetails, who = 0, incoming = []) {
     const label = who === 1 ? "\u76F8\u624B\u306E\u53D6\u308A\u672D" : "\u3042\u306A\u305F\u306E\u53D6\u308A\u672D";
-    return '<section class="board-taken" aria-label="' + label + '"><div class="board-side-heading"><strong>' + label + "</strong><span>" + ids.length + '\u679A</span></div><div class="board-taken-grid" aria-label="' + label + '\u3002\u4E0A\u4E0B\u306B\u30B9\u30AF\u30ED\u30FC\u30EB\u3057\u3066\u5168\u3066\u78BA\u8A8D\u3067\u304D\u307E\u3059">' + (ids.length ? ids.map((id) => '<button type="button" class="board-taken-card" data-action="inspect" data-id="' + esc(id) + '" aria-label="' + esc(card(id).name) + '"><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("") : '<span class="board-side-empty">\u53D6\u3063\u305F\u672D\u306F\u3053\u3053\u306B\u4E26\u3073\u307E\u3059</span>') + '</div><button type="button" class="taken-browse-button" data-action="show-taken" data-who="' + who + '">\u5168\u672D\u3092\u898B\u308B \u203A</button></section>';
+    return '<section class="board-taken" aria-label="' + label + '"><div class="board-side-heading"><strong>' + label + "</strong><span>" + ids.length + '\u679A</span></div><div class="board-taken-grid" aria-label="' + label + '\u3002\u4E0A\u4E0B\u306B\u30B9\u30AF\u30ED\u30FC\u30EB\u3057\u3066\u5168\u3066\u78BA\u8A8D\u3067\u304D\u307E\u3059">' + (ids.length || incoming.length ? [...ids, ...incoming].map((id) => '<button type="button" class="board-taken-card' + (incoming.includes(id) ? " incoming-card" : "") + '" data-action="inspect" data-id="' + esc(id) + '" aria-label="' + esc(card(id).name) + '"><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("") : '<span class="board-side-empty">\u53D6\u3063\u305F\u672D\u306F\u3053\u3053\u306B\u4E26\u3073\u307E\u3059</span>') + '</div><button type="button" class="taken-browse-button" data-action="show-taken" data-who="' + who + '">\u5168\u672D\u3092\u898B\u308B \u203A</button></section>';
   }
   function yakuCardIdsForDisplay(y, ids) {
     const rule = YAKU_TABLE.find((item) => item.id === y.id);
@@ -10832,19 +10832,19 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const choiceText = drawChoice ? "\u5C71\u672D\u304B\u3089\u5F15\u3044\u305F" + choiceCard.month + "\u6708\u30FB" + choiceCard.subject + "\u3068\u5408\u3046\u672D\u304C2\u679A\u3042\u308B\u3088\u3002\u53D6\u308A\u305F\u3044\u65B9\u3092\u30BF\u30C3\u30D7\u3057\u3066\u306D\u3002" : handChoice ? "\u5408\u3046\u672D\u304C2\u679A\u3042\u308B\u3088\u3002\u53D6\u308A\u305F\u3044\u65B9\u3092\u30BF\u30C3\u30D7\u3057\u3066\u306D\u3002" : "";
     const field = r.field.map((id) => {
       const chosen = r.phase === "draw-target" && r.current === 0 && matching(r.field, r.pendingDraw).includes(id), same = selecting && matchingNow.includes(id);
-      return tile(id, { action: chosen ? "draw-target" : same ? "field-target" : "inspect", label: showFieldNames, className: chosen || same || playback?.matches.includes(id) ? "target " : "" });
+      return tile(id, { action: chosen ? "draw-target" : same ? "field-target" : "inspect", label: showFieldNames, className: (chosen || same || playback?.matches.includes(id) ? "target " : "") + (playback?.drawnCard === id ? "drawn-card" : "") });
     }).join("");
     const hand = r.hands[0].map((id) => tile(id, { action: "select-hand", label: showHandNames, className: (selectedHand === id ? "selected " : "") + (!playback && g.beginner && helpfulHandIds(g).includes(id) ? "hint " : "") + (r.current === 0 && r.phase === "hand" ? "playable" : "") })).join("");
     const tutor = Boolean(g.tutorial), decisionOnly = Boolean(tutor && r.phase === "decision" && r.current === 0 && (g.tutorialRoleStep ?? 0) >= 2);
     const opponentBacks = r.hands[1].map(() => '<span class="opponent-card-back" aria-hidden="true"><i></i></span>').join("");
-    const playerTaken = boardTakenPanel(r.captured[0], !tutor, 0);
+    const playerTaken = boardTakenPanel(r.captured[0], !tutor, 0, r.current === 0 ? playback?.incoming : void 0);
     const playerYaku = boardYakuPanel(r.captured[0], r.koiCalls, "\u3042\u306A\u305F\u306E\u3067\u304D\u3066\u3044\u308B\u5F79");
-    const rivalTaken = boardTakenPanel(r.captured[1], !tutor, 1);
+    const rivalTaken = boardTakenPanel(r.captured[1], !tutor, 1, r.current === 1 ? playback?.incoming : void 0);
     const rivalYaku = boardYakuPanel(r.captured[1], [r.koiCalls[1], r.koiCalls[0]], "\u76F8\u624B\u306E\u3067\u304D\u3066\u3044\u308B\u5F79");
     const roundLabel = g.matchLesson === 6 ? "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3" : g.matchLesson === 7 ? "3\u304B\u6708\u52DD\u8CA0" : tutor ? "\u7DF4\u7FD2" : g.length + "\u304B\u6708\u5BFE\u5C40";
     const recentDraw = g.matchLesson && [...r.log].reverse().find((event) => event.actor === 0 && event.source === "stock");
     const fieldCaption = playback?.caption || (recentDraw ? "\u5C71\u672D\u304B\u3089 " + card(recentDraw.card).name + "\uFF08" + (recentDraw.taken.length ? "\u53D6\u3063\u305F" : "\u5834\u306B\u51FA\u305F") + "\uFF09" : "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3088\u3046");
-    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (playback?.stockCard || drawChoice ? '<img class="stock-face" src="' + photo(playback?.stockCard || r.pendingDraw) + '" alt="' + esc(card(playback?.stockCard || r.pendingDraw).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + '</div></section></div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
+    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (playback?.stockCard || drawChoice ? '<img class="stock-face' + (drawChoice && !tutor || playback?.drawnCard ? " drawn-card" : "") + '" src="' + photo(playback?.stockCard || r.pendingDraw) + '" alt="' + esc(card(playback?.stockCard || r.pendingDraw).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + '</div></section></div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
     const hintButton = g.matchLesson === 7 && !isEnd && !playback ? '<button class="coach-detail" data-action="match-hint">\u5148\u751F\u306B\u805E\u304F</button>' : "";
     const playAction = playback ? "" : lesson.action + (r.phase === "decision" ? "" : hintButton);
     const resultWinner = g.matchLesson && g.finished ? lesson.winner : r.result?.winner;
@@ -10946,107 +10946,159 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       dialog.addEventListener("cancel", (event) => event.preventDefault());
     });
   }
+  var TURN_MOTION = Object.freeze({
+    scale: 1.5,
+    handFlight: 360,
+    drawFlight: 340,
+    captureFlight: 360,
+    reveal: 210,
+    afterReveal: 290,
+    afterPlay: 170,
+    match: 260,
+    afterCapture: 130,
+    playerHandFlight: 280,
+    playerHandPause: 190,
+    playerHandMatch: 360,
+    playerHandCapturePause: 160
+  });
   async function replayMoves(board, round) {
     const controller = new AbortController();
     const { signal } = controller;
-    const playback = { board, controller, matches: [], caption: "", stockCard: board.pendingDraw };
+    const playback = {
+      board,
+      controller,
+      matches: [],
+      caption: "",
+      stockCard: board.pendingDraw,
+      drawnCard: board.pendingDraw,
+      incoming: []
+    };
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const wait = async (ms) => {
-      if (signal.aborted) return false;
-      const animation = $("app").animate([{}, {}], { duration: reducedMotion ? Math.min(ms, 35) : ms });
-      const abort = () => animation.cancel();
+    const overlay = document.createElement("div");
+    overlay.className = "turn-motion-layer";
+    overlay.setAttribute("aria-hidden", "true");
+    const finish = async (animations) => {
+      const abort = () => animations.forEach((animation) => animation.cancel());
       signal.addEventListener("abort", abort, { once: true });
       try {
-        await animation.finished;
+        await Promise.all(animations.map((animation) => animation.finished));
       } catch {
       } finally {
         signal.removeEventListener("abort", abort);
       }
       return !signal.aborted;
     };
+    const wait = (ms) => finish([overlay.animate([{}, {}], { duration: reducedMotion ? Math.min(ms, 35) : ms })]);
     const find = (selector) => document.querySelector(".play-layout " + selector);
     const fieldCard = (id) => find('.fieldcards [data-id="' + id + '"]');
-    const stockRect = () => find(".stock-back").getBoundingClientRect();
+    const bounds = (element) => element.getBoundingClientRect();
     const frame = (stage, caption) => {
       playback.caption = caption;
       renderScreen();
       find(".tabletop").dataset.turnStage = stage;
       find(".tabletop").dataset.turnActor = board.current;
     };
-    function fly(id, from, to, flip = false) {
-      if (reducedMotion || !from.width || !to.width) return;
+    function fly(id, from, to, duration, emphasize) {
       const image = document.createElement("img");
       image.src = photo(id);
-      image.className = "turn-flying-card";
+      image.className = "turn-flying-card" + (playback.drawnCard === id ? " drawn-card" : "");
       image.alt = "";
-      Object.assign(image.style, { left: to.x + "px", top: to.y + "px", width: to.width + "px", height: to.height + "px" });
-      find(".tabletop").append(image);
-      const start2 = "translate(" + (from.x - to.x) + "px," + (from.y - to.y) + "px) scale(" + from.width / to.width + "," + from.height / to.height + ")";
-      image.animate([
-        { transform: start2 + (flip ? " rotateY(85deg)" : "") },
-        { transform: "none" }
-      ], { duration: 280, easing: "cubic-bezier(.2,.7,.3,1)", fill: "backwards" });
+      const width = from.width;
+      const height = from.height;
+      Object.assign(image.style, { width: width + "px", height: height + "px" });
+      overlay.append(image);
+      const [fromX, fromY] = [from.x + width / 2, from.y + height / 2];
+      const [toX, toY] = [to.x + to.width / 2, to.y + to.height / 2];
+      const pose = (progress, scaleX, scaleY = scaleX) => "translate(" + (fromX + (toX - fromX) * progress - width / 2) + "px," + (fromY + (toY - fromY) * progress - height / 2) + "px) scale(" + scaleX + "," + scaleY + ")";
+      const frames = [{ transform: pose(0, 1), offset: 0 }];
+      if (emphasize) {
+        const scale = TURN_MOTION.scale * Math.max(1, to.height / height);
+        frames.push({ transform: pose(0.18, scale), offset: 0.18 }, { transform: pose(0.82, scale), offset: 0.82 });
+      }
+      frames.push({ transform: pose(1, to.width / width, to.height / height), offset: 1 });
+      return image.animate(frames, { duration, easing: "cubic-bezier(.22,.61,.36,1)", fill: "both" });
     }
     const entries = round.log.slice(board.log.length);
     if (round.pendingDraw) entries.push({ actor: round.current, card: round.pendingDraw, taken: [], source: "stock", awaitingChoice: true });
     turnPresentation = playback;
     board.phase = "presentation";
+    document.body.append(overlay);
     try {
       for (const move of entries) {
         const { actor, card: id, source, taken } = move;
         const who = actor === 0 ? "\u3042\u306A\u305F" : "\u76F8\u624B";
+        const fromStock = source === "stock";
+        const emphasize = fromStock || actor === 1;
         board.current = actor;
-        if (source === "stock" && playback.stockCard !== id) {
+        if (fromStock && playback.stockCard !== id) {
           board.stock.shift();
           playback.stockCard = id;
           frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
           const face = find(".stock-face");
-          if (!reducedMotion) face.animate([{ transform: "rotateY(90deg)" }, { transform: "rotateY(0)" }], { duration: 230 });
-          if (!await wait(440)) return false;
+          if (!reducedMotion && !await finish([face.animate(
+            [{ transform: "rotateY(90deg)" }, { transform: "rotateY(0)" }],
+            { duration: TURN_MOTION.reveal }
+          )])) return false;
+          playback.drawnCard = id;
+          face.classList.add("drawn-card");
+          if (!await wait(TURN_MOTION.afterReveal)) return false;
         }
         if (move.awaitingChoice) break;
         frame("source", who + "\u306E\u756A");
         const hand = board.hands[actor];
         const handIndex = hand.indexOf(id);
-        const origin = source === "stock" ? stockRect() : actor === 0 ? find('.handcards [data-id="' + id + '"]').getBoundingClientRect() : find(".opponent-backs").children[handIndex].getBoundingClientRect();
-        if (source === "hand") hand.splice(handIndex, 1);
+        const origin = bounds(fromStock ? find(".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex]);
+        if (!fromStock) hand.splice(handIndex, 1);
         playback.stockCard = null;
         board.field.push(id);
-        frame(source === "hand" ? "hand-play" : "stock-play", who + (source === "hand" ? "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F" : "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D"));
+        const playCaption = who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
+        frame(fromStock ? "stock-play" : "hand-play", playCaption);
         const played = fieldCard(id);
         if (!reducedMotion) {
-          fly(id, origin, played.getBoundingClientRect(), actor === 1 && source === "hand");
+          const duration = fromStock ? TURN_MOTION.drawFlight : emphasize ? TURN_MOTION.handFlight : TURN_MOTION.playerHandFlight;
+          const flight = fly(id, origin, bounds(played.querySelector("img")), duration, emphasize);
           played.style.visibility = "hidden";
-        }
-        if (!reducedMotion) {
-          if (!await wait(280)) return false;
+          if (!await finish([flight])) return false;
           played.style.visibility = "";
-          find(".turn-flying-card")?.remove();
+          overlay.replaceChildren();
         }
-        if (!await wait(190)) return false;
+        if (!await wait(emphasize ? TURN_MOTION.afterPlay : TURN_MOTION.playerHandPause)) return false;
         if (taken.length) {
           playback.matches = matching(board.field.filter((cardId) => cardId !== id), id);
-          frame(source === "hand" ? "hand-match" : "stock-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
-          if (!await wait(360)) return false;
-          const from = taken.map((cardId) => fieldCard(cardId).getBoundingClientRect());
+          frame(fromStock ? "stock-match" : "hand-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
+          if (!await wait(emphasize ? TURN_MOTION.match : TURN_MOTION.playerHandMatch)) return false;
+          const origins = taken.map((cardId) => bounds(fieldCard(cardId).querySelector("img")));
           const side = actor === 0 ? ".player-side" : ".opponent-side";
-          const panel = find(side + " .board-taken-grid").getBoundingClientRect();
+          const captureStage = fromStock ? "stock-capture" : "hand-capture";
+          const captureCaption = who + "\u306E\u53D6\u308A\u672D\u3078";
           playback.matches = [];
           board.field = board.field.filter((cardId) => !taken.includes(cardId));
+          if (!reducedMotion) {
+            playback.incoming = taken;
+            frame(captureStage, captureCaption);
+            const panel = bounds(find(side + " .board-taken-grid"));
+            const flights = taken.map((cardId, index) => {
+              const destination = bounds(find(side + ' .board-taken-card[data-id="' + cardId + '"] img'));
+              const to = destination.bottom <= panel.bottom ? destination : { x: panel.x + panel.width / 2 - 10, y: panel.y, width: 20, height: 32 };
+              const duration = emphasize ? TURN_MOTION.captureFlight : TURN_MOTION.playerHandFlight;
+              return fly(cardId, origins[index], to, duration, emphasize);
+            });
+            if (!await finish(flights)) return false;
+            overlay.replaceChildren();
+          }
+          playback.incoming = [];
+          playback.drawnCard = null;
           board.captured[actor].push(...taken);
-          frame(source === "hand" ? "hand-capture" : "stock-capture", who + "\u306E\u53D6\u308A\u672D\u3078");
-          taken.forEach((cardId, index) => {
-            const destination = find(side + ' .board-taken-card[data-id="' + cardId + '"]');
-            const bounds = destination?.getBoundingClientRect();
-            const to = bounds?.width && bounds.bottom <= panel.bottom ? bounds : { x: panel.x + panel.width / 2 - 10, y: panel.y, width: 20, height: 32 };
-            if (destination && !reducedMotion) destination.style.visibility = "hidden";
-            fly(cardId, from[index], to);
-          });
-          if (!await wait(440)) return false;
+          frame(captureStage + "-arrival", captureCaption);
+          if (!await wait(emphasize ? TURN_MOTION.afterCapture : TURN_MOTION.playerHandCapturePause)) return false;
+        } else if (fromStock) {
+          playback.drawnCard = null;
+          played.classList.remove("drawn-card");
         }
       }
       return true;
     } finally {
+      overlay.remove();
       if (turnPresentation === playback) turnPresentation = null;
     }
   }
