@@ -79,9 +79,6 @@
 .play-layout.tutorial-decision-only .game-score,.play-layout.tutorial-decision-only .board-taken,.play-layout.tutorial-decision-only .board-zone-caption,.play-layout.tutorial-decision-only .tutorial-board-note,.play-layout.tutorial-decision-only .capture-link,.play-layout.tutorial-decision-only .field-stock small,.play-layout.tutorial-decision-only .round-badge small{display:none!important}
 .play-layout.tutorial-decision-only .tabletop{grid-template-rows:22px minmax(0,1fr) minmax(0,1fr);}
 .play-layout.tutorial-decision-only .tutorial-guide-panel{grid-template-columns:65px minmax(0,1fr) minmax(145px,220px)}
-.play-layout.tutorial-decision-only .teacher-speech p{display:none}
-.play-layout.tutorial-decision-only .teacher-actions{display:grid;grid-template-columns:1fr 1fr;align-items:center}
-.play-layout.tutorial-decision-only .teacher-actions button{min-height:42px;font-size:14px}
 @media(max-width:700px) and (orientation:landscape){
  .scene-game .tutorial-welcome{grid-template-columns:minmax(0,1fr) 155px;gap:7px;padding:6px}
  .tutorial-welcome-guide{padding:6px;gap:5px}
@@ -166,3 +163,207 @@
 }
 
 @media(max-height:360px) and (orientation:landscape){.play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:28px;width:28px;max-width:28px}}
+
+/* Tutorial scenes share the same table treatment as the playing board. */
+.scene-game .tutorial-welcome,
+.tutorial-step-menu {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  min-height:0;
+  padding:10px clamp(14px,6vw,70px);
+  overflow:auto;
+  background:#15283e url("images/japanese-wooden-table-indigo-mat.jpg") center/cover no-repeat;
+  color:#fff5dc;
+}
+.scene-game .tutorial-welcome > * {flex-shrink:0}
+.tutorial-welcome .tutorial-welcome-copy h1,
+.tutorial-welcome .tutorial-welcome-copy p,
+.tutorial-welcome .almanac-month b,
+.tutorial-welcome .almanac-month small {
+  color:#fff5dc;
+  text-shadow:0 1px 3px #081324;
+}
+.tutorial-welcome .tutorial-welcome-copy p,
+.tutorial-welcome .almanac-month small {font:14px/1.3 system-ui,sans-serif}
+.tutorial-welcome .tutorial-purpose-art {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  width:min(100%,640px);
+}
+.tutorial-purpose-art figure {
+  margin:0;
+  display:grid;
+  justify-items:center;
+  align-content:start;
+  text-align:center;
+  gap:5px;
+  text-shadow:0 1px 3px #081324;
+}
+.tutorial-purpose-art img {
+  height:clamp(48px,17vh,124px);
+  width:auto;
+  max-width:100%;
+  object-fit:contain;
+  box-shadow:0 3px 7px #050b15b3;
+}
+.tutorial-purpose-art figcaption {display:grid;gap:3px;font-size:12px}
+.tutorial-purpose-art figcaption strong {font-size:15px}
+.tutorial-welcome .tutorial-almanac {
+  flex:0 0 auto;
+  width:min(100%,640px);
+}
+.tutorial-welcome .almanac-grid {
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-template-rows:auto;
+}
+.tutorial-welcome .almanac-month {
+  justify-content:center;
+  padding:3px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+.tutorial-welcome .almanac-month b {font-size:15px}
+.tutorial-welcome .almanac-month small {
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:anywhere;
+}
+.tutorial-welcome .tutorial-month-quiz {
+  flex:none;
+  margin-block:auto 12px;
+  padding-top:18px;
+}
+.tutorial-welcome .tutorial-month-quiz > small {color:#fff5dc}
+.tutorial-welcome .tutorial-quiz-complete {margin-top:auto}
+.tutorial-step-menu {width:100%;height:100%;border-radius:12px}
+.tutorial-step-menu h1 {margin:0;font:24px "TutorialYuji",serif}
+.tutorial-step-menu ol {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr));
+  gap:8px;
+  width:min(100%,720px);
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.tutorial-step-menu li button {width:100%;min-height:42px}
+@media (max-width:540px) and (orientation:portrait) {
+  .tutorial-welcome .tutorial-purpose-art {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tutorial-welcome .almanac-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* The scrim and speech never intercept taps on the practice cards. */
+.teacher-dim {
+  position:fixed;
+  inset:0;
+  z-index:5;
+  background:rgb(0 0 0 / 48%);
+  pointer-events:none;
+}
+.teacher-bubble {
+  position:absolute;
+  z-index:7;
+  inset-block-start:clamp(8px,4vh,26px);
+  inset-inline-start:50%;
+  transform:translateX(-50%);
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:start;
+  gap:5px 10px;
+  width:min(470px,calc(100% - 32px));
+  padding:9px 13px;
+  border:1px solid #d5b67f;
+  border-radius:16px;
+  background:#fff5df;
+  box-shadow:0 5px 18px #0007;
+  pointer-events:none;
+}
+.tutorial-welcome {position:relative}
+.scene-game .tutorial-welcome .teacher-bubble {flex:none}
+.tutorial-intro-step-2 .month-quiz-choices {position:relative;z-index:6}
+.teacher-bubble::before {
+  content:"";
+  position:absolute;
+  inset-block-start:25px;
+  inset-inline-start:-6px;
+  width:10px;
+  height:10px;
+  transform:rotate(45deg);
+  background:#fff5df;
+  border:solid #d5b67f;
+  border-width:0 0 1px 1px;
+}
+.teacher-icon-frame {
+  display:block;
+  width:34px;
+  height:34px;
+  border:1px solid #a27b4e;
+  border-radius:50%;
+  background:#e4d3b5;
+}
+.play-layout.tutorial-engawa .teacher-bubble .teacher-speech,
+.teacher-bubble .teacher-speech {
+  padding:0;
+  border:0;
+  background:none;
+  box-shadow:none;
+}
+.play-layout.tutorial-engawa .teacher-bubble .teacher-speech small,
+.teacher-bubble .teacher-speech small {font:600 12px/1.2 system-ui,sans-serif;color:#6e482d}
+.play-layout.tutorial-engawa .teacher-bubble .teacher-speech h3,
+.teacher-bubble .teacher-speech h3 {font:700 17px/1.25 system-ui,sans-serif}
+.play-layout.tutorial-engawa .teacher-bubble .teacher-speech p,
+.teacher-bubble .teacher-speech p {
+  display:block!important;
+  font:14px/1.4 system-ui,sans-serif;
+}
+.play-layout.tutorial-engawa .teacher-bubble .teacher-actions,
+.teacher-bubble .teacher-actions {
+  grid-column:2;
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  width:auto;
+}
+.play-layout.tutorial-engawa .teacher-bubble .teacher-actions button,
+.teacher-bubble .teacher-actions button {
+  width:auto;
+  min-height:36px;
+  padding:5px 10px;
+  font:600 13px/1.2 system-ui,sans-serif;
+  pointer-events:auto;
+}
+.teacher-bubble .teacher-role-cards {
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  max-height:none;
+}
+.teacher-bubble .teacher-capture img,
+.teacher-bubble .teacher-role-cards img {height:38px}
+.scene-game .teacher-guide-dialog {background:transparent;align-items:center}
+.teacher-guide-dialog .dialog-sheet {border-radius:16px}
+.teacher-guide-dialog .dialog-text {font-size:16px}
+
+.teacher-bubble .teacher-speech p {
+  -webkit-line-clamp:unset;
+}
+.scene-game .tutorial-intro-step-2 .tutorial-month-quiz {
+  margin-block:auto 16px;
+}
+
+.tutorial-welcome .tutorial-purpose-art {align-items:start}
+.scene-game:has(.tutorial-welcome) .topbar {
+  border-color:#946b41;
+  background:#291b14;
+}
+.scene-game:has(.tutorial-welcome) .topbar .brand {color:#fff5dc}
+@media (orientation:landscape) {
+  .scene-game .tutorial-welcome {
+    background-size:135% 100%;
+    background-position:14% center;
+  }
+}

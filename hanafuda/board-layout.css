@@ -663,6 +663,7 @@
     max-width:18px!important;max-height:27px!important;object-fit:contain!important;
     filter:drop-shadow(1px 2px 2px #100a07bb)!important;
   }
+  .board-taken-grid > .board-side-empty{grid-column:1 / -1}
   .play-layout.seated-layout .board-side-empty{
     display:block!important;margin:auto!important;padding:3px!important;
     color:#f1dfc0!important;font:8px/1.3 sans-serif!important;text-align:center!important;
@@ -732,16 +733,6 @@
     padding:3px 4px!important;border:1px solid #a77d4e!important;border-radius:4px!important;
     background:linear-gradient(#f8e8c6,#dfc18d)!important;color:#533824!important;
     box-shadow:0 1px 2px #6b4b2d55!important;font:700 9px/1.2 "Yu Mincho",serif!important;
-  }
-  .play-layout.seated-layout.tutorial-decision-only .teacher-seat-guide{
-    grid-template-columns:minmax(0,1fr)!important;width:220px!important;max-width:calc(100% - 300px)!important;
-  }
-  .play-layout.seated-layout.tutorial-decision-only .teacher-speech{display:none!important}
-  .play-layout.seated-layout.tutorial-decision-only .teacher-actions{
-    display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;
-  }
-  .play-layout.seated-layout.tutorial-decision-only .teacher-actions button{
-    min-height:38px!important;font-size:11px!important;
   }
   .play-layout.seated-layout .result{z-index:8!important;inset:112px 128px 100px!important}
   .play-layout.seated-layout .game-dialog{z-index:20!important}
@@ -887,4 +878,55 @@
 @media (orientation:landscape) and (max-height:620px){
   .play-layout.seated-layout .board-side{grid-template-rows:minmax(0,.82fr) minmax(0,1.18fr)!important;}
   .play-layout.seated-layout .board-yaku-cards img{height:28px!important;min-height:28px!important;max-height:28px!important;}
+}
+
+/* The full board, including both public capture rails, fits inside the device insets. */
+@media (orientation:landscape) and (max-height:620px){
+  .scene-game .page {
+    box-sizing:border-box;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left)!important;
+    background:#25170f!important;
+  }
+  .play-layout.seated-layout .tabletop {
+    grid-template-columns:min(160px,21%) minmax(0,1fr) min(160px,21%)!important;
+  }
+  .play-layout.seated-layout .teacher-bubble {
+    inset-block-start:clamp(8px,4vh,26px);
+    width:min(470px,calc(100% - 32px));
+  }
+}
+
+.board-play-controls {
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+@media (orientation:landscape) and (max-height:620px) {
+  .play-layout.seated-layout .board-play-controls {
+    position:absolute;
+    top:9px;
+    left:min(164px,22%);
+    z-index:6;
+  }
+  .board-play-controls button {
+    min-height:36px;
+    padding:4px 9px;
+    font-size:12px;
+  }
+}
+
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px) {
+  .play-layout.seated-layout .tabletop {
+    grid-template-columns:min(136px,21%) minmax(0,1fr) min(136px,21%)!important;
+  }
+}
+
+.board-settlement {
+  flex-basis:100%;
+  padding:3px 6px;
+  color:#fff5dc;
+  background:#291b14;
+  border-radius:4px;
+  font-size:12px;
 }
