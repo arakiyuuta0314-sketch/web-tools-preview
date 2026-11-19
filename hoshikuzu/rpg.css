@@ -556,6 +556,17 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  border:1px solid #a5afae;font-size:12px
 }
 .battle-status span{font:700 12px monospace;white-space:nowrap}
+.battle-resource{display:grid;gap:2px;width:clamp(44px,13vw,76px)}
+.battle-resource progress{
+ appearance:none;display:block;width:100%;height:5px;border:0;border-radius:2px;
+ background:#344356;color:var(--fill);--fill:#68d995
+}
+.battle-resource progress#battle-mp-bar[data-remaining="normal"]{--fill:#7cbaff}
+.battle-resource progress[data-remaining="low"]{--fill:#f1c360}
+.battle-resource progress[data-remaining="critical"]{--fill:#ff747a}
+.battle-resource progress::-webkit-progress-bar{background:#344356;border-radius:2px}
+.battle-resource progress::-webkit-progress-value{background:var(--fill);border-radius:2px}
+.battle-resource progress::-moz-progress-bar{background:var(--fill);border-radius:2px}
 .battle-status.is-damaged{animation:battle-damage .31s ease-in-out 2 alternate}
 @keyframes battle-damage{50%{background:#842f41}}
 .in-battle .control-actions{height:100%;min-height:0;gap:5px}
@@ -617,4 +628,19 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 .in-intro .dpad, .in-intro .control-tip {
   visibility: hidden;
+}
+
+/* Exploration keeps the landscape stage behind the corner controls. */
+@media (orientation:landscape) and (min-width:560px){
+ .game-shell:not(.in-battle) .dpad{
+  left:calc(12px + env(safe-area-inset-left));
+  pointer-events:none;
+ }
+ .game-shell:not(.in-battle) .dpad button,
+ .game-shell:not(.in-battle) .face{pointer-events:auto}
+ .game-shell:not(.in-battle) .action-pair{pointer-events:none}
+ .game-shell:not(.in-battle) .dialogue{
+  left:max(clamp(145px,20vw,185px),calc(145px + env(safe-area-inset-left)));
+  right:max(clamp(87px,12vw,115px),calc(78px + env(safe-area-inset-right)));
+ }
 }

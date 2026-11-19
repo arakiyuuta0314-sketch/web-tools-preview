@@ -20,6 +20,7 @@
     audience3: () => "\u30A2\u30EB\u30C9\u738B\u300C\u5263\u304C\u5FDC\u3058\u305F\u8005\u3092\u3001\u308F\u3057\u306F\u4FE1\u3058\u308B\u3002\u305D\u306E\u5263\u3092\u305D\u306A\u305F\u306B\u8A17\u305D\u3046\u300D",
     departure: () => "\u30A2\u30EB\u30C9\u738B\u300C\u8DEF\u9280\u306B50\u30B4\u30FC\u30EB\u30C9\u3092\u6301\u3063\u3066\u3044\u3051\u3002\u307E\u305A\u306F\u30EA\u30FC\u30D5\u30A1\u3092\u8A2A\u306D\u3001\u907F\u96E3\u8DEF\u306E\u69D8\u5B50\u3092\u805E\u3044\u3066\u307B\u3057\u3044\u300D"
   };
+  var swordPickupText = (name) => name + "\u306F\u796D\u5263\u3092\u624B\u306B\u53D6\u3063\u305F\uFF01";
   var INTRO_DEFEAT = [
     "\u610F\u8B58\u304C\u9060\u306E\u3044\u3066\u3044\u304F\u2026\u2026\u3002",
     "\u5B88\u5099\u5175\u306E\u624B\u5F53\u3066\u3067\u610F\u8B58\u304C\u623B\u3063\u305F\u3002\u6240\u6301\u91D1\u304C\u534A\u5206\u306B\u306A\u3063\u305F\u3002"
@@ -14073,6 +14074,8 @@
 
   // src/game/core.mjs
   var CATALOG = catalog_default;
+  var STARDUST_SWORD = Object.freeze({ id: "stardust", name: "\u661F\u5C51\u306E\u5263", attack: 4, price: 0 });
+  var EQUIPMENT = { ...catalog_default.equipment, weapons: [...catalog_default.equipment.weapons, STARDUST_SWORD] };
   var MAPS = maps_default.maps;
   var STAGES = ["S00", "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "CLEAR"];
   var STAGE_GOALS = {
@@ -14120,9 +14123,9 @@
     if (!plain(s.inventory) || Object.keys(s.inventory).some((k) => !allowed(["potion", "great-potion", "antidote", "smoke", "iron-key"], k)) || Object.values(s.inventory).some((v) => !int(v, 0, 999))) fail("\u6240\u6301\u54C1");
     if (!plain(s.equipment)) fail("\u88C5\u5099");
     for (const [type, key] of [["weapons", "weapon"], ["armors", "armor"], ["shields", "shield"], ["accessories", "accessory"]]) {
-      if (s.equipment[key] !== null && !catalog_default.equipment[type].some((e) => e.id === s.equipment[key])) fail("\u88C5\u5099 " + key);
+      if (s.equipment[key] !== null && !EQUIPMENT[type].some((e) => e.id === s.equipment[key])) fail("\u88C5\u5099 " + key);
     }
-    if (!Array.isArray(s.owned) || s.owned.some((e) => !Object.values(catalog_default.equipment).flat().some((x) => x.id === e) && !["armor:iron", "armor:mythril"].includes(e)) || new Set(s.owned).size !== s.owned.length) fail("\u6240\u6301\u88C5\u5099");
+    if (!Array.isArray(s.owned) || s.owned.some((e) => !Object.values(EQUIPMENT).flat().some((x) => x.id === e) && !["armor:iron", "armor:mythril"].includes(e)) || new Set(s.owned).size !== s.owned.length) fail("\u6240\u6301\u88C5\u5099");
     if (!Array.isArray(s.relics) || s.relics.some((id) => !["beginning-sword", "dawn-mirror"].includes(id)) || new Set(s.relics).size !== s.relics.length) fail("\u5927\u5207\u306A\u3082\u306E");
     if (!plain(s.flags) || ["openingDefeated", "swordGiven", "watchmanRescued", "caveBossDefeated", "gateOpen"].some((k) => typeof s.flags[k] !== "boolean")) fail("\u30A4\u30D9\u30F3\u30C8\u30D5\u30E9\u30B0");
     if (s.flags.introPage !== void 0 && (s.pos.map !== "castle" || !INTRO_PAGES[s.stage]?.includes(s.flags.introPage))) fail("\u5C0E\u5165\u30A4\u30D9\u30F3\u30C8");
@@ -14155,7 +14158,7 @@
   var maxMp = (lv) => 14 + (lv - 1) * 3;
   function stats(s) {
     const e = s.equipment;
-    const w = catalog_default.equipment.weapons.find((x) => x.id === e.weapon);
+    const w = EQUIPMENT.weapons.find((x) => x.id === e.weapon);
     const a = catalog_default.equipment.armors.find((x) => x.id === e.armor);
     const sh = catalog_default.equipment.shields.find((x) => x.id === e.shield);
     const ac = catalog_default.equipment.accessories.find((x) => x.id === e.accessory);
@@ -14166,6 +14169,20 @@
       maxHp: maxHp(s.player.level),
       maxMp: maxMp(s.player.level)
     };
+  }
+  function takeStardustSword(s) {
+    const id = STARDUST_SWORD.id;
+    if (s.flags.swordAwakened || s.owned.includes(id)) return s;
+    const next = clone(s);
+    next.owned.push(id);
+    next.equipment.weapon = id;
+    return next;
+  }
+  function migrateSwordSave(s) {
+    if (s.flags.swordGiven || s.flags.openingDefeated || ["fight", "retry"].includes(s.flags.introPage)) {
+      return takeStardustSword(s);
+    }
+    return s;
   }
   function createState(name = "\u30A2\u30EC\u30F3") {
     name = String(name).trim();
@@ -14242,7 +14259,7 @@
     }
     switch (e.kind) {
       case "raider":
-        return { state: next, kind: "battle", monsterId: "m01", tag: "tutorial", messages: ["\u9B54\u7269\u304C\u907F\u96E3\u8005\u306B\u8FEB\u308B\uFF01 " + s.name + "\u306F\u305D\u306E\u524D\u306B\u7ACB\u3061\u306F\u3060\u304B\u3063\u305F\u3002"] };
+        return { state: takeStardustSword(next), kind: "battle", monsterId: "m01", tag: "tutorial", messages: ["\u9B54\u7269\u304C\u907F\u96E3\u8005\u306B\u8FEB\u308B\uFF01 " + s.name + "\u306F\u305D\u306E\u524D\u306B\u7ACB\u3061\u306F\u3060\u304B\u3063\u305F\u3002"] };
       case "refugee":
         return { ...result, messages: s.flags.openingDefeated ? ["\u907F\u96E3\u8005\u300C\u3042\u308A\u304C\u3068\u3046\u2026\u2026\u3042\u306A\u305F\u306E\u304A\u304B\u3052\u3067\u52A9\u304B\u308A\u307E\u3057\u305F\u300D"] : ["\u907F\u96E3\u8005\u300C\u305F\u3059\u3051\u3066\u2026\u2026\uFF01 \u3042\u306E\u9B54\u7269\u304C\u2026\u2026\uFF01\u300D"] };
       case "guard":
@@ -14257,7 +14274,7 @@
           next.flags.swordGiven = true;
           next.relics.push("beginning-sword");
           next.player.gold += 50;
-          return { ...result, kind: "kingQuest", autoSave: true, messages: INTRO_PAGES.S01.slice(1).map((page) => INTRO_TEXT[page](s.name)) };
+          return { ...result, state: takeStardustSword(next), kind: "kingQuest", autoSave: true, messages: INTRO_PAGES.S01.slice(1).map((page) => INTRO_TEXT[page](s.name)) };
         }
         if (s.stage === "S09") {
           next.stage = "CLEAR";
@@ -14402,7 +14419,8 @@
         if (s.flags.swordAwakened) return { ...result, messages: ["\u661F\u306E\u796D\u58C7\u306F\u9759\u304B\u306B\u8F1D\u3044\u3066\u3044\u308B\u3002\u306F\u3058\u307E\u308A\u306E\u5263\u306E\u529B\u306F\u3059\u3067\u306B\u623B\u3063\u305F\u3002"] };
         if (!s.flags.onyxBarrierOpen || !s.relics.includes("beginning-sword")) return { ...result, messages: ["\u77F3\u306E\u796D\u58C7\u306B\u3001\u661F\u306E\u304B\u305F\u3061\u3092\u3057\u305F\u304F\u307C\u307F\u304C\u3042\u308B\u3002"] };
         next.flags.swordAwakened = true;
-        next.owned.push("hero");
+        next.owned = next.owned.filter((id) => id !== STARDUST_SWORD.id);
+        if (!next.owned.includes("hero")) next.owned.push("hero");
         next.equipment.weapon = "hero";
         next.player.hp = maxHp(next.player.level);
         next.player.mp = maxMp(next.player.level);
@@ -14587,7 +14605,7 @@
   }
   function equip(s, id, category) {
     const next = clone(s);
-    const matches = Object.entries(catalog_default.equipment).filter(([, list]) => list.some((x) => x.id === id));
+    const matches = Object.entries(EQUIPMENT).filter(([, list]) => list.some((x) => x.id === id));
     if (!category) category = matches[0]?.[0];
     if (!matches.some(([key]) => key === category)) throw Error("\u4E0D\u660E\u306A\u88C5\u5099");
     if (!ownsEquipment(next, category, id)) throw Error("\u672A\u6240\u6301\u306E\u88C5\u5099");
@@ -14600,7 +14618,8 @@
   function beginCombat(enemyId, tag = "random") {
     const enemy = monsterById(enemyId);
     if (!enemy) throw Error("\u672A\u5B9A\u7FA9\u306E\u6575: " + enemyId);
-    return { id: enemyId, hp: enemy.hp, tag, round: 1, asleep: 0, silenced: 0, ward: 0 };
+    const hp = tag === "tutorial" && enemyId === "m01" ? 23 : enemy.hp;
+    return { id: enemyId, hp, maxHp: hp, tag, round: 1, asleep: 0, silenced: 0, ward: 0 };
   }
   var roll = (rng, min, max) => Math.floor(min + (max - min + 1) * rng());
   function strike(attack, defense, rng) {
@@ -14788,7 +14807,7 @@
     if (!motion || t < 0.17 || t > 0.86) return 0;
     return motion.step % 2 === 0 ? 1 : 2;
   }
-  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4) {
+  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4, weapon = null) {
     if (!cache.ready) throw Error("Shared protagonist art not loaded");
     const key = `hero_${facing}_${frame}`;
     const sprite2 = cache.images[key];
@@ -14811,6 +14830,7 @@
     );
     c.fill();
     c.drawImage(sprite2, x, y, w, h);
+    drawHeldSword(c, weapon, facing, x, y, scale);
     c.restore();
   }
   var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
@@ -14860,15 +14880,18 @@
       t
     };
   }
+  function sceneOffset(target, viewSize, sceneSize) {
+    return viewSize >= sceneSize ? (sceneSize - viewSize) / 2 : clamp2(target, 0, sceneSize - viewSize);
+  }
   function castleCamera(canvas, s, motion = null, now = performance.now()) {
     const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
     const viewWidth = canvas.width, viewHeight = canvas.height;
     const m = CASTLE_ART_SCENE;
     return {
-      x: clamp2(p.x - viewWidth / 2, 0, Math.max(0, m.width - viewWidth)),
+      x: sceneOffset(p.x - viewWidth / 2, viewWidth, m.width),
       // Initial view shows the throne and the hero together, rather
       // than cutting the king off above the phone viewport.
-      y: clamp2(p.y - viewHeight * 0.75, 0, Math.max(0, m.height - viewHeight)),
+      y: sceneOffset(p.y - viewHeight * 0.75, viewHeight, m.height),
       player: p
     };
   }
@@ -14908,6 +14931,25 @@
     c.fillRect(-5, -6, 10, 22);
     c.fillStyle = "#ffdf99";
     c.fillRect(-8, 16, 16, 5);
+    c.restore();
+  }
+  var swordHand = {
+    left: [50, 95, -1.1],
+    right: [46, 95, 1.1],
+    down: [24, 95, -0.84],
+    up: [18, 94, -0.48]
+  };
+  function drawHeldSword(c, weapon, facing, x, y, scale, glow = false) {
+    if (weapon !== STARDUST_SWORD.id && weapon !== "hero") return;
+    const [handX, handY, angle] = swordHand[facing];
+    c.save();
+    c.translate(x + handX * scale, y + handY * scale);
+    c.scale(scale, scale);
+    c.rotate(angle);
+    const swordScale = weapon === "hero" ? 0.84 : 0.66;
+    c.scale(swordScale, swordScale);
+    drawSword(c, 0, -5);
+    if (glow) drawStarGlow(c, 0, -42);
     c.restore();
   }
   function drawStarGlow(c, x, y) {
@@ -14951,13 +14993,13 @@
     c.font = "bold 13px monospace";
     c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "   MP " + s.player.mp + "/" + stats(s).maxMp, 10, H2 - 14);
   }
-  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}) {
+  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, zoom = 1) {
     if (!cache.ready) return false;
     if (s.pos.map !== "castle") throw Error("Castle art on another map");
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
     const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
-    const z = wideShot ? 0.36 : CASTLE_SCENE_SCALE;
+    const z = wideShot ? 0.36 : CASTLE_SCENE_SCALE * zoom;
     const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
     const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
     if (wideShot) {
@@ -14975,6 +15017,7 @@
       return { x: p.x - camera.x, y: p.y - camera.y };
     };
     const map = MAPS.castle;
+    const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
     const actors2 = [];
     for (const n of map.npcs) {
       const p = plot(n.x, n.y);
@@ -15007,16 +15050,22 @@
           const im = cache.images.raider;
           c.drawImage(im, Math.round(p.x - im.width / 2), Math.round(p.y + 42 - im.height));
         } else if (e.kind === "sword") {
-          if (intro.page) {
-            c.fillStyle = "#24243e";
-            c.fillRect(p.x - 24, p.y + 4, 48, 25);
-            c.fillStyle = "#8e8099";
-            c.fillRect(p.x - 27, p.y, 54, 8);
-            c.fillStyle = "#5a506b";
-            c.fillRect(p.x - 25, p.y + 24, 50, 5);
-          }
-          if (!s.flags.swordGiven && (!intro.page || intro.page === "refugee")) {
-            drawSword(c, p.x, p.y - 14);
+          const x = Math.round(p.x - 32), y = Math.round(p.y + 30);
+          c.fillStyle = "#5a506b";
+          c.fillRect(x - 23, y + 5, 46, 18);
+          c.fillStyle = "#8e8099";
+          c.fillRect(x - 26, y, 52, 8);
+          c.fillStyle = "#24243e";
+          c.fillRect(x - 6, y + 2, 12, 4);
+          c.fillStyle = "#746681";
+          c.fillRect(x - 25, y + 19, 50, 5);
+          if (!swordTaken) {
+            c.save();
+            c.translate(x, y + 4);
+            c.rotate(Math.PI);
+            c.scale(0.64, 0.64);
+            drawSword(c, 0, 39);
+            c.restore();
           }
         }
       } });
@@ -15037,15 +15086,7 @@
       c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
       c.fill();
       c.drawImage(hero, sx, sy);
-      if (intro.page && intro.page !== "refugee") {
-        const x = pp.x - camera.x + (s.pos.facing === "left" ? -34 : 33), y = sy + hero.height * 0.58;
-        c.save();
-        c.translate(x, y);
-        c.rotate(Math.PI / 5);
-        drawSword(c, 0, 0);
-        c.restore();
-        if (intro.page === "pickup" || intro.page === "witness") drawStarGlow(c, x + 7, y - 20);
-      }
+      drawHeldSword(c, s.equipment.weapon, s.pos.facing, sx, sy, 1, intro.swordGlow || intro.page === "witness");
     } });
     actors2.sort((a, b) => a.z - b.z);
     for (const actor of actors2) actor.draw();
@@ -15073,18 +15114,18 @@
     const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
     const p = castleLibraryPoint(x, y);
     return {
-      x: clamp2(p.x - canvas.width / 2, 0, Math.max(0, m.width - canvas.width)),
-      y: clamp2(p.y - canvas.height * 0.6, 0, Math.max(0, m.height - canvas.height)),
+      x: sceneOffset(p.x - canvas.width / 2, canvas.width, m.width),
+      y: sceneOffset(p.y - canvas.height * 0.6, canvas.height, m.height),
       player: p,
       t
     };
   }
-  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now()) {
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), zoom = 1) {
     if (!cache.ready) return false;
     if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
-    const z = CASTLE_SCENE_SCALE;
+    const z = CASTLE_SCENE_SCALE * zoom;
     const cam = castleLibraryCamera({
       width: Math.ceil(canvas.width / z),
       height: Math.ceil(canvas.height / z)
@@ -18357,6 +18398,7 @@
   // src/game/reboot-view.mjs
   var clamp3 = (v, a, b) => Math.max(a, Math.min(b, v));
   var backgrounds = /* @__PURE__ */ new Map();
+  var STATUS_HEIGHT = 27;
   var actors = { hero: "hero", king: "king", guard: "guard", refugee: "refugee" };
   var shot = (context, x, y, w, h, color2) => {
     context.fillStyle = color2;
@@ -18458,8 +18500,8 @@
     }
     const status = "HP " + st.hp + "  MP " + st.mp;
     const maxWidth = W2 - 12;
-    shot(c, 0, H2 - 27, W2, 27, "#09111ee8");
-    shot(c, 0, H2 - 27, W2, 1, "#c9bd9f");
+    shot(c, 0, H2 - STATUS_HEIGHT, W2, STATUS_HEIGHT, "#09111ee8");
+    shot(c, 0, H2 - STATUS_HEIGHT, W2, 1, "#c9bd9f");
     c.font = "bold 12px monospace";
     c.fillStyle = "#fff0d1";
     c.textAlign = "left";
@@ -18479,14 +18521,19 @@
     }
     return drawables;
   }
-  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}) {
-    const W2 = canvas.width, H2 = canvas.height;
+  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, zoom = 1) {
+    const W2 = Math.ceil(canvas.width / zoom), H2 = Math.ceil(canvas.height / zoom);
     const c = canvas.getContext("2d", { alpha: false });
     c.imageSmoothingEnabled = false;
     const m = MAPS[s.pos.map], v = retroCamera(s, motion, performance.now(), W2, H2);
     const bg = backgroundFor(m, s);
-    shot(c, 0, 0, W2, H2, m.id === "field" ? "#294a42" : "#182238");
+    c.save();
+    c.scale(zoom, zoom);
+    shot(c, 0, 0, W2, H2, "#0b101c");
     const dx = Math.round(v.ox - v.cx * TILE), dy = Math.round(v.oy - v.cy * TILE);
+    c.beginPath();
+    c.rect(dx, dy, bg.width, bg.height);
+    c.clip();
     c.drawImage(bg, dx, dy);
     const screen = (x, y) => [Math.round(x * TILE + dx), Math.round(y * TILE + dy)];
     const drawables = addMapActors(s, m, npcFacing);
@@ -18562,7 +18609,7 @@
     drawables.push({ x: v.px, y: v.py, depth: v.py + 0.12, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(v.px, v.py);
       const f = motion && v.t < 1 ? heroGaitFrame(motion, v.t) : 0;
-      paintSharedHero(ctx, x + TILE / 2, y + TILE, s.pos.facing, f, 0.4);
+      paintSharedHero(ctx, x + TILE / 2, y + TILE, s.pos.facing, f, 0.4, s.equipment.weapon);
     } });
     drawables.sort((a, b) => a.depth - b.depth);
     for (const actor of drawables) {
@@ -18576,7 +18623,8 @@
       shot(c, x + 6, y - 19, 1, 7, "#f8e5ae");
       shot(c, x + 3, y - 16, 7, 1, "#e0dbb6");
     }
-    label(c, W2, H2, m.name, { hp: s.player.hp, mp: s.player.mp, level: s.player.level, gold: s.player.gold });
+    c.restore();
+    label(c, canvas.width, canvas.height, m.name, { hp: s.player.hp, mp: s.player.mp, level: s.player.level, gold: s.player.gold });
   }
   var rooms = /* @__PURE__ */ new Map();
   function roomBackground(room) {
@@ -18592,13 +18640,17 @@
     rooms.set(id, canvas);
     return canvas;
   }
-  function drawRoom(canvas, state2, room, motion = null) {
-    const W2 = canvas.width, H2 = canvas.height;
+  function drawRoom(canvas, state2, room, motion = null, zoom = 1) {
+    const bg = roomBackground(room);
+    const roomHeight = zoom < 1 ? canvas.height - STATUS_HEIGHT : canvas.height;
+    const scale = Math.min(zoom, canvas.width / bg.width, roomHeight / bg.height);
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.imageSmoothingEnabled = false;
-    shot(ctx, 0, 0, W2, H2, "#242a37");
-    const bg = roomBackground(room);
-    const ox = Math.round((W2 - bg.width) / 2), oy = Math.round((H2 - bg.height) / 2);
+    shot(ctx, 0, 0, canvas.width, canvas.height, "#0b101c");
+    ctx.save();
+    ctx.scale(scale, scale);
+    const ox = Math.round((canvas.width / scale - bg.width) / 2);
+    const oy = Math.round((roomHeight / scale - bg.height) / 2);
     ctx.drawImage(bg, ox, oy);
     const resident2 = { x: 6, y: 3 };
     const moving = motion && motion.id === room.id;
@@ -18632,10 +18684,11 @@
       ) }
     ];
     drawables.sort((a, b) => a.y - b.y).forEach((a) => a.fn());
+    ctx.restore();
     label(
       ctx,
-      W2,
-      H2,
+      canvas.width,
+      canvas.height,
       interiorDefinition(room).name,
       { hp: state2.player.hp, mp: state2.player.mp, level: state2.player.level, gold: state2.player.gold }
     );
@@ -18672,7 +18725,7 @@
     }
     ctx.save();
     if (hurt && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
-    paintSharedHero(ctx, layout.heroX - advance + recoil + retreat, layout.foot, "left", 0, layout.heroScale);
+    paintSharedHero(ctx, layout.heroX - advance + recoil + retreat, layout.foot, "left", 0, layout.heroScale, s.equipment.weapon);
     ctx.restore();
     paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, enemySize });
     function nameplate(name, x, color2) {
@@ -18693,8 +18746,9 @@
     const barY = Math.round(enemyFoot + 8);
     shot(ctx, barX - 1, barY - 1, barW + 2, 10, "#18283a");
     shot(ctx, barX, barY, barW, 8, "#442c43");
-    shot(ctx, barX, barY, Math.max(0, Math.round(barW * Math.max(0, b.hp) / enemy.hp)), 7, "#c88d91");
-    shot(ctx, barX, barY, Math.max(0, Math.round(barW * Math.max(0, b.hp) / enemy.hp)), 2, "#f6ccc0");
+    const hpWidth = Math.round(barW * Math.max(0, b.hp) / (b.maxHp ?? enemy.hp));
+    shot(ctx, barX, barY, hpWidth, 7, "#c88d91");
+    shot(ctx, barX, barY, hpWidth, 2, "#f6ccc0");
     if (b.ward > 0) {
       ctx.textAlign = "center";
       ctx.font = "bold 11px sans-serif";
@@ -18965,8 +19019,9 @@
   var roomFrame = 0;
   var roomStep = 0;
   var leafNpcFacing = {};
-  var introMotion = null;
+  var introShot = null;
   var introFrame = 0;
+  var introPause = 0;
   var battleFx = null;
   var battleFrame = 0;
   var battleEnding = null;
@@ -19008,10 +19063,12 @@
     state = next;
     paint();
   }
+  var landscapeLayout = matchMedia("(orientation:landscape) and (min-width:560px)");
+  var explorationZoom = () => landscapeLayout.matches ? 0.8 : 1;
   function sizeGameCanvas() {
     const canvas = $("game"), rect3 = canvas.getBoundingClientRect();
     if (rect3.width < 1 || rect3.height < 1) return;
-    const landscape = window.innerWidth > window.innerHeight && window.innerWidth >= 560;
+    const landscape = landscapeLayout.matches;
     const desiredWidth = landscape ? 480 : 288;
     if (canvas.width !== desiredWidth) canvas.width = desiredWidth;
     const pixels = Math.max(175, Math.min(560, Math.round(desiredWidth * rect3.height / rect3.width)));
@@ -19021,19 +19078,20 @@
     if (state.pos.map === "castle") {
       if (!castleArtReady()) throw Error("Approved castle art not loaded");
       const page = introPage(state);
-      const shot2 = introMotion?.shot;
+      const shot2 = introShot;
       const view = shot2 ? { ...state, pos: shot2.pos } : state;
       renderCastleScene($("game"), view, shot2?.motion ?? walkMotion, performance.now(), {
         page: shot2?.page ?? page,
-        raiderY: shot2?.raiderY
-      });
-    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing);
+        raiderY: shot2?.raiderY,
+        swordGlow: shot2?.swordGlow
+      }, explorationZoom());
+    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing, explorationZoom());
   }
   function paintCurrentRoom() {
     if (interior?.id === "castle-library") {
       if (!castleArtReady()) throw Error("Approved castle library art not loaded");
-      renderCastleLibrary($("game"), state, interior, roomMotion);
-    } else drawRoom($("game"), state, interior, roomMotion);
+      renderCastleLibrary($("game"), state, interior, roomMotion, performance.now(), explorationZoom());
+    } else drawRoom($("game"), state, interior, roomMotion, explorationZoom());
   }
   function drawBattle() {
     const display = battleDisplay ? { ...battle, hp: battleDisplay.enemyHp, ward: battleDisplay.ward } : battle;
@@ -19082,8 +19140,14 @@
     if (battle) {
       const player = battleDisplay?.player ?? state.player;
       $("battle-status-name").textContent = state.name + "  Lv." + player.level;
-      $("battle-status-hp").textContent = "HP " + player.hp;
-      $("battle-status-mp").textContent = "MP " + player.mp;
+      for (const [key, max] of [["hp", maxHp(player.level)], ["mp", maxMp(player.level)]]) {
+        const value = player[key];
+        $(`battle-status-${key}`).textContent = key.toUpperCase() + " " + value;
+        const bar = $(`battle-${key}-bar`);
+        bar.max = max;
+        bar.value = value;
+        bar.dataset.remaining = value <= max * 0.25 ? "critical" : value <= max * 0.5 ? "low" : "normal";
+      }
     }
     for (const [index, button] of battleButtons.entries()) button.disabled = Boolean(battleEnding || page && !battle || queue.length > 0 && (Boolean(battle) || index !== 0));
     const milestone = queue.find((line) => /【第一幕クリア】|【第二幕クリア】|【第三幕】|【終幕】/.test(line));
@@ -19445,7 +19509,7 @@
     ], itemDescription(item), back);
   }
   function equipmentMenu() {
-    const owned = Object.entries(CATALOG.equipment).flatMap(([category, list]) => list.filter((e) => ownsEquipment(state, category, e.id)).map((e) => ({ ...e, category })));
+    const owned = Object.entries(EQUIPMENT).flatMap(([category, list]) => list.filter((e) => ownsEquipment(state, category, e.id)).map((e) => ({ ...e, category })));
     openPanel("\u305D\u3046\u3073", [
       ...owned.map((e) => ({ label: e.name + (state.equipment[{ weapons: "weapon", armors: "armor", shields: "shield", accessories: "accessory" }[e.category]] === e.id ? " \u2713" : ""), run: () => {
         const r2 = equip(state, e.id, e.category);
@@ -19845,44 +19909,84 @@
     if (page === "fight") beginFight("m01", "tutorial");
     else message([INTRO_TEXT[page](state.name)]);
   }
-  function playIntroWalk(page, path) {
-    const from = state.pos, previousPage = introPage(state);
-    storeAndSet({ ...state, pos: path.at(-1), flags: { ...state.flags, introPage: page } }, true);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      showIntroPage();
+  var reducedIntroMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var EVENT_STEP_MS = 360;
+  function animateIntroWalk(from, path, { page }, onArrival) {
+    const duration = EVENT_STEP_MS;
+    if (!path.length || reducedIntroMotion()) {
+      onArrival();
       return;
     }
-    const start = performance.now(), duration = 115;
+    const start = performance.now();
     const frame = (now) => {
       const step = Math.floor((now - start) / duration);
       if (step >= path.length) {
         introFrame = 0;
-        introMotion = null;
-        showIntroPage();
+        introShot = null;
+        onArrival();
         return;
       }
       const prev = path[step - 1] ?? from;
-      introMotion.shot = {
-        page: previousPage,
+      introShot = {
+        page,
         pos: path[step],
         motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step },
-        raiderY: previousPage === "refugee" ? 8 - Math.min(1, (now - start) / 220) : void 0
+        raiderY: page === "refugee" ? 8 - Math.min(1, (now - start) / duration) : void 0
       };
       paintCurrentWorld();
       introFrame = requestAnimationFrame(frame);
     };
-    introMotion = { shot: null };
     frame(start);
+  }
+  function playIntroWalk(page, path) {
+    const from = state.pos, previousPage = introPage(state);
+    storeAndSet({ ...state, pos: path.at(-1), flags: { ...state.flags, introPage: page } }, true);
+    animateIntroWalk(from, path, { page: previousPage }, showIntroPage);
+  }
+  function playSwordPickup() {
+    const pedestal = introPosition(6, 4, "left");
+    const approach = state.pos.x === pedestal.x && state.pos.y === pedestal.y ? [] : [introPosition(7, 4, "up"), introPosition(6, 4, "left")];
+    animateIntroWalk(state.pos, approach, { page: "pickup" }, () => {
+      introShot = { pos: pedestal, swordGlow: true };
+      try {
+        storeAndSet({ ...takeStardustSword(state), pos: pedestal }, true);
+      } catch (err) {
+        fatal(err);
+        return;
+      }
+      notice(swordPickupText(state.name));
+      introPause = setTimeout(() => {
+        introPause = 0;
+        hint = "";
+        paint();
+        const defense = [
+          introPosition(7, 4, "right"),
+          introPosition(7, 5, "down"),
+          introEntrance,
+          introPosition(7, 7, "down"),
+          introDefense
+        ];
+        animateIntroWalk(pedestal, defense, { page: "pickup" }, () => {
+          introShot = null;
+          try {
+            storeAndSet({ ...state, pos: introDefense, flags: { ...state.flags, introPage: "fight" } }, true);
+            showIntroPage();
+          } catch (err) {
+            fatal(err);
+          }
+        });
+      }, reducedIntroMotion() ? 850 : 1500);
+    });
   }
   function advanceIntro() {
     try {
       const page = introPage(state);
       switch (page) {
         case "refugee":
-          playIntroWalk("pickup", [introPosition(7, 5, "up"), introPosition(7, 4, "up"), introPosition(6, 4, "left")]);
+          playIntroWalk("pickup", [introPosition(7, 5, "up")]);
           return;
         case "pickup":
-          playIntroWalk("fight", [introPosition(7, 4, "right"), introPosition(7, 5, "down"), introPosition(7, 6, "down"), introPosition(7, 7, "down"), introDefense]);
+          playSwordPickup();
           return;
         case "witness":
           playIntroWalk("audience1", [introPosition(7, 7, "left"), introEntrance, introPosition(7, 5, "up"), introPosition(7, 4, "up"), introThrone]);
@@ -19905,8 +20009,10 @@
     stopRoomAnimation();
     stopBattleFx();
     if (introFrame) cancelAnimationFrame(introFrame);
+    clearTimeout(introPause);
     introFrame = 0;
-    introMotion = null;
+    introPause = 0;
+    introShot = null;
     audio.unlock().catch(console.warn);
     validateState(s);
     state = s;
@@ -19952,14 +20058,14 @@
   });
   $("load-auto").addEventListener("click", () => {
     try {
-      begin(auto.read());
+      begin(migrateSwordSave(auto.read()));
     } catch (err) {
       setError(err);
     }
   });
   $("load-manual").addEventListener("click", () => {
     try {
-      begin(manual.read());
+      begin(migrateSwordSave(manual.read()));
     } catch (err) {
       setError(err);
     }
