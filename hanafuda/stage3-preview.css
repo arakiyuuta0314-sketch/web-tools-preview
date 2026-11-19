@@ -1,8 +1,7 @@
 /* Stage 3: generated scenic painting + physically composed signs.
    Home only, opt-in ?theme=stage3. No external images or fonts. */
 .stage3-stones{display:none}
-@media (orientation:landscape) and (max-height:620px),
-       (orientation:portrait) and (max-width:620px){
+@media (orientation:landscape) and (max-height:620px) {
 html[data-hanafuda-preview="stage3"] .scene-home{
   background:linear-gradient(#071711,#14241b);
 }
@@ -276,8 +275,7 @@ html[data-hanafuda-preview="stage3"] .scene-home .hub-resume{
   color:#39291b;border-radius:5px;
 }
 }
-@media (orientation:landscape) and (max-height:365px),
-       (orientation:portrait) and (max-width:365px){
+@media (orientation:landscape) and (max-height:365px) {
 html[data-hanafuda-preview="stage3"] .scene-home .landscape-title{
   top:30px;height:128px;width:315px;
 }

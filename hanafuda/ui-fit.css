@@ -1,7 +1,6 @@
 /* Single-screen landscape legibility pass for the Hanafuda game.
    These are layout-only corrections; no game rules or saved data change. */
-@media (orientation:landscape) and (max-height:620px),
-       (orientation:portrait) and (max-width:620px){
+@media (orientation:landscape) and (max-height:620px) {
   /* Keep the capture ribbon visible without sacrificing the shared table. */
   .play-layout .tabletop{
     grid-template-rows:32px minmax(0,1fr) 39px minmax(0,1.04fr);
@@ -113,7 +112,7 @@
   .scene-columns .reference-note{overflow:hidden;padding:5px 9px;gap:2px}
   .scene-columns .reference-note strong{font-size:14px}
   .scene-columns .reference-note p{font-size:12px;line-height:1.35;-webkit-line-clamp:3}
-  .reference-top strong{font-size:clamp(13px,calc(1.6 * var(--game-vw, 1vw)),16px)}
+  .reference-top strong{font-size:clamp(13px,1.6vw,16px)}
   .reference-top button{font-size:12px;min-height:30px}
   .reference-page .reference-cards .card-name strong{font-size:11px;line-height:13px}
   .reference-page .reference-cards .card-name span{font-size:10px;line-height:12px}
@@ -135,7 +134,7 @@
     object-fit:contain;filter:drop-shadow(0 3px 4px #33271970);
   }
   .scene-quiz .quiz-options{min-width:0;min-height:0;overflow:hidden}
-  .scene-quiz .quiz-option{font-size:clamp(12px,calc(1.6 * var(--game-vw, 1vw)),15px);min-width:0;min-height:0}
+  .scene-quiz .quiz-option{font-size:clamp(12px,1.6vw,15px);min-width:0;min-height:0}
   .scene-quiz .quiz-option img{width:auto;height:91%;max-height:98%;max-width:96%;object-fit:contain}
   .scene-quiz .quiz-feedback{
     min-width:0;min-height:0;display:flex;flex-direction:row;
@@ -163,9 +162,9 @@
   .scene-travel .month{
     padding:4px 8px;min-height:0;justify-content:center;
   }
-  .scene-travel .month strong{font-size:clamp(18px,calc(2.3 * var(--game-vw, 1vw)),24px)}
+  .scene-travel .month strong{font-size:clamp(18px,2.3vw,24px)}
   .scene-travel .month>span:not(.mark){
-    width:62%;font-size:clamp(10px,calc(1.2 * var(--game-vw, 1vw)),12px);
+    width:62%;font-size:clamp(10px,1.2vw,12px);
     -webkit-line-clamp:2;line-height:1.2;
   }
   .scene-travel .month img.month-art{
@@ -178,8 +177,7 @@
   .scene-settings .setting-row .chip{font-size:12px;min-height:34px}
   .scene-chapter .panel .story{font-size:12px;line-height:1.6}
 }
-@media (orientation:landscape) and (max-height:390px),
-       (orientation:portrait) and (max-width:390px){
+@media (orientation:landscape) and (max-height:390px) {
   .play-layout .tabletop{grid-template-rows:25px minmax(0,1.22fr) 32px minmax(0,.88fr)}
   .taken-label{min-width:91px}
   .taken-preview img{height:27px;max-width:19px}
@@ -202,18 +200,16 @@
 
 /* The quiz heading used browser-default H1 margins and overlapped the art.
    Keep both the topic and artwork inside their own grid rows. */
-@media (orientation:landscape) and (max-height:620px),
-       (orientation:portrait) and (max-width:620px){
+@media (orientation:landscape) and (max-height:620px){
   .scene-quiz .quiz-head{display:flex;flex-direction:column;justify-content:center;
     align-items:flex-start;gap:2px;min-height:0;min-width:0;overflow:hidden}
   .scene-quiz .quiz-head small{display:block;margin:0;font-size:11px;line-height:1.2}
   .scene-quiz .quiz-head .quiz-title{margin:0!important;
-    font-size:clamp(15px,calc(1.88 * var(--game-vw, 1vw)),19px);line-height:1.2;white-space:normal}
+    font-size:clamp(15px,1.88vw,19px);line-height:1.2;white-space:normal}
 }
 
 /* Every yaku entry (including 10-card kasu) must fit within the reference stage. */
-@media (orientation:landscape) and (max-height:620px),
-       (orientation:portrait) and (max-width:620px){
+@media (orientation:landscape) and (max-height:620px){
   .scene-yaku .reference-yaku{display:flex;gap:5px;min-width:0;width:100%;
     justify-content:center;align-items:center;overflow:hidden}
   .scene-yaku .reference-yaku img{
