@@ -67,7 +67,7 @@
   box-shadow:0 10px 30px #030b07b8,inset 0 0 0 5px #fff7d95c;
 }
 .play-layout.intro-step-1 .concept-exhibit{display:flex;flex-direction:column}
-.concept-exhibit strong{font:750 clamp(15px,2.4vw,23px) "Yu Mincho",serif}
+.concept-exhibit strong{font:750 clamp(15px,calc(2.4 * var(--game-vw, 1vw)),23px) "Yu Mincho",serif}
 .concept-exhibit .tinycards{gap:14px;overflow:visible;padding:0}
 .concept-exhibit .tinycards .hana{width:49px;height:80px;flex:0 0 49px;box-shadow:0 5px 8px #4d382d70}
 .concept-exhibit span{font-size:12px;line-height:1.3;text-align:center}
@@ -81,8 +81,8 @@
 .family-example{display:flex;gap:7px;align-items:center;min-width:0}
 .family-example img{height:min(100%,108px);width:auto;max-width:45%;object-fit:contain;border:1px solid #a18c6b;border-radius:3px;box-shadow:0 3px 6px #47352850}
 .family-example div{display:flex;flex-direction:column;gap:5px;min-width:0}
-.family-example strong{font:800 clamp(13px,1.8vw,17px) "Yu Mincho",serif}
-.family-example span{font-size:clamp(9px,1.15vw,11px);line-height:1.5}
+.family-example strong{font:800 clamp(13px,calc(1.8 * var(--game-vw, 1vw)),17px) "Yu Mincho",serif}
+.family-example span{font-size:clamp(9px,calc(1.15 * var(--game-vw, 1vw)),11px);line-height:1.5}
 .capture-learning,.role-reveal{
   position:absolute;
   z-index:13;
@@ -102,33 +102,33 @@
 }
 .capture-lesson-head,.role-reveal-title{
   color:#a34b34;
-  font:800 clamp(17px,2.5vw,23px) "Yu Mincho",serif;
+  font:800 clamp(17px,calc(2.5 * var(--game-vw, 1vw)),23px) "Yu Mincho",serif;
   letter-spacing:.06em;
 }
 .capture-learning-cards{display:flex;justify-content:center;align-items:center;gap:11px;min-height:0;max-height:60%;width:100%;overflow:hidden}
 .capture-learning-cards>div{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
-.capture-learning-cards img{height:clamp(40px,16vh,84px);width:auto;border:1px solid #9d8358;box-shadow:0 3px 5px #3326194c}
+.capture-learning-cards img{height:clamp(40px,calc(16 * var(--game-vh)),84px);width:auto;border:1px solid #9d8358;box-shadow:0 3px 5px #3326194c}
 .capture-learning-cards strong{font-size:10px}
 .capture-learning-cards span{font-size:9px}
 .capture-learning p,.role-reveal p{
   margin:0;
-  font-size:clamp(10px,1.3vw,13px);
+  font-size:clamp(10px,calc(1.3 * var(--game-vw, 1vw)),13px);
   line-height:1.35;
   text-align:center;
   color:#4f513f;
 }
 .role-reveal{gap:5px;padding:7px 10px}
-.role-reveal-title{font-size:clamp(17px,2.2vw,24px)}
+.role-reveal-title{font-size:clamp(17px,calc(2.2 * var(--game-vw, 1vw)),24px)}
 .role-scored{display:flex;gap:8px;justify-content:center;align-items:stretch;width:100%;min-height:0;max-height:58%;overflow:auto}
 .role-scored-item{min-width:0;flex:0 1 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
   padding:4px 8px;border:1px solid #cbb17c;border-radius:5px;background:#fff7df}
 .role-scored-item>strong{font-size:13px;white-space:nowrap}
 .role-scored-item>strong b{color:#a24832}
 .role-cards{display:flex;align-items:center;justify-content:center;gap:3px;min-height:0}
-.role-cards img{max-width:37px;max-height:clamp(38px,12vh,70px);height:auto;width:auto;object-fit:contain}
+.role-cards img{max-width:37px;max-height:clamp(38px,calc(12 * var(--game-vh)),70px);height:auto;width:auto;object-fit:contain}
 .game-dialog{z-index:50}
 .card-inspection{display:flex;gap:15px;align-items:center;justify-content:center;padding:6px 10px}
-.card-inspection>img{width:auto;height:clamp(82px,23vh,153px);max-width:24%;border:1px solid #b3a17a}
+.card-inspection>img{width:auto;height:clamp(82px,calc(23 * var(--game-vh)),153px);max-width:24%;border:1px solid #b3a17a}
 .card-inspection>div{flex:1;min-width:0}
 .card-inspection strong{font-size:17px;color:#914a35}
 .card-inspection p{font-size:12px;line-height:1.65;color:#465b49}
@@ -138,7 +138,8 @@
 #toast>span{flex:1}
 #toast button{flex:none;border:1px solid #c7a977;border-radius:5px;background:#f1dfbd;
   color:#34503e;min-height:32px;padding:5px 9px;font-size:11px;font-weight:800}
-@media (orientation:landscape) and (max-height:390px){
+@media (orientation:landscape) and (max-height:390px),
+       (orientation:portrait) and (max-width:390px){
  .play-layout.intro-step-5 .family-exhibit{inset:6% 2%;padding:8px;gap:4px}
  .family-example{gap:4px}
  .family-example img{max-height:72px}
@@ -152,7 +153,8 @@
 .capture-learning,.role-reveal{
   box-shadow:0 8px 22px #020c0acc,inset 0 0 0 5px #fff8db78;
 }
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.intro-step-5 .family-exhibit{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -171,10 +173,11 @@
   }
   .family-example img{height:94%;max-width:28%;max-height:97px;flex:none}
   .family-example div{gap:6px}
-  .family-example strong{font-size:clamp(15px,1.7vw,19px)}
-  .family-example span{font-size:clamp(10px,1.2vw,12px);line-height:1.55}
+  .family-example strong{font-size:clamp(15px,calc(1.7 * var(--game-vw, 1vw)),19px)}
+  .family-example span{font-size:clamp(10px,calc(1.2 * var(--game-vw, 1vw)),12px);line-height:1.55}
 }
-@media (orientation:landscape) and (max-height:390px){
+@media (orientation:landscape) and (max-height:390px),
+       (orientation:portrait) and (max-width:390px){
   .play-layout.intro-step-5 .family-exhibit{
     grid-template-columns:repeat(2,minmax(0,1fr));
     grid-template-rows:repeat(2,minmax(0,1fr));
@@ -189,20 +192,21 @@
 
 /* Game objective comes before any board jargon. */
 .play-layout.intro-step-0 .goal-exhibit{display:flex;flex-direction:column;justify-content:space-evenly;gap:3px;padding:9px}
-.goal-title{font:750 clamp(15px,2.2vw,22px) "Yu Mincho",serif;text-align:center;color:#8e462f}
+.goal-title{font:750 clamp(15px,calc(2.2 * var(--game-vw, 1vw)),22px) "Yu Mincho",serif;text-align:center;color:#8e462f}
 .goal-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px;min-height:0;flex:1}
 .goal-step{display:flex;min-width:0;min-height:0;flex-direction:column;gap:3px;align-items:center;justify-content:center;
  border:1px solid #c6a979;border-radius:5px;background:#fff8e6a8;padding:4px}
-.goal-step strong{font-size:clamp(10px,1.4vw,13px);text-align:center;white-space:nowrap}
+.goal-step strong{font-size:clamp(10px,calc(1.4 * var(--game-vw, 1vw)),13px);text-align:center;white-space:nowrap}
 .goal-step .tinycards{display:flex;justify-content:center;align-items:center;gap:4px;min-height:0;overflow:hidden;padding:0}
-.goal-step .tinycards .hana{width:auto;height:min(12vh,66px);aspect-ratio:512/839;flex:0 0 auto;box-shadow:0 2px 4px #6b533b8a}
-.goal-step small{font-size:clamp(9px,1vw,11px);text-align:center;color:#704f33}
-.goal-points{font:800 clamp(30px,4.7vw,47px) Georgia,serif;color:#a34832;line-height:1}
+.goal-step .tinycards .hana{width:auto;height:min(calc(12 * var(--game-vh)),66px);aspect-ratio:512/839;flex:0 0 auto;box-shadow:0 2px 4px #6b533b8a}
+.goal-step small{font-size:clamp(9px,calc(1 * var(--game-vw, 1vw)),11px);text-align:center;color:#704f33}
+.goal-points{font:800 clamp(30px,calc(4.7 * var(--game-vw, 1vw)),47px) Georgia,serif;color:#a34832;line-height:1}
 .goal-points small{font:750 15px "Yu Mincho",serif;color:#8e462f}
-.goal-exhibit>p{margin:0;font-size:clamp(10px,1.27vw,12px);line-height:1.35;text-align:center}
-@media (orientation:landscape) and (max-height:390px){
+.goal-exhibit>p{margin:0;font-size:clamp(10px,calc(1.27 * var(--game-vw, 1vw)),12px);line-height:1.35;text-align:center}
+@media (orientation:landscape) and (max-height:390px),
+       (orientation:portrait) and (max-width:390px){
  .goal-step{padding:2px;gap:2px}
- .goal-step .tinycards .hana{height:min(11vh,43px)}
+ .goal-step .tinycards .hana{height:min(calc(11 * var(--game-vh)),43px)}
  .goal-title{font-size:16px}
  .goal-exhibit>p{font-size:10px}
 }

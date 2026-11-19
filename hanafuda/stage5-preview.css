@@ -1,7 +1,8 @@
 /* Stage5: all signboards painted in one raster image. Only interactive text is HTML.
    Reference image 1844x853; each text box is calibrated against the blank painted face.
    No home CSS leaks into game screen or default theme. */
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
 html[data-hanafuda-preview="stage5"] .scene-home {background:#274a54}
 html[data-hanafuda-preview="stage5"] .scene-home::before {display:none}
 html[data-hanafuda-preview="stage5"] .scene-home .page {padding:0;grid-template-rows:minmax(0,1fr)}
@@ -12,37 +13,37 @@ html[data-hanafuda-preview="stage5"] .scene-home .hub-hero {position:absolute;in
 html[data-hanafuda-preview="stage5"] .scene-home .hub-hero::before,html[data-hanafuda-preview="stage5"] .scene-home .hub-hero::after,html[data-hanafuda-preview="stage5"] .scene-home .hub-hero>h1,html[data-hanafuda-preview="stage5"] .scene-home .hub-hero>p,html[data-hanafuda-preview="stage5"] .scene-home .hub-hero .eyebrow{display:none!important}
 html[data-hanafuda-preview="stage5"] .scene-home .hero-cards{display:none!important}
 html[data-hanafuda-preview="stage5"] .scene-home .landscape-title {position:absolute;left:34%;top:7%;width:27%;height:20%;max-width:none;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:none;border:0;border-radius:0;box-shadow:none;transform:none;text-align:center;overflow:hidden;text-shadow:none}
-html[data-hanafuda-preview="stage5"] .scene-home .landscape-title>span {font:700 clamp(7px,1.3vw,12px) "Yu Mincho",serif;color:#5b3a25;margin:0;letter-spacing:.1em;text-shadow:none}
-html[data-hanafuda-preview="stage5"] .scene-home .landscape-title strong{font:900 clamp(17px,2.9vw,28px) "Yu Mincho",serif;white-space:nowrap;line-height:1.14;color:#362419;letter-spacing:.06em;text-shadow:1px 1px #fff0ca}
-html[data-hanafuda-preview="stage5"] .scene-home .landscape-title b{font:900 clamp(21px,3.8vw,36px) "Yu Mincho",serif;line-height:1.03;letter-spacing:.18em;color:#563019;text-shadow:1px 1px #ffe7b1}
+html[data-hanafuda-preview="stage5"] .scene-home .landscape-title>span {font:700 clamp(7px,calc(1.3 * var(--game-vw, 1vw)),12px) "Yu Mincho",serif;color:#5b3a25;margin:0;letter-spacing:.1em;text-shadow:none}
+html[data-hanafuda-preview="stage5"] .scene-home .landscape-title strong{font:900 clamp(17px,calc(2.9 * var(--game-vw, 1vw)),28px) "Yu Mincho",serif;white-space:nowrap;line-height:1.14;color:#362419;letter-spacing:.06em;text-shadow:1px 1px #fff0ca}
+html[data-hanafuda-preview="stage5"] .scene-home .landscape-title b{font:900 clamp(21px,calc(3.8 * var(--game-vw, 1vw)),36px) "Yu Mincho",serif;line-height:1.03;letter-spacing:.18em;color:#563019;text-shadow:1px 1px #ffe7b1}
 html[data-hanafuda-preview="stage5"] .scene-home .landscape-title b::after{display:none}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial,html[data-hanafuda-preview="stage5"] .scene-home .hub-mode,html[data-hanafuda-preview="stage5"] .scene-home .hub-learn{position:absolute;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:0;height:auto;margin:0;padding:2px 3px;overflow:hidden;border:0;border-radius:0;background:none;box-shadow:none;color:#30231c;text-align:center;transform:none}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial::before,html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial::after,html[data-hanafuda-preview="stage5"] .scene-home .hub-mode::before,html[data-hanafuda-preview="stage5"] .scene-home .hub-mode::after,html[data-hanafuda-preview="stage5"] .scene-home .hub-learn::before,html[data-hanafuda-preview="stage5"] .scene-home .hub-learn::after{display:none!important}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial{left:7.1%;top:34%;bottom:auto;width:17.4%;height:33%;transform:rotate(-2deg);gap:5px}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial .hub-badge{font:700 clamp(7px,1.1vw,10px) "Yu Mincho",serif;color:#685039}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial strong{font:900 clamp(17px,2.65vw,29px) "Yu Mincho",serif;color:#38271d;line-height:1.27;white-space:normal;max-width:100%;text-shadow:none;overflow-wrap:anywhere}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial .hub-badge{font:700 clamp(7px,calc(1.1 * var(--game-vw, 1vw)),10px) "Yu Mincho",serif;color:#685039}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial strong{font:900 clamp(17px,calc(2.65 * var(--game-vw, 1vw)),29px) "Yu Mincho",serif;color:#38271d;line-height:1.27;white-space:normal;max-width:100%;text-shadow:none;overflow-wrap:anywhere}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial>span:not(.hub-badge){font:700 clamp(7px,.96vw,10px) "Yu Mincho",serif;color:#5c4531;line-height:1.25;white-space:normal}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial b{font:700 clamp(8px,1.1vw,11px) "Yu Mincho",serif;color:#834632}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial b{font:700 clamp(8px,calc(1.1 * var(--game-vw, 1vw)),11px) "Yu Mincho",serif;color:#834632}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-modes{position:absolute;left:0;top:0;bottom:auto;width:100%;height:100%;display:block!important;z-index:4;pointer-events:none}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-modes .hub-mode{pointer-events:auto}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-modes .hub-journey{left:36%;top:45%;bottom:auto;width:8.4%;height:19.3%}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-modes .hub-free{left:50%;top:47.5%;bottom:auto;width:9%;height:17%}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-mode span{font:700 clamp(7px,.92vw,10px) "Yu Mincho",serif;color:#66513c;line-height:1.15}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-mode strong{font:900 clamp(11px,1.6vw,18px) "Yu Mincho",serif;color:#3b2c20;white-space:normal;line-height:1.16}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-mode strong{font:900 clamp(11px,calc(1.6 * var(--game-vw, 1vw)),18px) "Yu Mincho",serif;color:#3b2c20;white-space:normal;line-height:1.16}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-mode small{font:700 clamp(7px,.78vw,9px) "Yu Mincho",serif;color:#614935;line-height:1.1;white-space:normal}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-learn{left:63%;right:auto;top:49%;bottom:auto;width:7.4%;height:15%}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-learn strong{font:900 clamp(9px,1.4vw,15px) "Yu Mincho",serif;color:#392a20;line-height:1.18;white-space:normal}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-learn strong{font:900 clamp(9px,calc(1.4 * var(--game-vw, 1vw)),15px) "Yu Mincho",serif;color:#392a20;line-height:1.18;white-space:normal}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-learn span{font:700 clamp(6px,.72vw,8px) "Yu Mincho",serif;color:#57402f;line-height:1.15}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-learn b{display:none}
 html[data-hanafuda-preview="stage5"] .scene-home .topbar{position:absolute;inset:0;width:100%;height:100%;z-index:9;pointer-events:none;border:0;background:none}
 html[data-hanafuda-preview="stage5"] .scene-home .topbar .brand{display:none}
 html[data-hanafuda-preview="stage5"] .scene-home .topbar .row{position:absolute;left:74.2%;top:53.5%;width:7.1%;height:9.5%;display:flex;align-items:center;justify-content:center;pointer-events:auto}
-html[data-hanafuda-preview="stage5"] .scene-home .topbar .quiet{min-height:0;height:100%;width:100%;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:#38291b;font:900 clamp(10px,1.6vw,18px) "Yu Mincho",serif}
+html[data-hanafuda-preview="stage5"] .scene-home .topbar .quiet{min-height:0;height:100%;width:100%;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:#38291b;font:900 clamp(10px,calc(1.6 * var(--game-vw, 1vw)),18px) "Yu Mincho",serif}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress{position:absolute;inset:0;z-index:7;width:100%;height:100%;display:block!important;border:0;border-radius:0;background:none;box-shadow:none;padding:0;pointer-events:none}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress::before{display:none}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress .stage3-stones{position:absolute;left:28.9%;top:83.4%;height:7.9%;width:64%;display:flex!important;gap:0;align-items:center;justify-content:space-between;pointer-events:none}
-html[data-hanafuda-preview="stage5"] .scene-home .stage3-stones i{width:4.5%;min-width:0;height:100%;flex:0 0 4.5%;display:grid;place-items:center;border:0;border-radius:0;background:none;box-shadow:none;transform:none!important;color:#4c3322;font:900 clamp(9px,1.6vw,17px) "Yu Mincho",serif;font-style:normal}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:not(.stage3-stones){position:absolute;left:10.6%;width:14%;min-width:0;text-align:center;color:#442d1d;text-shadow:none;font:900 clamp(7px,1vw,10px) "Yu Mincho",serif;padding:0;border:0;background:none;box-shadow:none;white-space:nowrap}
+html[data-hanafuda-preview="stage5"] .scene-home .stage3-stones i{width:4.5%;min-width:0;height:100%;flex:0 0 4.5%;display:grid;place-items:center;border:0;border-radius:0;background:none;box-shadow:none;transform:none!important;color:#4c3322;font:900 clamp(9px,calc(1.6 * var(--game-vw, 1vw)),17px) "Yu Mincho",serif;font-style:normal}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:not(.stage3-stones){position:absolute;left:10.6%;width:14%;min-width:0;text-align:center;color:#442d1d;text-shadow:none;font:900 clamp(7px,calc(1 * var(--game-vw, 1vw)),10px) "Yu Mincho",serif;padding:0;border:0;background:none;box-shadow:none;white-space:nowrap}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:nth-child(2){top:84%}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:nth-child(3){top:87.5%}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:nth-child(4){top:91%}
@@ -51,20 +52,21 @@ html[data-hanafuda-preview="stage5"] .scene-home button:focus-visible {outline:3
 }
 /* Adopted home-quality pass: readable text without altering any UI wording.
    The background's paper planes are perspective-warped and paper-grained in scripts/polish-stage5-paper.py. */
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
 html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial{left:6.6%;top:34.3%;width:19.2%;height:32.5%;transform:rotate(-2.4deg);gap:3px}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial .hub-badge{font-size:clamp(8px,1.15vw,11px)}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial strong{font-size:clamp(17px,2.5vw,27px);line-height:1.2;letter-spacing:.02em}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial .hub-badge{font-size:clamp(8px,calc(1.15 * var(--game-vw, 1vw)),11px)}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial strong{font-size:clamp(17px,calc(2.5 * var(--game-vw, 1vw)),27px);line-height:1.2;letter-spacing:.02em}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial>span:not(.hub-badge){font-size:clamp(8px,.95vw,10px);max-width:89%;margin:0 auto;letter-spacing:-.035em;line-height:1.28;overflow-wrap:anywhere}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial b{font-size:clamp(8px,1.03vw,11px)}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-tutorial b{font-size:clamp(8px,calc(1.03 * var(--game-vw, 1vw)),11px)}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-modes .hub-journey{left:35.7%;top:45.4%;width:9%;height:18.7%;transform:rotate(-.5deg)}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-modes .hub-free{left:49.6%;top:48%;width:9.7%;height:16.4%;transform:rotate(-.8deg)}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-mode strong{font-size:clamp(11px,1.5vw,17px);line-height:1.1}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-mode strong{font-size:clamp(11px,calc(1.5 * var(--game-vw, 1vw)),17px);line-height:1.1}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-mode small{max-width:92%;font-size:clamp(8px,.87vw,9px);letter-spacing:-.055em;line-height:1.13;overflow-wrap:anywhere}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-learn{left:62.5%;top:49.2%;width:8.25%;height:15.3%;gap:1px}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-learn strong{font-size:clamp(10px,1.35vw,14px);line-height:1.1}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-learn strong{font-size:clamp(10px,calc(1.35 * var(--game-vw, 1vw)),14px);line-height:1.1}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-learn span{font-size:clamp(7px,.78vw,9px);max-width:94%;line-height:1.15;letter-spacing:-.045em;overflow-wrap:anywhere}
-html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:not(.stage3-stones){font-size:clamp(9px,1.15vw,12px);line-height:1.12;text-shadow:0 1px 0 #fff2c777;letter-spacing:0}
+html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:not(.stage3-stones){font-size:clamp(9px,calc(1.15 * var(--game-vw, 1vw)),12px);line-height:1.12;text-shadow:0 1px 0 #fff2c777;letter-spacing:0}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:nth-child(2){top:81.8%}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:nth-child(3){top:86.6%}
 html[data-hanafuda-preview="stage5"] .scene-home .hub-progress>span:nth-child(4){top:91.4%}

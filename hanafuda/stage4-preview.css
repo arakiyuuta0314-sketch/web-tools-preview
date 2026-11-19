@@ -1,5 +1,6 @@
 /* Stage 4: background-only original raster; semantic existing home controls. */
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
 html[data-hanafuda-preview="stage4"] .scene-home {background:#365560}
 html[data-hanafuda-preview="stage4"] .scene-home::before {display:none}
 html[data-hanafuda-preview="stage4"] .scene-home .page {padding:0;grid-template-rows:minmax(0,1fr)}

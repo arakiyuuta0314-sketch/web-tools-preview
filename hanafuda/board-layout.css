@@ -1,8 +1,9 @@
 /* Shared landscape game board: play area left, captured cards and yaku on the right. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .tabletop{
     display:grid!important;
-    grid-template-columns:minmax(0,1fr) clamp(108px,16vw,132px)!important;
+    grid-template-columns:minmax(0,1fr) clamp(108px,calc(16 * var(--game-vw, 1vw)),132px)!important;
     grid-template-rows:minmax(0,1fr)!important;
     gap:6px!important;
     padding:5px 6px!important;
@@ -69,7 +70,8 @@
   .play-layout .board-yaku-multiplier{flex:0 0 auto;text-align:right;font-size:8px;font-weight:800;color:#9b5035;}
   .play-layout .board-opponent,.play-layout .board-hand{padding-left:2px;padding-right:2px;}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout .tabletop{grid-template-columns:minmax(0,1fr) 104px!important;gap:4px!important;padding:4px!important;}
   .play-layout .tabletop-main{grid-template-rows:25px minmax(0,1fr) minmax(0,.82fr);gap:2px;}
   .play-layout .board-side{grid-template-rows:minmax(0,1.5fr) minmax(70px,1fr);gap:3px;}
@@ -81,7 +83,8 @@
   .play-layout .tabletop-main .stock-back{width:23px;height:36px;}
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .tabletop-main .fieldcards .hana{flex:0 0 auto;height:100%;max-height:100%;width:auto;min-width:0;min-height:0;max-width:52px;aspect-ratio:512/839;}
 }
 
@@ -89,21 +92,24 @@
 
 
 
-@media (orientation:landscape) and (max-height:620px){
-  .play-layout .tabletop-main .fieldcards.dense>.hana{flex:0 0 clamp(16px,3.4vw,28px);width:clamp(16px,3.4vw,28px);height:auto;max-height:100%;max-width:28px;aspect-ratio:512/839;}
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
+  .play-layout .tabletop-main .fieldcards.dense>.hana{flex:0 0 clamp(16px,calc(3.4 * var(--game-vw, 1vw)),28px);width:clamp(16px,calc(3.4 * var(--game-vw, 1vw)),28px);height:auto;max-height:100%;max-width:28px;aspect-ratio:512/839;}
 }
 
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .tabletop-main .fieldcards.dense .card-slot .hana{width:100%;height:auto;max-width:100%;max-height:100%;}
 }
 /* 2026-11-17: larger, readable shared tutorial/free-play board. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .tabletop{
-    grid-template-columns:minmax(0,1fr) clamp(144px,19vw,164px)!important;
+    grid-template-columns:minmax(0,1fr) clamp(144px,calc(19 * var(--game-vw, 1vw)),164px)!important;
   }
   .play-layout.tutorial-engawa .tabletop{
-    grid-template-columns:minmax(0,1fr) clamp(172px,22vw,188px)!important;
+    grid-template-columns:minmax(0,1fr) clamp(172px,calc(22 * var(--game-vw, 1vw)),188px)!important;
   }
   .play-layout.tutorial-engawa{grid-template-rows:28px minmax(0,1fr) 70px}
   .play-layout .tabletop-main{
@@ -187,7 +193,8 @@
   .play-layout .board-yaku-multiplier{flex:0 0 auto;text-align:right;font-size:10px;font-weight:800;color:#9b5035}
   .play-layout .card-name strong{font-size:11px}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout .tabletop{grid-template-columns:minmax(0,1fr) 140px!important;gap:4px!important;padding:4px!important}
   .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) 156px!important}
   .play-layout.tutorial-engawa{grid-template-rows:26px minmax(0,1fr) 68px}
@@ -210,9 +217,10 @@
   .play-layout .board-yaku-cards img{height:32px;max-width:21px}
 }
 /* 2026-11-17: spend the remaining 844x390 landscape space on legibility. */
-@media (orientation:landscape) and (max-height:620px){
-  .play-layout .tabletop{grid-template-columns:minmax(0,1fr) clamp(176px,22vw,194px)!important}
-  .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) clamp(196px,25vw,212px)!important}
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
+  .play-layout .tabletop{grid-template-columns:minmax(0,1fr) clamp(176px,calc(22 * var(--game-vw, 1vw)),194px)!important}
+  .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) clamp(196px,calc(25 * var(--game-vw, 1vw)),212px)!important}
   .play-layout.tutorial-engawa{grid-template-rows:24px minmax(0,1fr) 60px!important;gap:4px!important}
   .play-layout .tabletop-main{grid-template-rows:18px minmax(0,1fr) minmax(0,1fr);gap:2px}
   .play-layout .tabletop-main .fieldcards>.hana,
@@ -244,7 +252,8 @@
   .play-layout.tutorial-engawa .teacher-speech p{font-size:10px;line-height:1.2;-webkit-line-clamp:2}
   .play-layout.tutorial-engawa .teacher-actions button{min-height:27px;padding:2px 5px;font-size:11px}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout .tabletop{grid-template-columns:minmax(0,1fr) 154px!important}
   .play-layout.tutorial-engawa .tabletop{grid-template-columns:minmax(0,1fr) 168px!important}
   .play-layout.tutorial-engawa{grid-template-rows:26px minmax(0,1fr) 66px!important}
@@ -261,7 +270,8 @@
   .play-layout.tutorial-engawa .teacher-companion .teacher-avatar{width:34px;height:38px}
 }
 /* 2026-11-17 follow-up: keep the complete teacher strip inside the landscape viewport. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.tutorial-engawa{grid-template-rows:24px minmax(0,1fr) 74px!important}
   .play-layout.tutorial-engawa .tutorial-guide-panel{box-sizing:border-box;height:100%;min-height:0;padding:4px 7px;overflow:hidden}
   .play-layout.tutorial-engawa .teacher-companion{align-self:stretch;justify-content:center}
@@ -276,12 +286,14 @@
   .play-layout .board-taken-grid::-webkit-scrollbar-thumb{background:#8a623d;border:1px solid #ead8b4;border-radius:5px}
   .play-layout .board-side-heading span{font-size:10px;white-space:nowrap}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.tutorial-engawa{grid-template-rows:24px minmax(0,1fr) 74px!important}
 }
 
 /* Make the tutorial's captured-card continuation explicit without consuming another board row. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .board-side-heading .taken-browse-button{
     flex:0 0 auto;width:auto;min-width:0;height:16px;min-height:16px!important;max-height:16px!important;
     margin:0;padding:0 4px!important;border:1px solid #8b9169;border-radius:3px;
@@ -291,7 +303,8 @@
 }
 
 /* 2026-11-17: warm wood field surface, visually tied to the moonlit veranda. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .tabletop-main .board-field{
     position:relative;isolation:isolate;overflow:hidden;
     border:2px solid #76502f;border-radius:5px;
@@ -327,7 +340,8 @@
 }
 
 /* 2026-11-17: generated Japanese tabletop and indigo cloth mat. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout{
     background-color:#25170f!important;
     background-image:url("images/japanese-wooden-table-indigo-mat.jpg")!important;
@@ -369,7 +383,8 @@
 
 /* 2026-11-17 detail pass: separate opponent labels, keep captured cards to
    complete rows, and reserve room for the outermost field/stock captions. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout .tabletop-main{grid-template-rows:30px minmax(0,1fr) minmax(0,1fr)!important;gap:3px!important}
   .play-layout .board-opponent{align-items:center;padding-top:2px;padding-bottom:2px}
   .play-layout .opponent-label{gap:3px}
@@ -390,7 +405,8 @@
   .play-layout .board-taken-card{height:80px!important;min-height:80px!important;max-height:80px!important}
   .play-layout .board-taken-card img{height:74px!important;min-height:74px!important;max-height:74px!important}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout .tabletop-main{grid-template-rows:30px minmax(0,1fr) minmax(0,1fr)!important}
   .play-layout .tabletop-main .landscape-fieldline{grid-template-columns:44px minmax(0,1fr)!important;gap:4px!important}
   .play-layout .tabletop-main .fieldcards{padding-right:6px!important}
@@ -401,10 +417,11 @@
 
 /* 2026-11-17 seated-table redesign: teacher opposite, player hands below,
    symmetric public capture/yaku rails, and stock on the shared cloth mat. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .scene-game .page{
     display:flex!important;flex-direction:column!important;
-    width:100%!important;max-width:none!important;height:100dvh!important;
+    width:100%!important;max-width:none!important;height:calc(100 * var(--game-dvh, 1dvh))!important;
     min-height:0!important;padding:0!important;margin:0!important;
     overflow:hidden!important;background:transparent!important;
   }
@@ -695,7 +712,7 @@
     position:absolute!important;top:5px!important;left:132px!important;z-index:6!important;
     display:grid!important;grid-template-columns:minmax(0,1fr) 118px!important;
     grid-template-rows:minmax(0,1fr)!important;align-items:center!important;gap:5px!important;
-    width:clamp(205px,29vw,255px)!important;max-width:calc(100% - 300px)!important;
+    width:clamp(205px,calc(29 * var(--game-vw, 1vw)),255px)!important;max-width:calc(100% - 300px)!important;
     min-width:0!important;min-height:0!important;max-height:105px!important;
     padding:5px 6px!important;margin:0!important;overflow:hidden!important;
     border:1px solid #c6a36e!important;border-left:3px solid #a94b39!important;
@@ -742,7 +759,8 @@
   .play-layout.seated-layout .board-yaku-list::-webkit-scrollbar-thumb{background:#c5a16b;border-radius:3px}
   .play-layout.seated-layout .hana.selected{transform:translateY(-3px)!important}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.seated-layout .tabletop{grid-template-columns:108px minmax(0,1fr) 108px!important}
   .play-layout.seated-layout .tabletop-main{grid-template-rows:108px minmax(0,1fr) 86px!important}
   .play-layout.seated-layout .board-side{padding-top:108px!important;padding-bottom:31px!important}
@@ -751,14 +769,16 @@
   .play-layout.seated-layout .fieldcards>.hana{flex-basis:39px!important;width:39px!important;max-width:39px!important}
   .play-layout.seated-layout .handcards>.hana{flex-basis:34px!important;width:34px!important;max-width:34px!important}
 }
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .teacher-avatar img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 0}
   .teacher-avatar svg{display:none}
 }
 
 
 /* Refinement: readable upper dialogue and visible learning illustrations. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .tabletop{grid-template-columns:132px minmax(0,1fr) 132px!important}
   .play-layout.seated-layout .board-side{padding-left:4px!important;padding-right:4px!important}
   .play-layout.seated-layout .board-side-heading strong{font-size:9px!important}
@@ -772,12 +792,14 @@
   .play-layout.seated-layout .teacher-seat-guide .teacher-capture{gap:2px!important;max-height:25px!important;overflow:hidden!important}
   .play-layout.seated-layout .teacher-seat-guide .teacher-capture img{height:23px!important;max-height:23px!important;width:auto!important}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.seated-layout .tabletop{grid-template-columns:116px minmax(0,1fr) 116px!important}
   .play-layout.seated-layout .teacher-seat-guide.no-actions{left:124px!important;max-width:calc(100% - 270px)!important}
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .tabletop{grid-template-columns:148px minmax(0,1fr) 148px!important}
   .play-layout.seated-layout .board-side{padding-left:5px!important;padding-right:5px!important}
   .play-layout.seated-layout .board-side-heading{flex-basis:18px!important;height:18px!important}
@@ -796,12 +818,14 @@
   .play-layout.seated-layout .round-score-plaque strong{font-size:9px!important}
   .play-layout.seated-layout .round-score-plaque small{font-size:9px!important}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.seated-layout .tabletop{grid-template-columns:126px minmax(0,1fr) 126px!important}
   .play-layout.seated-layout .board-side{padding-top:108px!important}
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .tabletop{grid-template-columns:160px minmax(0,1fr) 160px!important}
   .play-layout.seated-layout .board-side{padding-left:5px!important;padding-right:5px!important}
   .play-layout.seated-layout .board-side-heading{flex-basis:19px!important;height:19px!important}
@@ -820,39 +844,46 @@
   .play-layout.seated-layout .round-score-plaque strong{font-size:10px!important}
   .play-layout.seated-layout .round-score-plaque small{font-size:9px!important}
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.seated-layout .tabletop{grid-template-columns:136px minmax(0,1fr) 136px!important}
   .play-layout.seated-layout .board-side{padding-top:108px!important}
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .tabletop-main{row-gap:3px!important}
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .handcards>.hana,
   .play-layout.seated-layout .handcards>.card-slot>.hana{
     flex-basis:40px!important;width:40px!important;max-width:40px!important;max-height:66px!important;
   }
 }
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px){
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.seated-layout .handcards>.hana,
   .play-layout.seated-layout .handcards>.card-slot>.hana{
     flex-basis:34px!important;width:34px!important;max-width:34px!important;max-height:56px!important;
   }
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .fieldcards{flex-wrap:nowrap!important}
   .play-layout.seated-layout .fieldcards.dense{gap:2px!important}
 }
 
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .scene-game:not(:has(.seated-layout)) .topbar{display:flex!important}
 }
 
 /* 2026-11-17 review: faceless opponent arms and fully visible decision state. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .teacher-seat-guide{top:9px!important;align-items:start!important;padding:7px 8px!important;}
   .play-layout.seated-layout .opponent-label{left:auto!important;right:7px!important;top:4px!important;}
   .play-layout.seated-layout .teacher-seat-guide .teacher-speech{justify-content:flex-start!important;overflow:visible!important;}
@@ -862,24 +893,26 @@
   .play-layout.seated-layout .handcards{height:calc(100% - 18px)!important;max-height:calc(100% - 18px)!important;position:relative!important;z-index:1!important;}
 }
 /* Reserve enough vertical space for both current-yaku rows, including their card thumbnails. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .board-side{grid-template-rows:minmax(0,.82fr) minmax(0,1.18fr)!important;}
   .play-layout.seated-layout .board-yaku-cards img{height:28px!important;min-height:28px!important;max-height:28px!important;}
 }
 
 /* The full board, including both public capture rails, fits inside the device insets. */
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .scene-game .page {
     box-sizing:border-box;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right)
-      env(safe-area-inset-bottom) env(safe-area-inset-left)!important;
+    padding:var(--game-safe-top, env(safe-area-inset-top)) var(--game-safe-right, env(safe-area-inset-right))
+      var(--game-safe-bottom, env(safe-area-inset-bottom)) var(--game-safe-left, env(safe-area-inset-left))!important;
     background:#25170f!important;
   }
   .play-layout.seated-layout .tabletop {
     grid-template-columns:min(160px,21%) minmax(0,1fr) min(160px,21%)!important;
   }
   .play-layout.seated-layout .teacher-bubble {
-    inset-block-start:clamp(8px,4vh,26px);
+    inset-block-start:clamp(8px,calc(4 * var(--game-vh)),26px);
     width:min(470px,calc(100% - 32px));
   }
 }
@@ -889,7 +922,8 @@
   flex-wrap:wrap;
   gap:5px;
 }
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .board-play-controls {
     position:absolute;
     top:9px;
@@ -903,7 +937,8 @@
   }
 }
 
-@media (orientation:landscape) and (max-height:620px) and (max-width:700px) {
+@media (orientation:landscape) and (max-height:620px) and (max-width:700px),
+       (orientation:portrait) and (max-width:620px) and (max-height:700px){
   .play-layout.seated-layout .tabletop {
     grid-template-columns:min(136px,21%) minmax(0,1fr) min(136px,21%)!important;
   }
@@ -936,7 +971,7 @@
 .play-layout .result.table-panel h2 {
   margin:0;
   color:#fff2d4;
-  font:700 clamp(19px,3vw,26px)/1.2 "Yu Mincho",serif;
+  font:700 clamp(19px,calc(3 * var(--game-vw, 1vw)),26px)/1.2 "Yu Mincho",serif;
 }
 .decision-scores, .decision-actions {
   display:grid;
@@ -972,7 +1007,7 @@
 .play-layout .result.table-panel p {margin:0;color:#fff2d4;font-size:15px}
 .round-settlement {display:grid;gap:4px}
 .play-layout .result.match-finale {width:min(530px,calc(100% - 24px));gap:10px;padding-block:16px}
-.play-layout .result.match-finale h2 {font-size:clamp(30px,5vw,46px)}
+.play-layout .result.match-finale h2 {font-size:clamp(30px,calc(5 * var(--game-vw, 1vw)),46px)}
 .match-finale .match-totals {border-block:1px solid #cba87580;padding:6px 12px}
 .match-totals b {color:#ffe0a0;font-size:24px}
 .play-layout .result.result-win {
@@ -982,7 +1017,8 @@
 @media (prefers-reduced-motion:reduce) {
   .play-layout .result.result-win {animation:none}
 }
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .decision-dim {position:absolute;inset:0 0 94px}
   .decision-panel {inset-block-start:calc((100% - 94px) / 2);max-height:calc(100% - 104px)}
 }
@@ -1043,9 +1079,10 @@
   text-align:center;
   pointer-events:none;
 }
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
   .play-layout.seated-layout .board-side{
-    padding-top:clamp(34px,12vh,52px)!important;
+    padding-top:clamp(34px,calc(12 * var(--game-vh)),52px)!important;
     padding-bottom:88px!important;
   }
   .play-layout.seated-layout .board-play-controls {
@@ -1079,7 +1116,7 @@
   left:50%;
   bottom:80px;
   transform:translateX(-50%);
-  height:clamp(68px,21vh,90px);
+  height:clamp(68px,calc(21 * var(--game-vh)),90px);
   width:auto;
   border-radius:3px;
   box-shadow:0 12px 16px #080609df,0 0 0 1px #e9cf9a;
