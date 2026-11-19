@@ -1,0 +1,398 @@
+/* The learning objects and match signs sit on the same table artwork as the lessons. */
+.shell.tutorial-aligned {
+  --study-ink:#573c2b;
+  --study-paper:repeating-linear-gradient(175deg,#895a2a08 0 1px,transparent 1px 5px),
+    linear-gradient(135deg,#fff5df,#e4c58f);
+  --study-body:"Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
+  background:#21160f;
+  color:#fff5df;
+}
+.tutorial-aligned .scene-body {
+  background:#15283e url("images/japanese-wooden-table-indigo-mat.jpg") center/cover no-repeat;
+  border:1px solid #896140;
+  border-radius:8px;
+  padding:12px clamp(13px,3.4vw,37px);
+  font-family:var(--study-body);
+  color:#fff5df;
+}
+.tutorial-aligned :is(h1,h2,.reference-top strong,.teacher-speech h3) {
+  font-family:"TutorialYuji",serif;
+  font-weight:400;
+}
+.tutorial-aligned :is(.chapter-title,.quiz-title) {color:#fff5df}
+.tutorial-aligned :is(.kicker,.quiz-head small,.quiz-counter,.reference-page-count) {color:#edcf9d}
+.tutorial-aligned .reference-page {
+  padding:0;
+  gap:5px;
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+}
+.tutorial-aligned .reference-top {
+  background:none;
+  padding:0;
+}
+.tutorial-aligned .reference-top strong {
+  color:#ffe6b5;
+  text-align:center;
+}
+.tutorial-aligned .reference-top button {
+  min-height:31px;
+  padding:3px 8px;
+  font-size:13px;
+}
+.tutorial-aligned .scene-body .row > .quiet,
+.tutorial-aligned .quiz-feedback > .primary {
+  min-height:34px;
+  padding:4px 10px;
+  background:linear-gradient(#8e5939,#663b27);
+  border:1px solid #a77a4d;
+  border-radius:8px;
+  color:#fff5df;
+  font:14px/1.25 "TutorialYuji",serif;
+}
+.tutorial-aligned .scene-body button:focus-visible {
+  outline:2px solid #ffdd94;
+  outline-offset:2px;
+}
+
+.tutorial-aligned .teacher-bubble.inline-teacher {
+  position:relative;
+  inset:auto;
+  transform:none;
+  grid-template-columns:auto minmax(0,1fr);
+  width:100%;
+  min-width:0;
+  padding:5px 9px;
+  border:1px solid #d5b67f;
+  border-radius:12px;
+  background:#fff5df;
+  color:var(--study-ink);
+  box-shadow:0 2px 5px #0003;
+  pointer-events:auto;
+  z-index:auto;
+}
+.tutorial-aligned .inline-teacher::before {inset-block-start:15px}
+.tutorial-aligned .inline-teacher .teacher-speech {min-width:0}
+.tutorial-aligned .inline-teacher .teacher-speech h3 {
+  margin:0;
+  font:16px/1.2 "TutorialYuji",serif;
+}
+.tutorial-aligned .inline-teacher .teacher-speech :is(small,p) {
+  font:13px/1.4 var(--study-body);
+  margin:0;
+  color:var(--study-ink);
+}
+.tutorial-aligned .inline-teacher .teacher-speech small {font-size:11px}
+.tutorial-aligned .quiz-option {font-size:clamp(14px,2.2vw,18px)}
+.tutorial-aligned .quiz-option:disabled {opacity:.8}
+.tutorial-aligned .quiz-option:is(.correct,.wrong) {opacity:1}
+.tutorial-aligned .quiz-option.wrong {
+  border-color:#ab6955;
+  background:#f2d0c1;
+  color:#732e20;
+}
+.tutorial-aligned .quiz-feedback > button {grid-column:2;justify-self:start}
+
+
+.tutorial-aligned .card-book {
+  grid-template-rows:auto auto minmax(0,1fr) auto auto auto;
+}
+.open-book {
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  overflow:hidden;
+  border:1px solid #9f7849;
+  border-radius:5px 10px 10px 5px;
+  background:#8a4932;
+  color:var(--study-ink);
+  box-shadow:0 4px 0 #673c2b,0 6px 10px #0009;
+  padding:3px 4px;
+}
+.open-book > div {
+  background:var(--study-paper);
+  box-shadow:inset 0 -3px #b68e5c,inset 0 -5px #e4c594;
+}
+.open-book .reference-cards {
+  padding:5px 8px 8px;
+  gap:clamp(4px,1vw,9px);
+  border-radius:4px 2px 0 4px;
+  box-shadow:inset -10px 0 14px -12px #6a4221,inset 0 -3px #b68e5c;
+}
+.open-book .catalogitem {
+  display:grid;
+  place-items:center;
+  min-height:0;
+  height:100%;
+}
+.open-book .hana {
+  display:grid;
+  place-items:center;
+  height:100%;
+  width:auto;
+  max-width:100%;
+  aspect-ratio:512/839;
+}
+.open-book .hana img {
+  height:100%;
+  width:100%;
+  min-height:0;
+  object-fit:contain;
+}
+.open-book .hana.is-inspected {outline:2px solid #ba762d;outline-offset:2px}
+.open-book .book-index {
+  position:relative;
+  overflow:auto;
+  padding:7px 12px;
+  border-left:1px solid #ad8050;
+  border-radius:2px 5px 4px 0;
+  box-shadow:inset 9px 0 16px -14px #6a4221,inset 0 -3px #b68e5c;
+}
+.book-index dl {margin:0}
+.book-index dl > div {padding:3px 5px;border-bottom:1px solid #9b714740}
+.book-index dl > div.is-inspected {background:#bf863c27}
+.book-index dt {font:15px/1.25 "TutorialYuji",serif}
+.book-index dd {margin:2px 0 0;font-size:12px;line-height:1.35}
+.month-tabs {
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:3px;
+  margin:0 6px;
+}
+.tutorial-aligned .month-tabs button {
+  padding:2px 0;
+  min-height:28px;
+  font-size:13px;
+  border-radius:2px 2px 5px 5px;
+}
+.tutorial-aligned .teacher-bubble.reference-note {
+  display:grid;
+  align-items:center;
+  gap:3px 8px;
+  overflow:visible;
+  margin-top:3px;
+}
+.tutorial-aligned .reference-note .teacher-speech p {overflow:visible}
+
+.yaku-scroll,.story-scroll {
+  position:relative;
+  background:var(--study-paper);
+  color:var(--study-ink);
+  border-block:1px solid #b48750;
+  box-shadow:0 5px 15px #0009;
+}
+.yaku-scroll {
+  overflow:auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-content:start;
+  gap:6px 16px;
+  padding:10px 16px;
+  border-inline:6px solid #a57543;
+  border-radius:7px;
+}
+.yaku-entry {
+  min-width:0;
+  padding:4px 4px 8px;
+  border-bottom:1px solid #a7794c60;
+  text-align:center;
+}
+.yaku-entry[aria-current] {
+  background:#a4662010;
+}
+.yaku-entry h2,.story-text h2 {margin:0 0 5px;color:#572d20;font-size:22px}
+.yaku-entry h2 span {font-size:.72em;color:#814326;margin-inline-start:5px}
+.yaku-entry p {margin:5px 0 0;font-size:12px;line-height:1.4}
+.scene-yaku.tutorial-aligned .reference-yaku {
+  gap:4px;
+  height:clamp(46px,14dvh,86px);
+}
+.scene-yaku.tutorial-aligned .reference-yaku img {
+  flex:0 1 auto;
+  min-width:0;
+  width:auto;
+  height:100%;
+  max-width:none;
+  object-fit:contain;
+}
+
+.story-scroll {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,3fr);
+  align-items:stretch;
+  gap:18px;
+  margin:8px 8px 5px;
+  padding:13px 20px;
+}
+.story-scroll::before,.story-scroll::after {
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset-block:-8px;
+  width:15px;
+  border-radius:5px;
+  border:1px solid #482919;
+  background:linear-gradient(90deg,#4d2b1c,#a47041 38%,#754527 62%,#402519);
+  box-shadow:1px 3px 5px #0007;
+}
+.story-scroll::before {left:-7px}
+.story-scroll::after {right:-7px}
+.scene-columns.tutorial-aligned .season-art {
+  display:grid;
+  place-items:center;
+  min-height:0;
+  overflow:hidden;
+  background:none;
+}
+.scene-columns.tutorial-aligned .season-art img {
+  height:100%;
+  max-height:210px;
+  max-width:100%;
+  width:auto;
+  object-fit:contain;
+}
+.scene-columns.tutorial-aligned .reference-note.story-text {
+  display:block;
+  padding:10px 4px;
+  align-content:center;
+  overflow:auto;
+  background:none;
+  border:0;
+  color:inherit;
+}
+.scene-columns.tutorial-aligned .story-text p {
+  display:block;
+  overflow:visible;
+  font-size:clamp(15px,2.3vw,19px);
+  line-height:1.85;
+  color:inherit;
+}
+
+.scene-quiz.tutorial-aligned .quiz-art {
+  background:none;
+  border:0;
+}
+.tutorial-aligned .quiz-option {min-width:0}
+.tutorial-aligned .teacher-bubble.quiz-feedback {
+  display:grid;
+  align-items:center;
+  justify-content:stretch;
+  overflow:visible;
+}
+
+.match-menu {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:"header header" "modes modes" "lengths lengths" "beginner beginner" "guide guide";
+  align-content:center;
+  align-items:center;
+  gap:clamp(7px,2vh,15px) 22px;
+  min-height:0;
+  height:100%;
+  padding-inline:clamp(0px,2vw,22px);
+}
+.match-menu-betting {
+  grid-template-areas:"header header" "modes modes" "stakes lengths" "stakes beginner" "guide guide";
+}
+.match-menu > .row {grid-area:header}
+.match-menu > .mode-signs {grid-area:modes;gap:12px}
+.match-menu > .betting-options {grid-area:stakes}
+.match-menu > .match-lengths {grid-area:lengths}
+.match-menu > .match-beginner {grid-area:beginner}
+.match-menu > .inline-teacher {grid-area:guide}
+.match-menu h2 {margin:0 0 4px;font-size:17px;color:#ffe6bb}
+.match-menu h2 small {font:.72em var(--study-body)}
+/* The home signs have painted labels. Reuse the lesson plaque material for live labels. */
+.tutorial-aligned .match-menu .mode-signs button {
+  min-height:58px;
+  border:2px solid #bb925a;
+  border-radius:5px;
+  background:repeating-linear-gradient(177deg,#b8854b25 0 1px,transparent 2px 5px),
+    linear-gradient(#87603b,#56351f);
+  box-shadow:inset 0 0 0 3px #2b170d80,0 4px 0 #2e190f,0 6px 7px #0009;
+  color:#ffe6bb;
+  font:clamp(18px,3vw,25px)/1 "TutorialYuji",serif;
+  text-shadow:0 2px 2px #32180c;
+}
+.tutorial-aligned .match-menu .mode-signs button.active {
+  background:repeating-linear-gradient(177deg,#9a622222 0 1px,transparent 2px 5px),
+    linear-gradient(#eacb92,#bc884c);
+  border-color:#e6ba72;
+  box-shadow:inset 0 0 0 3px #76482265,0 4px 0 #583321,0 6px 7px #0009;
+  color:#4a2717;
+  text-shadow:0 1px #f6dba2;
+}
+.length-signs,.rate-signs {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+.tutorial-aligned .length-signs button {
+  min-height:40px;
+  font-size:17px;
+}
+.tutorial-aligned .betting-options {
+  padding:0;
+  gap:7px;
+  color:inherit;
+  border:0;
+  background:none;
+}
+.tutorial-aligned .betting-wallet {justify-content:start}
+.tutorial-aligned .betting-wallet strong {margin-inline-end:auto;font:22px/1 "TutorialYuji",serif}
+.tutorial-aligned .betting-wallet strong small {font-size:12px}
+.coin-medallion {
+  display:grid;
+  place-items:center;
+  width:24px;
+  height:34px;
+  border:2px solid #b67d2b;
+  border-radius:50%;
+  background:linear-gradient(100deg,#bd8434,#ffe59c 42%,#bd8130);
+  box-shadow:inset 0 0 0 2px #f9d584,1px 2px 2px #0008;
+  transform:rotate(-14deg);
+}
+.coin-medallion::before {
+  content:"";
+  width:7px;
+  height:7px;
+  background:#4c301c;
+  border:1px solid #eac471;
+}
+.tutorial-aligned .rate-signs button {
+  padding:4px 2px;
+  min-height:40px;
+  border-radius:50%;
+  font-size:clamp(11px,1.8vw,15px);
+}
+.tutorial-aligned .match-beginner {gap:5px}
+.match-beginner h2 {margin:0 5px 0 0}
+.tutorial-aligned .match-menu :is(.match-beginner,.betting-wallet) button {
+  min-height:31px;
+  padding:3px 10px;
+  font-size:14px;
+}
+
+@media (orientation:landscape) and (max-height:620px) {
+  .tutorial-aligned .quiz-screen {
+    grid-template-rows:42px minmax(0,1fr) auto;
+  }
+  .tutorial-aligned .quiz-feedback:has(> button) {
+    grid-template-columns:auto minmax(0,1fr) auto;
+  }
+  .tutorial-aligned .quiz-feedback > button {grid-column:3}
+}
+@media (max-width:550px) and (orientation:portrait) {
+  .month-tabs {grid-template-columns:repeat(6,minmax(0,1fr))}
+  .open-book {grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .yaku-scroll {grid-template-columns:minmax(0,1fr)}
+  .match-menu {gap:8px}
+  .match-menu-betting {
+    grid-template-areas:"header header" "modes modes" "stakes stakes" "lengths lengths" "beginner beginner" "guide guide";
+  }
+}
+
+@media (orientation:landscape) and (max-height:360px) {
+  .tutorial-aligned .scene-body {padding-block:7px}
+  .tutorial-aligned .reference-page {gap:3px}
+  .tutorial-aligned .reference-page .kicker {display:none}
+  .match-menu {gap:6px 15px}
+}

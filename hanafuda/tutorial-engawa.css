@@ -21,7 +21,8 @@
 .tutorial-month-quiz>small{position:absolute;align-self:flex-start;margin-top:3px;color:#8d6642;font:12px "TutorialYuji",serif}
 .tutorial-month-quiz>img{height:min(29vh,142px);width:auto;max-width:27%;object-fit:contain;border-radius:3px;box-shadow:0 5px 12px #4934225c}
 .month-quiz-choices{display:grid;grid-template-columns:repeat(3,minmax(66px,1fr));gap:8px}
-.month-quiz-choices button{min-height:46px;border:1px solid #a77a4d;border-radius:8px;background:linear-gradient(#fff8e8,#e6d0a8);color:#563824;font:17px "TutorialYuji",serif;box-shadow:0 3px 0 #b99b70}
+.month-quiz-choices button,
+.tutorial-aligned :is(.reference-top button,.month-tabs button,.quiz-option,.match-menu button){min-height:46px;border:1px solid #a77a4d;border-radius:8px;background:linear-gradient(#fff8e8,#e6d0a8);color:#563824;font:17px "TutorialYuji",serif;box-shadow:0 3px 0 #b99b70}
 .tutorial-quiz-complete{padding:14px 28px;border:1px solid #c09c64;border-radius:9px;background:#fff8e8;color:#6b402b;font:22px "TutorialYuji",serif}
 .tutorial-welcome-guide{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:9px;border:1px solid #c9a77a;border-radius:11px;background:linear-gradient(145deg,#f9edcf,#dfc69d);box-shadow:0 5px 14px #160f0b45}
 .teacher-avatar{width:66px;height:74px;display:grid;place-items:center;flex:none;overflow:hidden;border:2px solid #c29b64;border-radius:50% 50% 42% 42%;background:radial-gradient(circle at 50% 38%,#fff8e9,#e3c69b);box-shadow:0 3px 7px #4b34244a}
@@ -114,7 +115,8 @@
 .play-layout.tutorial-engawa .board-zone-caption span{flex:0 1 auto;min-width:0;max-width:58%;white-space:normal;text-align:right;overflow-wrap:anywhere;line-height:1.1}
 .play-layout.tutorial-engawa .opponent-label{min-width:0;max-width:42%}
 .play-layout.tutorial-engawa .opponent-label span{white-space:normal;overflow-wrap:anywhere;line-height:1.1}
-.month-quiz-choices button.correct{border-color:#78945f;background:linear-gradient(#e8f0d8,#cbdcb5);color:#38542f;box-shadow:0 3px 0 #91a879}
+.month-quiz-choices button.correct,
+.tutorial-aligned :is(.quiz-option.correct,.month-tabs button[aria-pressed="true"],.match-menu .chip.active){border-color:#78945f;background:linear-gradient(#e8f0d8,#cbdcb5);color:#38542f;box-shadow:0 3px 0 #91a879}
 @media(max-width:700px) and (orientation:landscape){
  .play-layout.tutorial-engawa{grid-template-rows:28px minmax(0,1fr) 88px}
  .play-layout.tutorial-engawa .tabletop{grid-template-rows:20px minmax(0,1.1fr) 14px minmax(0,1.2fr);padding:3px 5px}
