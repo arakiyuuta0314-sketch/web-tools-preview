@@ -40,7 +40,14 @@
   <section class="controls" id="controls" aria-label="ゲームコントローラー">
       <div class="battle-status" id="battle-status" hidden aria-label="戦闘中の味方ステータス">
         <strong id="battle-status-name">アレン</strong>
-        <span id="battle-status-hp">HP 0</span><span id="battle-status-mp">MP 0</span>
+        <div class="battle-resource">
+          <span id="battle-status-hp">HP 0</span>
+          <progress id="battle-hp-bar" aria-label="HP残量" value="0"></progress>
+        </div>
+        <div class="battle-resource">
+          <span id="battle-status-mp">MP 0</span>
+          <progress id="battle-mp-bar" aria-label="MP残量" value="0"></progress>
+        </div>
       </div>
     <div class="controls-label" aria-hidden="true"><span>✦</span> ADVENTURE</div>
     <div class="dpad" role="group" aria-label="移動と選択">
