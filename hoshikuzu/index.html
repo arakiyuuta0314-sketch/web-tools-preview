@@ -45,14 +45,27 @@
   </section>
   <section class="controls" id="controls" aria-label="ゲームコントローラー">
       <div class="battle-status" id="battle-status" hidden aria-label="戦闘中の味方ステータス">
-        <strong id="battle-status-name">アレン</strong>
-        <div class="battle-resource">
-          <span id="battle-status-hp">HP 0</span>
-          <progress id="battle-hp-bar" aria-label="HP残量" value="0"></progress>
+        <div class="battle-member">
+          <strong id="battle-status-name">アレン</strong>
+          <div class="battle-resource">
+            <span id="battle-status-hp">HP 0</span>
+            <progress id="battle-hp-bar" aria-label="HP残量" value="0"></progress>
+          </div>
+          <div class="battle-resource">
+            <span id="battle-status-mp">MP 0</span>
+            <progress id="battle-mp-bar" aria-label="MP残量" value="0"></progress>
+          </div>
         </div>
-        <div class="battle-resource">
-          <span id="battle-status-mp">MP 0</span>
-          <progress id="battle-mp-bar" aria-label="MP残量" value="0"></progress>
+        <div class="battle-member" id="battle-guest" hidden>
+          <strong id="guest-status-name">ゲスト</strong>
+          <div class="battle-resource">
+            <span id="guest-status-hp">HP 0</span>
+            <progress id="guest-hp-bar" aria-label="ゲストのHP残量" value="0"></progress>
+          </div>
+          <div class="battle-resource">
+            <span id="guest-status-mp">MP 0</span>
+            <progress id="guest-mp-bar" aria-label="ゲストのMP残量" value="0"></progress>
+          </div>
         </div>
       </div>
     <div class="dpad" role="group" aria-label="移動と選択">
