@@ -10632,18 +10632,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     ];
     const steps = entries.map(({ label, action, step, completed }) => '<li><button type="button" class="tutorial-step-plaque" data-action="' + action + '"' + (step ? ' data-value="' + step + '"' : "") + (completed ? ' aria-describedby="tutorial-step-complete"' : "") + ">" + label + "</button></li>").join("");
     const figure = "assets/teacher-figure.png" ? ' style="--teacher-figure:url(./assets/teacher-figure.png)"' : "";
-    return shell('<section class="tutorial-step-menu"><div class="tutorial-step-picker"><h1>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</h1><ol>' + steps + '</ol><span id="tutorial-step-complete" hidden>\u5B8C\u4E86</span></div><div class="tutorial-teacher-figure" aria-hidden="true"' + figure + "></div></section>");
+    return shell('<section class="tutorial-step-menu"><div class="tutorial-step-picker"><header class="tutorial-step-heading"><h1>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</h1><button type="button" class="quiet" data-action="home" aria-label="\u30DB\u30FC\u30E0\u3078\u623B\u308B">\u623B\u308B</button></header><ol>' + steps + '</ol><span id="tutorial-step-complete" hidden>\u5B8C\u4E86</span></div><div class="tutorial-teacher-figure" aria-hidden="true"' + figure + "></div></section>");
   }
   function recordPracticeStep(step) {
     state.completedPracticeSteps ??= [];
     if (!state.completedPracticeSteps.includes(step)) state.completedPracticeSteps.push(step);
-  }
-  function nextTutorialLabel(g, step) {
-    if (g.tutorialSingleStep) return "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078";
-    return TUTORIAL_STEPS[step] + "\u3078 \u203A";
-  }
-  function nextTutorialButton(g, step, action = "tutorial-next") {
-    return '<button class="primary" data-action="' + action + '">' + nextTutorialLabel(g, step) + "</button>";
   }
   var PRACTICE_GOALS = [
     { type: "\u30AB\u30B9", label: "\u30AB\u30B9\u672D", total: 10 },
@@ -10678,13 +10671,13 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const r = g.round, teach = Boolean(g.tutorial);
     if (teach && g.tutorialLearning) {
       const ids = g.tutorialLearning.ids || [], first = (g.tutorialLearning.index ?? 0) === 0, types = [...new Set(ids.map((id) => card(id).type))];
-      return { step: "\u672D\u3092\u96C6\u3081\u308B", title: first ? "\u672D\u304C\u53D6\u308C\u305F\u306D\uFF01" : "\u53D6\u308A\u672D\u304C\u5897\u3048\u305F\u306D", description: practiceProgress(g) || (first ? "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u308B\u3068\u30012\u679A\u3068\u3082\u81EA\u5206\u306E\u53D6\u308A\u672D\u306B\u306A\u308B\u3088\u3002\u3053\u308C\u306F" + types.join("\u30FB") + "\u672D\u3002\u5F79\u3092\u4F5C\u308B\u3068\u304D\u306B\u4F7F\u3046\u672D\u3060\u306D\u3002" : types.join("\u30FB") + "\u672D\u304C\u5897\u3048\u305F\u3088\u3002\u5C11\u3057\u305A\u3064\u96C6\u3081\u3066\u3044\u3053\u3046\u3002"), action: '<button class="primary" data-action="tutorial-learned">\u6B21\u3078 \u203A</button>', tapAction: "tutorial-learned", visual: "capture" };
+      return { step: "\u672D\u3092\u96C6\u3081\u308B", title: first ? "\u672D\u304C\u53D6\u308C\u305F\u306D\uFF01" : "\u53D6\u308A\u672D\u304C\u5897\u3048\u305F\u306D", description: practiceProgress(g) || (first ? "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u308B\u3068\u30012\u679A\u3068\u3082\u81EA\u5206\u306E\u53D6\u308A\u672D\u306B\u306A\u308B\u3088\u3002\u3053\u308C\u306F" + types.join("\u30FB") + "\u672D\u3002\u5F79\u3092\u4F5C\u308B\u3068\u304D\u306B\u4F7F\u3046\u672D\u3060\u306D\u3002" : types.join("\u30FB") + "\u672D\u304C\u5897\u3048\u305F\u3088\u3002\u5C11\u3057\u305A\u3064\u96C6\u3081\u3066\u3044\u3053\u3046\u3002"), tapAction: "tutorial-learned", visual: "capture" };
     }
     if (teach && r.phase === "decision" && r.current === 0) {
       const score = completedYakuSummary(r.captured[0], r.koiCalls), step = g.tutorialRoleStep ?? 0;
-      if (step === 0) return { step: "\u5F79\u304C\u3067\u304D\u305F", title: score.yakus.map((y) => y.name).join("\u30FB") + "\u304C\u5B8C\u6210\uFF01", description: "\u5F79\u3092\u4F5C\u3063\u305F\u672D\u3092\u898B\u3066\u307F\u3088\u3046\u3002", action: '<button class="primary" data-action="tutorial-role-points">\u70B9\u6570\u3092\u898B\u3066\u307F\u3088\u3046 \u203A</button>', tapAction: "tutorial-role-points", visual: "role" };
-      if (step === 1 && g.tutorialStep >= 3 && g.tutorialStep < 6) return { step: "\u5F79\u306E\u70B9\u6570", title: score.yakus.map((y) => y.name).join("\u30FB") + " " + score.raw + "\u70B9", description: "\u96C6\u3081\u305F\u672D\u3067\u5F79\u304C\u3067\u304D\u305F\u306D\u3002", tapAction: "tutorial-finish-practice", action: nextTutorialButton(g, g.tutorialStep + 1, "tutorial-finish-practice") };
-      if (step === 1) return { step: "\u5F79\u306E\u70B9\u6570", title: "\u70B9\u6570\u306E\u78BA\u8A8D", description: score.yakus.map((yaku) => yaku.name).join("\u30FB") + "\u306F" + score.raw + "\u70B9\u3060\u3088\u3002", action: '<button class="primary" data-action="tutorial-decision">\u52DD\u8CA0\u3059\u308B\u304B\u3001\u8003\u3048\u3066\u307F\u3088\u3046 \u203A</button>', tapAction: "tutorial-decision", visual: "points" };
+      if (step === 0) return { step: "\u5F79\u304C\u3067\u304D\u305F", title: score.yakus.map((y) => y.name).join("\u30FB") + "\u304C\u5B8C\u6210\uFF01", description: "\u5F79\u3092\u4F5C\u3063\u305F\u672D\u3092\u898B\u3066\u307F\u3088\u3046\u3002", tapAction: "tutorial-role-points", visual: "role" };
+      if (step === 1 && g.tutorialStep >= 3 && g.tutorialStep < 6) return { step: "\u5F79\u306E\u70B9\u6570", title: score.yakus.map((y) => y.name).join("\u30FB") + " " + score.raw + "\u70B9", description: "\u96C6\u3081\u305F\u672D\u3067\u5F79\u304C\u3067\u304D\u305F\u306D\u3002", tapAction: "tutorial-finish-practice" };
+      if (step === 1) return { step: "\u5F79\u306E\u70B9\u6570", title: "\u70B9\u6570\u306E\u78BA\u8A8D", description: score.yakus.map((yaku) => yaku.name).join("\u30FB") + "\u306F" + score.raw + "\u70B9\u3060\u3088\u3002", tapAction: "tutorial-decision", visual: "points" };
       return { step: "\u3055\u3044\u3054\u306E\u9078\u629E", title: "\u52DD\u8CA0\u3059\u308B\uFF1F \u3053\u3044\u3053\u3044\u3059\u308B\uFF1F", description: g.tutorialStep === 6 ? finalPracticeDecision(score) : "\u52DD\u8CA0\u3067\u70B9\u3092\u78BA\u5B9A\u3002\u3053\u3044\u3053\u3044\u3067\u6B21\u306E\u5F79\u3092\u306D\u3089\u3048\u308B\u3051\u308C\u3069\u3001\u76F8\u624B\u306B\u5148\u306B\u5F79\u3092\u4F5C\u3089\u308C\u308B\u3053\u3068\u3082\u3042\u308B\u3088\u3002", visual: "decision" };
     }
     if (teach && (r.phase === "game-end" || r.phase === "round-end")) {
@@ -10712,27 +10705,33 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       const c = card(selected), matches = matching(r.field, selected);
       return { step: "\u672D\u3092\u5408\u308F\u305B\u308B", title: matches.length ? "\u540C\u3058\u6708\u306E\u672D\u3092\u30BF\u30C3\u30D7" : "\u5834\u306B\u51FA\u3059", description: c.month + "\u6708 " + c.flower + "\u300C" + c.subject + "\u300D\u3092\u9078\u3093\u3060\u3088\u3002", action: matches.length ? "" : '<button class="primary" data-action="play-selected">\u5834\u306B\u51FA\u3059</button>' };
     }
-    if (r.phase === "round-end" || r.phase === "game-end") return { step: "\u5BFE\u5C40\u7D50\u679C", title: r.result.winner === 0 ? "\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : r.result.winner === 1 ? "\u76F8\u624B\u306E\u52DD\u3061" : "\u5F15\u304D\u5206\u3051", description: "\u4ECA\u56DE\u306E\u5F97\u70B9\u306F " + r.result.points + "\u70B9\u3002", action: r.phase === "round-end" ? '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>' };
     return { step: "\u3042\u306A\u305F\u306E\u756A", title: "\u6B21\u306E\u672D\u3092\u9078\u307C\u3046", description: "\u5834\u306B\u51FA\u3055\u308C\u305F\u672D\u3092\u898B\u306A\u304C\u3089\u3001\u624B\u672D\u3092\u9078\u3093\u3067\u307F\u3088\u3046\u3002", action: "" };
   }
   var STOCK_FRAME_EXPLANATION = "\u5C71\u672D\u304B\u3089\u5F15\u3044\u305F\u672D\u306B\u306F\u6C34\u8272\u306E\u67A0\u304C\u4ED8\u304F\u3088\u3002";
   var MATCH_LESSON_NOTICES = {
-    start: { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3", title: "\u4E00\u5C40\u3001\u901A\u3057\u3066\u904A\u3093\u3067\u307F\u3088\u3046", description: "\u4E00\u5C40\u306E\u624B\u672D\u306F8\u679A\u305A\u3064\u3002\u88DC\u5145\u306F\u306A\u3044\u3088\u3002\u81EA\u5206\u306E\u756A\u306B\u306F\u624B\u672D\u304B\u30891\u679A\u51FA\u3057\u3001\u5C71\u672D\u304B\u30891\u679A\u5F15\u304F\u3088\u3002" + STOCK_FRAME_EXPLANATION + "\u5408\u3063\u305F\u5834\u672D\u306F\u53D6\u308A\u672D\u306B\u79FB\u308B\u304B\u3089\u5834\u672D\u304C\u6E1B\u308A\u3001\u5F15\u3044\u305F\u672D\u304C\u5408\u308F\u306A\u3051\u308C\u3070\u5834\u306B\u6B8B\u308B\u3088\u3002\u52DD\u8CA0\u304C\u6C7A\u307E\u3089\u305A\u3001\u3075\u305F\u308A\u306E\u624B\u672D\u304C\u5C3D\u304D\u305F\u3089\u5C40\u306F\u304A\u3057\u307E\u3044\u3002" },
+    start: { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3", title: "\u4E00\u5C40\u3001\u901A\u3057\u3066\u904A\u3093\u3067\u307F\u3088\u3046", description: STOCK_FRAME_EXPLANATION },
     yaku: { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3", title: "\u521D\u3081\u3066\u306E\u5F79\u304C\u3067\u304D\u305F\u306D\uFF01", description: "\u53D6\u3063\u305F\u672D\u306E\u7D44\u307F\u5408\u308F\u305B\u3067\u5F79\u304C\u3067\u304D\u308B\u3068\u3001\u70B9\u6570\u304C\u3064\u304F\u3088\u3002" },
     decision: { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3", title: "\u52DD\u8CA0\u3059\u308B\uFF1F \u3053\u3044\u3053\u3044\u3059\u308B\uFF1F", description: "\u52DD\u8CA0\u306A\u3089\u70B9\u3092\u78BA\u5B9A\u3057\u3066\u5C40\u3092\u7D42\u3048\u308B\u3088\u3002\u3053\u3044\u3053\u3044\u306A\u3089\u7D9A\u3051\u3089\u308C\u308B\u3051\u308C\u3069\u3001\u76F8\u624B\u304C\u5148\u306B\u5F79\u3092\u4F5C\u308B\u3068\u76F8\u624B\u306E\u52DD\u3061\u3060\u3088\u3002" },
     end: { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3", title: "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: "\u5F97\u70B9\u3092\u78BA\u8A8D\u3057\u3066\u3001\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078\u623B\u308D\u3046\u3002" }
   };
-  function matchLessonResult(g, lesson) {
-    if (!g.finished) return lesson;
+  function yakuNames(yakus) {
+    return '<ul class="panel-yaku">' + yakus.map(({ name, points }) => "<li>" + esc(name) + " <b>" + points + "\u70B9</b></li>").join("") + "</ul>";
+  }
+  function celebrationPetals() {
+    return '<div class="yaku-celebration-petals" aria-hidden="true">' + Array.from({ length: 6 }, (_, index) => '<i style="--petal:' + index + '"></i>').join("") + "</div>";
+  }
+  function resultTitle(winner) {
+    return winner === 0 ? "\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : winner === 1 ? "\u76F8\u624B\u306E\u52DD\u3061" : "\u5F15\u304D\u5206\u3051";
+  }
+  function resultPanel(g) {
+    const { winner, points, multiplier, raw, reason } = g.round.result;
+    const finale = g.finished && g.matchLesson !== 6;
     const [mine, opponent] = g.scores;
-    const winner = mine === opponent ? null : Number(mine < opponent);
-    return {
-      ...lesson,
-      winner,
-      title: winner === 0 ? "\u3042\u306A\u305F\u306E\u52DD\u3061\uFF01" : winner === 1 ? "\u76F8\u624B\u306E\u52DD\u3061" : "\u5F15\u304D\u5206\u3051",
-      description: (g.matchLesson === 7 ? "3\u5C40\u306E\u5408\u8A08" : "\u3053\u306E\u5C40\u306E\u5F97\u70B9") + "\u3000\u3042\u306A\u305F " + mine + "\u70B9 \uFF0F \u76F8\u624B " + opponent + "\u70B9",
-      action: '<button class="primary" data-action="finish-match-lesson">\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078</button>'
-    };
+    const matchWinner = mine === opponent ? null : Number(mine < opponent);
+    const yakus = winner === null ? [] : reason === "te-shi" ? [{ name: "\u624B\u56DB", points }] : reason === "kuttsuki" ? [{ name: "\u304F\u3063\u3064\u304D", points }] : evaluate(g.round.captured[winner]).yakus;
+    const won = (finale ? matchWinner : winner) === 0;
+    const action = g.finished ? g.matchLesson ? '<button class="primary" data-action="finish-match-lesson">\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>' : '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>';
+    return '<div class="teacher-dim" aria-hidden="true"></div><section class="result table-panel' + (finale ? " match-finale" : "") + (won ? " result-win" : "") + '" role="dialog" aria-modal="true" aria-labelledby="result-title"><span class="result-label">' + (finale ? "\u5BFE\u5C40\u7D50\u679C" : "\u7B2C" + (g.index + 1) + "\u5C40\u306E\u7D50\u679C") + '</span><h2 id="result-title">' + resultTitle(finale ? matchWinner : winner) + "</h2>" + (finale ? '<p class="match-totals" aria-label="\u5BFE\u5C40\u306E\u5408\u8A08\u70B9"><span>\u3042\u306A\u305F <b>' + mine + "\u70B9</b></span> \uFF0F <span>\u76F8\u624B <b>" + opponent + "\u70B9</b></span></p>" : "") + '<div class="round-settlement"><p>' + (finale ? "\u6700\u7D42\u5C40 \xB7 " + resultTitle(winner) + "\u3000" : "") + "\u5F97\u70B9 <strong>" + points + "\u70B9</strong>" + (multiplier > 1 ? ' <span class="result-multiplier">\uFF08' + raw + "\u70B9 \xD7 " + multiplier + "\u500D\uFF09</span>" : "") + "</p>" + (yakus.length ? yakuNames(yakus) : "") + '</div><div class="result-action">' + action + "</div>" + (won ? celebrationPetals() : "") + "</section>";
   }
   function gameDialogView(g) {
     if (!gameDialog || ["guide", "match-hint"].includes(gameDialog)) return "";
@@ -10768,18 +10767,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const feedback = g.tutorialMonthFeedback, q = tutorialMonthQuestion(g);
     const lesson = feedback ? {
       title: "\u6B63\u89E3\uFF01 " + feedback.month + "\u6708\u306E\u82B1\u3060\u306D",
-      description: "\u82B1\u306E\u66A6\u3067\u898B\u305F\u7D75\u3068\u540C\u3058\u3060\u306D\u3002",
-      action: '<button class="primary" data-action="tutorial-month-next">' + (count + 1 < total ? "\u6B21\u306E\u554F\u984C\u3078" : "\u7D50\u679C\u3092\u898B\u308B") + " \u203A</button>"
+      description: "\u82B1\u306E\u66A6\u3067\u898B\u305F\u7D75\u3068\u540C\u3058\u3060\u306D\u3002"
     } : q ? {
       title: "\u3053\u306E\u672D\u306F\u4F55\u6708\u304B\u306A\uFF1F",
       description: g.tutorialHint || "\u672D\u306E\u7D75\u3092\u898B\u3066\u3001\u4F55\u6708\u306E\u672D\u304B\u9078\u3093\u3067\u307F\u3088\u3046\u3002"
     } : {
       title: "\u82B1\u306E\u66A6\u3092\u899A\u3048\u305F\u306D\uFF01",
-      description: "\u6708\u3068\u82B1\u306E\u7D44\u307F\u5408\u308F\u305B\u304C\u5206\u304B\u3063\u305F\u306D\u3002\u6B21\u306F\u30AB\u30B9\u672D\u3092\u96C6\u3081\u3066\u307F\u3088\u3046\u3002",
-      action: '<button class="primary" data-action="tutorial-continue">\u30AB\u30B9\u672D\u306E\u7DF4\u7FD2\u3078 \u203A</button>'
+      description: "\u6708\u3068\u82B1\u306E\u7D44\u307F\u5408\u308F\u305B\u304C\u5206\u304B\u3063\u305F\u306D\u3002\u6B21\u306F\u30AB\u30B9\u672D\u3092\u96C6\u3081\u3066\u307F\u3088\u3046\u3002"
     };
     const exhibit = q ? '<section class="tutorial-month-quiz' + (feedback ? " is-feedback" : "") + '"><small>\u6708\u5F53\u3066 ' + (count + 1) + " / " + total + '</small><img src="' + photo(q.id) + '" alt="\u6708\u3092\u5F53\u3066\u308B\u82B1\u672D"><div class="month-quiz-choices">' + q.choices.map((v) => "<button " + (feedback ? "disabled " : "") + (feedback && v === feedback.month ? 'class="correct" aria-pressed="true" ' : "") + 'data-action="tutorial-month-answer" data-month="' + v + '">' + v + "\u6708</button>").join("") + "</div></section>" : '<div class="tutorial-quiz-complete">' + total + "\u554F\u6B63\u89E3\uFF01</div>";
-    return exhibit + teacherBubble({ ...lesson, step: "\u6708\u5F53\u3066\u30AF\u30A4\u30BA" });
+    return exhibit + teacherBubble({ ...lesson, step: "\u6708\u5F53\u3066\u30AF\u30A4\u30BA" }, "", feedback ? "tutorial-month-next" : q ? "" : "tutorial-continue");
   }
   function tutorialExhibit(phase) {
     if (phase === 1) return '<section class="tutorial-almanac" aria-label="\u5341\u4E8C\u304B\u6708\u306E\u82B1\u306E\u66A6"><div class="almanac-grid">' + MONTHS.map((m, i) => '<div class="almanac-month"><img src="' + photo(i + 1 + "-1") + '" alt="' + esc(m.flower) + '"><span><b>' + String(i + 1).padStart(2, "0") + "\u6708</b><small>" + esc(m.flower) + "</small></span></div>").join("") + "</div></section>";
@@ -10797,7 +10794,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function teacherBubble(lesson, visual = "", tapAction = "") {
     const dismiss = tapAction ? ' data-teacher-tap="' + tapAction + '"' : "";
-    return (tapAction ? '<button type="button" class="teacher-dim" data-teacher-tap="' + tapAction + '" aria-label="\u5148\u751F\u306E\u6848\u5185\u3092\u78BA\u8A8D"></button>' : '<div class="teacher-dim" aria-hidden="true"></div>') + '<aside class="teacher-bubble" aria-label="\u5148\u751F\u306E\u6848\u5185"' + dismiss + ">" + teacherAvatar() + '<div class="teacher-speech" role="status"><small>\u5148\u751F \xB7 ' + esc(lesson.step) + "</small><h3>" + esc(lesson.title) + "</h3><p>" + esc(lesson.description) + "</p>" + visual + "</div>" + (lesson.action ? '<div class="teacher-actions">' + lesson.action + "</div>" : "") + "</aside>";
+    return (tapAction ? '<button type="button" class="teacher-dim" data-teacher-tap="' + tapAction + '" aria-label="\u5148\u751F\u306E\u6848\u5185\u3092\u78BA\u8A8D"></button>' : '<div class="teacher-dim" aria-hidden="true"></div>') + '<aside class="teacher-bubble" aria-label="\u5148\u751F\u306E\u6848\u5185"' + dismiss + ">" + teacherAvatar() + '<div class="teacher-speech" role="status"><small>\u5148\u751F \xB7 ' + esc(lesson.step) + "</small><h3>" + esc(lesson.title) + "</h3><p>" + esc(lesson.description) + "</p>" + visual + (tapAction && !lesson.action ? '<small class="teacher-tap-prompt">\u753B\u9762\u3092\u30BF\u30C3\u30D7\u3057\u3066\u9032\u3080</small>' : "") + "</div>" + (lesson.action ? '<div class="teacher-actions">' + lesson.action + "</div>" : "") + "</aside>";
   }
   function tutorialRoleVisual(g, lesson) {
     if (!g.tutorial || !lesson.visual) return "";
@@ -10816,7 +10813,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function decisionPanel(g, lesson, hintButton) {
     const score = completedYakuSummary(g.round.captured[0], g.round.koiCalls);
-    return '<div class="teacher-dim" aria-hidden="true"></div><section class="decision-panel" role="dialog" aria-modal="true" aria-labelledby="decision-title"><h2 id="decision-title">\u52DD\u8CA0\u3059\u308B\uFF1F \u3053\u3044\u3053\u3044\u3059\u308B\uFF1F</h2><dl class="decision-scores"><div><dt>\u5F79\u306E\u5408\u8A08</dt><dd>' + score.raw + "\u70B9</dd></div><div><dt>\u52DD\u8CA0\u3067\u78BA\u5B9A</dt><dd>" + score.points + "\u70B9</dd></div></dl>" + (g.tutorial ? '<div class="teacher-speech"><p>' + esc(lesson.description) + "</p></div>" : "") + '<div class="decision-actions"><button class="primary" data-action="stop">\u52DD\u8CA0\u3059\u308B</button><button class="secondary" data-action="koi">\u3053\u3044\u3053\u3044</button></div>' + hintButton + "</section>";
+    return '<div class="teacher-dim decision-dim" aria-hidden="true"></div><section class="decision-panel table-panel" role="dialog" aria-modal="true" aria-labelledby="decision-title"><h2 id="decision-title">\u52DD\u8CA0\u3059\u308B\uFF1F \u3053\u3044\u3053\u3044\u3059\u308B\uFF1F</h2>' + yakuNames(score.yakus) + '<dl class="decision-scores"><div><dt>\u5F79\u306E\u5408\u8A08</dt><dd>' + score.raw + "\u70B9</dd></div><div><dt>\u52DD\u8CA0\u3067\u78BA\u5B9A</dt><dd>" + score.points + "\u70B9</dd></div></dl>" + (g.tutorial ? '<div class="teacher-speech"><p>' + esc(lesson.description) + "</p></div>" : "") + '<div class="decision-actions"><button class="primary" data-action="stop">\u52DD\u8CA0\u3059\u308B</button><button class="secondary" data-action="koi">\u3053\u3044\u3053\u3044</button></div>' + hintButton + "</section>";
   }
   function gameView() {
     const g = state.active;
@@ -10824,8 +10821,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const playback = turnPresentation;
     const r = playback?.board ?? g.round, guide = guidance(g);
     if (g.tutorial && !g.tutorialIntroDone) return tutorialIntroView(g);
-    const baseLesson = lessonFor(g, selectedHand, guide);
-    const lesson = g.matchLesson ? matchLessonResult(g, baseLesson) : baseLesson, selecting = selectedHand && r.current === 0 && r.phase === "hand", matchingNow = selecting ? matching(r.field, selectedHand) : [];
+    const lesson = lessonFor(g, selectedHand, guide);
+    const selecting = selectedHand && r.current === 0 && r.phase === "hand", matchingNow = selecting ? matching(r.field, selectedHand) : [];
     const showFieldNames = Boolean(!g.tutorial && g.beginner), showHandNames = Boolean(!g.tutorial && g.beginner), fieldCount = r.field.length, isEnd = r.phase === "round-end" || r.phase === "game-end";
     const drawChoice = !playback && r.current === 0 && r.phase === "draw-target";
     const handChoice = !playback && matchingNow.length === 2;
@@ -10841,7 +10838,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }).join("");
     const hand = r.hands[0].map((id) => tile(id, { action: "select-hand", label: showHandNames, className: (selectedHand === id ? "selected " : "") + (!playback && g.beginner && helpfulHandIds(g).includes(id) ? "hint " : "") + (r.current === 0 && r.phase === "hand" ? "playable" : "") })).join("");
     const tutor = Boolean(g.tutorial);
-    const deciding = !playback && r.phase === "decision" && r.current === 0 && (!tutor || baseLesson.visual === "decision");
+    const deciding = !playback && r.phase === "decision" && r.current === 0 && (!tutor || lesson.visual === "decision");
     const opponentBacks = r.hands[1].map(() => '<span class="opponent-card-back" aria-hidden="true"><i></i></span>').join("");
     const playerTaken = boardTakenPanel(r.captured[0], !tutor, 0, r.current === 0 ? playback?.incoming : void 0);
     const playerYaku = boardYakuPanel(r.captured[0], r.koiCalls, "\u3042\u306A\u305F\u306E\u3067\u304D\u3066\u3044\u308B\u5F79");
@@ -10850,22 +10847,27 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const roundLabel = g.matchLesson === 6 ? "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3" : g.matchLesson === 7 ? "3\u304B\u6708\u52DD\u8CA0" : tutor ? "\u7DF4\u7FD2" : g.length + "\u304B\u6708\u5BFE\u5C40";
     const recentDraw = g.matchLesson && [...r.log].reverse().find((event) => event.actor === 0 && event.source === "stock");
     const fieldCaption = playback?.caption || (recentDraw ? "\u5C71\u672D\u304B\u3089 " + card(recentDraw.card).name + "\uFF08" + (recentDraw.taken.length ? "\u53D6\u3063\u305F" : "\u5834\u306B\u51FA\u305F") + "\uFF09" : "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3088\u3046");
-    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + '</div></section></div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
+    const playedCard = playback?.lesson?.playedCard;
+    const stagedHandCard = playedCard ? '<img class="lesson-played-card" src="' + photo(playedCard) + '" alt="' + esc(card(playedCard).name) + '">' : "";
+    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + '</div></section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText || deciding || isEnd ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section>" + stagedHandCard + '</div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
     const hintButton = g.matchLesson === 7 && !isEnd && !playback ? '<button class="coach-detail" data-action="match-hint">\u5148\u751F\u306B\u805E\u304F</button>' : "";
-    const playAction = playback || deciding ? "" : lesson.action + hintButton;
-    const resultWinner = g.matchLesson && g.finished ? lesson.winner : r.result?.winner;
-    const endText = isEnd && !tutor && !playback ? '<div class="result" role="status"><div class="result-symbol">' + (resultWinner === 0 ? "\u273F" : resultWinner === 1 ? "\u263E" : "\u25C7") + "</div><h2>" + esc(lesson.title) + "</h2><p>" + esc(lesson.description) + '</p><div class="result-action">' + lesson.action + "</div></div>" : "";
+    const playAction = playback || deciding ? "" : (lesson.action || "") + hintButton;
     const matchNotice = g.lessonNotices?.[0];
+    const showingResult = isEnd && !tutor && !playback && !matchNotice;
     const matchHint = gameDialog === "match-hint";
-    const guideOpen = playback?.lesson || !playback && (matchNotice || matchHint || deciding || tutor && !teacherDismissed && !choiceText || gameDialog === "guide");
+    const guideOpen = playback?.lesson || !playback && (matchNotice || matchHint || deciding || showingResult || tutor && !teacherDismissed && !choiceText || gameDialog === "guide");
     let guidePanel = "";
     if (playback?.lesson) {
-      guidePanel = teacherBubble({ ...playback.lesson, action: '<button class="primary" data-action="continue-turn-lesson">\u6B21\u3078 \u203A</button>' }, "", "continue-turn-lesson");
+      const { cards } = playback.lesson;
+      const visual = cards ? '<div class="teacher-visual teacher-role-cards">' + cards.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + "</div>" : "";
+      guidePanel = teacherBubble(playback.lesson, visual, "advance-lesson-scene");
     } else if (!playback && matchNotice) {
       const example = matchNotice === "start" ? '<div class="teacher-stock-example"><img class="stock-frame-example drawn-card" src="' + photo("8-1") + '" alt="\u6C34\u8272\u306E\u67A0\u304C\u4ED8\u3044\u305F\u672D\u306E\u898B\u672C"></div>' : "";
       guidePanel = teacherBubble(MATCH_LESSON_NOTICES[matchNotice], example, "dismiss-match-notice");
     } else if (matchHint) {
       guidePanel = teacherBubble({ step: "3\u304B\u6708\u52DD\u8CA0", title: "\u5148\u751F\u306E\u30D2\u30F3\u30C8", description: (drawChoice ? STOCK_FRAME_EXPLANATION : "") + matchLessonHint(g) }, "", "close-dialog");
+    } else if (showingResult) {
+      guidePanel = resultPanel(g);
     } else if (deciding) {
       guidePanel = decisionPanel(g, lesson, hintButton);
     } else if (tutor && guideOpen) {
@@ -10883,7 +10885,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const boardNotice = choiceText + stockExplanation;
     const choiceNotice = boardNotice && (!matchHint || !drawChoice) ? '<p class="board-choice-notice" role="status">' + esc(boardNotice) + "</p>" : "";
     const legacyHeader = '<div class="gameheader" hidden><div class="round-badge">' + roundLabel + "<small>\u7B2C" + (g.index + 1) + '\u5C40</small></div><div class="game-score">' + g.scores[0] + " \u5BFE " + g.scores[1] + "</div></div>";
-    return shell('<div class="play-layout seated-layout' + (tutor ? " is-tutorial tutorial-engawa" : "") + '">' + legacyHeader + '<div class="game-board-wrap"' + (guideOpen ? " inert" : "") + ">" + board + (endText ? endText : "") + "</div>" + choiceNotice + guidePanel + gameDialogView(g) + "</div>");
+    return shell('<div class="play-layout seated-layout' + (tutor ? " is-tutorial tutorial-engawa" : "") + (playback?.lesson ? " match-lesson-scene" : "") + '">' + legacyHeader + '<div class="game-board-wrap"' + (guideOpen ? " inert" : "") + ">" + board + "</div>" + choiceNotice + guidePanel + gameDialogView(g) + "</div>");
   }
   function credits() {
     return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "home", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p><p class="lead">\u30DB\u30FC\u30E0\u770B\u677F\u306E\u66F8\u4F53\uFF1AYuji Syuku\uFF08Kinuta Font Factory\uFF0FThe Yuji Project Authors\uFF09\u3002SIL Open Font License 1.1\u3002\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F docs/licenses/YujiSyuku-OFL.txt \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002</p></div>');
@@ -10942,7 +10944,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const dialog = document.createElement("dialog");
     dialog.className = "yaku-celebration yaku-celebration-" + tier;
     dialog.setAttribute("aria-labelledby", "yaku-celebration-title");
-    dialog.innerHTML = '<div class="yaku-celebration-bubble">' + teacherAvatar() + '<h2 id="yaku-celebration-title">' + (actor === 1 ? "\u76F8\u624B\u306B\u5F79\u304C\u3067\u304D\u305F\uFF01" : "\u5F79\u304C\u3067\u304D\u305F\uFF01") + '</h2><ul class="yaku-celebration-names">' + yakus.map((yaku) => "<li>" + esc(yaku.name) + " <b>" + yaku.points + "\u70B9</b></li>").join("") + '</ul><div class="yaku-celebration-cards">' + cards.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + '</div><p class="yaku-celebration-prompt">\u753B\u9762\u3092\u30BF\u30C3\u30D7\u3057\u3066\u9032\u3080</p></div>' + (tier === 3 ? '<div class="yaku-celebration-petals" aria-hidden="true">' + Array.from({ length: 6 }, (_, index) => '<i style="--petal:' + index + '"></i>').join("") + "</div>" : "") + '<button type="button" class="yaku-celebration-skip" aria-label="\u5F79\u306E\u8868\u793A\u3092\u9589\u3058\u3066\u9032\u3080" autofocus></button>';
+    dialog.innerHTML = '<div class="yaku-celebration-bubble">' + teacherAvatar() + '<h2 id="yaku-celebration-title">' + (actor === 1 ? "\u76F8\u624B\u306B\u5F79\u304C\u3067\u304D\u305F\uFF01" : "\u5F79\u304C\u3067\u304D\u305F\uFF01") + '</h2><ul class="yaku-celebration-names">' + yakus.map((yaku) => "<li>" + esc(yaku.name) + " <b>" + yaku.points + "\u70B9</b></li>").join("") + '</ul><div class="yaku-celebration-cards">' + cards.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + '</div><p class="yaku-celebration-prompt">\u753B\u9762\u3092\u30BF\u30C3\u30D7\u3057\u3066\u9032\u3080</p></div>' + (tier === 3 ? celebrationPetals() : "") + '<button type="button" class="yaku-celebration-skip" aria-label="\u5F79\u306E\u8868\u793A\u3092\u9589\u3058\u3066\u9032\u3080" autofocus></button>';
     document.body.append(dialog);
     const liftedCards = [...document.querySelectorAll((actor === 1 ? ".opponent-side" : ".player-side") + " .board-taken-card")].filter((button) => cards.includes(button.dataset.id));
     for (const button of liftedCards) button.classList.add("celebrating-card", "celebrating-card-" + tier);
@@ -10975,31 +10977,27 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   });
   var MATCH_LESSON_MOTION = Object.freeze({
     ...TURN_MOTION,
-    afterReveal: 650,
-    afterPlay: 400,
-    match: 620,
-    afterCapture: 420,
-    playerHandPause: 420,
-    playerHandMatch: 650,
-    playerHandCapturePause: 400
+    handFlight: 600,
+    drawFlight: 550,
+    captureFlight: 550,
+    reveal: 350
   });
-  function matchMoveLesson(move, previous) {
+  var MATCH_LESSON_HOLD = 1800;
+  var MATCH_LESSON_YAKU_HOLD = 3200;
+  function matchResolutionLesson(move) {
     const { actor, source, taken, card: id } = move;
     const who = actor === 0 ? "\u3042\u306A\u305F" : "\u76F8\u624B";
     const month = card(id).month + "\u6708";
-    const stock = source === "stock";
-    const origin = stock ? "\u5C71\u672D\u304B\u3089\u5F15\u3044\u305F\u672D" : "\u624B\u672D\u304B\u3089\u51FA\u3057\u305F\u672D";
-    const lesson = { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3" };
-    if (taken.length === 4) {
-      return { ...lesson, title: who + "\u304C4\u679A\u3092\u7DCF\u53D6\u308A", description: month + "\u306E\u5834\u672D\u304C3\u679A\u3002" + origin + "\u3082" + month + "\u3060\u3063\u305F\u306E\u3067\u30014\u679A\u3059\u3079\u3066\u53D6\u3063\u305F\u3088\u3002" };
-    }
-    if (stock && taken.length === 2 && previous?.actor === actor && previous.source === "hand" && previous.taken.length === 2) {
-      return { ...lesson, title: who + "\u304C\u3053\u306E\u624B\u756A\u30674\u679A\u53D6\u3063\u305F\u3088", description: "\u624B\u672D\u3092" + card(previous.card).month + "\u6708\u306E\u5834\u672D\u3068\u5408\u308F\u305B\u30662\u679A\u3002\u5C71\u672D\u304B\u3089\u5F15\u3044\u305F\u672D\u3082" + month + "\u306E\u5834\u672D\u3068\u5408\u3063\u30662\u679A\u3002\u5408\u308F\u305B\u30664\u679A\u304C\u53D6\u308A\u672D\u306B\u306A\u3063\u305F\u3088\u3002" };
-    }
-    if (taken.length) {
-      return { ...lesson, title: who + "\u304C" + (stock ? "\u5C71\u672D\u3067" : "\u624B\u672D\u3067") + "2\u679A\u53D6\u3063\u305F\u3088", description: origin + "\u3092" + month + "\u306E\u5834\u672D\u3068\u5408\u308F\u305B\u305F\u306E\u3067\u30012\u679A\u3068\u3082" + who + "\u306E\u53D6\u308A\u672D\u306B\u306A\u3063\u305F\u3088\u3002" };
-    }
-    return { ...lesson, title: who + "\u304C" + month + "\u306E\u672D\u3092\u5834\u306B\u51FA\u3057\u305F\u3088", description: origin + "\u3068\u540C\u3058\u6708\u306E\u5834\u672D\u304C\u306A\u304B\u3063\u305F\u306E\u3067\u3001\u305D\u306E\u672D\u306F\u5834\u306B\u6B8B\u308B\u3088\u3002" };
+    const origin = source === "stock" ? "\u5F15\u3044\u305F\u672D" : "\u51FA\u3057\u305F\u672D";
+    if (taken.length === 4) return {
+      title: "\u540C\u3058\u6708\u306E\u672D\u3092\u7DCF\u53D6\u308A",
+      description: origin + "\u3082\u5834\u306E3\u679A\u3082" + month + "\u30024\u679A\u5168\u90E8\u304C" + who + "\u306E\u53D6\u308A\u672D\u306B\u306A\u308B\u3088\u3002"
+    };
+    if (taken.length) return {
+      title: origin + "\u3068\u5834\u672D\u304C\u5408\u3046",
+      description: month + "\u306E\u5834\u672D\u3068\u5408\u3063\u305F\u306D\u30022\u679A\u3068\u3082" + who + "\u306E\u53D6\u308A\u672D\u3060\u3088\u3002"
+    };
+    return { title: "\u672D\u304C\u5834\u306B\u6B8B\u308B", description: month + "\u306E\u5834\u672D\u304C\u306A\u3044\u306E\u3067\u3001" + origin + "\u306F\u5834\u306B\u6B8B\u308B\u3088\u3002" };
   }
   async function replayMoves(board, round, { teachingStock = false, matchLesson = false } = {}) {
     const motion = matchLesson ? MATCH_LESSON_MOTION : TURN_MOTION;
@@ -11039,19 +11037,24 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       find(".tabletop").dataset.turnStage = stage;
       find(".tabletop").dataset.turnActor = board.current;
     };
-    async function explain(lesson) {
-      playback.lesson = lesson;
-      frame("lesson-explanation", lesson.title);
-      const resume = () => playback.continueLesson();
-      await new Promise((resolve) => {
-        playback.continueLesson = resolve;
-        signal.addEventListener("abort", resume, { once: true });
-      });
-      signal.removeEventListener("abort", resume);
-      playback.lesson = null;
-      playback.continueLesson = null;
-      return !signal.aborted;
-    }
+    let advanceRequested = false, readingTime;
+    const setLesson = (lesson) => {
+      if (matchLesson) {
+        advanceRequested = false;
+        playback.lesson = { step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3", ...lesson };
+      }
+    };
+    playback.advanceLesson = () => {
+      advanceRequested = true;
+      readingTime?.finish();
+    };
+    const holdLesson = async (ms) => {
+      if (advanceRequested) return !signal.aborted;
+      readingTime = overlay.animate([{}, {}], { duration: ms });
+      const done = await finish([readingTime]);
+      readingTime = null;
+      return done;
+    };
     function fly(id, from, to, duration, emphasize) {
       const image = document.createElement("img");
       image.src = photo(id);
@@ -11072,6 +11075,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       frames.push({ transform: pose(1, to.width / width, to.height / height), offset: 1 });
       return image.animate(frames, { duration, easing: "cubic-bezier(.22,.61,.36,1)", fill: "both" });
     }
+    async function landCard(id, origin, destination, duration, emphasize) {
+      if (reducedMotion) return true;
+      const image = destination.querySelector("img") ?? destination;
+      const flight = fly(id, origin, bounds(image), duration, emphasize);
+      destination.style.visibility = "hidden";
+      if (!await finish([flight])) return false;
+      destination.style.visibility = "";
+      overlay.replaceChildren();
+      return true;
+    }
     const entries = round.log.slice(board.log.length);
     if (round.pendingDraw) entries.push({ actor: round.current, card: round.pendingDraw, taken: [], source: "stock", awaitingChoice: true });
     turnPresentation = playback;
@@ -11082,11 +11095,13 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         const { actor, card: id, source, taken } = move;
         const who = actor === 0 ? "\u3042\u306A\u305F" : "\u76F8\u624B";
         const fromStock = source === "stock";
-        const emphasize = fromStock || actor === 1;
+        const emphasize = fromStock || actor === 1 || matchLesson;
         board.current = actor;
         if (fromStock && playback.stockCard !== id) {
           board.stock.shift();
           playback.stockCard = id;
+          if (matchLesson) playback.drawnCard = id;
+          setLesson({ title: who + "\u304C\u5C71\u672D\u3092\u5F15\u304F", description: card(id).name + "\u30921\u679A\u5F15\u3044\u305F\u3088\u3002" });
           frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
           const face = find(".stock-face");
           if (!reducedMotion && !await finish([face.animate(
@@ -11095,47 +11110,52 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           )])) return false;
           playback.drawnCard = id;
           face.classList.add("drawn-card");
-          const explain2 = teachingStock && actor === 0 && !board.log.some((event) => event.actor === 0 && event.source === "stock");
-          if (explain2) {
+          const explain = teachingStock && actor === 0 && !board.log.some((event) => event.actor === 0 && event.source === "stock");
+          if (matchLesson) {
+            if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
+          } else if (explain) {
             playback.explainStock = true;
             frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
             if (!await finish([overlay.animate([{}, {}], { duration: 1200 })])) return false;
             playback.explainStock = false;
           } else if (!await wait(motion.afterReveal)) return false;
         }
-        if (move.awaitingChoice) {
-          if (matchLesson && !await explain({
-            step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3",
-            title: "\u5C71\u672D\u306E\u672D\u3092\u5408\u308F\u305B\u3088\u3046",
-            description: STOCK_FRAME_EXPLANATION + "\u540C\u3058\u6708\u306E\u5834\u672D\u304C2\u679A\u3042\u308B\u3088\u3002\u53D6\u308B\u65B9\u3092\u9078\u307C\u3046\u3002"
-          })) return false;
-          break;
-        }
-        const previous = board.log.at(-1);
-        const before = taken.length && matchLesson ? evaluate(board.captured[actor]) : null;
+        if (move.awaitingChoice) break;
+        const stagedHand = matchLesson && !fromStock;
+        if (stagedHand) playback.lesson = null;
         frame("source", who + "\u306E\u756A");
         const hand = board.hands[actor];
         const handIndex = hand.indexOf(id);
-        const origin = bounds(fromStock ? find(".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex]);
+        let origin = bounds(fromStock ? find(".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex]);
         if (!fromStock) hand.splice(handIndex, 1);
         playback.stockCard = null;
-        board.field.push(id);
-        const playCaption = who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
-        frame(fromStock ? "stock-play" : "hand-play", playCaption);
-        const played = fieldCard(id);
-        if (!reducedMotion) {
-          const duration = fromStock ? motion.drawFlight : emphasize ? motion.handFlight : motion.playerHandFlight;
-          const flight = fly(id, origin, bounds(played.querySelector("img")), duration, emphasize);
-          played.style.visibility = "hidden";
-          if (!await finish([flight])) return false;
-          played.style.visibility = "";
-          overlay.replaceChildren();
+        if (stagedHand) {
+          setLesson({ title: who + "\u304C\u624B\u672D\u3092\u51FA\u3059", description: card(id).name + "\u30921\u679A\u51FA\u3057\u305F\u3088\u3002", playedCard: id });
+          frame("hand-play", who + "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
+          const staged = find(".lesson-played-card");
+          if (!await landCard(id, origin, staged, motion.handFlight, emphasize)) return false;
+          if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
+          origin = bounds(staged);
         }
-        if (!await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
+        board.field.push(id);
+        if (matchLesson) setLesson(matchResolutionLesson(move));
+        if (stagedHand) {
+          playback.matches = taken;
+          frame(taken.length ? "hand-match" : "hand-stay", taken.length ? "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F" : "\u672D\u304C\u5834\u306B\u6B8B\u308B");
+        } else {
+          const caption = who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
+          frame(fromStock ? "stock-play" : "hand-play", caption);
+        }
+        const played = fieldCard(id);
+        const duration = fromStock ? motion.drawFlight : emphasize ? motion.handFlight : motion.playerHandFlight;
+        if (!await landCard(id, origin, played, duration, emphasize)) return false;
+        if (!matchLesson && !await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
         if (taken.length) {
-          playback.matches = matching(board.field.filter((cardId) => cardId !== id), id);
-          frame(fromStock ? "stock-match" : "hand-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
-          if (!await wait(emphasize ? motion.match : motion.playerHandMatch)) return false;
+          if (!stagedHand) {
+            playback.matches = matchLesson ? taken : matching(board.field.filter((cardId) => cardId !== id), id);
+            frame(fromStock ? "stock-match" : "hand-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
+          }
+          if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(emphasize ? motion.match : motion.playerHandMatch))) return false;
           const origins = taken.map((cardId) => bounds(fieldCard(cardId).querySelector("img")));
           const side = actor === 0 ? ".player-side" : ".opponent-side";
           const captureStage = fromStock ? "stock-capture" : "hand-capture";
@@ -11149,8 +11169,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
             const flights = taken.map((cardId, index) => {
               const destination = bounds(find(side + ' .board-taken-card[data-id="' + cardId + '"] img'));
               const to = destination.bottom <= panel.bottom ? destination : { x: panel.x + panel.width / 2 - 10, y: panel.y, width: 20, height: 32 };
-              const duration = emphasize ? motion.captureFlight : motion.playerHandFlight;
-              return fly(cardId, origins[index], to, duration, emphasize);
+              const duration2 = emphasize ? motion.captureFlight : motion.playerHandFlight;
+              return fly(cardId, origins[index], to, duration2, emphasize);
             });
             if (!await finish(flights)) return false;
             overlay.replaceChildren();
@@ -11160,26 +11180,25 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           board.captured[actor].push(...taken);
           frame(captureStage + "-arrival", captureCaption);
           if (!await wait(emphasize ? motion.afterCapture : motion.playerHandCapturePause)) return false;
+        } else if (matchLesson) {
+          if (fromStock) frame("stock-stay", "\u672D\u304C\u5834\u306B\u6B8B\u308B");
+          if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
+          playback.drawnCard = null;
         } else if (fromStock) {
           playback.drawnCard = null;
           played.classList.remove("drawn-card");
         }
-        if (matchLesson) {
-          board.log.push(move);
-          if (!await explain(matchMoveLesson(move, previous))) return false;
-          if (before) {
-            const score = evaluate(board.captured[actor]);
-            const added = score.yakus.filter((yaku) => !before.yakus.some((old) => old.id === yaku.id));
-            if (added.length && !await explain({
-              step: "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3",
-              title: who + "\u306B" + added.map((yaku) => yaku.name).join("\u30FB") + "\u304C\u3067\u304D\u305F\u3088",
-              description: added.map((yaku) => {
-                const rule = YAKU_BY_ID[yaku.id];
-                const reason = rule.group === "count" ? rule.type + "\u672D\u304C" + rule.requires + "\u679A\u305D\u308D\u3063\u3066\u3001" : rule.ids ? rule.ids.map((id2) => card(id2).name).join("\u30FB") + "\u304C\u305D\u308D\u3063\u3066\u3001" : "\u5149\u672D\u304C\u305D\u308D\u3063\u3066\u3001";
-                return reason + yaku.name + "\uFF08" + yaku.points + "\u70B9\uFF09\u306B\u306A\u3063\u305F\u3088\u3002";
-              }).join("") + "\u5F79\u306E\u5408\u8A08\u306F" + score.raw + "\u70B9\u3002"
-            })) return false;
-          }
+        const celebration = matchLesson && newYakuCelebration(board.captured[actor], taken);
+        if (celebration) {
+          const { yakus, cards } = celebration;
+          setLesson({
+            title: who + "\u306B" + yakus.map((yaku) => yaku.name).join("\u30FB") + "\u304C\u3067\u304D\u305F\u3088",
+            description: yakus.map((yaku) => yaku.name + "\uFF08" + yaku.points + "\u70B9\uFF09").join("\u30FB"),
+            cards
+          });
+          frame("lesson-yaku", "\u5F79\u304C\u3067\u304D\u305F");
+          if (!await holdLesson(MATCH_LESSON_YAKU_HOLD)) return false;
+          playback.lesson = null;
         }
       }
       return true;
@@ -11197,7 +11216,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         g.tutorialCaptureShown = true;
       }
     }
-    if (turnLogStart !== null && g.round.phase !== "draw-target") {
+    if (g.matchLesson !== 6 && turnLogStart !== null && g.round.phase !== "draw-target") {
       const r2 = g.round;
       const celebration = newYakuCelebration(r2.captured[0], newCaptureIds(r2.log, turnLogStart, 0));
       if (celebration) g.pendingYakuCelebration = celebration;
@@ -11214,7 +11233,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const cpuBefore = !g.tutorialLearning && g.round.current === 1 && ["hand", "draw-target", "decision"].includes(g.round.phase) && !g.finished ? structuredClone(g.round) : null;
     if (cpuBefore) {
       runCpu(g, g.tutorial || g.matchLesson === 6 ? () => 0 : Math.random);
-      if (!g.tutorial) {
+      if (!g.tutorial && g.matchLesson !== 6) {
         const r2 = g.round;
         const celebration = newYakuCelebration(r2.captured[1], newCaptureIds(r2.log, cpuBefore.log.length, 1));
         if (celebration) g.pendingYakuCelebration = { ...celebration, actor: 1 };
@@ -11355,8 +11374,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return;
     }
     if (turnPresentation) {
-      if (action === "continue-turn-lesson") {
-        turnPresentation.continueLesson?.();
+      if (action === "advance-lesson-scene" && turnPresentation.lesson) {
+        turnPresentation.advanceLesson();
         return;
       }
       if (action !== "home" || turnPresentation.lesson) return;
