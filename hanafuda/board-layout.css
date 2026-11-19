@@ -844,15 +844,6 @@
 }
 
 @media (orientation:landscape) and (max-height:620px){
-  .play-layout.seated-layout.tutorial-decision-only .board-taken,
-  .play-layout.seated-layout.tutorial-decision-only .board-yaku,
-  .play-layout.seated-layout.tutorial-decision-only .board-zone-caption,
-  .play-layout.seated-layout.tutorial-decision-only .field-stock small{
-    display:none!important;
-  }
-}
-
-@media (orientation:landscape) and (max-height:620px){
   .play-layout.seated-layout .fieldcards{flex-wrap:nowrap!important}
   .play-layout.seated-layout .fieldcards.dense{gap:2px!important}
 }
@@ -870,9 +861,6 @@
   .play-layout.seated-layout .board-side{padding-bottom:5px!important;}
   .play-layout.seated-layout .board-hand .board-zone-caption{top:1px!important;z-index:5!important;min-height:15px!important;line-height:15px!important;}
   .play-layout.seated-layout .handcards{height:calc(100% - 18px)!important;max-height:calc(100% - 18px)!important;position:relative!important;z-index:1!important;}
-  .play-layout.seated-layout.tutorial-decision-only .board-taken,
-  .play-layout.seated-layout.tutorial-decision-only .board-yaku{display:flex!important;}
-  .play-layout.seated-layout.tutorial-decision-only .board-side{padding-top:112px!important;padding-bottom:5px!important;}
 }
 /* Reserve enough vertical space for both current-yaku rows, including their card thumbnails. */
 @media (orientation:landscape) and (max-height:620px){
@@ -922,14 +910,47 @@
   }
 }
 
-.board-settlement {
-  flex-basis:100%;
-  padding:3px 6px;
-  color:#fff5dc;
-  background:#291b14;
-  border-radius:4px;
-  font-size:12px;
+/* Use the same scrim and paper colors as the teacher bubble. */
+.decision-panel {
+  position:absolute;
+  z-index:7;
+  inset:50% auto auto 50%;
+  transform:translate(-50%,-50%);
+  display:grid;
+  gap:12px;
+  width:min(466px,calc(100% - 32px));
+  max-height:calc(100% - 20px);
+  overflow:auto;
+  box-sizing:border-box;
+  padding:16px 20px;
+  border:1px solid #d5b67f;
+  border-radius:16px;
+  background:#fff5df;
+  color:#573c2b;
+  box-shadow:0 5px 18px #0007;
+  text-align:center;
 }
+.decision-panel h2 {
+  margin:0;
+  font-size:clamp(19px,3vw,24px);
+}
+.decision-scores, .decision-actions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:0;
+}
+.decision-scores > div {
+  padding:6px;
+  border:1px solid #d5b67f;
+  border-radius:7px;
+  background:#f6e8cb;
+}
+.decision-scores dt {font-size:13px}
+.decision-scores dd {margin:0;font-size:22px;font-weight:750}
+.decision-actions button {min-height:52px;font-size:18px}
+.decision-panel > .coach-detail {justify-self:center;min-height:36px}
+.decision-panel .teacher-speech p {white-space:pre-line;text-align:start}
 
 .stock-face {
   position:absolute;
@@ -958,6 +979,7 @@
 }
 /* Cyan identifies the drawn card independently of the gold match targets. */
 .stock-face.drawn-card,
+.stock-frame-example.drawn-card,
 .turn-flying-card.drawn-card,
 .play-layout.seated-layout .fieldcards .hana.drawn-card img{
   outline:2px solid #9ffff3;
@@ -990,9 +1012,6 @@
     padding-top:clamp(34px,12vh,52px)!important;
     padding-bottom:88px!important;
   }
-  .play-layout.seated-layout.tutorial-decision-only .board-side{
-    padding-top:clamp(34px,12vh,52px)!important;
-  }
   .play-layout.seated-layout .board-play-controls {
     top:auto;
     left:auto;
@@ -1000,15 +1019,5 @@
     bottom:5px;
     width:calc(min(160px,21%) - 10px);
     justify-content:flex-end;
-  }
-  .play-layout.seated-layout.board-decision .board-play-controls:not(.board-hint-control){
-    top:9px;
-    bottom:auto;
-    right:auto;
-    left:50%;
-    translate:-50% 0;
-    width:max-content;
-    max-width:50%;
-    justify-content:center;
   }
 }
