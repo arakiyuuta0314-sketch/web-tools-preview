@@ -14614,12 +14614,28 @@
     return { state: next, message: "\u88C5\u5099\u3092\u5909\u66F4\u3057\u305F\u3002" };
   }
 
+  // src/game/guests.mjs
+  var lucaSkills = [{ id: "herbal", name: "\u85AC\u8349", mp: 2, power: 20 }];
+  var kyleSkills = [{ id: "cover", name: "\u304B\u3070\u3046", mp: 0 }, { id: "heavy", name: "\u5F37\u6483", mp: 3, power: 1.6 }];
+  var guestsByStage = {
+    S03: { id: "luca", name: "\u30EB\u30AB", sprite: "helper", maxHp: 34, maxMp: 8, attack: 14, defense: 8, speed: 13, skills: lucaSkills },
+    S05: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 52, maxMp: 9, attack: 24, defense: 17, speed: 12, skills: kyleSkills },
+    S06: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 60, maxMp: 12, attack: 30, defense: 21, speed: 15, skills: kyleSkills },
+    S07: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 68, maxMp: 15, attack: 36, defense: 25, speed: 18, skills: kyleSkills }
+  };
+  var chapterGuest = (stage) => guestsByStage[stage] ?? null;
+  function battleGuest(stage, tag, enemyIds) {
+    const guest = chapterGuest(stage);
+    if (!guest || tag !== "random" || enemyIds.includes("vold")) return null;
+    return { ...guest, hp: guest.maxHp, mp: guest.maxMp, status: "normal" };
+  }
+
   // src/game/combat.mjs
   var enemySpellKinds = ["damage", "sleep", "silence"];
   var magicEnemies = ["m12", "m18", "m21", "m22", "m23", "vold"];
   var roll = (rng, min, max) => Math.floor(min + (max - min + 1) * rng());
   var strike = (attack, defense, rng) => Math.max(1, Math.floor(attack * (0.82 + rng() * 0.42)) - Math.floor(defense * 0.5));
-  function beginCombat(group, tag = "random") {
+  function beginCombat(group, tag = "random", stage) {
     const ids2 = Array.isArray(group) ? group : [group];
     if (ids2.length < 1 || ids2.length > 4) throw Error("\u6575\u30B0\u30EB\u30FC\u30D7\u306F1\u301C4\u4F53");
     if ((tag === "voldBoss" || ids2.includes("vold")) && (ids2.length !== 1 || ids2[0] !== "vold"))
@@ -14633,14 +14649,16 @@
       const name = enemy.name + (duplicate ? " " + letter : "");
       return { id, side: "enemy", slot, name, hp, maxHp: hp, asleep: 0, silenced: 0 };
     });
-    return battleView({ tag, round: 1, ward: 0, enemies });
+    const guest = battleGuest(stage, tag, ids2);
+    return battleView({ tag, round: 1, ward: 0, enemies, ...guest ? { guest } : {} });
   }
   function battleView(b) {
     const { id, hp, maxHp: maxHp2, asleep, silenced } = b.enemies[0];
     return { ...b, id, hp, maxHp: maxHp2, asleep, silenced };
   }
   function combatTargetMode(action) {
-    if (action.type === "attack") return "enemy";
+    if (action.type === "attack" || action.type === "skill" && action.id === "heavy") return "enemy";
+    if (action.type === "skill" && action.id === "herbal") return "ally";
     if (action.type === "spell") {
       const spell = spellById(action.id);
       if (enemySpellKinds.includes(spell?.kind)) return spell.target ?? "enemy";
@@ -14651,7 +14669,7 @@
     }
     return "self";
   }
-  function commandError(s, b, action) {
+  function combatCommandError(s, b, action) {
     if (!action || typeof action !== "object") throw Error("\u6226\u95D8\u30B3\u30DE\u30F3\u30C9\u4E0D\u6B63");
     if (action.type === "run" || action.type === "item" && action.id === "smoke") {
       if (b.tag !== "random") return "\u3053\u3053\u3067\u306F\u9003\u3052\u3089\u308C\u306A\u3044\uFF01";
@@ -14673,9 +14691,11 @@
   }
   var spellCost = (s, spell) => Math.max(1, spell.mp - (s.equipment.accessory === "star-orb" ? 1 : 0));
   var livingEnemies = (b) => b.enemies.filter((enemy) => enemy.hp > 0);
-  function escapeChance(heroSpeed, enemies) {
+  function escapeChance(allySpeeds, enemies) {
+    const speeds = Array.isArray(allySpeeds) ? allySpeeds : [allySpeeds];
+    const average = speeds.reduce((sum, speed) => sum + speed, 0) / speeds.length;
     const fastest = Math.max(...enemies.map((enemy) => monsterById(enemy.id).speed));
-    return Math.max(0.35, Math.min(0.85, 0.55 + (heroSpeed - fastest) * 0.025));
+    return Math.max(0.35, Math.min(0.85, 0.55 + (average - fastest) * 0.025));
   }
   function heroAction(s, b, action, lines, presentation, rng) {
     const live = livingEnemies(b);
@@ -14699,7 +14719,7 @@
     };
     if (action.type === "run" || action.type === "item" && action.id === "smoke") {
       const smoke = action.type === "item";
-      if (smoke || rng() < escapeChance(stats(s).speed, live)) {
+      if (smoke || rng() < escapeChance(b.guest?.hp > 0 ? [stats(s).speed, b.guest.speed] : stats(s).speed, live)) {
         cue();
         if (smoke) {
           s.inventory.smoke--;
@@ -14754,21 +14774,101 @@
       } else {
         const result = useItem(s, action.id);
         healing = result.state.player.hp - s.player.hp;
-        Object.assign(s, result.state);
+        Object.assign(s.player, result.state.player);
+        s.inventory = result.state.inventory;
         cue();
         lines.push(result.message + (healing > 0 ? " HP\u304C" + healing + "\u56DE\u5FA9\u3057\u305F\u3002" : ""));
       }
     }
     return { escaped: false, healing };
   }
+  var allyTarget = (s, b, action) => action.ally === "guest" ? b.guest : s.player;
+  function guestItemTarget(s, b, action) {
+    return allyTarget(s, b, { ally: action.ally ?? "guest" });
+  }
+  function guestCommandError(s, b, action) {
+    const g = b.guest;
+    if (!g?.hp || !action) return "\u30B2\u30B9\u30C8\u306E\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044\u3002";
+    if (action.type === "attack") return;
+    if (action.type === "skill") {
+      const skill = g.skills.find((skill2) => skill2.id === action.id);
+      if (!skill) return "\u305D\u306E\u56FA\u6709\u6280\u306F\u4F7F\u3048\u306A\u3044\u3002";
+      if (g.mp < skill.mp) return "MP\u304C\u8DB3\u308A\u306A\u3044\uFF01";
+      if (skill.id === "herbal") {
+        const target = allyTarget(s, b, action);
+        if (!target.hp) return "\u6226\u95D8\u4E0D\u80FD\u306E\u5473\u65B9\u306B\u306F\u4F7F\u3048\u306A\u3044\u3002";
+        if (target.hp === (target === g ? g.maxHp : maxHp(s.player.level))) return "HP\u306F\u6E80\u30BF\u30F3\u3060\u3002";
+      }
+      return;
+    }
+    if (action.type === "item") {
+      const item = itemById(action.id);
+      if (!item || !s.inventory[action.id]) return "\u305D\u306E\u9053\u5177\u306F\u6301\u3063\u3066\u3044\u306A\u3044\u3002";
+      if (item.effect === "damage" || item.effect === "escape" && b.tag === "random") return;
+      const target = guestItemTarget(s, b, action);
+      if (!target.hp) return "\u6226\u95D8\u4E0D\u80FD\u306E\u5473\u65B9\u306B\u306F\u4F7F\u3048\u306A\u3044\u3002";
+      if (item.effect === "hp") {
+        if (target.hp === (target === g ? g.maxHp : maxHp(s.player.level))) return "HP\u306F\u6E80\u30BF\u30F3\u3060\u3002";
+        return;
+      }
+      if (item.effect === "poison") return target.status === "poison" ? void 0 : "\u6BD2\u306B\u306F\u304B\u304B\u3063\u3066\u3044\u306A\u3044\u3002";
+    }
+    return "\u305D\u306E\u9053\u5177\u306F\u3053\u3053\u3067\u306F\u4F7F\u3048\u306A\u3044\u3002";
+  }
+  function guestAction(s, b, action, lines, presentation, rng) {
+    const g = b.guest;
+    const error = guestCommandError(s, b, action);
+    if (error) {
+      lines.push(g.name + "\uFF1A" + error);
+      return;
+    }
+    const skill = g.skills.find((skill2) => action.type === "skill" && skill2.id === action.id);
+    const item = action.type === "item" ? itemById(action.id) : null;
+    const cue = (extra = {}) => presentation.push({ line: lines.length, type: "guest", guestMp: g.mp, ...extra });
+    if (skill) g.mp -= skill.mp;
+    if (item) s.inventory[item.id]--;
+    if (item?.effect === "escape") {
+      cue({ escaping: true });
+      lines.push(g.name + "\u306F" + item.name + "\u3092\u6295\u3052\u305F\uFF01", "\u3046\u307E\u304F\u9003\u3052\u304D\u308C\u305F\uFF01");
+      return { escaped: true };
+    }
+    if (skill?.id === "cover") {
+      cue();
+      lines.push(g.name + "\u306F" + s.name + "\u3092\u304B\u3070\u3046\u69CB\u3048\u3092\u3068\u3063\u305F\uFF01");
+      return;
+    }
+    if (skill?.id === "herbal" || item?.effect === "hp" || item?.effect === "poison") {
+      const target2 = item ? guestItemTarget(s, b, action) : allyTarget(s, b, action);
+      const healing = item?.effect === "poison" ? 0 : Math.min(skill?.power ?? item.amount, (target2 === g ? g.maxHp : maxHp(s.player.level)) - target2.hp);
+      target2.hp += healing;
+      if (item?.effect === "poison") target2.status = "normal";
+      cue({ ally: target2 === g ? "guest" : "hero", healing });
+      const name = target2 === g ? g.name : s.name;
+      lines.push(g.name + "\u306E" + (skill ?? item).name + "\uFF01 " + name + (healing ? "\u306EHP\u304C" + healing + "\u56DE\u5FA9\u3057\u305F\u3002" : "\u306E\u6BD2\u304C\u6D88\u3048\u305F\u3002"));
+      return;
+    }
+    const live = livingEnemies(b);
+    const target = live.find((enemy) => enemy.slot === action.targetSlot) ?? live[0];
+    if (!item && !skill && rng() < 0.05) {
+      cue({ targetSlot: target.slot });
+      lines.push(g.name + "\u306E\u653B\u6483\u306F\u5916\u308C\u305F\uFF01");
+      return;
+    }
+    for (const enemy of combatTargetMode(action) === "allEnemies" ? live : [target]) {
+      const damage = item?.amount ?? strike(g.attack * (skill?.power ?? 1), monsterById(enemy.id).defense, rng);
+      enemy.hp = Math.max(0, enemy.hp - damage);
+      cue({ targetSlot: enemy.slot, damage, enemyHp: enemy.hp });
+      lines.push(g.name + "\u306E" + (skill?.name ?? item?.name ?? "\u653B\u6483") + "\uFF01 " + enemy.name + "\u306B" + damage + "\u30C0\u30E1\u30FC\u30B8\u3002");
+    }
+  }
   function enemyAction(actor, target, ward, lines, cue, rng) {
     const e = monsterById(actor.id);
     const { name } = actor;
     const receive = (rawDamage, type, label) => {
       const damage = ward > 0 ? Math.max(1, Math.ceil(rawDamage * 0.5)) : rawDamage;
-      target.player.hp = Math.max(0, target.player.hp - damage);
+      target.resources.hp = Math.max(0, target.resources.hp - damage);
       cue(type, damage, actor.slot);
-      lines.push(label + "\uFF01 " + damage + "\u30C0\u30E1\u30FC\u30B8\u3092\u53D7\u3051\u305F\u3002");
+      lines.push(label + "\uFF01 " + (target.guest ? target.name + "\u306F" : "") + damage + "\u30C0\u30E1\u30FC\u30B8\u3092\u53D7\u3051\u305F\u3002");
     };
     if (actor.asleep > 0) {
       lines.push(name + "\u306F\u7720\u3063\u3066\u3044\u308B\u2026\u2026\u3002");
@@ -14783,9 +14883,9 @@
       cue("enemy", 0, actor.slot);
       lines.push(target.name + "\u306F\u653B\u6483\u3092\u304B\u308F\u3057\u305F\uFF01");
     } else {
-      receive(strike(e.attack, stats(target).defense, rng), "enemy", name + "\u306E\u653B\u6483");
+      receive(strike(e.attack, target.defense, rng), "enemy", name + "\u306E\u653B\u6483");
       if (e.status === "poison" && rng() < 0.2) {
-        target.player.status = "poison";
+        target.resources.status = "poison";
         lines.push(target.name + "\u306F\u6BD2\u306B\u304A\u304B\u3055\u308C\u305F\uFF01");
       }
     }
@@ -14793,35 +14893,58 @@
   }
   function combatTurn(state2, combat, action, rng = Math.random) {
     const s = clone(state2), b = clone(combat), lines = [], presentation = [];
-    const error = commandError(s, b, action);
+    const error = combatCommandError(s, b, action);
     if (error) return { state: s, battle: b, lines: [error], outcome: "continue" };
-    const cue = (type, damage = 0, actorSlot) => presentation.push({ line: lines.length, type, damage, actorSlot });
+    const guest = b.guest;
+    const guestCommand = action.guest;
+    if (guest?.hp && guestCommand) {
+      const error2 = guestCommandError(s, b, guestCommand) ?? (action.type === "item" && guestCommand.type === "item" && action.id === guestCommand.id && s.inventory[action.id] < 2 ? "\u305D\u306E\u9053\u5177\u306F2\u500B\u5FC5\u8981\u3060\u3002" : void 0);
+      if (error2) return { state: s, battle: b, lines: [error2], outcome: "continue" };
+    }
+    const cue = (type, damage = 0, actorSlot, ally) => presentation.push({ line: lines.length, type, damage, actorSlot, ally });
+    const cover = guest?.hp > 0 && guestCommand?.type === "skill" && guestCommand.id === "cover";
+    if (cover) guestAction(s, b, guestCommand, lines, presentation, rng);
+    const hero = { name: s.name, resources: s.player, ...stats(s) };
+    const allies = [hero, ...guest?.hp ? [{ name: guest.name, resources: guest, guest: true, speed: guest.speed, defense: guest.defense }] : []];
     const participants = [
-      { side: "ally", speed: stats(s).speed, state: s },
+      ...allies.map((ally, index) => ({ side: index === 0 ? "hero" : "guest", speed: ally.speed })),
       ...livingEnemies(b).map((enemy) => ({ side: enemy.side, speed: monsterById(enemy.id).speed, enemy }))
     ];
-    const actions = participants.map((actor) => ({ actor, command: actor.side === "ally" ? action : { type: "enemy" } }));
+    const actions = participants.map((actor) => ({ actor, command: actor.side === "hero" ? action : actor.side === "guest" ? cover ? null : guestCommand : { type: "enemy" } }));
     if (b.id !== "vold") actions.sort((a, b2) => b2.actor.speed - a.actor.speed);
     let healing = 0, playerDamage = 0;
     for (const { actor, command } of actions) {
+      if (!command) continue;
       if (command.type === "enemy") {
         if (actor.enemy.hp === 0) continue;
-        const targets = participants.filter((p) => p.side === "ally" && p.state.player.hp > 0);
-        const target = targets.length === 1 ? targets[0] : targets[roll(rng, 0, targets.length - 1)];
-        const before = target.state.player.hp;
+        const targets = allies.filter((ally) => ally.resources.hp > 0);
+        let target = targets.length === 1 ? targets[0] : targets[roll(rng, 0, targets.length - 1)];
+        const covered = cover && guest.hp > 0 && target === hero;
+        if (covered) target = allies[1];
+        const before = target.resources.hp;
         if (actor.enemy.id === "vold" && actor.enemy.hp <= actor.enemy.maxHp / 2 && b.round === 3)
           lines.push("\u30F4\u30A9\u30EB\u30C9\u300C\u4EBA\u9593\u304C\u2026\u2026\u3053\u3053\u307E\u3067\u6297\u3046\u3068\u306F\uFF01\u300D");
-        enemyAction(actor.enemy, target.state, b.ward, lines, cue, rng);
-        playerDamage += before - target.state.player.hp;
+        enemyAction(actor.enemy, target, target === hero ? b.ward : 0, lines, (type, damage, slot) => {
+          if (covered && damage) lines.push(guest.name + "\u304C" + s.name + "\u3092\u304B\u3070\u3063\u305F\uFF01");
+          cue(type, damage, slot, target === hero ? "hero" : "guest");
+        }, rng);
+        if (target === hero) playerDamage += before - s.player.hp;
+        else if (guest.hp === 0) lines.push(guest.name + "\u306F\u6226\u95D8\u4E0D\u80FD\u306B\u306A\u3063\u305F\u3002");
         if (s.player.hp === 0) {
           cue("lost");
           const lost = defeat(s, b.tag);
           return { state: lost.state, battle: null, lines: [...lines, ...lost.messages], outcome: "lost", autoSave: true, healing, playerDamage, presentation };
         }
       } else {
-        const result = heroAction(s, b, command, lines, presentation, rng);
-        healing = result.healing;
-        if (result.escaped) return { state: s, battle: null, lines, outcome: "escaped", presentation };
+        if (actor.side === "guest") {
+          if (!guest.hp) continue;
+          const result = guestAction(s, b, command, lines, presentation, rng);
+          if (result?.escaped) return { state: s, battle: null, lines, outcome: "escaped", presentation };
+        } else {
+          const result = heroAction(s, b, command, lines, presentation, rng);
+          healing = result.healing;
+          if (result.escaped) return { state: s, battle: null, lines, outcome: "escaped", presentation };
+        }
         if (b.enemies.every((enemy) => enemy.hp === 0)) {
           cue("won");
           let rewarded = s, autoSave = false;
@@ -14843,6 +14966,12 @@
         playerDamage += poison;
         lines.push("\u6BD2\u306E\u30C0\u30E1\u30FC\u30B8\u3092" + poison + "\u53D7\u3051\u305F\u3002");
       }
+    }
+    if (guest?.status === "poison" && guest.hp > 1) {
+      const poison = Math.min(guest.hp - 1, 2);
+      cue("poison", poison, void 0, "guest");
+      guest.hp -= poison;
+      lines.push(guest.name + "\u306F\u6BD2\u306E\u30C0\u30E1\u30FC\u30B8\u3092" + poison + "\u53D7\u3051\u305F\u3002");
     }
     if (b.ward > 0) b.ward--;
     b.round++;
@@ -14898,586 +15027,6 @@
     return clamp((now - fx.startedAt) / fx.duration, 0, 1);
   }
 
-  // src/game/castle-visual.mjs
-  var CASTLE_ART_SCENE = Object.freeze({
-    width: 1254,
-    height: 1474,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 27,
-    originY: 250
-  });
-  var scenes = {
-    background: "castle-background.png",
-    foreground: "castle-foreground.png",
-    king: "castle-king.png",
-    guard: "castle-guard.png",
-    guardEast: "castle-guard-east.png",
-    refugee: "castle-refugee.png",
-    raider: "castle-raider.png",
-    libraryBackground: "castle-library-background.png",
-    libraryForeground: "castle-library-foreground.png",
-    librarian: "castle-librarian.png"
-  };
-  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
-    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
-  }
-  var CASTLE_SCENE_SCALE = 0.44;
-  var ART_VERSION = "20261111-generated-hero-walk-v1";
-  var cache = { ready: false, failed: false, images: {} };
-  var lastHeroSprite = "";
-  function castleArtDebug() {
-    return { ready: cache.ready, lastHeroSprite };
-  }
-  function heroGaitFrame(motion, t) {
-    if (!motion || t < 0.17 || t > 0.86) return 0;
-    return motion.step % 2 === 0 ? 1 : 2;
-  }
-  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4, weapon = null) {
-    if (!cache.ready) throw Error("Shared protagonist art not loaded");
-    const key = `hero_${facing}_${frame}`;
-    const sprite2 = cache.images[key];
-    if (!sprite2) throw Error("Missing protagonist art: " + key);
-    lastHeroSprite = key;
-    const w = Math.round(sprite2.width * scale), h = Math.round(sprite2.height * scale);
-    const x = Math.round(feetX - w / 2), y = Math.round(feetY - h);
-    c.save();
-    c.imageSmoothingEnabled = false;
-    c.fillStyle = "#1319297a";
-    c.beginPath();
-    c.ellipse(
-      Math.round(feetX),
-      Math.round(feetY - 3),
-      Math.max(7, Math.round(w * 0.34)),
-      Math.max(3, Math.round(w * 0.09)),
-      0,
-      0,
-      Math.PI * 2
-    );
-    c.fill();
-    c.drawImage(sprite2, x, y, w, h);
-    drawHeldSword(c, weapon, facing, x, y, scale);
-    c.restore();
-  }
-  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-  function castleArtReady() {
-    return cache.ready;
-  }
-  function preloadCastleArt(onReady = () => {
-  }) {
-    if (cache.ready) {
-      onReady();
-      return Promise.resolve();
-    }
-    if (cache.loading) return cache.loading.then(onReady);
-    cache.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
-      const path = "assets/castle/" + file;
-      const image = new Image();
-      image.onload = () => {
-        cache.images[name] = image;
-        resolve();
-      };
-      image.onerror = () => {
-        cache.failed = true;
-        reject(Error("Castle art missing: " + path));
-      };
-      image.src = path + "?v=" + ART_VERSION;
-    }))).then(() => {
-      const bg = cache.images.background;
-      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions: assets/castle/" + scenes.background);
-      cache.ready = true;
-      onReady();
-    });
-    return cache.loading;
-  }
-  function castleMapPoint(x, y) {
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: m.originX + (x + 0.5) * m.tileWidth,
-      y: m.originY + (y + 0.5) * m.tileHeight
-    };
-  }
-  function castleVisualPosition(s, motion = null, now = performance.now()) {
-    const pos = s.pos;
-    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
-    return {
-      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
-      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
-      t
-    };
-  }
-  function sceneOffset(target, viewSize, sceneSize) {
-    return viewSize >= sceneSize ? (sceneSize - viewSize) / 2 : clamp2(target, 0, sceneSize - viewSize);
-  }
-  function castleCamera(canvas, s, motion = null, now = performance.now()) {
-    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
-    const viewWidth = canvas.width, viewHeight = canvas.height;
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: sceneOffset(p.x - viewWidth / 2, viewWidth, m.width),
-      // Initial view shows the throne and the hero together, rather
-      // than cutting the king off above the phone viewport.
-      y: sceneOffset(p.y - viewHeight * 0.75, viewHeight, m.height),
-      player: p
-    };
-  }
-  function drawSmallPerson(c, cx, cy, kind) {
-    c.save();
-    c.translate(Math.round(cx - 30), Math.round(cy - 56));
-    const tile = (x, y, w, h, color3) => {
-      c.fillStyle = color3;
-      c.fillRect(x * 5, y * 5, w * 5, h * 5);
-    };
-    const color2 = kind === "refugee" ? "#a5676a" : "#47788e";
-    tile(3, 0, 6, 1, "#27283b");
-    tile(2, 1, 8, 2, "#483a38");
-    tile(3, 3, 6, 3, "#e9bb8d");
-    tile(4, 4, 1, 1, "#3b2c36");
-    tile(7, 4, 1, 1, "#3b2c36");
-    tile(2, 6, 8, 6, color2);
-    tile(4, 6, 4, 2, "#d8ad69");
-    tile(1, 7, 2, 4, "#edc59b");
-    tile(9, 7, 2, 4, "#edc59b");
-    tile(2, 12, 3, 1, "#292d3c");
-    tile(7, 12, 3, 1, "#292d3c");
-    c.restore();
-  }
-  function drawSword(c, x, y) {
-    c.save();
-    c.translate(Math.round(x), Math.round(y));
-    c.fillStyle = "#252b42";
-    c.fillRect(-6, -32, 12, 53);
-    c.fillStyle = "#e9e4d5";
-    c.fillRect(-4, -39, 8, 32);
-    c.fillStyle = "#88cbd9";
-    c.fillRect(-1, -35, 3, 23);
-    c.fillStyle = "#e4ba61";
-    c.fillRect(-22, -11, 44, 7);
-    c.fillStyle = "#765c50";
-    c.fillRect(-5, -6, 10, 22);
-    c.fillStyle = "#ffdf99";
-    c.fillRect(-8, 16, 16, 5);
-    c.restore();
-  }
-  var swordHand = {
-    left: [50, 95, -1.1],
-    right: [46, 95, 1.1],
-    down: [24, 95, -0.84],
-    up: [18, 94, -0.48]
-  };
-  function drawHeldSword(c, weapon, facing, x, y, scale, glow = false) {
-    if (weapon !== STARDUST_SWORD.id && weapon !== "hero") return;
-    const [handX, handY, angle] = swordHand[facing];
-    c.save();
-    c.translate(x + handX * scale, y + handY * scale);
-    c.scale(scale, scale);
-    c.rotate(angle);
-    const swordScale = weapon === "hero" ? 0.84 : 0.66;
-    c.scale(swordScale, swordScale);
-    drawSword(c, 0, -5);
-    if (glow) drawStarGlow(c, 0, -42);
-    c.restore();
-  }
-  function drawStarGlow(c, x, y) {
-    const glow = c.createRadialGradient(x, y, 2, x, y, 43);
-    glow.addColorStop(0, "#d2f4ffe6");
-    glow.addColorStop(1, "#83c8ff00");
-    c.fillStyle = glow;
-    c.fillRect(x - 43, y - 43, 86, 86);
-    for (const [dx, dy, r2] of [[0, 0, 10], [-19, -12, 6], [20, -20, 8], [27, 9, 5], [-25, 14, 4]]) {
-      c.fillStyle = "#fff5c6";
-      c.beginPath();
-      c.moveTo(x + dx, y + dy - r2);
-      c.lineTo(x + dx + 2, y + dy - 2);
-      c.lineTo(x + dx + r2 * 0.65, y + dy);
-      c.lineTo(x + dx + 2, y + dy + 2);
-      c.lineTo(x + dx, y + dy + r2);
-      c.lineTo(x + dx - 2, y + dy + 2);
-      c.lineTo(x + dx - r2 * 0.65, y + dy);
-      c.lineTo(x + dx - 2, y + dy - 2);
-      c.fill();
-    }
-  }
-  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, pixels = null) {
-    if (!cache.ready) return false;
-    if (s.pos.map !== "castle") throw Error("Castle art on another map");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
-    const z = pixels?.castleScale ?? (wideShot ? 0.36 : CASTLE_SCENE_SCALE);
-    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
-    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
-    if (wideShot) {
-      const center = castleMapPoint(7.5, 5.5);
-      camera.x = clamp2(center.x - W2 / 2, 0, Math.max(0, CASTLE_ART_SCENE.width - W2));
-      camera.y = clamp2(center.y - H2 * 0.43, 0, Math.max(0, CASTLE_ART_SCENE.height - H2));
-    }
-    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
-    c.save();
-    c.scale(z, z);
-    c.fillStyle = "#0b101c";
-    c.fillRect(0, 0, W2, H2);
-    c.drawImage(cache.images.background, snap(-camera.x), snap(-camera.y));
-    const plot = (x, y) => {
-      const p = castleMapPoint(x, y);
-      return { x: p.x - camera.x, y: p.y - camera.y };
-    };
-    const map = MAPS.castle;
-    const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
-    const actors2 = [];
-    for (const n of map.npcs) {
-      const p = plot(n.x, n.y);
-      actors2.push({ z: p.y, draw: () => {
-        let im, anchor = 0, lift = 0;
-        if (n.kind === "king") {
-          im = cache.images.king;
-          lift = 53;
-        } else if (n.id === "castle-guard") {
-          im = cache.images.guard;
-          anchor = -42;
-        } else if (n.id === "castle-guard-east") {
-          im = cache.images.guardEast;
-          anchor = 44;
-        } else if (n.id === "refugee") {
-          im = cache.images.refugee;
-          lift = 41;
-        } else {
-          drawSmallPerson(c, p.x, p.y, n.kind);
-          return;
-        }
-        c.drawImage(im, snap(p.x - im.width / 2 + anchor), snap(p.y + lift - im.height));
-      } });
-    }
-    for (const e of map.objects) {
-      if (!entityAt(s, map, e.x, e.y)) continue;
-      const p = plot(e.x, e.kind === "raider" ? intro.raiderY ?? (intro.page && intro.page !== "refugee" ? e.y - 1 : e.y) : e.y);
-      actors2.push({ z: p.y, draw: () => {
-        if (e.kind === "raider") {
-          const im = cache.images.raider;
-          c.drawImage(im, snap(p.x - im.width / 2), snap(p.y + 42 - im.height));
-        } else if (e.kind === "sword") {
-          const x = snap(p.x - 32), y = snap(p.y + 30);
-          c.fillStyle = "#5a506b";
-          c.fillRect(x - 23, y + 5, 46, 18);
-          c.fillStyle = "#8e8099";
-          c.fillRect(x - 26, y, 52, 8);
-          c.fillStyle = "#24243e";
-          c.fillRect(x - 6, y + 2, 12, 4);
-          c.fillStyle = "#746681";
-          c.fillRect(x - 25, y + 19, 50, 5);
-          if (!swordTaken) {
-            c.save();
-            c.translate(x, y + 4);
-            c.rotate(Math.PI);
-            c.scale(0.64, 0.64);
-            drawSword(c, 0, 39);
-            c.restore();
-          }
-        }
-      } });
-    }
-    const pp = camera.player;
-    actors2.push({ z: pp.y - camera.y, draw: () => {
-      const t = castleVisualPosition(s, motion, now).t;
-      const isMoving = motion && motion.map === "castle" && t < 1;
-      const frame = isMoving ? heroGaitFrame(motion, t) : 0;
-      const hero = cache.images[`hero_${s.pos.facing}_${frame}`];
-      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
-      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
-      const bob = isMoving ? -Math.round(Math.sin(t * Math.PI) * 2) : 0;
-      const sx = snap(pp.x - camera.x - hero.width / 2);
-      const sy = snap(pp.y - camera.y + 43 - hero.height + bob);
-      c.fillStyle = "#11132065";
-      c.beginPath();
-      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
-      c.fill();
-      c.drawImage(hero, sx, sy);
-      drawHeldSword(c, s.equipment.weapon, s.pos.facing, sx, sy, 1, intro.swordGlow || intro.page === "witness");
-    } });
-    actors2.sort((a, b) => a.z - b.z);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache.images.foreground, snap(-camera.x), snap(-camera.y));
-    c.restore();
-    return true;
-  }
-  var CASTLE_LIBRARY_SCENE = Object.freeze({
-    width: 1254,
-    height: 1380,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 147,
-    originY: 320
-  });
-  function castleLibraryPoint(x, y) {
-    const m = CASTLE_LIBRARY_SCENE;
-    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
-  }
-  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
-    const m = CASTLE_LIBRARY_SCENE;
-    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
-    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
-    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
-    const p = castleLibraryPoint(x, y);
-    return {
-      x: sceneOffset(p.x - canvas.width / 2, canvas.width, m.width),
-      y: sceneOffset(p.y - canvas.height * 0.6, canvas.height, m.height),
-      player: p,
-      t
-    };
-  }
-  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), pixels = null) {
-    if (!cache.ready) return false;
-    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const z = pixels?.castleScale ?? CASTLE_SCENE_SCALE;
-    const cam = castleLibraryCamera({
-      width: Math.ceil(canvas.width / z),
-      height: Math.ceil(canvas.height / z)
-    }, room, motion, now);
-    c.save();
-    c.scale(z, z);
-    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
-    const sx = (x) => snap(x - cam.x), sy = (y) => snap(y - cam.y);
-    c.fillStyle = "#131321";
-    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
-    c.drawImage(cache.images.libraryBackground, sx(0), sy(0));
-    const elder = castleLibraryPoint(6, 3), elderSprite = cache.images.librarian;
-    const heroFrame = motion && cam.t < 1 ? heroGaitFrame(motion, cam.t) : 0;
-    const heroKey = "hero_" + room.facing + "_" + heroFrame;
-    const heroSprite = cache.images[heroKey];
-    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
-    lastHeroSprite = heroKey;
-    const actors2 = [
-      { y: elder.y, draw: () => {
-        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
-      } },
-      { y: cam.player.y, draw: () => {
-        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
-        c.fillStyle = "#10132575";
-        c.beginPath();
-        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
-        c.fill();
-        c.drawImage(heroSprite, x, y);
-      } }
-    ];
-    actors2.sort((a, b) => a.y - b.y);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache.images.libraryForeground, sx(0), sy(0));
-    c.restore();
-    return true;
-  }
-
-  // src/game/interiors.mjs
-  var ENTRIES = Object.freeze([
-    {
-      id: "castle-library",
-      map: "castle",
-      door: { x: 1, y: 7 },
-      name: "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u30FB\u66F8\u5EAB",
-      theme: "library",
-      keeper: "\u66F8\u5EAB\u756A",
-      words: ["\u66F8\u5EAB\u756A\u300C\u57CE\u306B\u53E4\u304F\u304B\u3089\u6B8B\u308B\u5730\u56F3\u306F\u3001\u5192\u967A\u8005\u306E\u9053\u3057\u308B\u3079\u306B\u306A\u308B\u3093\u3060\u300D", "\u66F8\u5EAB\u756A\u300C\u56F0\u3063\u305F\u3089\u3001\u753A\u306E\u4EBA\u306E\u8A71\u3092\u805E\u3044\u3066\u307F\u308B\u3068\u3044\u3044\u3088\u300D"]
-    },
-    {
-      id: "leaf-west-home",
-      map: "leaf",
-      door: { x: 3, y: 17 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u4ED5\u7ACB\u3066\u5C4B\u306E\u5BB6",
-      theme: "home",
-      keeper: "\u4ED5\u7ACB\u3066\u5C4B",
-      words: ["\u4ED5\u7ACB\u3066\u5C4B\u300C\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u670D\u3092\u3001\u307F\u3093\u306A\u3067\u7E55\u3063\u3066\u3044\u308B\u3093\u3060\u300D", "\u4ED5\u7ACB\u3066\u5C4B\u300C\u6D1E\u7A9F\u3078\u884C\u304F\u306A\u3089\u7121\u7406\u3092\u3057\u306A\u3044\u3067\u306D\u300D"]
-    },
-    {
-      id: "leaf-east-home",
-      map: "leaf",
-      door: { x: 23, y: 17 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u6751\u4EBA\u306E\u5BB6",
-      theme: "home",
-      keeper: "\u30EA\u30FC\u30D5\u30A1\u306E\u4F4F\u4EBA",
-      words: ["\u6751\u4EBA\u300C\u9B54\u7269\u304C\u3044\u306A\u304F\u306A\u308C\u3070\u3001\u307E\u305F\u753A\u3082\u8CD1\u3084\u304B\u306B\u306A\u308B\u3088\u300D", "\u6751\u4EBA\u300C\u65C5\u306E\u4EBA\u3082\u3001\u3053\u306E\u753A\u3067\u306F\u5927\u5207\u306A\u304A\u5BA2\u3055\u3093\u3055\u300D"]
-    },
-    {
-      id: "leaf-inn",
-      map: "leaf",
-      door: { x: 2, y: 8 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u4EBA\u306E\u5BBF",
-      theme: "inn",
-      keeper: "\u5BBF\u306E\u5973\u5C06",
-      service: "inn",
-      words: ["\u5BBF\u306E\u5973\u5C06\u300C\u75B2\u308C\u305F\u8DB3\u3092\u4F11\u3081\u3066\u3044\u304D\u306A\u3055\u3044\u3002\u6E29\u304B\u306A\u5BDD\u5E8A\u3092\u7528\u610F\u3057\u307E\u3059\u300D"]
-    },
-    {
-      id: "leaf-shop",
-      map: "leaf",
-      door: { x: 14, y: 8 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u306E\u9053\u5177\u5C4B",
-      theme: "shop",
-      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
-      service: "shop",
-      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u4F55\u304C\u5FC5\u8981\u304B\u3001\u68DA\u3092\u898B\u3066\u304B\u3089\u6C7A\u3081\u3066\u304A\u304F\u308C\u300D"]
-    },
-    {
-      id: "sailun-inn",
-      map: "sailun",
-      door: { x: 4, y: 9 },
-      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u6F6E\u98A8\u306E\u5BBF",
-      theme: "harbor-inn",
-      keeper: "\u5BBF\u306E\u4E3B\u4EBA",
-      service: "inn",
-      words: ["\u5BBF\u306E\u4E3B\u4EBA\u300C\u6E2F\u3092\u884C\u304D\u4EA4\u3046\u8239\u306E\u4EBA\u3082\u3001\u3053\u3053\u3067\u591C\u3092\u660E\u304B\u3059\u3093\u3060\u300D"]
-    },
-    {
-      id: "sailun-shop",
-      map: "sailun",
-      door: { x: 16, y: 9 },
-      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u8239\u5177\u3068\u9053\u5177\u306E\u5E97",
-      theme: "harbor-shop",
-      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
-      service: "shop",
-      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u6D77\u306E\u9053\u5177\u3082\u3001\u65C5\u306B\u5F79\u7ACB\u3064\u3082\u306E\u3082\u63C3\u3048\u3066\u3044\u308B\u3088\u300D"]
-    }
-  ]);
-  var W = 12;
-  var H = 10;
-  var ENTRY = { x: 6, y: 8 };
-  var blocked = /* @__PURE__ */ new Set(["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"]);
-  var SLOTS = ["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"];
-  var PRESETS = {
-    "castle-library": [
-      ["shelf", "\u6B74\u53F2\u66F8\u306E\u68DA", "\u3053\u306E\u56FD\u306E\u53E4\u3044\u5730\u56F3\u304C\u4F55\u518A\u3082\u3042\u308B\u3002\u3069\u308C\u3082\u9053\u304C\u5C11\u3057\u305A\u3064\u9055\u3046\u3002"],
-      ["shelf", "\u65C5\u306E\u8A18\u9332", "\u4ED6\u56FD\u306E\u8A00\u8449\u3067\u66F8\u304B\u308C\u305F\u65C5\u306E\u8A18\u9332\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["scrollcase", "\u5DFB\u7269\u68DA", "\u53E4\u3044\u5199\u672C\u304C\u4E01\u5BE7\u306B\u5DFB\u304B\u308C\u3066\u3044\u308B\u3002\u8AB0\u304B\u304C\u3053\u3053\u3067\u5B88\u308A\u7D9A\u3051\u305F\u306E\u3060\u308D\u3046\u3002"],
-      ["shelf", "\u661F\u306E\u8A18\u9332", "\u7D30\u304B\u306A\u661F\u56F3\u304C\u63CF\u304B\u308C\u3066\u3044\u308B\u3002\u8A18\u3055\u308C\u305F\u5E74\u6708\u306F\u3059\u3067\u306B\u6D88\u3048\u3066\u3044\u305F\u3002"],
-      ["table", "\u8AAD\u66F8\u673A", "\u624B\u5165\u308C\u3055\u308C\u305F\u7FBD\u6839\u30DA\u30F3\u3068\u3001\u8AAD\u307F\u304B\u3051\u306E\u672C\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
-      ["crate", "\u4FDD\u7BA1\u7BB1", "\u6E7F\u6C17\u3092\u9632\u3050\u5E03\u3067\u5927\u5207\u306A\u6587\u66F8\u304C\u5305\u307E\u308C\u3066\u3044\u305F\u3002"],
-      ["window", "\u66F8\u5EAB\u306E\u7A93", "\u9AD8\u3044\u7A93\u304B\u3089\u3001\u9060\u304F\u306E\u753A\u4E26\u307F\u306B\u5149\u304C\u5DEE\u3057\u8FBC\u3093\u3067\u3044\u308B\u3002"],
-      ["globe", "\u53E4\u3044\u5730\u7403\u5100", "\u5927\u9678\u306E\u6771\u7AEF\u306F\u307E\u3060\u7A7A\u767D\u3060\u3002\u66F8\u5EAB\u756A\u3082\u305D\u306E\u5148\u3092\u77E5\u3089\u306A\u3044\u3089\u3057\u3044\u3002"]
-    ],
-    "leaf-west-home": [
-      ["wardrobe", "\u4ED5\u7ACB\u3066\u68DA", "\u4ED5\u7ACB\u3066\u9014\u4E2D\u306E\u65C5\u88C5\u304C\u80A9\u3092\u4E26\u3079\u3066\u3044\u308B\u3002"],
-      ["fabric", "\u5E03\u306E\u5C71", "\u4E08\u592B\u306A\u5E03\u3068\u3001\u5B50\u3069\u3082\u7528\u306E\u5C0F\u3055\u306A\u4E0A\u7740\u304C\u7A4D\u307E\u308C\u3066\u3044\u308B\u3002"],
-      ["loom", "\u6A5F\u7E54\u308A\u6A5F", "\u8DB3\u8E0F\u307F\u3067\u52D5\u304F\u6A5F\u7E54\u308A\u6A5F\u3002\u4FEE\u7E55\u306E\u305F\u3081\u306B\u4F55\u5EA6\u3082\u4F7F\u308F\u308C\u3066\u3044\u308B\u3002"],
-      ["fabric", "\u7CF8\u3068\u91DD", "\u67D3\u3081\u305F\u7CF8\u304C\u8272\u3054\u3068\u306B\u5DFB\u304B\u308C\u3001\u91DD\u304C\u5C0F\u7BB1\u306B\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["sewing", "\u88C1\u7E2B\u53F0", "\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u7834\u308C\u305F\u8896\u304C\u3001\u4E00\u91DD\u305A\u3064\u7E2B\u3044\u5408\u308F\u3055\u308C\u3066\u3044\u308B\u3002"],
-      ["crate", "\u670D\u306E\u6728\u7BB1", "\u6D17\u3044\u305F\u3066\u306E\u8863\u670D\u304C\u5E03\u306B\u5305\u307E\u308C\u3066\u3044\u308B\u3002"],
-      ["window", "\u5C0F\u3055\u306A\u7A93", "\u7A93\u306E\u5916\u306B\u306F\u3001\u30EA\u30FC\u30D5\u30A1\u306E\u5E83\u5834\u304C\u898B\u3048\u308B\u3002"],
-      ["vase", "\u767D\u3044\u82B1", "\u5C0F\u3055\u306A\u82B1\u304C\u4E00\u8F2A\u3002\u8584\u6697\u3044\u90E8\u5C4B\u304C\u307B\u3093\u306E\u5C11\u3057\u660E\u308B\u304F\u306A\u308B\u3002"]
-    ],
-    "leaf-east-home": [
-      ["shelf", "\u601D\u3044\u51FA\u306E\u68DA", "\u5BB6\u65CF\u306E\u53E4\u3044\u5199\u771F\u7ACB\u3066\u3068\u3001\u65C5\u5148\u3067\u62FE\u3063\u305F\u5C0F\u77F3\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["cupboard", "\u98DF\u5668\u68DA", "\u6B20\u3051\u305F\u76BF\u3082\u5927\u5207\u306B\u4E26\u3079\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["hearth", "\u6696\u7089", "\u7070\u306F\u307E\u3060\u6E29\u304B\u3044\u3002\u8AB0\u304B\u304C\u3055\u3063\u304D\u307E\u3067\u706B\u3092\u711A\u3044\u3066\u3044\u305F\u3002"],
-      ["cupboard", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u305F\u91CE\u83DC\u3068\u9EA6\u306E\u888B\u3002\u51AC\u306B\u5099\u3048\u3066\u96C6\u3081\u305F\u98DF\u6599\u3060\u3002"],
-      ["table", "\u5915\u98DF\u306E\u673A", "\u4E09\u4EBA\u5206\u306E\u6728\u306E\u5668\u3068\u3001\u5C11\u3057\u3060\u3051\u6B8B\u3063\u305F\u30D1\u30F3\u304C\u3042\u308B\u3002"],
-      ["crate", "\u85AA\u5165\u308C", "\u3088\u304F\u4E7E\u304B\u3057\u305F\u85AA\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
-      ["window", "\u901A\u308A\u306E\u7A93", "\u901A\u308A\u306B\u306F\u4EBA\u304C\u623B\u308A\u3001\u5C11\u3057\u305A\u3064\u65E5\u5E38\u3092\u53D6\u308A\u623B\u3057\u3066\u3044\u308B\u3002"],
-      ["vase", "\u7A93\u8FBA\u306E\u9262", "\u5BB6\u306E\u4EBA\u304C\u80B2\u3066\u3066\u3044\u308B\u3001\u5C0F\u3055\u306A\u7DD1\u306E\u9262\u690D\u3048\u3002"]
-    ],
-    "leaf-inn": [
-      ["bed", "\u65C5\u4EBA\u306E\u5BDD\u5E8A", "\u6E05\u6F54\u306A\u5BDD\u5177\u304C\u63C3\u3063\u3066\u3044\u308B\u3002\u3053\u3053\u306A\u3089\u75B2\u308C\u3092\u53D6\u308C\u305D\u3046\u3060\u3002"],
-      ["bed", "\u7A93\u969B\u306E\u5BDD\u5E8A", "\u6BDB\u5E03\u304C\u4E01\u5BE7\u306B\u7573\u307E\u308C\u3066\u3044\u308B\u3002"],
-      ["cupboard", "\u5BBF\u306E\u98DF\u5668\u68DA", "\u5BA2\u4EBA\u7528\u306E\u6E6F\u98F2\u307F\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["shelf", "\u65C5\u306E\u6848\u5185\u68DA", "\u8857\u9053\u306E\u9053\u9806\u3092\u66F8\u3044\u305F\u5C0F\u3055\u306A\u7D19\u304C\u3042\u308B\u3002"],
-      ["table", "\u5BBF\u306E\u671D\u98DF\u53F0", "\u6E29\u304B\u306A\u30B9\u30FC\u30D7\u306E\u9999\u308A\u304C\u3059\u308B\u3002"],
-      ["crate", "\u65C5\u4EBA\u306E\u8377\u7269\u7BB1", "\u5BA2\u304C\u9810\u3051\u305F\u8377\u7269\u306B\u306F\u3001\u4E00\u3064\u3072\u3068\u3064\u672D\u304C\u4ED8\u3044\u3066\u3044\u308B\u3002"],
-      ["window", "\u671D\u65E5\u306E\u7A93", "\u671D\u306B\u306A\u308B\u3068\u3001\u3053\u3053\u304B\u3089\u3084\u3055\u3057\u3044\u5149\u304C\u5DEE\u3059\u3002"],
-      ["vase", "\u5BBF\u306E\u82B1", "\u67AF\u3089\u3055\u306A\u3044\u3088\u3046\u3001\u6BCE\u65E5\u6C34\u304C\u66FF\u3048\u3089\u308C\u3066\u3044\u308B\u3002"]
-    ],
-    "leaf-shop": [
-      ["shelf", "\u65C5\u306E\u9053\u5177\u68DA", "\u56DE\u5FA9\u85AC\u3084\u5305\u5E2F\u306A\u3069\u304C\u7528\u9014\u3054\u3068\u306B\u6574\u7406\u3055\u308C\u3066\u3044\u308B\u3002"],
-      ["shelf", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u8089\u3068\u6728\u306E\u6C34\u7B52\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["cupboard", "\u4E88\u5099\u306E\u85AC\u7BB1", "\u3044\u3056\u3068\u3044\u3046\u3068\u304D\u306E\u305F\u3081\u306E\u85AC\u304C\u304D\u3061\u3093\u3068\u3057\u307E\u308F\u308C\u3066\u3044\u308B\u3002"],
-      ["fabric", "\u65C5\u88C5\u306E\u5E03", "\u96E8\u3088\u3051\u306E\u5916\u5957\u304C\u4F55\u679A\u304B\u639B\u3051\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["counter", "\u9053\u5177\u5C4B\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u5E97\u306E\u4E3B\u4EBA\u304C\u6BCE\u671D\u78E8\u3044\u3066\u3044\u308B\u6728\u306E\u30AB\u30A6\u30F3\u30BF\u30FC\u3002"],
-      ["crate", "\u88DC\u5145\u5F85\u3061\u306E\u7BB1", "\u6E2F\u304B\u3089\u5C4A\u3044\u305F\u54C1\u306E\u8377\u672D\u304C\u3064\u3044\u3066\u3044\u308B\u3002"],
-      ["window", "\u901A\u308A\u306E\u7A93", "\u30EA\u30FC\u30D5\u30A1\u306E\u4EBA\u305F\u3061\u304C\u8CB7\u3044\u7269\u306B\u7ACB\u3061\u5BC4\u3063\u3066\u3044\u308B\u3002"],
-      ["vase", "\u5C0F\u3055\u306A\u98FE\u308A", "\u6728\u5F6B\u308A\u306E\u304A\u5B88\u308A\u304C\u3001\u68DA\u306E\u9685\u306B\u98FE\u3089\u308C\u3066\u3044\u308B\u3002"]
-    ],
-    "sailun-inn": [
-      ["bed", "\u8239\u4E57\u308A\u306E\u5BDD\u5E8A", "\u9577\u65C5\u306E\u8239\u4E57\u308A\u3092\u8FCE\u3048\u308B\u9811\u4E08\u306A\u6728\u306E\u5BDD\u53F0\u3002"],
-      ["bed", "\u6CE2\u97F3\u306E\u5BDD\u5E8A", "\u7720\u308B\u3068\u3001\u7A93\u306E\u5916\u304B\u3089\u6CE2\u306E\u97F3\u304C\u805E\u3053\u3048\u308B\u3002"],
-      ["cupboard", "\u8239\u5BA2\u306E\u98DF\u5668\u68DA", "\u539A\u624B\u306E\u5668\u306F\u3001\u63FA\u308C\u308B\u8239\u3067\u3082\u5272\u308C\u306B\u304F\u3044\u3002"],
-      ["shelf", "\u6D77\u56F3\u306E\u68DA", "\u6E2F\u304B\u3089\u5317\u3078\u4F38\u3073\u308B\u822A\u8DEF\u304C\u66F8\u304B\u308C\u3066\u3044\u308B\u3002"],
-      ["table", "\u6E2F\u5BBF\u306E\u98DF\u4E8B\u53F0", "\u9B5A\u306E\u716E\u8FBC\u307F\u304C\u6E6F\u6C17\u3092\u7ACB\u3066\u3066\u3044\u308B\u3002"],
-      ["barrel", "\u6C34\u306E\u6A3D", "\u8239\u304B\u3089\u904B\u3093\u3060\u771F\u6C34\u304C\u84C4\u3048\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["window", "\u6E2F\u306E\u7A93", "\u505C\u6CCA\u3057\u3066\u3044\u308B\u5C0F\u821F\u306E\u5E06\u304C\u98A8\u306B\u63FA\u308C\u3066\u3044\u308B\u3002"],
-      ["vase", "\u6D5C\u306E\u82B1", "\u6F6E\u98A8\u306B\u3082\u8CA0\u3051\u305A\u54B2\u304F\u3001\u5C0F\u3055\u306A\u9EC4\u8272\u3044\u82B1\u3002"]
-    ],
-    "sailun-shop": [
-      ["shelf", "\u65C5\u306E\u88C5\u5099\u68DA", "\u4E08\u592B\u306A\u9769\u7D10\u3068\u9632\u6C34\u888B\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
-      ["shelf", "\u8239\u5177\u68DA", "\u6ED1\u8ECA\u3084\u30ED\u30FC\u30D7\u306A\u3069\u3001\u8239\u306E\u4FEE\u7406\u306B\u5FC5\u8981\u306A\u9053\u5177\u304C\u3042\u308B\u3002"],
-      ["cupboard", "\u91D1\u5C5E\u306E\u88C5\u5099\u7BB1", "\u78E8\u304B\u308C\u305F\u91D1\u5177\u304C\u6574\u7136\u3068\u53CE\u3081\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["barrel", "\u5E06\u5E03\u306E\u675F", "\u6F6E\u98A8\u306B\u3082\u4E08\u592B\u306A\u5E06\u5E03\u304C\u4E38\u304F\u675F\u306D\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["counter", "\u6E2F\u753A\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u65C5\u4EBA\u3068\u8239\u4E57\u308A\u304C\u4EA4\u308F\u3059\u3001\u53E4\u3044\u5546\u8AC7\u306E\u8DE1\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
-      ["crate", "\u6D77\u8DEF\u306E\u8377\u7BB1", "\u6E2F\u3078\u5C4A\u3044\u305F\u3070\u304B\u308A\u306E\u54C1\u304C\u5C01\u3092\u3055\u308C\u305F\u307E\u307E\u7F6E\u3044\u3066\u3042\u308B\u3002"],
-      ["window", "\u6F6E\u98A8\u306E\u7A93", "\u5916\u304B\u3089\u6F6E\u306E\u9999\u308A\u3068\u3001\u30AB\u30E2\u30E1\u306E\u58F0\u304C\u5C4A\u304F\u3002"],
-      ["globe", "\u5C0F\u3055\u306A\u822A\u6D77\u56F3", "\u30BB\u30A4\u30EB\u30F3\u304B\u3089\u5317\u306E\u5CAC\u307E\u3067\u3001\u5371\u967A\u306A\u6D45\u702C\u304C\u66F8\u304D\u8FBC\u307E\u308C\u3066\u3044\u308B\u3002"]
-    ]
-  };
-  var ROOM_FURNISHINGS = new Map(Object.entries(PRESETS).map(([id, items]) => {
-    if (items.length !== SLOTS.length) throw Error("Interior item layout mismatch: " + id);
-    return [id, new Map(items.map(([kind, name, description], i) => [
-      SLOTS[i],
-      Object.freeze({ kind, name, description })
-    ]))];
-  }));
-  function interiorFixtures(room) {
-    const items = ROOM_FURNISHINGS.get(room.id);
-    if (!items) throw Error("Unknown furnished interior: " + room.id);
-    return items;
-  }
-  var resident = { x: 6, y: 3 };
-  function enterableDoor(pos) {
-    const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[pos.facing];
-    return ENTRIES.find((e) => e.map === pos.map && e.door.x === pos.x + delta[0] && e.door.y === pos.y + delta[1]) || null;
-  }
-  function makeInterior(door) {
-    if (!ENTRIES.some((e) => e.id === door.id)) throw Error("Unknown interior");
-    return { id: door.id, x: ENTRY.x, y: ENTRY.y, facing: "up" };
-  }
-  function interiorDefinition(room) {
-    const definition = ENTRIES.find((e) => e.id === room.id);
-    if (!definition) throw Error("Unknown interior " + room.id);
-    return definition;
-  }
-  function moveInside(room, dir) {
-    if (!["up", "down", "left", "right"].includes(dir)) throw Error("Direction invalid");
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
-    const x = room.x + dx, y = room.y + dy;
-    if (x === 6 && y === 9) return { kind: "exit", room: null };
-    const facing = { ...room, facing: dir };
-    if (x <= 0 || y <= 1 || x >= W - 1 || y >= H - 1 || blocked.has(x + "," + y) || x === resident.x && y === resident.y)
-      return { kind: "blocked", room: facing };
-    return { kind: "walk", room: { ...facing, x, y } };
-  }
-  function interiorTarget(room) {
-    const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
-    if (!d) throw Error("Invalid interior direction");
-    return { x: room.x + d[0], y: room.y + d[1] };
-  }
-  function investigateInside(room) {
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
-    const x = room.x + dx, y = room.y + dy;
-    const definition = interiorDefinition(room);
-    if (x === resident.x && y === resident.y) return definition.words;
-    const item = interiorFixtures(room).get(x + "," + y);
-    if (item) return [item.description];
-    if (x === 6 && y === 9) return ["\u6249\u304B\u3089\u5916\u3078\u623B\u308C\u308B\u3002\u4E0B\u3078\u6B69\u3053\u3046\u3002"];
-    return ["\u3042\u305F\u308A\u3092\u8ABF\u3079\u305F\u3002\u5BB6\u5177\u3084\u751F\u6D3B\u306E\u9053\u5177\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"];
-  }
-  function interiorPrompt(room) {
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
-    const x = room.x + dx, y = room.y + dy;
-    if (x === resident.x && y === resident.y) {
-      const def = interiorDefinition(room);
-      return def.service === "inn" ? "A  \u5BBF\u6CCA\u3059\u308B" : def.service === "shop" ? "A  \u8CB7\u3044\u7269\u3092\u3059\u308B" : "A  " + def.keeper + "\u3068\u8A71\u3059";
-    }
-    const fixture = interiorFixtures(room).get(x + "," + y);
-    if (fixture) return "A  " + fixture.name + "\u3092\u8ABF\u3079\u308B";
-    return "";
-  }
-
   // src/game/retro-assets.mjs
   var IMAGES = Object.freeze({
     floor: "floor.png",
@@ -15524,7 +15073,7 @@
     onyxGate: "../onyx/gate.png"
   });
   var RETRO_ASSET_VERSION = "20261118-silent-ruins-art-integration-01";
-  var cache2 = /* @__PURE__ */ new Map();
+  var cache = /* @__PURE__ */ new Map();
   var ready2 = false;
   var loading = null;
   function retroAssetsReady() {
@@ -15533,7 +15082,7 @@
   function retroAsset(key) {
     if (!Object.hasOwn(IMAGES, key)) throw Error("Unrecognized retro art key: " + key);
     if (!ready2) throw Error("Retro CC0 assets not preloaded: " + key);
-    const img2 = cache2.get(key);
+    const img2 = cache.get(key);
     if (!img2 || !img2.complete || img2.naturalWidth === 0) throw Error("Retro asset unavailable: " + key);
     return img2;
   }
@@ -15548,7 +15097,7 @@
           reject(Error("Corrupt retro PNG: " + assetPath));
           return;
         }
-        cache2.set(key, img2);
+        cache.set(key, img2);
         resolve();
       };
       img2.onerror = () => reject(Error("Could not load retro art: " + assetPath));
@@ -16754,6 +16303,596 @@
     r2(12, 27, 4, 2, light);
     r2(17, 34, 2, 5, light);
     return { width: 44 * sc, height: 54 * sc };
+  }
+
+  // src/game/castle-visual.mjs
+  var CASTLE_ART_SCENE = Object.freeze({
+    width: 1254,
+    height: 1474,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 27,
+    originY: 250
+  });
+  var scenes = {
+    background: "castle-background.png",
+    foreground: "castle-foreground.png",
+    king: "castle-king.png",
+    guard: "castle-guard.png",
+    guardEast: "castle-guard-east.png",
+    refugee: "castle-refugee.png",
+    raider: "castle-raider.png",
+    libraryBackground: "castle-library-background.png",
+    libraryForeground: "castle-library-foreground.png",
+    librarian: "castle-librarian.png"
+  };
+  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
+    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
+  }
+  var CASTLE_SCENE_SCALE = 0.44;
+  var ART_VERSION = "20261111-generated-hero-walk-v1";
+  var cache2 = { ready: false, failed: false, images: {} };
+  var lastHeroSprite = "";
+  function castleArtDebug() {
+    return { ready: cache2.ready, lastHeroSprite };
+  }
+  function heroGaitFrame(motion, t) {
+    if (!motion || t < 0.17 || t > 0.86) return 0;
+    return motion.step % 2 === 0 ? 1 : 2;
+  }
+  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4, weapon = null) {
+    if (!cache2.ready) throw Error("Shared protagonist art not loaded");
+    const key = `hero_${facing}_${frame}`;
+    const sprite2 = cache2.images[key];
+    if (!sprite2) throw Error("Missing protagonist art: " + key);
+    lastHeroSprite = key;
+    const w = Math.round(sprite2.width * scale), h = Math.round(sprite2.height * scale);
+    const x = Math.round(feetX - w / 2), y = Math.round(feetY - h);
+    c.save();
+    c.imageSmoothingEnabled = false;
+    c.fillStyle = "#1319297a";
+    c.beginPath();
+    c.ellipse(
+      Math.round(feetX),
+      Math.round(feetY - 3),
+      Math.max(7, Math.round(w * 0.34)),
+      Math.max(3, Math.round(w * 0.09)),
+      0,
+      0,
+      Math.PI * 2
+    );
+    c.fill();
+    c.drawImage(sprite2, x, y, w, h);
+    drawHeldSword(c, weapon, facing, x, y, scale);
+    c.restore();
+  }
+  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  function castleArtReady() {
+    return cache2.ready;
+  }
+  function preloadCastleArt(onReady = () => {
+  }) {
+    if (cache2.ready) {
+      onReady();
+      return Promise.resolve();
+    }
+    if (cache2.loading) return cache2.loading.then(onReady);
+    cache2.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
+      const path = "assets/castle/" + file;
+      const image = new Image();
+      image.onload = () => {
+        cache2.images[name] = image;
+        resolve();
+      };
+      image.onerror = () => {
+        cache2.failed = true;
+        reject(Error("Castle art missing: " + path));
+      };
+      image.src = path + "?v=" + ART_VERSION;
+    }))).then(() => {
+      const bg = cache2.images.background;
+      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions: assets/castle/" + scenes.background);
+      cache2.ready = true;
+      onReady();
+    });
+    return cache2.loading;
+  }
+  function castleMapPoint(x, y) {
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: m.originX + (x + 0.5) * m.tileWidth,
+      y: m.originY + (y + 0.5) * m.tileHeight
+    };
+  }
+  function castleVisualPosition(s, motion = null, now = performance.now()) {
+    const pos = s.pos;
+    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    return {
+      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
+      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
+      t
+    };
+  }
+  function sceneOffset(target, viewSize, sceneSize) {
+    return viewSize >= sceneSize ? (sceneSize - viewSize) / 2 : clamp2(target, 0, sceneSize - viewSize);
+  }
+  function castleCamera(canvas, s, motion = null, now = performance.now()) {
+    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
+    const viewWidth = canvas.width, viewHeight = canvas.height;
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: sceneOffset(p.x - viewWidth / 2, viewWidth, m.width),
+      // Initial view shows the throne and the hero together, rather
+      // than cutting the king off above the phone viewport.
+      y: sceneOffset(p.y - viewHeight * 0.75, viewHeight, m.height),
+      player: p
+    };
+  }
+  function drawSmallPerson(c, cx, cy, kind) {
+    c.save();
+    c.translate(Math.round(cx - 30), Math.round(cy - 56));
+    const tile = (x, y, w, h, color3) => {
+      c.fillStyle = color3;
+      c.fillRect(x * 5, y * 5, w * 5, h * 5);
+    };
+    const color2 = kind === "refugee" ? "#a5676a" : "#47788e";
+    tile(3, 0, 6, 1, "#27283b");
+    tile(2, 1, 8, 2, "#483a38");
+    tile(3, 3, 6, 3, "#e9bb8d");
+    tile(4, 4, 1, 1, "#3b2c36");
+    tile(7, 4, 1, 1, "#3b2c36");
+    tile(2, 6, 8, 6, color2);
+    tile(4, 6, 4, 2, "#d8ad69");
+    tile(1, 7, 2, 4, "#edc59b");
+    tile(9, 7, 2, 4, "#edc59b");
+    tile(2, 12, 3, 1, "#292d3c");
+    tile(7, 12, 3, 1, "#292d3c");
+    c.restore();
+  }
+  function drawSword(c, x, y) {
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    c.fillStyle = "#252b42";
+    c.fillRect(-6, -32, 12, 53);
+    c.fillStyle = "#e9e4d5";
+    c.fillRect(-4, -39, 8, 32);
+    c.fillStyle = "#88cbd9";
+    c.fillRect(-1, -35, 3, 23);
+    c.fillStyle = "#e4ba61";
+    c.fillRect(-22, -11, 44, 7);
+    c.fillStyle = "#765c50";
+    c.fillRect(-5, -6, 10, 22);
+    c.fillStyle = "#ffdf99";
+    c.fillRect(-8, 16, 16, 5);
+    c.restore();
+  }
+  var swordHand = {
+    left: [50, 95, -1.1],
+    right: [46, 95, 1.1],
+    down: [24, 95, -0.84],
+    up: [18, 94, -0.48]
+  };
+  function drawHeldSword(c, weapon, facing, x, y, scale, glow = false) {
+    if (weapon !== STARDUST_SWORD.id && weapon !== "hero") return;
+    const [handX, handY, angle] = swordHand[facing];
+    c.save();
+    c.translate(x + handX * scale, y + handY * scale);
+    c.scale(scale, scale);
+    c.rotate(angle);
+    const swordScale = weapon === "hero" ? 0.84 : 0.66;
+    c.scale(swordScale, swordScale);
+    drawSword(c, 0, -5);
+    if (glow) drawStarGlow(c, 0, -42);
+    c.restore();
+  }
+  function drawStarGlow(c, x, y) {
+    const glow = c.createRadialGradient(x, y, 2, x, y, 43);
+    glow.addColorStop(0, "#d2f4ffe6");
+    glow.addColorStop(1, "#83c8ff00");
+    c.fillStyle = glow;
+    c.fillRect(x - 43, y - 43, 86, 86);
+    for (const [dx, dy, r2] of [[0, 0, 10], [-19, -12, 6], [20, -20, 8], [27, 9, 5], [-25, 14, 4]]) {
+      c.fillStyle = "#fff5c6";
+      c.beginPath();
+      c.moveTo(x + dx, y + dy - r2);
+      c.lineTo(x + dx + 2, y + dy - 2);
+      c.lineTo(x + dx + r2 * 0.65, y + dy);
+      c.lineTo(x + dx + 2, y + dy + 2);
+      c.lineTo(x + dx, y + dy + r2);
+      c.lineTo(x + dx - 2, y + dy + 2);
+      c.lineTo(x + dx - r2 * 0.65, y + dy);
+      c.lineTo(x + dx - 2, y + dy - 2);
+      c.fill();
+    }
+  }
+  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, pixels = null, follower = null) {
+    if (!cache2.ready) return false;
+    if (s.pos.map !== "castle") throw Error("Castle art on another map");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
+    const z = pixels?.castleScale ?? (wideShot ? 0.36 : CASTLE_SCENE_SCALE);
+    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
+    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
+    if (wideShot) {
+      const center = castleMapPoint(7.5, 5.5);
+      camera.x = clamp2(center.x - W2 / 2, 0, Math.max(0, CASTLE_ART_SCENE.width - W2));
+      camera.y = clamp2(center.y - H2 * 0.43, 0, Math.max(0, CASTLE_ART_SCENE.height - H2));
+    }
+    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
+    c.save();
+    c.scale(z, z);
+    c.fillStyle = "#0b101c";
+    c.fillRect(0, 0, W2, H2);
+    c.drawImage(cache2.images.background, snap(-camera.x), snap(-camera.y));
+    const plot = (x, y) => {
+      const p = castleMapPoint(x, y);
+      return { x: p.x - camera.x, y: p.y - camera.y };
+    };
+    const map = MAPS.castle;
+    const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
+    const actors2 = [];
+    for (const n of map.npcs) {
+      const p = plot(n.x, n.y);
+      actors2.push({ z: p.y, draw: () => {
+        let im, anchor = 0, lift = 0;
+        if (n.kind === "king") {
+          im = cache2.images.king;
+          lift = 53;
+        } else if (n.id === "castle-guard") {
+          im = cache2.images.guard;
+          anchor = -42;
+        } else if (n.id === "castle-guard-east") {
+          im = cache2.images.guardEast;
+          anchor = 44;
+        } else if (n.id === "refugee") {
+          im = cache2.images.refugee;
+          lift = 41;
+        } else {
+          drawSmallPerson(c, p.x, p.y, n.kind);
+          return;
+        }
+        c.drawImage(im, snap(p.x - im.width / 2 + anchor), snap(p.y + lift - im.height));
+      } });
+    }
+    for (const e of map.objects) {
+      if (!entityAt(s, map, e.x, e.y)) continue;
+      const p = plot(e.x, e.kind === "raider" ? intro.raiderY ?? (intro.page && intro.page !== "refugee" ? e.y - 1 : e.y) : e.y);
+      actors2.push({ z: p.y, draw: () => {
+        if (e.kind === "raider") {
+          const im = cache2.images.raider;
+          c.drawImage(im, snap(p.x - im.width / 2), snap(p.y + 42 - im.height));
+        } else if (e.kind === "sword") {
+          const x = snap(p.x - 32), y = snap(p.y + 30);
+          c.fillStyle = "#5a506b";
+          c.fillRect(x - 23, y + 5, 46, 18);
+          c.fillStyle = "#8e8099";
+          c.fillRect(x - 26, y, 52, 8);
+          c.fillStyle = "#24243e";
+          c.fillRect(x - 6, y + 2, 12, 4);
+          c.fillStyle = "#746681";
+          c.fillRect(x - 25, y + 19, 50, 5);
+          if (!swordTaken) {
+            c.save();
+            c.translate(x, y + 4);
+            c.rotate(Math.PI);
+            c.scale(0.64, 0.64);
+            drawSword(c, 0, 39);
+            c.restore();
+          }
+        }
+      } });
+    }
+    if (follower) {
+      const p = plot(follower.x, follower.y);
+      actors2.push({ z: p.y, draw: () => {
+        c.save();
+        c.translate(snap(p.x), snap(p.y + 38));
+        c.scale(3, 3);
+        paintActor(c, -12, -24, follower.sprite, follower.facing, follower.frame);
+        c.restore();
+      } });
+    }
+    const pp = camera.player;
+    actors2.push({ z: pp.y - camera.y, draw: () => {
+      const t = castleVisualPosition(s, motion, now).t;
+      const isMoving = motion && motion.map === "castle" && t < 1;
+      const frame = isMoving ? heroGaitFrame(motion, t) : 0;
+      const hero = cache2.images[`hero_${s.pos.facing}_${frame}`];
+      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
+      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
+      const bob = isMoving ? -Math.round(Math.sin(t * Math.PI) * 2) : 0;
+      const sx = snap(pp.x - camera.x - hero.width / 2);
+      const sy = snap(pp.y - camera.y + 43 - hero.height + bob);
+      c.fillStyle = "#11132065";
+      c.beginPath();
+      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
+      c.fill();
+      c.drawImage(hero, sx, sy);
+      drawHeldSword(c, s.equipment.weapon, s.pos.facing, sx, sy, 1, intro.swordGlow || intro.page === "witness");
+    } });
+    actors2.sort((a, b) => a.z - b.z);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache2.images.foreground, snap(-camera.x), snap(-camera.y));
+    c.restore();
+    return true;
+  }
+  var CASTLE_LIBRARY_SCENE = Object.freeze({
+    width: 1254,
+    height: 1380,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 147,
+    originY: 320
+  });
+  function castleLibraryPoint(x, y) {
+    const m = CASTLE_LIBRARY_SCENE;
+    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
+  }
+  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
+    const m = CASTLE_LIBRARY_SCENE;
+    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
+    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
+    const p = castleLibraryPoint(x, y);
+    return {
+      x: sceneOffset(p.x - canvas.width / 2, canvas.width, m.width),
+      y: sceneOffset(p.y - canvas.height * 0.6, canvas.height, m.height),
+      player: p,
+      t
+    };
+  }
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), pixels = null) {
+    if (!cache2.ready) return false;
+    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const z = pixels?.castleScale ?? CASTLE_SCENE_SCALE;
+    const cam = castleLibraryCamera({
+      width: Math.ceil(canvas.width / z),
+      height: Math.ceil(canvas.height / z)
+    }, room, motion, now);
+    c.save();
+    c.scale(z, z);
+    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
+    const sx = (x) => snap(x - cam.x), sy = (y) => snap(y - cam.y);
+    c.fillStyle = "#131321";
+    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
+    c.drawImage(cache2.images.libraryBackground, sx(0), sy(0));
+    const elder = castleLibraryPoint(6, 3), elderSprite = cache2.images.librarian;
+    const heroFrame = motion && cam.t < 1 ? heroGaitFrame(motion, cam.t) : 0;
+    const heroKey = "hero_" + room.facing + "_" + heroFrame;
+    const heroSprite = cache2.images[heroKey];
+    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
+    lastHeroSprite = heroKey;
+    const actors2 = [
+      { y: elder.y, draw: () => {
+        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
+      } },
+      { y: cam.player.y, draw: () => {
+        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
+        c.fillStyle = "#10132575";
+        c.beginPath();
+        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
+        c.fill();
+        c.drawImage(heroSprite, x, y);
+      } }
+    ];
+    actors2.sort((a, b) => a.y - b.y);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache2.images.libraryForeground, sx(0), sy(0));
+    c.restore();
+    return true;
+  }
+
+  // src/game/interiors.mjs
+  var ENTRIES = Object.freeze([
+    {
+      id: "castle-library",
+      map: "castle",
+      door: { x: 1, y: 7 },
+      name: "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u30FB\u66F8\u5EAB",
+      theme: "library",
+      keeper: "\u66F8\u5EAB\u756A",
+      words: ["\u66F8\u5EAB\u756A\u300C\u57CE\u306B\u53E4\u304F\u304B\u3089\u6B8B\u308B\u5730\u56F3\u306F\u3001\u5192\u967A\u8005\u306E\u9053\u3057\u308B\u3079\u306B\u306A\u308B\u3093\u3060\u300D", "\u66F8\u5EAB\u756A\u300C\u56F0\u3063\u305F\u3089\u3001\u753A\u306E\u4EBA\u306E\u8A71\u3092\u805E\u3044\u3066\u307F\u308B\u3068\u3044\u3044\u3088\u300D"]
+    },
+    {
+      id: "leaf-west-home",
+      map: "leaf",
+      door: { x: 3, y: 17 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u4ED5\u7ACB\u3066\u5C4B\u306E\u5BB6",
+      theme: "home",
+      keeper: "\u4ED5\u7ACB\u3066\u5C4B",
+      words: ["\u4ED5\u7ACB\u3066\u5C4B\u300C\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u670D\u3092\u3001\u307F\u3093\u306A\u3067\u7E55\u3063\u3066\u3044\u308B\u3093\u3060\u300D", "\u4ED5\u7ACB\u3066\u5C4B\u300C\u6D1E\u7A9F\u3078\u884C\u304F\u306A\u3089\u7121\u7406\u3092\u3057\u306A\u3044\u3067\u306D\u300D"]
+    },
+    {
+      id: "leaf-east-home",
+      map: "leaf",
+      door: { x: 23, y: 17 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u6751\u4EBA\u306E\u5BB6",
+      theme: "home",
+      keeper: "\u30EA\u30FC\u30D5\u30A1\u306E\u4F4F\u4EBA",
+      words: ["\u6751\u4EBA\u300C\u9B54\u7269\u304C\u3044\u306A\u304F\u306A\u308C\u3070\u3001\u307E\u305F\u753A\u3082\u8CD1\u3084\u304B\u306B\u306A\u308B\u3088\u300D", "\u6751\u4EBA\u300C\u65C5\u306E\u4EBA\u3082\u3001\u3053\u306E\u753A\u3067\u306F\u5927\u5207\u306A\u304A\u5BA2\u3055\u3093\u3055\u300D"]
+    },
+    {
+      id: "leaf-inn",
+      map: "leaf",
+      door: { x: 2, y: 8 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u4EBA\u306E\u5BBF",
+      theme: "inn",
+      keeper: "\u5BBF\u306E\u5973\u5C06",
+      service: "inn",
+      words: ["\u5BBF\u306E\u5973\u5C06\u300C\u75B2\u308C\u305F\u8DB3\u3092\u4F11\u3081\u3066\u3044\u304D\u306A\u3055\u3044\u3002\u6E29\u304B\u306A\u5BDD\u5E8A\u3092\u7528\u610F\u3057\u307E\u3059\u300D"]
+    },
+    {
+      id: "leaf-shop",
+      map: "leaf",
+      door: { x: 14, y: 8 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u306E\u9053\u5177\u5C4B",
+      theme: "shop",
+      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
+      service: "shop",
+      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u4F55\u304C\u5FC5\u8981\u304B\u3001\u68DA\u3092\u898B\u3066\u304B\u3089\u6C7A\u3081\u3066\u304A\u304F\u308C\u300D"]
+    },
+    {
+      id: "sailun-inn",
+      map: "sailun",
+      door: { x: 4, y: 9 },
+      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u6F6E\u98A8\u306E\u5BBF",
+      theme: "harbor-inn",
+      keeper: "\u5BBF\u306E\u4E3B\u4EBA",
+      service: "inn",
+      words: ["\u5BBF\u306E\u4E3B\u4EBA\u300C\u6E2F\u3092\u884C\u304D\u4EA4\u3046\u8239\u306E\u4EBA\u3082\u3001\u3053\u3053\u3067\u591C\u3092\u660E\u304B\u3059\u3093\u3060\u300D"]
+    },
+    {
+      id: "sailun-shop",
+      map: "sailun",
+      door: { x: 16, y: 9 },
+      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u8239\u5177\u3068\u9053\u5177\u306E\u5E97",
+      theme: "harbor-shop",
+      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
+      service: "shop",
+      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u6D77\u306E\u9053\u5177\u3082\u3001\u65C5\u306B\u5F79\u7ACB\u3064\u3082\u306E\u3082\u63C3\u3048\u3066\u3044\u308B\u3088\u300D"]
+    }
+  ]);
+  var W = 12;
+  var H = 10;
+  var ENTRY = { x: 6, y: 8 };
+  var blocked = /* @__PURE__ */ new Set(["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"]);
+  var SLOTS = ["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"];
+  var PRESETS = {
+    "castle-library": [
+      ["shelf", "\u6B74\u53F2\u66F8\u306E\u68DA", "\u3053\u306E\u56FD\u306E\u53E4\u3044\u5730\u56F3\u304C\u4F55\u518A\u3082\u3042\u308B\u3002\u3069\u308C\u3082\u9053\u304C\u5C11\u3057\u305A\u3064\u9055\u3046\u3002"],
+      ["shelf", "\u65C5\u306E\u8A18\u9332", "\u4ED6\u56FD\u306E\u8A00\u8449\u3067\u66F8\u304B\u308C\u305F\u65C5\u306E\u8A18\u9332\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["scrollcase", "\u5DFB\u7269\u68DA", "\u53E4\u3044\u5199\u672C\u304C\u4E01\u5BE7\u306B\u5DFB\u304B\u308C\u3066\u3044\u308B\u3002\u8AB0\u304B\u304C\u3053\u3053\u3067\u5B88\u308A\u7D9A\u3051\u305F\u306E\u3060\u308D\u3046\u3002"],
+      ["shelf", "\u661F\u306E\u8A18\u9332", "\u7D30\u304B\u306A\u661F\u56F3\u304C\u63CF\u304B\u308C\u3066\u3044\u308B\u3002\u8A18\u3055\u308C\u305F\u5E74\u6708\u306F\u3059\u3067\u306B\u6D88\u3048\u3066\u3044\u305F\u3002"],
+      ["table", "\u8AAD\u66F8\u673A", "\u624B\u5165\u308C\u3055\u308C\u305F\u7FBD\u6839\u30DA\u30F3\u3068\u3001\u8AAD\u307F\u304B\u3051\u306E\u672C\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
+      ["crate", "\u4FDD\u7BA1\u7BB1", "\u6E7F\u6C17\u3092\u9632\u3050\u5E03\u3067\u5927\u5207\u306A\u6587\u66F8\u304C\u5305\u307E\u308C\u3066\u3044\u305F\u3002"],
+      ["window", "\u66F8\u5EAB\u306E\u7A93", "\u9AD8\u3044\u7A93\u304B\u3089\u3001\u9060\u304F\u306E\u753A\u4E26\u307F\u306B\u5149\u304C\u5DEE\u3057\u8FBC\u3093\u3067\u3044\u308B\u3002"],
+      ["globe", "\u53E4\u3044\u5730\u7403\u5100", "\u5927\u9678\u306E\u6771\u7AEF\u306F\u307E\u3060\u7A7A\u767D\u3060\u3002\u66F8\u5EAB\u756A\u3082\u305D\u306E\u5148\u3092\u77E5\u3089\u306A\u3044\u3089\u3057\u3044\u3002"]
+    ],
+    "leaf-west-home": [
+      ["wardrobe", "\u4ED5\u7ACB\u3066\u68DA", "\u4ED5\u7ACB\u3066\u9014\u4E2D\u306E\u65C5\u88C5\u304C\u80A9\u3092\u4E26\u3079\u3066\u3044\u308B\u3002"],
+      ["fabric", "\u5E03\u306E\u5C71", "\u4E08\u592B\u306A\u5E03\u3068\u3001\u5B50\u3069\u3082\u7528\u306E\u5C0F\u3055\u306A\u4E0A\u7740\u304C\u7A4D\u307E\u308C\u3066\u3044\u308B\u3002"],
+      ["loom", "\u6A5F\u7E54\u308A\u6A5F", "\u8DB3\u8E0F\u307F\u3067\u52D5\u304F\u6A5F\u7E54\u308A\u6A5F\u3002\u4FEE\u7E55\u306E\u305F\u3081\u306B\u4F55\u5EA6\u3082\u4F7F\u308F\u308C\u3066\u3044\u308B\u3002"],
+      ["fabric", "\u7CF8\u3068\u91DD", "\u67D3\u3081\u305F\u7CF8\u304C\u8272\u3054\u3068\u306B\u5DFB\u304B\u308C\u3001\u91DD\u304C\u5C0F\u7BB1\u306B\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["sewing", "\u88C1\u7E2B\u53F0", "\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u7834\u308C\u305F\u8896\u304C\u3001\u4E00\u91DD\u305A\u3064\u7E2B\u3044\u5408\u308F\u3055\u308C\u3066\u3044\u308B\u3002"],
+      ["crate", "\u670D\u306E\u6728\u7BB1", "\u6D17\u3044\u305F\u3066\u306E\u8863\u670D\u304C\u5E03\u306B\u5305\u307E\u308C\u3066\u3044\u308B\u3002"],
+      ["window", "\u5C0F\u3055\u306A\u7A93", "\u7A93\u306E\u5916\u306B\u306F\u3001\u30EA\u30FC\u30D5\u30A1\u306E\u5E83\u5834\u304C\u898B\u3048\u308B\u3002"],
+      ["vase", "\u767D\u3044\u82B1", "\u5C0F\u3055\u306A\u82B1\u304C\u4E00\u8F2A\u3002\u8584\u6697\u3044\u90E8\u5C4B\u304C\u307B\u3093\u306E\u5C11\u3057\u660E\u308B\u304F\u306A\u308B\u3002"]
+    ],
+    "leaf-east-home": [
+      ["shelf", "\u601D\u3044\u51FA\u306E\u68DA", "\u5BB6\u65CF\u306E\u53E4\u3044\u5199\u771F\u7ACB\u3066\u3068\u3001\u65C5\u5148\u3067\u62FE\u3063\u305F\u5C0F\u77F3\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["cupboard", "\u98DF\u5668\u68DA", "\u6B20\u3051\u305F\u76BF\u3082\u5927\u5207\u306B\u4E26\u3079\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["hearth", "\u6696\u7089", "\u7070\u306F\u307E\u3060\u6E29\u304B\u3044\u3002\u8AB0\u304B\u304C\u3055\u3063\u304D\u307E\u3067\u706B\u3092\u711A\u3044\u3066\u3044\u305F\u3002"],
+      ["cupboard", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u305F\u91CE\u83DC\u3068\u9EA6\u306E\u888B\u3002\u51AC\u306B\u5099\u3048\u3066\u96C6\u3081\u305F\u98DF\u6599\u3060\u3002"],
+      ["table", "\u5915\u98DF\u306E\u673A", "\u4E09\u4EBA\u5206\u306E\u6728\u306E\u5668\u3068\u3001\u5C11\u3057\u3060\u3051\u6B8B\u3063\u305F\u30D1\u30F3\u304C\u3042\u308B\u3002"],
+      ["crate", "\u85AA\u5165\u308C", "\u3088\u304F\u4E7E\u304B\u3057\u305F\u85AA\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
+      ["window", "\u901A\u308A\u306E\u7A93", "\u901A\u308A\u306B\u306F\u4EBA\u304C\u623B\u308A\u3001\u5C11\u3057\u305A\u3064\u65E5\u5E38\u3092\u53D6\u308A\u623B\u3057\u3066\u3044\u308B\u3002"],
+      ["vase", "\u7A93\u8FBA\u306E\u9262", "\u5BB6\u306E\u4EBA\u304C\u80B2\u3066\u3066\u3044\u308B\u3001\u5C0F\u3055\u306A\u7DD1\u306E\u9262\u690D\u3048\u3002"]
+    ],
+    "leaf-inn": [
+      ["bed", "\u65C5\u4EBA\u306E\u5BDD\u5E8A", "\u6E05\u6F54\u306A\u5BDD\u5177\u304C\u63C3\u3063\u3066\u3044\u308B\u3002\u3053\u3053\u306A\u3089\u75B2\u308C\u3092\u53D6\u308C\u305D\u3046\u3060\u3002"],
+      ["bed", "\u7A93\u969B\u306E\u5BDD\u5E8A", "\u6BDB\u5E03\u304C\u4E01\u5BE7\u306B\u7573\u307E\u308C\u3066\u3044\u308B\u3002"],
+      ["cupboard", "\u5BBF\u306E\u98DF\u5668\u68DA", "\u5BA2\u4EBA\u7528\u306E\u6E6F\u98F2\u307F\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["shelf", "\u65C5\u306E\u6848\u5185\u68DA", "\u8857\u9053\u306E\u9053\u9806\u3092\u66F8\u3044\u305F\u5C0F\u3055\u306A\u7D19\u304C\u3042\u308B\u3002"],
+      ["table", "\u5BBF\u306E\u671D\u98DF\u53F0", "\u6E29\u304B\u306A\u30B9\u30FC\u30D7\u306E\u9999\u308A\u304C\u3059\u308B\u3002"],
+      ["crate", "\u65C5\u4EBA\u306E\u8377\u7269\u7BB1", "\u5BA2\u304C\u9810\u3051\u305F\u8377\u7269\u306B\u306F\u3001\u4E00\u3064\u3072\u3068\u3064\u672D\u304C\u4ED8\u3044\u3066\u3044\u308B\u3002"],
+      ["window", "\u671D\u65E5\u306E\u7A93", "\u671D\u306B\u306A\u308B\u3068\u3001\u3053\u3053\u304B\u3089\u3084\u3055\u3057\u3044\u5149\u304C\u5DEE\u3059\u3002"],
+      ["vase", "\u5BBF\u306E\u82B1", "\u67AF\u3089\u3055\u306A\u3044\u3088\u3046\u3001\u6BCE\u65E5\u6C34\u304C\u66FF\u3048\u3089\u308C\u3066\u3044\u308B\u3002"]
+    ],
+    "leaf-shop": [
+      ["shelf", "\u65C5\u306E\u9053\u5177\u68DA", "\u56DE\u5FA9\u85AC\u3084\u5305\u5E2F\u306A\u3069\u304C\u7528\u9014\u3054\u3068\u306B\u6574\u7406\u3055\u308C\u3066\u3044\u308B\u3002"],
+      ["shelf", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u8089\u3068\u6728\u306E\u6C34\u7B52\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["cupboard", "\u4E88\u5099\u306E\u85AC\u7BB1", "\u3044\u3056\u3068\u3044\u3046\u3068\u304D\u306E\u305F\u3081\u306E\u85AC\u304C\u304D\u3061\u3093\u3068\u3057\u307E\u308F\u308C\u3066\u3044\u308B\u3002"],
+      ["fabric", "\u65C5\u88C5\u306E\u5E03", "\u96E8\u3088\u3051\u306E\u5916\u5957\u304C\u4F55\u679A\u304B\u639B\u3051\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["counter", "\u9053\u5177\u5C4B\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u5E97\u306E\u4E3B\u4EBA\u304C\u6BCE\u671D\u78E8\u3044\u3066\u3044\u308B\u6728\u306E\u30AB\u30A6\u30F3\u30BF\u30FC\u3002"],
+      ["crate", "\u88DC\u5145\u5F85\u3061\u306E\u7BB1", "\u6E2F\u304B\u3089\u5C4A\u3044\u305F\u54C1\u306E\u8377\u672D\u304C\u3064\u3044\u3066\u3044\u308B\u3002"],
+      ["window", "\u901A\u308A\u306E\u7A93", "\u30EA\u30FC\u30D5\u30A1\u306E\u4EBA\u305F\u3061\u304C\u8CB7\u3044\u7269\u306B\u7ACB\u3061\u5BC4\u3063\u3066\u3044\u308B\u3002"],
+      ["vase", "\u5C0F\u3055\u306A\u98FE\u308A", "\u6728\u5F6B\u308A\u306E\u304A\u5B88\u308A\u304C\u3001\u68DA\u306E\u9685\u306B\u98FE\u3089\u308C\u3066\u3044\u308B\u3002"]
+    ],
+    "sailun-inn": [
+      ["bed", "\u8239\u4E57\u308A\u306E\u5BDD\u5E8A", "\u9577\u65C5\u306E\u8239\u4E57\u308A\u3092\u8FCE\u3048\u308B\u9811\u4E08\u306A\u6728\u306E\u5BDD\u53F0\u3002"],
+      ["bed", "\u6CE2\u97F3\u306E\u5BDD\u5E8A", "\u7720\u308B\u3068\u3001\u7A93\u306E\u5916\u304B\u3089\u6CE2\u306E\u97F3\u304C\u805E\u3053\u3048\u308B\u3002"],
+      ["cupboard", "\u8239\u5BA2\u306E\u98DF\u5668\u68DA", "\u539A\u624B\u306E\u5668\u306F\u3001\u63FA\u308C\u308B\u8239\u3067\u3082\u5272\u308C\u306B\u304F\u3044\u3002"],
+      ["shelf", "\u6D77\u56F3\u306E\u68DA", "\u6E2F\u304B\u3089\u5317\u3078\u4F38\u3073\u308B\u822A\u8DEF\u304C\u66F8\u304B\u308C\u3066\u3044\u308B\u3002"],
+      ["table", "\u6E2F\u5BBF\u306E\u98DF\u4E8B\u53F0", "\u9B5A\u306E\u716E\u8FBC\u307F\u304C\u6E6F\u6C17\u3092\u7ACB\u3066\u3066\u3044\u308B\u3002"],
+      ["barrel", "\u6C34\u306E\u6A3D", "\u8239\u304B\u3089\u904B\u3093\u3060\u771F\u6C34\u304C\u84C4\u3048\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["window", "\u6E2F\u306E\u7A93", "\u505C\u6CCA\u3057\u3066\u3044\u308B\u5C0F\u821F\u306E\u5E06\u304C\u98A8\u306B\u63FA\u308C\u3066\u3044\u308B\u3002"],
+      ["vase", "\u6D5C\u306E\u82B1", "\u6F6E\u98A8\u306B\u3082\u8CA0\u3051\u305A\u54B2\u304F\u3001\u5C0F\u3055\u306A\u9EC4\u8272\u3044\u82B1\u3002"]
+    ],
+    "sailun-shop": [
+      ["shelf", "\u65C5\u306E\u88C5\u5099\u68DA", "\u4E08\u592B\u306A\u9769\u7D10\u3068\u9632\u6C34\u888B\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
+      ["shelf", "\u8239\u5177\u68DA", "\u6ED1\u8ECA\u3084\u30ED\u30FC\u30D7\u306A\u3069\u3001\u8239\u306E\u4FEE\u7406\u306B\u5FC5\u8981\u306A\u9053\u5177\u304C\u3042\u308B\u3002"],
+      ["cupboard", "\u91D1\u5C5E\u306E\u88C5\u5099\u7BB1", "\u78E8\u304B\u308C\u305F\u91D1\u5177\u304C\u6574\u7136\u3068\u53CE\u3081\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["barrel", "\u5E06\u5E03\u306E\u675F", "\u6F6E\u98A8\u306B\u3082\u4E08\u592B\u306A\u5E06\u5E03\u304C\u4E38\u304F\u675F\u306D\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["counter", "\u6E2F\u753A\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u65C5\u4EBA\u3068\u8239\u4E57\u308A\u304C\u4EA4\u308F\u3059\u3001\u53E4\u3044\u5546\u8AC7\u306E\u8DE1\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
+      ["crate", "\u6D77\u8DEF\u306E\u8377\u7BB1", "\u6E2F\u3078\u5C4A\u3044\u305F\u3070\u304B\u308A\u306E\u54C1\u304C\u5C01\u3092\u3055\u308C\u305F\u307E\u307E\u7F6E\u3044\u3066\u3042\u308B\u3002"],
+      ["window", "\u6F6E\u98A8\u306E\u7A93", "\u5916\u304B\u3089\u6F6E\u306E\u9999\u308A\u3068\u3001\u30AB\u30E2\u30E1\u306E\u58F0\u304C\u5C4A\u304F\u3002"],
+      ["globe", "\u5C0F\u3055\u306A\u822A\u6D77\u56F3", "\u30BB\u30A4\u30EB\u30F3\u304B\u3089\u5317\u306E\u5CAC\u307E\u3067\u3001\u5371\u967A\u306A\u6D45\u702C\u304C\u66F8\u304D\u8FBC\u307E\u308C\u3066\u3044\u308B\u3002"]
+    ]
+  };
+  var ROOM_FURNISHINGS = new Map(Object.entries(PRESETS).map(([id, items]) => {
+    if (items.length !== SLOTS.length) throw Error("Interior item layout mismatch: " + id);
+    return [id, new Map(items.map(([kind, name, description], i) => [
+      SLOTS[i],
+      Object.freeze({ kind, name, description })
+    ]))];
+  }));
+  function interiorFixtures(room) {
+    const items = ROOM_FURNISHINGS.get(room.id);
+    if (!items) throw Error("Unknown furnished interior: " + room.id);
+    return items;
+  }
+  var resident = { x: 6, y: 3 };
+  function enterableDoor(pos) {
+    const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[pos.facing];
+    return ENTRIES.find((e) => e.map === pos.map && e.door.x === pos.x + delta[0] && e.door.y === pos.y + delta[1]) || null;
+  }
+  function makeInterior(door) {
+    if (!ENTRIES.some((e) => e.id === door.id)) throw Error("Unknown interior");
+    return { id: door.id, x: ENTRY.x, y: ENTRY.y, facing: "up" };
+  }
+  function interiorDefinition(room) {
+    const definition = ENTRIES.find((e) => e.id === room.id);
+    if (!definition) throw Error("Unknown interior " + room.id);
+    return definition;
+  }
+  function moveInside(room, dir) {
+    if (!["up", "down", "left", "right"].includes(dir)) throw Error("Direction invalid");
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
+    const x = room.x + dx, y = room.y + dy;
+    if (x === 6 && y === 9) return { kind: "exit", room: null };
+    const facing = { ...room, facing: dir };
+    if (x <= 0 || y <= 1 || x >= W - 1 || y >= H - 1 || blocked.has(x + "," + y) || x === resident.x && y === resident.y)
+      return { kind: "blocked", room: facing };
+    return { kind: "walk", room: { ...facing, x, y } };
+  }
+  function interiorTarget(room) {
+    const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    if (!d) throw Error("Invalid interior direction");
+    return { x: room.x + d[0], y: room.y + d[1] };
+  }
+  function investigateInside(room) {
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    const x = room.x + dx, y = room.y + dy;
+    const definition = interiorDefinition(room);
+    if (x === resident.x && y === resident.y) return definition.words;
+    const item = interiorFixtures(room).get(x + "," + y);
+    if (item) return [item.description];
+    if (x === 6 && y === 9) return ["\u6249\u304B\u3089\u5916\u3078\u623B\u308C\u308B\u3002\u4E0B\u3078\u6B69\u3053\u3046\u3002"];
+    return ["\u3042\u305F\u308A\u3092\u8ABF\u3079\u305F\u3002\u5BB6\u5177\u3084\u751F\u6D3B\u306E\u9053\u5177\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"];
+  }
+  function interiorPrompt(room) {
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    const x = room.x + dx, y = room.y + dy;
+    if (x === resident.x && y === resident.y) {
+      const def = interiorDefinition(room);
+      return def.service === "inn" ? "A  \u5BBF\u6CCA\u3059\u308B" : def.service === "shop" ? "A  \u8CB7\u3044\u7269\u3092\u3059\u308B" : "A  " + def.keeper + "\u3068\u8A71\u3059";
+    }
+    const fixture = interiorFixtures(room).get(x + "," + y);
+    if (fixture) return "A  " + fixture.name + "\u3092\u8ABF\u3079\u308B";
+    return "";
   }
 
   // src/game/room-scene-art.mjs
@@ -18572,7 +18711,7 @@
     }
     return drawables;
   }
-  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, pixels = null) {
+  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, pixels = null, follower = null) {
     const zoom = pixels?.worldScale ?? 1;
     const W2 = Math.ceil(canvas.width / zoom), H2 = Math.ceil(canvas.height / zoom);
     const c = canvas.getContext("2d", { alpha: false });
@@ -18663,6 +18802,10 @@
       const f = motion && v.t < 1 ? heroGaitFrame(motion, v.t) : 0;
       paintSharedHero(ctx, x + TILE / 2, y + TILE, s.pos.facing, f, 0.4, s.equipment.weapon);
     } });
+    if (follower) drawables.push({ x: follower.x, y: follower.y, depth: follower.y + 0.11, draw: (ctx, screenFn) => {
+      const [x, y] = screenFn(follower.x, follower.y);
+      paintActor(ctx, x, y, follower.sprite, follower.facing, follower.frame);
+    } });
     drawables.sort((a, b) => a.depth - b.depth);
     for (const actor of drawables) {
       const [x, y] = screen(actor.x, actor.y);
@@ -18743,6 +18886,9 @@
     ctx.imageSmoothingEnabled = false;
     const now = performance.now();
     const layout = paintSfcBattleBackground(ctx, W2, H2, area);
+    const party = b.guest ? battleFormationSlots(W2, H2, { allies: 2 }).allies : null;
+    const heroX = party?.[0].x ?? layout.heroX;
+    const companion = party?.[1];
     const progress = impact?.reduced ? 0.25 : combatFeedbackProgress(impact, now);
     const moving = impact && !impact.reduced && impact.phase !== "impact";
     const attacking = moving && impact.type === "blade" && progress < 0.7;
@@ -18777,10 +18923,23 @@
       }
     }
     ctx.save();
-    if (hurt && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
-    paintSharedHero(ctx, layout.heroX - advance + recoil + retreat, layout.foot, "left", 0, layout.heroScale, s.equipment.weapon);
+    if (hurt && impact.ally !== "guest" && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
+    paintSharedHero(ctx, heroX - (impact?.guestActor ? 0 : advance) + (impact?.ally === "guest" ? 0 : recoil) + retreat, layout.foot, "left", 0, layout.heroScale, s.equipment.weapon);
     ctx.restore();
-    paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, ...effects[impact?.enemySlot] ?? effects[0] });
+    if (b.guest?.hp > 0) {
+      const size = layout.heroScale * 2.8;
+      ctx.save();
+      if (hurt && impact.ally === "guest" && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
+      ctx.translate(companion.x - (impact?.guestActor ? advance : 0) + (impact?.ally === "guest" ? recoil : 0) + retreat, companion.feet);
+      ctx.scale(size, size);
+      paintActor(ctx, -TILE / 2, -TILE, b.guest.sprite, "left", 0);
+      ctx.restore();
+    }
+    paintSfcBattleEffects(ctx, W2, H2, impact, now, {
+      ...layout,
+      heroX: impact?.ally === "guest" ? companion.x : heroX,
+      ...effects[impact?.enemySlot] ?? effects[0]
+    });
     for (const enemy of b.enemies) {
       const { enemyX: x, enemyFoot: feet, enemySize: size } = effects[enemy.slot];
       const defeated = impact?.enemySlot === enemy.slot && impact.defeated && progress < 0.85;
@@ -18805,7 +18964,7 @@
       ctx.textAlign = "center";
       ctx.font = "bold 11px sans-serif";
       ctx.fillStyle = "#d6f3e3";
-      ctx.fillText("\u5B88\u308A\u306E\u5149", layout.heroX, 51);
+      ctx.fillText("\u5B88\u308A\u306E\u5149", heroX, 51);
     }
     ctx.textAlign = "left";
   }
@@ -19066,6 +19225,8 @@
   var walkMotion = null;
   var walkFrame = 0;
   var walkStep = 0;
+  var followerTrail = null;
+  var pendingHeroAction = null;
   var interior = null;
   var roomMotion = null;
   var roomFrame = 0;
@@ -19112,6 +19273,7 @@
   function storeAndSet(next, autoSave = false) {
     validateState(next);
     if (autoSave) auto.write(next);
+    if (state && (state.stage !== next.stage || state.pos.map !== next.pos.map || Math.abs(state.pos.x - next.pos.x) + Math.abs(state.pos.y - next.pos.y) > 1)) followerTrail = null;
     state = next;
     paint();
   }
@@ -19156,7 +19318,26 @@
     const pixels = Math.max(175, Math.min(560, Math.round(desiredWidth * rect3.height / rect3.width)));
     if (canvas.height !== pixels) canvas.height = pixels;
   }
+  function followerPosition() {
+    const guest = chapterGuest(state.stage);
+    if (!guest) return null;
+    const { map, x, y, facing } = state.pos;
+    const offsets = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] };
+    const [dx, dy] = offsets[facing];
+    const rest2 = followerTrail?.to ?? { x: x + dx, y: y + dy, facing };
+    if (!followerTrail && (tileBlocked(state, MAPS[map], rest2.x, rest2.y) || entityAt(state, MAPS[map], rest2.x, rest2.y))) return null;
+    const from = followerTrail?.from ?? rest2;
+    const t = walkMotion ? Math.min(1, (performance.now() - walkMotion.start) / walkMotion.duration) : 1;
+    return {
+      ...guest,
+      ...rest2,
+      x: from.x + (rest2.x - from.x) * t,
+      y: from.y + (rest2.y - from.y) * t,
+      frame: t < 1 && (from.x !== rest2.x || from.y !== rest2.y) ? 1 + walkMotion.step % 2 : 0
+    };
+  }
   function paintCurrentWorld() {
+    const follower = followerPosition();
     if (state.pos.map === "castle") {
       if (!castleArtReady()) throw Error("Approved castle art not loaded");
       const page = introPage(state);
@@ -19166,8 +19347,8 @@
         page: shot2?.page ?? page,
         raiderY: shot2?.raiderY,
         swordGlow: shot2?.swordGlow
-      }, explorationPixels);
-    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing, explorationPixels);
+      }, explorationPixels, follower);
+    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing, explorationPixels, follower);
   }
   function paintCurrentRoom() {
     if (interior?.id === "castle-library") {
@@ -19176,7 +19357,7 @@
     } else drawRoom($("game"), interior, roomMotion, explorationPixels);
   }
   function drawBattle() {
-    const display = battleDisplay ? { ...battle, enemies: battleDisplay.enemies, ward: battleDisplay.ward } : battle;
+    const display = battleDisplay ? { ...battle, enemies: battleDisplay.enemies, ward: battleDisplay.ward, guest: battleDisplay.guest } : battle;
     drawFight($("game"), state, display, battleFx, battleArea, menuChoices[menuIndex]?.targetSlot);
   }
   var displayedLocation = "";
@@ -19250,15 +19431,11 @@
     status.classList.toggle("is-damaged", Boolean(battleFx?.playerDamage));
     if (battle) {
       const player = battleDisplay?.player ?? state.player;
-      $("battle-status-name").textContent = state.name + "  Lv." + player.level;
-      for (const [key, max] of [["hp", maxHp(player.level)], ["mp", maxMp(player.level)]]) {
-        const value = player[key];
-        $(`battle-status-${key}`).textContent = key.toUpperCase() + " " + value;
-        const bar = $(`battle-${key}-bar`);
-        bar.max = max;
-        bar.value = value;
-        bar.dataset.remaining = value <= max * 0.25 ? "critical" : value <= max * 0.5 ? "low" : "normal";
-      }
+      const guest = battleDisplay?.guest ?? battle.guest;
+      $("battle-guest").hidden = !guest;
+      status.classList.toggle("has-guest", Boolean(guest));
+      paintBattleStatus("battle", state.name + "  Lv." + player.level, player, maxHp(player.level), maxMp(player.level));
+      if (guest) paintBattleStatus("guest", guest.name + (guest.hp ? "" : " \xB7 \u6226\u95D8\u4E0D\u80FD"), guest, guest.maxHp, guest.maxMp);
     }
     for (const [index, button] of battleButtons.entries()) button.disabled = Boolean(battleEnding || page && !battle || queue.length > 0 && (Boolean(battle) || index !== 0));
     const milestone = queue.find((line) => /【第一幕クリア】|【第二幕クリア】|【第三幕】|【終幕】/.test(line));
@@ -19266,6 +19443,20 @@
     $("completion").textContent = milestone?.includes("\u7D42\u5E55") ? "\u2726 THE END \xB7 \u661F\u5C51\u306E\u52C7\u8005" : milestone?.includes("\u7B2C\u4E09\u5E55") ? "\u2726 \u9ED2\u66DC\u57CE\u306E\u7D50\u754C\u89E3\u9664\uFF01" : milestone?.includes("\u7B2C\u4E8C\u5E55") ? "\u2726 \u9ECE\u660E\u306E\u93E1 \u5165\u624B\uFF01" : "\u2726 \u9244\u306E\u9580 \u958B\u901A\uFF01";
     $("chapter").textContent = state.stage === "CLEAR" ? "\u7D42\u5E55 \xB7 \u5192\u967A\u306E\u5B8C\u7D50" : state.stage === "S09" ? "\u7D42\u7AE0 \xB7 \u5E30\u9084" : state.stage === "S08" ? "\u7B2C\u4E09\u5E55 \xB7 \u9ED2\u66DC\u57CE" : state.stage === "S07" ? "\u7B2C\u4E09\u5E55 \xB7 \u95C7\u306E\u7D50\u754C" : ["S05", "S06"].includes(state.stage) ? "\u7B2C\u4E8C\u5E55 \xB7 \u9ECE\u660E\u306E\u93E1" : "\u7B2C\u4E00\u5E55 \xB7 \u306F\u3058\u307E\u308A";
     if (battle) drawBattle();
+  }
+  function paintBattleStatus(prefix, name, unit, hp, mp) {
+    $(prefix + "-status-name").textContent = name;
+    for (const [key, max] of [["hp", hp], ["mp", mp]]) {
+      const value = unit[key];
+      const remaining = value <= max * 0.25 ? "critical" : value <= max * 0.5 ? "low" : "normal";
+      const label = $(prefix + "-status-" + key);
+      label.textContent = key.toUpperCase() + " " + value + (battle.guest ? "/" + max : "");
+      label.dataset.remaining = remaining;
+      const bar = $(prefix + "-" + key + "-bar");
+      bar.max = max;
+      bar.value = value;
+      bar.dataset.remaining = remaining;
+    }
   }
   function message(lines) {
     queue = lines.filter(Boolean).map(String);
@@ -19453,7 +19644,7 @@
   }
   function showBattleMessage(cue) {
     if (!cue) return;
-    const { type, action, enemyHp, mp, ward, healing, damage = 0, targetSlot, actorSlot } = cue;
+    const { type, action, enemyHp, mp, ward, healing, damage = 0, targetSlot, actorSlot, ally, guestMp, escaping } = cue;
     const display = battleDisplay;
     if (type === "hero") {
       const target = targetSlot === void 0 ? "hero" : "enemy";
@@ -19474,12 +19665,40 @@
           display.player.hp += healing;
         }
       } : null);
+    } else if (type === "guest") {
+      display.guest.mp = guestMp;
+      audio.cue(escaping ? "run" : healing ? "heal" : damage ? "attack" : "confirm");
+      if (escaping) showBattleEffect({ type: "escape", target: "hero", duration: 230 });
+      const visual = healing ? "item" : "blade";
+      if (healing || damage) showBattleEffect({
+        type: visual,
+        target: targetSlot === void 0 ? "hero" : "enemy",
+        enemySlot: targetSlot,
+        guestActor: true,
+        ally,
+        duration: 200
+      }, {
+        phase: "impact",
+        type: visual,
+        enemySlot: targetSlot,
+        guestActor: true,
+        ally,
+        duration: 350,
+        enemyDamage: damage,
+        healing,
+        defeated: enemyHp === 0,
+        update: () => {
+          if (targetSlot !== void 0) display.enemies[targetSlot].hp = enemyHp;
+          if (healing) display[ally === "guest" ? "guest" : "player"].hp += healing;
+        }
+      });
     } else if (type === "enemy" || type === "dark" || type === "poison") {
-      const effect = { type, target: "hero", enemySlot: actorSlot, duration: 230 };
+      const effect = { type, target: "hero", ally, enemySlot: actorSlot, duration: 230 };
       if (type !== "poison") audio.cue(type === "dark" ? "spell" : "attack");
-      const impact = damage ? { phase: "impact", type, duration: 620, playerDamage: damage, update: () => {
+      const impact = damage ? { phase: "impact", type, ally, duration: 620, playerDamage: damage, update: () => {
         audio.cue("hit");
-        display.player.hp = Math.max(0, display.player.hp - damage);
+        const recipient = ally === "guest" ? display.guest : display.player;
+        recipient.hp = Math.max(0, recipient.hp - damage);
       } } : null;
       showBattleEffect(effect, impact);
     } else {
@@ -19492,24 +19711,25 @@
     stopWalkAnimation();
     stopMoving();
     audio.cue("attack");
-    battle = beginCombat(group, tag);
+    battle = beginCombat(group, tag, state.stage);
+    pendingHeroAction = null;
     const map = state.pos.map;
     battleArea = ["castle", "cave", "ruins", "onyx"].includes(map) ? map : monsterById(battle.id).area;
     const foes = battle.enemies.map((enemy) => enemy.name).join("\u3001");
     closePanel();
     message([...lines, tag === "tutorial" ? INTRO_TEXT.fight() : foes + "\u304C\u73FE\u308C\u305F\uFF01"]);
   }
-  function chooseBattleTarget(action, back = battleChoices) {
+  function chooseBattleTarget(action, back = battleChoices, submit = queueHeroAction) {
     if (!battle || queue.length || battleEnding) return;
     const live = battle.enemies.filter((enemy) => enemy.hp > 0);
     if (combatTargetMode(action) !== "enemy" || live.length === 1) {
-      performBattle(action);
+      submit(action);
       return;
     }
     const choices = live.map((enemy) => ({
       label: enemy.name,
       targetSlot: enemy.slot,
-      run: () => performBattle({ ...action, targetSlot: enemy.slot })
+      run: () => submit({ ...action, targetSlot: enemy.slot })
     }));
     openPanel("\u306D\u3089\u3046\u6575", choices, "", () => {
       back();
@@ -19532,24 +19752,85 @@
       fatal(err);
     }
   });
+  function queueHeroAction(action) {
+    if (!battle || queue.length || battleEnding) return;
+    if (!battle.guest?.hp || combatCommandError(state, battle, action)) {
+      performBattle(action);
+      return;
+    }
+    pendingHeroAction = action;
+    guestChoices();
+  }
+  function commitGuestAction(action) {
+    const error = guestCommandError(state, battle, action);
+    if (error) {
+      notice(error);
+      return;
+    }
+    performBattle({ ...pendingHeroAction, guest: action });
+  }
+  function guestChoices() {
+    openPanel(battle.guest.name + "\u306E\u30B3\u30DE\u30F3\u30C9", [
+      { label: "\u305F\u305F\u304B\u3046", run: () => chooseBattleTarget({ type: "attack" }, guestChoices, commitGuestAction) },
+      { label: "\u56FA\u6709\u6280", run: guestSkills },
+      { label: "\u3069\u3046\u3050", run: guestItems }
+    ], "", battleChoices);
+    paint();
+  }
+  function guestSkills() {
+    const choices = battle.guest.skills.map((skill) => ({
+      label: skill.name + (skill.mp ? " / " + skill.mp + "MP" : ""),
+      disabled: battle.guest.mp < skill.mp,
+      run: () => {
+        const action = { type: "skill", id: skill.id };
+        if (combatTargetMode(action) === "ally") chooseGuestAlly(action, guestSkills);
+        else chooseBattleTarget(action, guestSkills, commitGuestAction);
+      }
+    }));
+    openPanel("\u56FA\u6709\u6280", choices, "", guestChoices);
+    paint();
+  }
+  function guestItems() {
+    const choices = CATALOG.items.filter((item) => ["hp", "poison", "damage", "escape"].includes(item.effect) && state.inventory[item.id] > (pendingHeroAction.type === "item" && pendingHeroAction.id === item.id ? 1 : 0)).map((item) => ({
+      label: item.name + " \xD7" + state.inventory[item.id],
+      run: () => {
+        const action = { type: "item", id: item.id };
+        if (["damage", "escape"].includes(item.effect)) chooseBattleTarget(action, guestItems, commitGuestAction);
+        else chooseGuestAlly(action, guestItems);
+      }
+    }));
+    openPanel("\u3069\u3046\u3050", choices, choices.length ? "" : "\u4F7F\u3048\u308B\u9053\u5177\u304C\u306A\u3044\u3002", guestChoices);
+    paint();
+  }
+  function chooseGuestAlly(action, back) {
+    const choices = [["hero", state.name], ["guest", battle.guest.name]].map(([ally, label]) => {
+      const command = { ...action, ally };
+      return { label, disabled: Boolean(guestCommandError(state, battle, command)), run: () => commitGuestAction(command) };
+    });
+    openPanel("\u4F7F\u3046\u76F8\u624B", choices, choices.every((choice) => choice.disabled) ? "\u4F7F\u3048\u308B\u76F8\u624B\u304C\u3044\u306A\u3044\u3002" : "", back);
+    paint();
+  }
   function performBattle(action) {
     if (!battle || queue.length || battleEnding) return;
+    pendingHeroAction = null;
     const result = combatTurn(state, battle, action);
     validateState(result.state);
     if (result.autoSave) auto.write(result.state);
     stopBattleFx();
-    battleDisplay = { player: { ...state.player }, enemies: clone(battle.enemies), ward: battle.ward };
+    battleDisplay = { player: { ...state.player }, enemies: clone(battle.enemies), ward: battle.ward, guest: battle.guest ? { ...battle.guest } : null };
     battleMessages = result.lines.map(() => null);
     for (const cue of result.presentation ?? []) battleMessages[cue.line] = { ...cue, action };
     closePanel();
     battleEnding = result.battle ? null : result.outcome;
     battle = result.battle ?? battle;
+    if (result.outcome === "lost") followerTrail = null;
     state = result.state;
     showBattleMessage(battleMessages[0]);
     message(result.lines);
   }
   function battleChoices() {
     if (!battle || queue.length || battleEnding) return;
+    pendingHeroAction = null;
     stopWalkAnimation();
     closePanel();
     menuChoices = battleButtons.map((button) => ({ run: () => button.click() }));
@@ -19866,6 +20147,9 @@
     if (!["leaf", "sailun"].includes(r2.state.pos.map)) leafNpcFacing = {};
     stopWalkAnimation();
     if (r2.kind === "walk") {
+      const from = followerPosition() ?? previous;
+      const facing = from.x === previous.x ? from.y === previous.y ? previous.facing : from.y > previous.y ? "up" : "down" : from.x > previous.x ? "left" : "right";
+      followerTrail = chapterGuest(state.stage) ? { from, to: { x: previous.x, y: previous.y, facing } } : null;
       walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145, step: walkStep++ };
     }
     if (r2.kind === "portal") audio.cue("run");
@@ -20040,7 +20324,7 @@
   $("menu-button").addEventListener("click", () => {
     if (battle) {
       try {
-        performBattle({ type: "run" });
+        queueHeroAction({ type: "run" });
       } catch (err) {
         fatal(err);
       }
@@ -20050,7 +20334,7 @@
     else showMenu();
   });
   $("panel-close").addEventListener("click", () => {
-    if (panelMode === "\u306D\u3089\u3046\u6575") menuBack?.();
+    if (battle && menuBack && (pendingHeroAction || panelMode === "\u306D\u3089\u3046\u6575")) menuBack();
     else if (battle) battleChoices();
     else closePanel();
   });
@@ -20300,5 +20584,5 @@
   window.addEventListener("resize", () => {
     if (state) paint();
   });
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();

@@ -566,3 +566,22 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
   max-height:calc(100% - var(--edge-top) - var(--edge-bottom))
  }
 }
+
+.battle-member{
+ display:grid;align-content:center;gap:4px;min-width:0
+}
+.battle-status.has-guest{
+ align-content:center;gap:4px;padding-block:4px;line-height:1.15
+}
+.has-guest .battle-member{gap:3px}
+.has-guest .battle-member + .battle-member{border-top:1px solid #8293b366;padding-top:3px}
+.has-guest .battle-resource{grid-template-columns:6em minmax(0,1fr);font-size:10px}
+.battle-resource progress#guest-mp-bar[data-remaining="normal"]{--fill:#7cbaff}
+.battle-resource span[data-remaining="low"]{color:#f1c360}
+.battle-resource span[data-remaining="critical"]{color:#ff9ca0}
+
+@media (orientation:landscape) and (min-width:560px){
+ .battle-status.has-guest{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-right:96px}
+ .has-guest .battle-member + .battle-member{border-top:0;border-left:1px solid #8293b366;padding:0 0 0 8px}
+ .has-guest .battle-resource{max-width:none}
+}
