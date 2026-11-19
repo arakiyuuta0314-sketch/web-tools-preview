@@ -1,4 +1,79 @@
 (() => {
+  // src/game/cast-art.mjs
+  var root = "assets/cast/";
+  var names = Object.freeze({
+    \u30A2\u30EC\u30F3: "allen",
+    \u30ED\u30A4: "roy",
+    \u30A2\u30EB\u30C9\u738B: "aldo",
+    \u30A2\u30EB\u30C9: "aldo",
+    \u30EA\u30BF: "rita",
+    \u30DF\u30CA: "mina",
+    \u30EB\u30AB: "luca",
+    \u30AC\u30EB\u30C9: "gald",
+    \u30EA\u30AA\u30CA: "riona",
+    \u5360\u3044\u5E2B\u30EA\u30AA\u30CA: "riona",
+    \u30AB\u30A4\u30EB: "kyle",
+    \u30F4\u30A9\u30EB\u30C9: "voldo",
+    \u9B54\u738B\u30F4\u30A9\u30EB\u30C9: "voldo"
+  });
+  var cast = [...new Set(Object.values(names))];
+  var sheets = Object.fromEntries([
+    ...cast.map((id) => [id, "cast_" + id + "_4dir.png"]),
+    ...["townsman", "townswoman", "elder"].map((id) => [id, "mob_" + id + "_4dir.png"])
+  ]);
+  var faces = Object.fromEntries(cast.map((id) => ["face_" + id, "face_" + id + ".png"]));
+  var images = {};
+  var loading;
+  function preloadCastArt() {
+    return loading ??= Promise.all(Object.entries({
+      ...sheets,
+      ...faces,
+      throne: "castle_throne_room.png",
+      pedestal: "castle_pedestal.png",
+      poyon: "enemy_poyon.png"
+    }).map(async ([id, file]) => {
+      const image = new Image();
+      image.src = root + file;
+      await image.decode();
+      images[id] = image;
+    }));
+  }
+  function speakerPortrait(speaker, heroName) {
+    const id = Object.hasOwn(names, speaker) ? names[speaker] : speaker && speaker === heroName ? "allen" : null;
+    return id ? root + faces["face_" + id] : null;
+  }
+  function npcCast(npc) {
+    return Object.hasOwn(names, npc.name) ? names[npc.name] : {
+      helper: "townswoman",
+      inn: "townsman",
+      shop: "townsman",
+      lighthouse: "elder",
+      frontSoldier: "roy",
+      guard: "roy"
+    }[npc.kind];
+  }
+  var directions = { down: 0, up: 1, left: 2, right: 3 };
+  function paintCast(c, id, feetX, feetY, facing, height, frame = 0) {
+    const image = images[id];
+    const sw = image.width / 4, sh = image.height;
+    const w = Math.round(height * sw / sh);
+    const bob = frame ? Math.max(1, Math.round(height / 72)) : 0;
+    const y = Math.round(feetY), x = Math.round(feetX - w / 2);
+    c.save();
+    c.fillStyle = "#10132565";
+    c.beginPath();
+    c.ellipse(Math.round(feetX), y - 1, Math.max(2, w * 0.29), Math.max(1, height * 0.035), 0, 0, Math.PI * 2);
+    c.fill();
+    c.drawImage(image, directions[facing] * sw, 0, sw, sh, x, y - height - bob, w, height);
+    c.restore();
+  }
+  var castAsset = (id) => images[id];
+  function paintPoyon(c, feetX, feetY, height) {
+    const image = images.poyon;
+    const width = Math.round(height * image.width / image.height);
+    c.drawImage(image, Math.round(feetX - width / 2), Math.round(feetY - height), width, height);
+  }
+
   // src/game/scenario-s00-s03.mjs
   var PROLOGUE_TEXT = [
     "\u30A2\u30EB\u30C6\u30EA\u30A2\u738B\u56FD\u3002\u5C71\u3042\u3044\u306E\u7551\u3068\u3001\u6E2F\u306E\u706F\u308A\u306B\u652F\u3048\u3089\u308C\u305F\u3001\u5C0F\u3055\u304F\u7A4F\u3084\u304B\u306A\u56FD\u3060\u3063\u305F\u3002",
@@ -838,28 +913,11 @@
             1,
             1,
             1,
-            7,
-            7,
-            1,
-            7,
-            7,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
-          [
             1,
             1,
             1,
             1,
             1,
-            7,
-            8,
-            8,
-            8,
-            7,
             1,
             1,
             1,
@@ -873,9 +931,9 @@
             1,
             1,
             7,
-            7,
             8,
-            7,
+            8,
+            8,
             7,
             1,
             1,
@@ -904,17 +962,68 @@
             1,
             1,
             1,
-            1,
-            1,
+            7,
+            7,
             7,
             7,
             8,
             7,
             7,
+            7,
+            7,
+            1,
+            1,
+            1
+          ],
+          [
             1,
             1,
             1,
+            7,
+            7,
+            7,
+            7,
+            8,
+            7,
+            7,
+            7,
+            7,
             1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            7,
+            7,
+            7,
+            7,
+            7,
+            8,
+            7,
+            7,
+            7,
+            7,
+            7,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            7,
+            7,
+            7,
+            7,
+            7,
+            8,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
             1
           ],
           [
@@ -936,23 +1045,6 @@
           ],
           [
             1,
-            1,
-            7,
-            7,
-            7,
-            7,
-            7,
-            8,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            1
-          ],
-          [
-            1,
             7,
             7,
             7,
@@ -965,23 +1057,6 @@
             7,
             7,
             7,
-            7,
-            1
-          ],
-          [
-            1,
-            7,
-            1,
-            7,
-            7,
-            7,
-            7,
-            8,
-            7,
-            7,
-            7,
-            7,
-            1,
             7,
             1
           ],
@@ -14116,51 +14191,6 @@
     ctx.drawImage(im, Math.round(footX - w / 2), Math.round(footY - h), w, h);
     ctx.restore();
   }
-  function paintLucaFieldSprite(ctx, x, y, facing) {
-    const dirs = { down: 0, right: 1, up: 2, left: 3 };
-    if (!(facing in dirs)) throw Error("Invalid Luca facing " + facing);
-    const im = sprite("npc_riona_legacy"), feetX = x + 12, feetY = y + 24;
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = "#14242f85";
-    ctx.beginPath();
-    ctx.ellipse(feetX, feetY - 2, 12, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.drawImage(im, dirs[facing] * 96, 0, 96, 136, Math.round(feetX - 19), Math.round(feetY - 54), 38, 54);
-    ctx.restore();
-  }
-  function paintSailunNpc(ctx, x, y, kind, facing) {
-    const files = {
-      frontSoldier: "npc_front_soldier",
-      riona: "npc_riona",
-      lighthouse: "npc_lighthouse",
-      inn: "npc_innkeeper",
-      shop: "npc_toolshop"
-    };
-    const key = files[kind];
-    if (!key) throw Error("Unknown Sailun NPC " + kind);
-    const dirs = { down: 0, right: 1, up: 2, left: 3 };
-    if (!(facing in dirs)) throw Error("Invalid Sailun NPC facing " + facing);
-    const im = sprite(key), feetX = x + 12, feetY = y + 24;
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = "#14242f85";
-    ctx.beginPath();
-    ctx.ellipse(feetX, feetY - 2, 12, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.drawImage(
-      im,
-      dirs[facing] * 96,
-      0,
-      96,
-      136,
-      Math.round(feetX - 19),
-      Math.round(feetY - 54),
-      38,
-      54
-    );
-    ctx.restore();
-  }
   function sailunPropDepth(p, footY = p.anchor[1]) {
     return footY / 24 - 1 + 0.12;
   }
@@ -14219,7 +14249,7 @@
 
   // src/game/core.mjs
   var CATALOG = catalog_default;
-  var STARDUST_SWORD = Object.freeze({ id: "stardust", name: "\u661F\u5C51\u306E\u5263", attack: 4, price: 0 });
+  var STARDUST_SWORD = Object.freeze({ id: "stardust", name: "\u661F\u5C51\u306E\u5263", attack: 2, price: 0 });
   var EQUIPMENT = { ...catalog_default.equipment, weapons: [...catalog_default.equipment.weapons, STARDUST_SWORD] };
   var MAPS = maps_default.maps;
   var STAGES = ["S00", "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "CLEAR"];
@@ -14302,6 +14332,9 @@
   }
   var maxHp = (lv) => 36 + (lv - 1) * 8;
   var maxMp = (lv) => 14 + (lv - 1) * 3;
+  function weaponAttack(s, weapon) {
+    return weapon?.id === STARDUST_SWORD.id ? weapon.attack + 5 * Math.min(s.stars.length, 5) : weapon?.attack ?? 0;
+  }
   function stats(s) {
     const e = s.equipment;
     const w = EQUIPMENT.weapons.find((x) => x.id === e.weapon);
@@ -14309,7 +14342,7 @@
     const sh = catalog_default.equipment.shields.find((x) => x.id === e.shield);
     const ac = catalog_default.equipment.accessories.find((x) => x.id === e.accessory);
     return {
-      attack: 7 + s.player.level * 2 + (w?.attack || 0) + (ac?.attack || 0),
+      attack: 7 + s.player.level * 2 + weaponAttack(s, w) + (ac?.attack || 0),
       defense: 2 + s.player.level + (a?.defense || 0) + (sh?.defense || 0) + (ac?.defense || 0),
       speed: 8 + s.player.level + (ac?.speed || 0),
       maxHp: maxHp(s.player.level),
@@ -15169,6 +15202,536 @@
     return clamp((now - fx.startedAt) / fx.duration, 0, 1);
   }
 
+  // src/game/castle-visual.mjs
+  var CASTLE_ART_SCENE = Object.freeze({
+    width: 1536,
+    height: 1024,
+    tileWidth: 98,
+    tileHeight: 65,
+    originX: 87,
+    originY: 268
+  });
+  var scenes = {
+    libraryBackground: "castle-library-background.png",
+    libraryForeground: "castle-library-foreground.png"
+  };
+  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
+    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
+  }
+  var CASTLE_SCENE_SCALE = 0.44;
+  var ART_VERSION = "20261111-generated-hero-walk-v1";
+  var cache = { ready: false, failed: false, images: {} };
+  var lastHeroSprite = "";
+  function castleArtDebug() {
+    return { ready: cache.ready, lastHeroSprite };
+  }
+  function heroGaitFrame(motion, t) {
+    if (!motion || t < 0.17 || t > 0.86) return 0;
+    return motion.step % 2 === 0 ? 1 : 2;
+  }
+  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4, weapon = null) {
+    if (!cache.ready) throw Error("Shared protagonist art not loaded");
+    const key = `hero_${facing}_${frame}`;
+    const sprite2 = cache.images[key];
+    if (!sprite2) throw Error("Missing protagonist art: " + key);
+    lastHeroSprite = key;
+    const w = Math.round(sprite2.width * scale), h = Math.round(sprite2.height * scale);
+    const x = Math.round(feetX - w / 2), y = Math.round(feetY - h);
+    c.save();
+    c.imageSmoothingEnabled = false;
+    c.fillStyle = "#1319297a";
+    c.beginPath();
+    c.ellipse(
+      Math.round(feetX),
+      Math.round(feetY - 3),
+      Math.max(7, Math.round(w * 0.34)),
+      Math.max(3, Math.round(w * 0.09)),
+      0,
+      0,
+      Math.PI * 2
+    );
+    c.fill();
+    c.drawImage(sprite2, x, y, w, h);
+    drawHeldSword(c, weapon, facing, x, y, scale);
+    c.restore();
+  }
+  function paintFieldHero(c, x, y, facing, frame, height, weapon, glow = false) {
+    lastHeroSprite = "hero_" + facing + "_" + frame;
+    paintCast(c, "allen", x, y, facing, height, frame);
+    const scale = height / 136;
+    drawHeldSword(c, weapon, facing, x - 48 * scale, y - height, scale, glow);
+  }
+  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  function castleArtReady() {
+    return cache.ready;
+  }
+  function preloadCastleArt(onReady = () => {
+  }) {
+    if (cache.ready) {
+      onReady();
+      return Promise.resolve();
+    }
+    if (cache.loading) return cache.loading.then(onReady);
+    cache.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
+      const path = "assets/castle/" + file;
+      const image = new Image();
+      image.onload = () => {
+        cache.images[name] = image;
+        resolve();
+      };
+      image.onerror = () => {
+        cache.failed = true;
+        reject(Error("Castle art missing: " + path));
+      };
+      image.src = path + "?v=" + ART_VERSION;
+    }))).then(() => {
+      cache.ready = true;
+      onReady();
+    });
+    return cache.loading;
+  }
+  function castleMapPoint(x, y) {
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: m.originX + (x + 0.5) * m.tileWidth,
+      y: m.originY + (y + 0.5) * m.tileHeight
+    };
+  }
+  function castleVisualPosition(s, motion = null, now = performance.now()) {
+    const pos = s.pos;
+    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    return {
+      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
+      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
+      t
+    };
+  }
+  function sceneOffset(target, viewSize, sceneSize) {
+    return viewSize >= sceneSize ? (sceneSize - viewSize) / 2 : clamp2(target, 0, sceneSize - viewSize);
+  }
+  function castleCamera(canvas, s, motion = null, now = performance.now()) {
+    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
+    const viewWidth = canvas.width, viewHeight = canvas.height;
+    const m = CASTLE_ART_SCENE;
+    return {
+      x: sceneOffset(p.x - viewWidth / 2, viewWidth, m.width),
+      // Initial view shows the throne and the hero together, rather
+      // than cutting the king off above the phone viewport.
+      y: sceneOffset(p.y - viewHeight * 0.75, viewHeight, m.height),
+      player: p
+    };
+  }
+  function drawSword(c, x, y) {
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    c.fillStyle = "#252b42";
+    c.fillRect(-6, -32, 12, 53);
+    c.fillStyle = "#e9e4d5";
+    c.fillRect(-4, -39, 8, 32);
+    c.fillStyle = "#88cbd9";
+    c.fillRect(-1, -35, 3, 23);
+    c.fillStyle = "#e4ba61";
+    c.fillRect(-22, -11, 44, 7);
+    c.fillStyle = "#765c50";
+    c.fillRect(-5, -6, 10, 22);
+    c.fillStyle = "#ffdf99";
+    c.fillRect(-8, 16, 16, 5);
+    c.restore();
+  }
+  var swordHand = {
+    left: [50, 95, -1.1],
+    right: [46, 95, 1.1],
+    down: [24, 95, -0.84],
+    up: [18, 94, -0.48]
+  };
+  function drawHeldSword(c, weapon, facing, x, y, scale, glow = false) {
+    if (weapon !== STARDUST_SWORD.id && weapon !== "hero") return;
+    const [handX, handY, angle] = swordHand[facing];
+    c.save();
+    c.translate(x + handX * scale, y + handY * scale);
+    c.scale(scale, scale);
+    c.rotate(angle);
+    const swordScale = weapon === "hero" ? 0.84 : 0.66;
+    c.scale(swordScale, swordScale);
+    drawSword(c, 0, -5);
+    if (glow) drawStarGlow(c, 0, -42);
+    c.restore();
+  }
+  function drawStarGlow(c, x, y) {
+    const glow = c.createRadialGradient(x, y, 2, x, y, 43);
+    glow.addColorStop(0, "#d2f4ffe6");
+    glow.addColorStop(1, "#83c8ff00");
+    c.fillStyle = glow;
+    c.fillRect(x - 43, y - 43, 86, 86);
+    for (const [dx, dy, r2] of [[0, 0, 10], [-19, -12, 6], [20, -20, 8], [27, 9, 5], [-25, 14, 4]]) {
+      c.fillStyle = "#fff5c6";
+      c.beginPath();
+      c.moveTo(x + dx, y + dy - r2);
+      c.lineTo(x + dx + 2, y + dy - 2);
+      c.lineTo(x + dx + r2 * 0.65, y + dy);
+      c.lineTo(x + dx + 2, y + dy + 2);
+      c.lineTo(x + dx, y + dy + r2);
+      c.lineTo(x + dx - 2, y + dy + 2);
+      c.lineTo(x + dx - r2 * 0.65, y + dy);
+      c.lineTo(x + dx - 2, y + dy - 2);
+      c.fill();
+    }
+  }
+  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, pixels = null, follower = null) {
+    if (!cache.ready) return false;
+    if (s.pos.map !== "castle") throw Error("Castle art on another map");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
+    const z = wideShot ? Math.min(canvas.width / 1390, canvas.height / 925) : pixels?.castleScale ?? CASTLE_SCENE_SCALE;
+    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
+    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
+    if (wideShot) {
+      const center = castleMapPoint(7, 5.5);
+      camera.x = sceneOffset(center.x - W2 / 2, W2, CASTLE_ART_SCENE.width);
+      camera.y = sceneOffset(center.y - H2 * 0.53, H2, CASTLE_ART_SCENE.height);
+    }
+    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
+    c.save();
+    c.scale(z, z);
+    c.fillStyle = "#0b101c";
+    c.fillRect(0, 0, W2, H2);
+    c.drawImage(castAsset("throne"), snap(-camera.x), snap(-camera.y));
+    const plot = (x, y) => {
+      const p = castleMapPoint(x, y);
+      return { x: p.x - camera.x, y: p.y - camera.y };
+    };
+    const map = MAPS.castle;
+    const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
+    const actors2 = [];
+    for (const n of map.npcs) {
+      const entering = n.kind === "refugee" && intro.page === "royalReport";
+      const p = plot(n.x, entering ? 6 + 2 * ((intro.raiderY ?? 8) - 7) : n.y);
+      if (entering && intro.raiderY === void 0) continue;
+      actors2.push({ z: p.y, draw: () => {
+        const facing = n.id === "castle-guard" ? "right" : n.id === "castle-guard-east" ? "left" : "down";
+        const y = n.kind === "king" ? p.y - 53 : p.y;
+        paintCast(c, npcCast(n), p.x, y, facing, n.kind === "king" ? 166 : 148);
+        if (n.kind === "refugee") paintCast(c, "townswoman", p.x + 56, p.y + 22, "left", 108);
+      } });
+    }
+    if (intro.page === "royalReport") {
+      for (const [x, y, id] of [[4, 5, "townsman"], [5, 6, "townswoman"], [10, 5, "elder"], [11, 6, "townsman"]]) {
+        const p = plot(x, y);
+        actors2.push({ z: p.y, draw: () => paintCast(c, id, p.x, p.y, x < 7 ? "right" : "left", 136) });
+      }
+    }
+    for (const e of map.objects) {
+      if (!entityAt(s, map, e.x, e.y)) continue;
+      if (e.kind === "raider" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
+      const p = plot(e.x, e.kind === "raider" ? intro.raiderY ?? (intro.page && intro.page !== "refugee" ? e.y - 1 : e.y) : e.y);
+      actors2.push({ z: p.y, draw: () => {
+        if (e.kind === "raider") paintPoyon(c, p.x, p.y, 70);
+        else if (e.kind === "sword") {
+          const im = castAsset("pedestal"), w = 88, h = 140;
+          const top = swordTaken ? 590 : 0;
+          const croppedH = Math.round(h * (im.height - top) / im.height);
+          c.drawImage(im, 0, top, im.width, im.height - top, snap(p.x - w / 2), snap(p.y - croppedH), w, croppedH);
+        }
+      } });
+    }
+    if (follower) {
+      const p = plot(follower.x, follower.y);
+      actors2.push({ z: p.y, draw: () => paintCast(c, follower.id, p.x, p.y, follower.facing, 150, follower.frame) });
+    }
+    const pp = camera.player;
+    actors2.push({ z: pp.y - camera.y, draw: () => {
+      const t = castleVisualPosition(s, motion, now).t;
+      const frame = motion?.map === "castle" ? heroGaitFrame(motion, t) : 0;
+      paintFieldHero(
+        c,
+        snap(pp.x - camera.x),
+        snap(pp.y - camera.y),
+        motion?.facing ?? s.pos.facing,
+        frame,
+        154,
+        s.equipment.weapon,
+        intro.swordGlow || intro.page === "witness"
+      );
+    } });
+    actors2.sort((a, b) => a.z - b.z);
+    for (const actor of actors2) actor.draw();
+    c.restore();
+    return true;
+  }
+  var CASTLE_LIBRARY_SCENE = Object.freeze({
+    width: 1254,
+    height: 1380,
+    tileWidth: 80,
+    tileHeight: 72,
+    originX: 147,
+    originY: 320
+  });
+  function castleLibraryPoint(x, y) {
+    const m = CASTLE_LIBRARY_SCENE;
+    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
+  }
+  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
+    const m = CASTLE_LIBRARY_SCENE;
+    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
+    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
+    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
+    const p = castleLibraryPoint(x, y);
+    return {
+      x: sceneOffset(p.x - canvas.width / 2, canvas.width, m.width),
+      y: sceneOffset(p.y - canvas.height * 0.6, canvas.height, m.height),
+      player: p,
+      t
+    };
+  }
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), pixels = null) {
+    if (!cache.ready) return false;
+    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
+    const c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const z = pixels?.castleScale ?? CASTLE_SCENE_SCALE;
+    const cam = castleLibraryCamera({
+      width: Math.ceil(canvas.width / z),
+      height: Math.ceil(canvas.height / z)
+    }, room, motion, now);
+    c.save();
+    c.scale(z, z);
+    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
+    const sx = (x) => snap(x - cam.x), sy = (y) => snap(y - cam.y);
+    c.fillStyle = "#131321";
+    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
+    c.drawImage(cache.images.libraryBackground, sx(0), sy(0));
+    const elder = castleLibraryPoint(6, 3);
+    const heroFrame = motion && cam.t < 1 ? heroGaitFrame(motion, cam.t) : 0;
+    const actors2 = [
+      { y: elder.y, draw: () => paintCast(c, "elder", sx(elder.x), sy(elder.y + 42), "down", 138) },
+      { y: cam.player.y, draw: () => paintFieldHero(
+        c,
+        sx(cam.player.x),
+        sy(cam.player.y + 43),
+        room.facing,
+        heroFrame,
+        150,
+        s.equipment.weapon
+      ) }
+    ];
+    actors2.sort((a, b) => a.y - b.y);
+    for (const actor of actors2) actor.draw();
+    c.drawImage(cache.images.libraryForeground, sx(0), sy(0));
+    c.restore();
+    return true;
+  }
+
+  // src/game/interiors.mjs
+  var ENTRIES = Object.freeze([
+    {
+      id: "castle-library",
+      map: "castle",
+      door: { x: 1, y: 7 },
+      name: "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u30FB\u66F8\u5EAB",
+      theme: "library",
+      keeper: "\u66F8\u5EAB\u756A",
+      words: ["\u66F8\u5EAB\u756A\u300C\u57CE\u306B\u53E4\u304F\u304B\u3089\u6B8B\u308B\u5730\u56F3\u306F\u3001\u5192\u967A\u8005\u306E\u9053\u3057\u308B\u3079\u306B\u306A\u308B\u3093\u3060\u300D", "\u66F8\u5EAB\u756A\u300C\u56F0\u3063\u305F\u3089\u3001\u753A\u306E\u4EBA\u306E\u8A71\u3092\u805E\u3044\u3066\u307F\u308B\u3068\u3044\u3044\u3088\u300D"]
+    },
+    {
+      id: "leaf-west-home",
+      map: "leaf",
+      door: { x: 3, y: 17 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u4ED5\u7ACB\u3066\u5C4B\u306E\u5BB6",
+      theme: "home",
+      keeper: "\u4ED5\u7ACB\u3066\u5C4B",
+      words: ["\u4ED5\u7ACB\u3066\u5C4B\u300C\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u670D\u3092\u3001\u307F\u3093\u306A\u3067\u7E55\u3063\u3066\u3044\u308B\u3093\u3060\u300D", "\u4ED5\u7ACB\u3066\u5C4B\u300C\u6D1E\u7A9F\u3078\u884C\u304F\u306A\u3089\u7121\u7406\u3092\u3057\u306A\u3044\u3067\u306D\u300D"]
+    },
+    {
+      id: "leaf-east-home",
+      map: "leaf",
+      door: { x: 23, y: 17 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u6751\u4EBA\u306E\u5BB6",
+      theme: "home",
+      keeper: "\u30EA\u30FC\u30D5\u30A1\u306E\u4F4F\u4EBA",
+      words: ["\u6751\u4EBA\u300C\u9B54\u7269\u304C\u3044\u306A\u304F\u306A\u308C\u3070\u3001\u307E\u305F\u753A\u3082\u8CD1\u3084\u304B\u306B\u306A\u308B\u3088\u300D", "\u6751\u4EBA\u300C\u65C5\u306E\u4EBA\u3082\u3001\u3053\u306E\u753A\u3067\u306F\u5927\u5207\u306A\u304A\u5BA2\u3055\u3093\u3055\u300D"]
+    },
+    {
+      id: "leaf-inn",
+      map: "leaf",
+      door: { x: 2, y: 8 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u4EBA\u306E\u5BBF",
+      theme: "inn",
+      keeper: "\u5BBF\u306E\u5973\u5C06",
+      service: "inn",
+      words: ["\u5BBF\u306E\u5973\u5C06\u300C\u75B2\u308C\u305F\u8DB3\u3092\u4F11\u3081\u3066\u3044\u304D\u306A\u3055\u3044\u3002\u6E29\u304B\u306A\u5BDD\u5E8A\u3092\u7528\u610F\u3057\u307E\u3059\u300D"]
+    },
+    {
+      id: "leaf-shop",
+      map: "leaf",
+      door: { x: 14, y: 8 },
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u85AC\u8349\u5C4B",
+      theme: "shop",
+      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
+      service: "shop",
+      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u4F55\u304C\u5FC5\u8981\u304B\u3001\u68DA\u3092\u898B\u3066\u304B\u3089\u6C7A\u3081\u3066\u304A\u304F\u308C\u300D"]
+    },
+    {
+      id: "sailun-inn",
+      map: "sailun",
+      door: { x: 4, y: 9 },
+      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u6F6E\u98A8\u306E\u5BBF",
+      theme: "harbor-inn",
+      keeper: "\u5BBF\u306E\u4E3B\u4EBA",
+      service: "inn",
+      words: ["\u5BBF\u306E\u4E3B\u4EBA\u300C\u6E2F\u3092\u884C\u304D\u4EA4\u3046\u8239\u306E\u4EBA\u3082\u3001\u3053\u3053\u3067\u591C\u3092\u660E\u304B\u3059\u3093\u3060\u300D"]
+    },
+    {
+      id: "sailun-shop",
+      map: "sailun",
+      door: { x: 16, y: 9 },
+      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u8239\u5177\u3068\u9053\u5177\u306E\u5E97",
+      theme: "harbor-shop",
+      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
+      service: "shop",
+      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u6D77\u306E\u9053\u5177\u3082\u3001\u65C5\u306B\u5F79\u7ACB\u3064\u3082\u306E\u3082\u63C3\u3048\u3066\u3044\u308B\u3088\u300D"]
+    }
+  ]);
+  var W = 12;
+  var H = 10;
+  var ENTRY = { x: 6, y: 8 };
+  var blocked = /* @__PURE__ */ new Set(["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"]);
+  var SLOTS = ["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"];
+  var PRESETS = {
+    "castle-library": [
+      ["shelf", "\u6B74\u53F2\u66F8\u306E\u68DA", "\u3053\u306E\u56FD\u306E\u53E4\u3044\u5730\u56F3\u304C\u4F55\u518A\u3082\u3042\u308B\u3002\u3069\u308C\u3082\u9053\u304C\u5C11\u3057\u305A\u3064\u9055\u3046\u3002"],
+      ["shelf", "\u65C5\u306E\u8A18\u9332", "\u4ED6\u56FD\u306E\u8A00\u8449\u3067\u66F8\u304B\u308C\u305F\u65C5\u306E\u8A18\u9332\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["scrollcase", "\u5DFB\u7269\u68DA", "\u53E4\u3044\u5199\u672C\u304C\u4E01\u5BE7\u306B\u5DFB\u304B\u308C\u3066\u3044\u308B\u3002\u8AB0\u304B\u304C\u3053\u3053\u3067\u5B88\u308A\u7D9A\u3051\u305F\u306E\u3060\u308D\u3046\u3002"],
+      ["shelf", "\u661F\u306E\u8A18\u9332", "\u7D30\u304B\u306A\u661F\u56F3\u304C\u63CF\u304B\u308C\u3066\u3044\u308B\u3002\u8A18\u3055\u308C\u305F\u5E74\u6708\u306F\u3059\u3067\u306B\u6D88\u3048\u3066\u3044\u305F\u3002"],
+      ["table", "\u8AAD\u66F8\u673A", "\u624B\u5165\u308C\u3055\u308C\u305F\u7FBD\u6839\u30DA\u30F3\u3068\u3001\u8AAD\u307F\u304B\u3051\u306E\u672C\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
+      ["crate", "\u4FDD\u7BA1\u7BB1", "\u6E7F\u6C17\u3092\u9632\u3050\u5E03\u3067\u5927\u5207\u306A\u6587\u66F8\u304C\u5305\u307E\u308C\u3066\u3044\u305F\u3002"],
+      ["window", "\u66F8\u5EAB\u306E\u7A93", "\u9AD8\u3044\u7A93\u304B\u3089\u3001\u9060\u304F\u306E\u753A\u4E26\u307F\u306B\u5149\u304C\u5DEE\u3057\u8FBC\u3093\u3067\u3044\u308B\u3002"],
+      ["globe", "\u53E4\u3044\u5730\u7403\u5100", "\u5927\u9678\u306E\u6771\u7AEF\u306F\u307E\u3060\u7A7A\u767D\u3060\u3002\u66F8\u5EAB\u756A\u3082\u305D\u306E\u5148\u3092\u77E5\u3089\u306A\u3044\u3089\u3057\u3044\u3002"]
+    ],
+    "leaf-west-home": [
+      ["wardrobe", "\u4ED5\u7ACB\u3066\u68DA", "\u4ED5\u7ACB\u3066\u9014\u4E2D\u306E\u65C5\u88C5\u304C\u80A9\u3092\u4E26\u3079\u3066\u3044\u308B\u3002"],
+      ["fabric", "\u5E03\u306E\u5C71", "\u4E08\u592B\u306A\u5E03\u3068\u3001\u5B50\u3069\u3082\u7528\u306E\u5C0F\u3055\u306A\u4E0A\u7740\u304C\u7A4D\u307E\u308C\u3066\u3044\u308B\u3002"],
+      ["loom", "\u6A5F\u7E54\u308A\u6A5F", "\u8DB3\u8E0F\u307F\u3067\u52D5\u304F\u6A5F\u7E54\u308A\u6A5F\u3002\u4FEE\u7E55\u306E\u305F\u3081\u306B\u4F55\u5EA6\u3082\u4F7F\u308F\u308C\u3066\u3044\u308B\u3002"],
+      ["fabric", "\u7CF8\u3068\u91DD", "\u67D3\u3081\u305F\u7CF8\u304C\u8272\u3054\u3068\u306B\u5DFB\u304B\u308C\u3001\u91DD\u304C\u5C0F\u7BB1\u306B\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["sewing", "\u88C1\u7E2B\u53F0", "\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u7834\u308C\u305F\u8896\u304C\u3001\u4E00\u91DD\u305A\u3064\u7E2B\u3044\u5408\u308F\u3055\u308C\u3066\u3044\u308B\u3002"],
+      ["crate", "\u670D\u306E\u6728\u7BB1", "\u6D17\u3044\u305F\u3066\u306E\u8863\u670D\u304C\u5E03\u306B\u5305\u307E\u308C\u3066\u3044\u308B\u3002"],
+      ["window", "\u5C0F\u3055\u306A\u7A93", "\u7A93\u306E\u5916\u306B\u306F\u3001\u30EA\u30FC\u30D5\u30A1\u306E\u5E83\u5834\u304C\u898B\u3048\u308B\u3002"],
+      ["vase", "\u767D\u3044\u82B1", "\u5C0F\u3055\u306A\u82B1\u304C\u4E00\u8F2A\u3002\u8584\u6697\u3044\u90E8\u5C4B\u304C\u307B\u3093\u306E\u5C11\u3057\u660E\u308B\u304F\u306A\u308B\u3002"]
+    ],
+    "leaf-east-home": [
+      ["shelf", "\u601D\u3044\u51FA\u306E\u68DA", "\u5BB6\u65CF\u306E\u53E4\u3044\u5199\u771F\u7ACB\u3066\u3068\u3001\u65C5\u5148\u3067\u62FE\u3063\u305F\u5C0F\u77F3\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["cupboard", "\u98DF\u5668\u68DA", "\u6B20\u3051\u305F\u76BF\u3082\u5927\u5207\u306B\u4E26\u3079\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["hearth", "\u6696\u7089", "\u7070\u306F\u307E\u3060\u6E29\u304B\u3044\u3002\u8AB0\u304B\u304C\u3055\u3063\u304D\u307E\u3067\u706B\u3092\u711A\u3044\u3066\u3044\u305F\u3002"],
+      ["cupboard", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u305F\u91CE\u83DC\u3068\u9EA6\u306E\u888B\u3002\u51AC\u306B\u5099\u3048\u3066\u96C6\u3081\u305F\u98DF\u6599\u3060\u3002"],
+      ["table", "\u5915\u98DF\u306E\u673A", "\u4E09\u4EBA\u5206\u306E\u6728\u306E\u5668\u3068\u3001\u5C11\u3057\u3060\u3051\u6B8B\u3063\u305F\u30D1\u30F3\u304C\u3042\u308B\u3002"],
+      ["crate", "\u85AA\u5165\u308C", "\u3088\u304F\u4E7E\u304B\u3057\u305F\u85AA\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
+      ["window", "\u901A\u308A\u306E\u7A93", "\u901A\u308A\u306B\u306F\u4EBA\u304C\u623B\u308A\u3001\u5C11\u3057\u305A\u3064\u65E5\u5E38\u3092\u53D6\u308A\u623B\u3057\u3066\u3044\u308B\u3002"],
+      ["vase", "\u7A93\u8FBA\u306E\u9262", "\u5BB6\u306E\u4EBA\u304C\u80B2\u3066\u3066\u3044\u308B\u3001\u5C0F\u3055\u306A\u7DD1\u306E\u9262\u690D\u3048\u3002"]
+    ],
+    "leaf-inn": [
+      ["bed", "\u65C5\u4EBA\u306E\u5BDD\u5E8A", "\u6E05\u6F54\u306A\u5BDD\u5177\u304C\u63C3\u3063\u3066\u3044\u308B\u3002\u3053\u3053\u306A\u3089\u75B2\u308C\u3092\u53D6\u308C\u305D\u3046\u3060\u3002"],
+      ["bed", "\u7A93\u969B\u306E\u5BDD\u5E8A", "\u6BDB\u5E03\u304C\u4E01\u5BE7\u306B\u7573\u307E\u308C\u3066\u3044\u308B\u3002"],
+      ["cupboard", "\u5BBF\u306E\u98DF\u5668\u68DA", "\u5BA2\u4EBA\u7528\u306E\u6E6F\u98F2\u307F\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["shelf", "\u65C5\u306E\u6848\u5185\u68DA", "\u8857\u9053\u306E\u9053\u9806\u3092\u66F8\u3044\u305F\u5C0F\u3055\u306A\u7D19\u304C\u3042\u308B\u3002"],
+      ["table", "\u5BBF\u306E\u671D\u98DF\u53F0", "\u6E29\u304B\u306A\u30B9\u30FC\u30D7\u306E\u9999\u308A\u304C\u3059\u308B\u3002"],
+      ["crate", "\u65C5\u4EBA\u306E\u8377\u7269\u7BB1", "\u5BA2\u304C\u9810\u3051\u305F\u8377\u7269\u306B\u306F\u3001\u4E00\u3064\u3072\u3068\u3064\u672D\u304C\u4ED8\u3044\u3066\u3044\u308B\u3002"],
+      ["window", "\u671D\u65E5\u306E\u7A93", "\u671D\u306B\u306A\u308B\u3068\u3001\u3053\u3053\u304B\u3089\u3084\u3055\u3057\u3044\u5149\u304C\u5DEE\u3059\u3002"],
+      ["vase", "\u5BBF\u306E\u82B1", "\u67AF\u3089\u3055\u306A\u3044\u3088\u3046\u3001\u6BCE\u65E5\u6C34\u304C\u66FF\u3048\u3089\u308C\u3066\u3044\u308B\u3002"]
+    ],
+    "leaf-shop": [
+      ["shelf", "\u65C5\u306E\u9053\u5177\u68DA", "\u56DE\u5FA9\u85AC\u3084\u5305\u5E2F\u306A\u3069\u304C\u7528\u9014\u3054\u3068\u306B\u6574\u7406\u3055\u308C\u3066\u3044\u308B\u3002"],
+      ["shelf", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u8089\u3068\u6728\u306E\u6C34\u7B52\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
+      ["cupboard", "\u4E88\u5099\u306E\u85AC\u7BB1", "\u3044\u3056\u3068\u3044\u3046\u3068\u304D\u306E\u305F\u3081\u306E\u85AC\u304C\u304D\u3061\u3093\u3068\u3057\u307E\u308F\u308C\u3066\u3044\u308B\u3002"],
+      ["fabric", "\u65C5\u88C5\u306E\u5E03", "\u96E8\u3088\u3051\u306E\u5916\u5957\u304C\u4F55\u679A\u304B\u639B\u3051\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["counter", "\u9053\u5177\u5C4B\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u5E97\u306E\u4E3B\u4EBA\u304C\u6BCE\u671D\u78E8\u3044\u3066\u3044\u308B\u6728\u306E\u30AB\u30A6\u30F3\u30BF\u30FC\u3002"],
+      ["crate", "\u88DC\u5145\u5F85\u3061\u306E\u7BB1", "\u6E2F\u304B\u3089\u5C4A\u3044\u305F\u54C1\u306E\u8377\u672D\u304C\u3064\u3044\u3066\u3044\u308B\u3002"],
+      ["window", "\u901A\u308A\u306E\u7A93", "\u30EA\u30FC\u30D5\u30A1\u306E\u4EBA\u305F\u3061\u304C\u8CB7\u3044\u7269\u306B\u7ACB\u3061\u5BC4\u3063\u3066\u3044\u308B\u3002"],
+      ["vase", "\u5C0F\u3055\u306A\u98FE\u308A", "\u6728\u5F6B\u308A\u306E\u304A\u5B88\u308A\u304C\u3001\u68DA\u306E\u9685\u306B\u98FE\u3089\u308C\u3066\u3044\u308B\u3002"]
+    ],
+    "sailun-inn": [
+      ["bed", "\u8239\u4E57\u308A\u306E\u5BDD\u5E8A", "\u9577\u65C5\u306E\u8239\u4E57\u308A\u3092\u8FCE\u3048\u308B\u9811\u4E08\u306A\u6728\u306E\u5BDD\u53F0\u3002"],
+      ["bed", "\u6CE2\u97F3\u306E\u5BDD\u5E8A", "\u7720\u308B\u3068\u3001\u7A93\u306E\u5916\u304B\u3089\u6CE2\u306E\u97F3\u304C\u805E\u3053\u3048\u308B\u3002"],
+      ["cupboard", "\u8239\u5BA2\u306E\u98DF\u5668\u68DA", "\u539A\u624B\u306E\u5668\u306F\u3001\u63FA\u308C\u308B\u8239\u3067\u3082\u5272\u308C\u306B\u304F\u3044\u3002"],
+      ["shelf", "\u6D77\u56F3\u306E\u68DA", "\u6E2F\u304B\u3089\u5317\u3078\u4F38\u3073\u308B\u822A\u8DEF\u304C\u66F8\u304B\u308C\u3066\u3044\u308B\u3002"],
+      ["table", "\u6E2F\u5BBF\u306E\u98DF\u4E8B\u53F0", "\u9B5A\u306E\u716E\u8FBC\u307F\u304C\u6E6F\u6C17\u3092\u7ACB\u3066\u3066\u3044\u308B\u3002"],
+      ["barrel", "\u6C34\u306E\u6A3D", "\u8239\u304B\u3089\u904B\u3093\u3060\u771F\u6C34\u304C\u84C4\u3048\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["window", "\u6E2F\u306E\u7A93", "\u505C\u6CCA\u3057\u3066\u3044\u308B\u5C0F\u821F\u306E\u5E06\u304C\u98A8\u306B\u63FA\u308C\u3066\u3044\u308B\u3002"],
+      ["vase", "\u6D5C\u306E\u82B1", "\u6F6E\u98A8\u306B\u3082\u8CA0\u3051\u305A\u54B2\u304F\u3001\u5C0F\u3055\u306A\u9EC4\u8272\u3044\u82B1\u3002"]
+    ],
+    "sailun-shop": [
+      ["shelf", "\u65C5\u306E\u88C5\u5099\u68DA", "\u4E08\u592B\u306A\u9769\u7D10\u3068\u9632\u6C34\u888B\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
+      ["shelf", "\u8239\u5177\u68DA", "\u6ED1\u8ECA\u3084\u30ED\u30FC\u30D7\u306A\u3069\u3001\u8239\u306E\u4FEE\u7406\u306B\u5FC5\u8981\u306A\u9053\u5177\u304C\u3042\u308B\u3002"],
+      ["cupboard", "\u91D1\u5C5E\u306E\u88C5\u5099\u7BB1", "\u78E8\u304B\u308C\u305F\u91D1\u5177\u304C\u6574\u7136\u3068\u53CE\u3081\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["barrel", "\u5E06\u5E03\u306E\u675F", "\u6F6E\u98A8\u306B\u3082\u4E08\u592B\u306A\u5E06\u5E03\u304C\u4E38\u304F\u675F\u306D\u3089\u308C\u3066\u3044\u308B\u3002"],
+      ["counter", "\u6E2F\u753A\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u65C5\u4EBA\u3068\u8239\u4E57\u308A\u304C\u4EA4\u308F\u3059\u3001\u53E4\u3044\u5546\u8AC7\u306E\u8DE1\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
+      ["crate", "\u6D77\u8DEF\u306E\u8377\u7BB1", "\u6E2F\u3078\u5C4A\u3044\u305F\u3070\u304B\u308A\u306E\u54C1\u304C\u5C01\u3092\u3055\u308C\u305F\u307E\u307E\u7F6E\u3044\u3066\u3042\u308B\u3002"],
+      ["window", "\u6F6E\u98A8\u306E\u7A93", "\u5916\u304B\u3089\u6F6E\u306E\u9999\u308A\u3068\u3001\u30AB\u30E2\u30E1\u306E\u58F0\u304C\u5C4A\u304F\u3002"],
+      ["globe", "\u5C0F\u3055\u306A\u822A\u6D77\u56F3", "\u30BB\u30A4\u30EB\u30F3\u304B\u3089\u5317\u306E\u5CAC\u307E\u3067\u3001\u5371\u967A\u306A\u6D45\u702C\u304C\u66F8\u304D\u8FBC\u307E\u308C\u3066\u3044\u308B\u3002"]
+    ]
+  };
+  var ROOM_FURNISHINGS = new Map(Object.entries(PRESETS).map(([id, items]) => {
+    if (items.length !== SLOTS.length) throw Error("Interior item layout mismatch: " + id);
+    return [id, new Map(items.map(([kind, name, description], i) => [
+      SLOTS[i],
+      Object.freeze({ kind, name, description })
+    ]))];
+  }));
+  function interiorFixtures(room) {
+    const items = ROOM_FURNISHINGS.get(room.id);
+    if (!items) throw Error("Unknown furnished interior: " + room.id);
+    return items;
+  }
+  var resident = { x: 6, y: 3 };
+  function enterableDoor(pos) {
+    const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[pos.facing];
+    return ENTRIES.find((e) => e.map === pos.map && e.door.x === pos.x + delta[0] && e.door.y === pos.y + delta[1]) || null;
+  }
+  function makeInterior(door) {
+    if (!ENTRIES.some((e) => e.id === door.id)) throw Error("Unknown interior");
+    return { id: door.id, x: ENTRY.x, y: ENTRY.y, facing: "up" };
+  }
+  function interiorDefinition(room) {
+    const definition = ENTRIES.find((e) => e.id === room.id);
+    if (!definition) throw Error("Unknown interior " + room.id);
+    return definition;
+  }
+  function moveInside(room, dir) {
+    if (!["up", "down", "left", "right"].includes(dir)) throw Error("Direction invalid");
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
+    const x = room.x + dx, y = room.y + dy;
+    if (x === 6 && y === 9) return { kind: "exit", room: null };
+    const facing = { ...room, facing: dir };
+    if (x <= 0 || y <= 1 || x >= W - 1 || y >= H - 1 || blocked.has(x + "," + y) || x === resident.x && y === resident.y)
+      return { kind: "blocked", room: facing };
+    return { kind: "walk", room: { ...facing, x, y } };
+  }
+  function interiorTarget(room) {
+    const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    if (!d) throw Error("Invalid interior direction");
+    return { x: room.x + d[0], y: room.y + d[1] };
+  }
+  function investigateInside(room) {
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    const x = room.x + dx, y = room.y + dy;
+    const definition = interiorDefinition(room);
+    if (x === resident.x && y === resident.y) return definition.words;
+    const item = interiorFixtures(room).get(x + "," + y);
+    if (item) return [item.description];
+    if (x === 6 && y === 9) return ["\u6249\u304B\u3089\u5916\u3078\u623B\u308C\u308B\u3002\u4E0B\u3078\u6B69\u3053\u3046\u3002"];
+    return ["\u3042\u305F\u308A\u3092\u8ABF\u3079\u305F\u3002\u5BB6\u5177\u3084\u751F\u6D3B\u306E\u9053\u5177\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"];
+  }
+  function interiorPrompt(room) {
+    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
+    const x = room.x + dx, y = room.y + dy;
+    if (x === resident.x && y === resident.y) {
+      const def = interiorDefinition(room);
+      return def.service === "inn" ? "A  \u5BBF\u6CCA\u3059\u308B" : def.service === "shop" ? "A  \u8CB7\u3044\u7269\u3092\u3059\u308B" : "A  " + def.keeper + "\u3068\u8A71\u3059";
+    }
+    const fixture = interiorFixtures(room).get(x + "," + y);
+    if (fixture) return "A  " + fixture.name + "\u3092\u8ABF\u3079\u308B";
+    return "";
+  }
+
   // src/game/retro-assets.mjs
   var IMAGES = Object.freeze({
     floor: "floor.png",
@@ -15215,23 +15778,23 @@
     onyxGate: "../onyx/gate.png"
   });
   var RETRO_ASSET_VERSION = "20261118-silent-ruins-art-integration-01";
-  var cache = /* @__PURE__ */ new Map();
+  var cache2 = /* @__PURE__ */ new Map();
   var ready2 = false;
-  var loading = null;
+  var loading2 = null;
   function retroAssetsReady() {
     return ready2;
   }
   function retroAsset(key) {
     if (!Object.hasOwn(IMAGES, key)) throw Error("Unrecognized retro art key: " + key);
     if (!ready2) throw Error("Retro CC0 assets not preloaded: " + key);
-    const img2 = cache.get(key);
+    const img2 = cache2.get(key);
     if (!img2 || !img2.complete || img2.naturalWidth === 0) throw Error("Retro asset unavailable: " + key);
     return img2;
   }
   function preloadRetroAssets() {
-    if (loading) return loading;
+    if (loading2) return loading2;
     if (typeof Image === "undefined") throw Error("Retro art preload requires browser Image");
-    loading = Promise.all(Object.entries(IMAGES).map(([key, filename]) => new Promise((resolve, reject) => {
+    loading2 = Promise.all(Object.entries(IMAGES).map(([key, filename]) => new Promise((resolve, reject) => {
       const assetPath = filename.startsWith("../") ? "assets/" + filename.slice(3) : "assets/retro/" + filename;
       const img2 = new Image();
       img2.onload = () => {
@@ -15239,7 +15802,7 @@
           reject(Error("Corrupt retro PNG: " + assetPath));
           return;
         }
-        cache.set(key, img2);
+        cache2.set(key, img2);
         resolve();
       };
       img2.onerror = () => reject(Error("Could not load retro art: " + assetPath));
@@ -15248,7 +15811,7 @@
       ready2 = true;
       return true;
     });
-    return loading;
+    return loading2;
   }
 
   // src/game/reboot-art.mjs
@@ -16464,613 +17027,6 @@
     return { width: 44 * sc, height: 54 * sc };
   }
 
-  // src/game/castle-visual.mjs
-  var CASTLE_ART_SCENE = Object.freeze({
-    width: 1254,
-    height: 1474,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 27,
-    originY: 250
-  });
-  var scenes = {
-    background: "castle-background.png",
-    foreground: "castle-foreground.png",
-    king: "castle-king.png",
-    guard: "castle-guard.png",
-    guardEast: "castle-guard-east.png",
-    refugee: "castle-refugee.png",
-    raider: "castle-raider.png",
-    libraryBackground: "castle-library-background.png",
-    libraryForeground: "castle-library-foreground.png",
-    librarian: "castle-librarian.png"
-  };
-  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
-    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
-  }
-  var CASTLE_SCENE_SCALE = 0.44;
-  var ART_VERSION = "20261111-generated-hero-walk-v1";
-  var cache2 = { ready: false, failed: false, images: {} };
-  var lastHeroSprite = "";
-  function castleArtDebug() {
-    return { ready: cache2.ready, lastHeroSprite };
-  }
-  function heroGaitFrame(motion, t) {
-    if (!motion || t < 0.17 || t > 0.86) return 0;
-    return motion.step % 2 === 0 ? 1 : 2;
-  }
-  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4, weapon = null) {
-    if (!cache2.ready) throw Error("Shared protagonist art not loaded");
-    const key = `hero_${facing}_${frame}`;
-    const sprite2 = cache2.images[key];
-    if (!sprite2) throw Error("Missing protagonist art: " + key);
-    lastHeroSprite = key;
-    const w = Math.round(sprite2.width * scale), h = Math.round(sprite2.height * scale);
-    const x = Math.round(feetX - w / 2), y = Math.round(feetY - h);
-    c.save();
-    c.imageSmoothingEnabled = false;
-    c.fillStyle = "#1319297a";
-    c.beginPath();
-    c.ellipse(
-      Math.round(feetX),
-      Math.round(feetY - 3),
-      Math.max(7, Math.round(w * 0.34)),
-      Math.max(3, Math.round(w * 0.09)),
-      0,
-      0,
-      Math.PI * 2
-    );
-    c.fill();
-    c.drawImage(sprite2, x, y, w, h);
-    drawHeldSword(c, weapon, facing, x, y, scale);
-    c.restore();
-  }
-  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-  function castleArtReady() {
-    return cache2.ready;
-  }
-  function preloadCastleArt(onReady = () => {
-  }) {
-    if (cache2.ready) {
-      onReady();
-      return Promise.resolve();
-    }
-    if (cache2.loading) return cache2.loading.then(onReady);
-    cache2.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
-      const path = "assets/castle/" + file;
-      const image = new Image();
-      image.onload = () => {
-        cache2.images[name] = image;
-        resolve();
-      };
-      image.onerror = () => {
-        cache2.failed = true;
-        reject(Error("Castle art missing: " + path));
-      };
-      image.src = path + "?v=" + ART_VERSION;
-    }))).then(() => {
-      const bg = cache2.images.background;
-      if (bg.naturalWidth !== 1254 || bg.naturalHeight !== 1474) throw Error("Wrong castle-art dimensions: assets/castle/" + scenes.background);
-      cache2.ready = true;
-      onReady();
-    });
-    return cache2.loading;
-  }
-  function castleMapPoint(x, y) {
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: m.originX + (x + 0.5) * m.tileWidth,
-      y: m.originY + (y + 0.5) * m.tileHeight
-    };
-  }
-  function castleVisualPosition(s, motion = null, now = performance.now()) {
-    const pos = s.pos;
-    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
-    return {
-      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
-      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
-      t
-    };
-  }
-  function sceneOffset(target, viewSize, sceneSize) {
-    return viewSize >= sceneSize ? (sceneSize - viewSize) / 2 : clamp2(target, 0, sceneSize - viewSize);
-  }
-  function castleCamera(canvas, s, motion = null, now = performance.now()) {
-    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
-    const viewWidth = canvas.width, viewHeight = canvas.height;
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: sceneOffset(p.x - viewWidth / 2, viewWidth, m.width),
-      // Initial view shows the throne and the hero together, rather
-      // than cutting the king off above the phone viewport.
-      y: sceneOffset(p.y - viewHeight * 0.75, viewHeight, m.height),
-      player: p
-    };
-  }
-  function drawSmallPerson(c, cx, cy, kind) {
-    c.save();
-    c.translate(Math.round(cx - 30), Math.round(cy - 56));
-    const tile = (x, y, w, h, color3) => {
-      c.fillStyle = color3;
-      c.fillRect(x * 5, y * 5, w * 5, h * 5);
-    };
-    const color2 = kind === "refugee" ? "#a5676a" : "#47788e";
-    tile(3, 0, 6, 1, "#27283b");
-    tile(2, 1, 8, 2, "#483a38");
-    tile(3, 3, 6, 3, "#e9bb8d");
-    tile(4, 4, 1, 1, "#3b2c36");
-    tile(7, 4, 1, 1, "#3b2c36");
-    tile(2, 6, 8, 6, color2);
-    tile(4, 6, 4, 2, "#d8ad69");
-    tile(1, 7, 2, 4, "#edc59b");
-    tile(9, 7, 2, 4, "#edc59b");
-    tile(2, 12, 3, 1, "#292d3c");
-    tile(7, 12, 3, 1, "#292d3c");
-    c.restore();
-  }
-  function drawSword(c, x, y) {
-    c.save();
-    c.translate(Math.round(x), Math.round(y));
-    c.fillStyle = "#252b42";
-    c.fillRect(-6, -32, 12, 53);
-    c.fillStyle = "#e9e4d5";
-    c.fillRect(-4, -39, 8, 32);
-    c.fillStyle = "#88cbd9";
-    c.fillRect(-1, -35, 3, 23);
-    c.fillStyle = "#e4ba61";
-    c.fillRect(-22, -11, 44, 7);
-    c.fillStyle = "#765c50";
-    c.fillRect(-5, -6, 10, 22);
-    c.fillStyle = "#ffdf99";
-    c.fillRect(-8, 16, 16, 5);
-    c.restore();
-  }
-  var swordHand = {
-    left: [50, 95, -1.1],
-    right: [46, 95, 1.1],
-    down: [24, 95, -0.84],
-    up: [18, 94, -0.48]
-  };
-  function drawHeldSword(c, weapon, facing, x, y, scale, glow = false) {
-    if (weapon !== STARDUST_SWORD.id && weapon !== "hero") return;
-    const [handX, handY, angle] = swordHand[facing];
-    c.save();
-    c.translate(x + handX * scale, y + handY * scale);
-    c.scale(scale, scale);
-    c.rotate(angle);
-    const swordScale = weapon === "hero" ? 0.84 : 0.66;
-    c.scale(swordScale, swordScale);
-    drawSword(c, 0, -5);
-    if (glow) drawStarGlow(c, 0, -42);
-    c.restore();
-  }
-  function drawStarGlow(c, x, y) {
-    const glow = c.createRadialGradient(x, y, 2, x, y, 43);
-    glow.addColorStop(0, "#d2f4ffe6");
-    glow.addColorStop(1, "#83c8ff00");
-    c.fillStyle = glow;
-    c.fillRect(x - 43, y - 43, 86, 86);
-    for (const [dx, dy, r2] of [[0, 0, 10], [-19, -12, 6], [20, -20, 8], [27, 9, 5], [-25, 14, 4]]) {
-      c.fillStyle = "#fff5c6";
-      c.beginPath();
-      c.moveTo(x + dx, y + dy - r2);
-      c.lineTo(x + dx + 2, y + dy - 2);
-      c.lineTo(x + dx + r2 * 0.65, y + dy);
-      c.lineTo(x + dx + 2, y + dy + 2);
-      c.lineTo(x + dx, y + dy + r2);
-      c.lineTo(x + dx - 2, y + dy + 2);
-      c.lineTo(x + dx - r2 * 0.65, y + dy);
-      c.lineTo(x + dx - 2, y + dy - 2);
-      c.fill();
-    }
-  }
-  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, pixels = null, follower = null) {
-    if (!cache2.ready) return false;
-    if (s.pos.map !== "castle") throw Error("Castle art on another map");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
-    const z = pixels?.castleScale ?? (wideShot ? 0.36 : CASTLE_SCENE_SCALE);
-    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
-    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
-    if (wideShot) {
-      const center = castleMapPoint(7.5, 5.5);
-      camera.x = clamp2(center.x - W2 / 2, 0, Math.max(0, CASTLE_ART_SCENE.width - W2));
-      camera.y = clamp2(center.y - H2 * 0.43, 0, Math.max(0, CASTLE_ART_SCENE.height - H2));
-    }
-    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
-    c.save();
-    c.scale(z, z);
-    c.fillStyle = "#0b101c";
-    c.fillRect(0, 0, W2, H2);
-    c.drawImage(cache2.images.background, snap(-camera.x), snap(-camera.y));
-    const plot = (x, y) => {
-      const p = castleMapPoint(x, y);
-      return { x: p.x - camera.x, y: p.y - camera.y };
-    };
-    const map = MAPS.castle;
-    const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
-    const actors2 = [];
-    for (const n of map.npcs) {
-      const entering = n.kind === "refugee" && intro.page === "royalReport";
-      const p = plot(n.x, entering ? 6 + 2 * ((intro.raiderY ?? 8) - 7) : n.y);
-      if (entering && intro.raiderY === void 0) continue;
-      actors2.push({ z: p.y, draw: () => {
-        let im, anchor = 0, lift = 0;
-        if (n.kind === "king") {
-          im = cache2.images.king;
-          lift = 53;
-        } else if (n.id === "castle-guard") {
-          im = cache2.images.guard;
-          anchor = -42;
-        } else if (n.id === "castle-guard-east") {
-          im = cache2.images.guardEast;
-          anchor = 44;
-        } else if (n.id === "refugee") {
-          im = cache2.images.refugee;
-          lift = 41;
-        } else {
-          drawSmallPerson(c, p.x, p.y, n.kind);
-          return;
-        }
-        c.drawImage(im, snap(p.x - im.width / 2 + anchor), snap(p.y + lift - im.height));
-        if (n.kind === "refugee") {
-          c.save();
-          c.translate(p.x + 35, p.y + 23);
-          c.scale(0.62, 0.62);
-          drawSmallPerson(c, 0, 0, "refugee");
-          c.restore();
-        }
-      } });
-    }
-    if (intro.page === "royalReport") {
-      for (const [x, y] of [[4, 5], [5, 6], [10, 5], [11, 6]]) {
-        const p = plot(x, y);
-        actors2.push({ z: p.y, draw: () => drawSmallPerson(c, p.x, p.y, "refugee") });
-      }
-    }
-    for (const e of map.objects) {
-      if (!entityAt(s, map, e.x, e.y)) continue;
-      if (e.kind === "raider" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
-      const p = plot(e.x, e.kind === "raider" ? intro.raiderY ?? (intro.page && intro.page !== "refugee" ? e.y - 1 : e.y) : e.y);
-      actors2.push({ z: p.y, draw: () => {
-        if (e.kind === "raider") {
-          const im = cache2.images.raider;
-          c.drawImage(im, snap(p.x - im.width / 2), snap(p.y + 42 - im.height));
-        } else if (e.kind === "sword") {
-          const x = snap(p.x - 32), y = snap(p.y + 30);
-          c.fillStyle = "#5a506b";
-          c.fillRect(x - 23, y + 5, 46, 18);
-          c.fillStyle = "#8e8099";
-          c.fillRect(x - 26, y, 52, 8);
-          c.fillStyle = "#24243e";
-          c.fillRect(x - 6, y + 2, 12, 4);
-          c.fillStyle = "#746681";
-          c.fillRect(x - 25, y + 19, 50, 5);
-          if (!swordTaken) {
-            c.save();
-            c.translate(x, y + 4);
-            c.rotate(Math.PI);
-            c.scale(0.64, 0.64);
-            drawSword(c, 0, 39);
-            c.restore();
-          }
-        }
-      } });
-    }
-    if (follower) {
-      const p = plot(follower.x, follower.y);
-      actors2.push({ z: p.y, draw: () => {
-        c.save();
-        c.translate(snap(p.x), snap(p.y + 38));
-        c.scale(3, 3);
-        if (follower.sprite === "luca-field") paintLucaFieldSprite(c, -12, -24, follower.facing);
-        else paintActor(c, -12, -24, follower.sprite, follower.facing, follower.frame);
-        c.restore();
-      } });
-    }
-    const pp = camera.player;
-    actors2.push({ z: pp.y - camera.y, draw: () => {
-      const t = castleVisualPosition(s, motion, now).t;
-      const isMoving = motion && motion.map === "castle" && t < 1;
-      const frame = isMoving ? heroGaitFrame(motion, t) : 0;
-      const hero = cache2.images[`hero_${s.pos.facing}_${frame}`];
-      if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
-      lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
-      const bob = isMoving ? -Math.round(Math.sin(t * Math.PI) * 2) : 0;
-      const sx = snap(pp.x - camera.x - hero.width / 2);
-      const sy = snap(pp.y - camera.y + 43 - hero.height + bob);
-      c.fillStyle = "#11132065";
-      c.beginPath();
-      c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
-      c.fill();
-      c.drawImage(hero, sx, sy);
-      drawHeldSword(c, s.equipment.weapon, s.pos.facing, sx, sy, 1, intro.swordGlow || intro.page === "witness");
-    } });
-    actors2.sort((a, b) => a.z - b.z);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache2.images.foreground, snap(-camera.x), snap(-camera.y));
-    c.restore();
-    return true;
-  }
-  var CASTLE_LIBRARY_SCENE = Object.freeze({
-    width: 1254,
-    height: 1380,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 147,
-    originY: 320
-  });
-  function castleLibraryPoint(x, y) {
-    const m = CASTLE_LIBRARY_SCENE;
-    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
-  }
-  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
-    const m = CASTLE_LIBRARY_SCENE;
-    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
-    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
-    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
-    const p = castleLibraryPoint(x, y);
-    return {
-      x: sceneOffset(p.x - canvas.width / 2, canvas.width, m.width),
-      y: sceneOffset(p.y - canvas.height * 0.6, canvas.height, m.height),
-      player: p,
-      t
-    };
-  }
-  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), pixels = null) {
-    if (!cache2.ready) return false;
-    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const z = pixels?.castleScale ?? CASTLE_SCENE_SCALE;
-    const cam = castleLibraryCamera({
-      width: Math.ceil(canvas.width / z),
-      height: Math.ceil(canvas.height / z)
-    }, room, motion, now);
-    c.save();
-    c.scale(z, z);
-    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
-    const sx = (x) => snap(x - cam.x), sy = (y) => snap(y - cam.y);
-    c.fillStyle = "#131321";
-    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
-    c.drawImage(cache2.images.libraryBackground, sx(0), sy(0));
-    const elder = castleLibraryPoint(6, 3), elderSprite = cache2.images.librarian;
-    const heroFrame = motion && cam.t < 1 ? heroGaitFrame(motion, cam.t) : 0;
-    const heroKey = "hero_" + room.facing + "_" + heroFrame;
-    const heroSprite = cache2.images[heroKey];
-    if (!heroSprite) throw Error("Missing castle room sprite " + heroKey);
-    lastHeroSprite = heroKey;
-    const actors2 = [
-      { y: elder.y, draw: () => {
-        c.drawImage(elderSprite, sx(elder.x - elderSprite.width / 2), sy(elder.y + 42 - elderSprite.height));
-      } },
-      { y: cam.player.y, draw: () => {
-        const x = sx(cam.player.x - heroSprite.width / 2), y = sy(cam.player.y + 43 - heroSprite.height);
-        c.fillStyle = "#10132575";
-        c.beginPath();
-        c.ellipse(x + heroSprite.width / 2, y + heroSprite.height - 9, 32, 9, 0, 0, Math.PI * 2);
-        c.fill();
-        c.drawImage(heroSprite, x, y);
-      } }
-    ];
-    actors2.sort((a, b) => a.y - b.y);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache2.images.libraryForeground, sx(0), sy(0));
-    c.restore();
-    return true;
-  }
-
-  // src/game/interiors.mjs
-  var ENTRIES = Object.freeze([
-    {
-      id: "castle-library",
-      map: "castle",
-      door: { x: 1, y: 7 },
-      name: "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u30FB\u66F8\u5EAB",
-      theme: "library",
-      keeper: "\u66F8\u5EAB\u756A",
-      words: ["\u66F8\u5EAB\u756A\u300C\u57CE\u306B\u53E4\u304F\u304B\u3089\u6B8B\u308B\u5730\u56F3\u306F\u3001\u5192\u967A\u8005\u306E\u9053\u3057\u308B\u3079\u306B\u306A\u308B\u3093\u3060\u300D", "\u66F8\u5EAB\u756A\u300C\u56F0\u3063\u305F\u3089\u3001\u753A\u306E\u4EBA\u306E\u8A71\u3092\u805E\u3044\u3066\u307F\u308B\u3068\u3044\u3044\u3088\u300D"]
-    },
-    {
-      id: "leaf-west-home",
-      map: "leaf",
-      door: { x: 3, y: 17 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u4ED5\u7ACB\u3066\u5C4B\u306E\u5BB6",
-      theme: "home",
-      keeper: "\u4ED5\u7ACB\u3066\u5C4B",
-      words: ["\u4ED5\u7ACB\u3066\u5C4B\u300C\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u670D\u3092\u3001\u307F\u3093\u306A\u3067\u7E55\u3063\u3066\u3044\u308B\u3093\u3060\u300D", "\u4ED5\u7ACB\u3066\u5C4B\u300C\u6D1E\u7A9F\u3078\u884C\u304F\u306A\u3089\u7121\u7406\u3092\u3057\u306A\u3044\u3067\u306D\u300D"]
-    },
-    {
-      id: "leaf-east-home",
-      map: "leaf",
-      door: { x: 23, y: 17 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u6751\u4EBA\u306E\u5BB6",
-      theme: "home",
-      keeper: "\u30EA\u30FC\u30D5\u30A1\u306E\u4F4F\u4EBA",
-      words: ["\u6751\u4EBA\u300C\u9B54\u7269\u304C\u3044\u306A\u304F\u306A\u308C\u3070\u3001\u307E\u305F\u753A\u3082\u8CD1\u3084\u304B\u306B\u306A\u308B\u3088\u300D", "\u6751\u4EBA\u300C\u65C5\u306E\u4EBA\u3082\u3001\u3053\u306E\u753A\u3067\u306F\u5927\u5207\u306A\u304A\u5BA2\u3055\u3093\u3055\u300D"]
-    },
-    {
-      id: "leaf-inn",
-      map: "leaf",
-      door: { x: 2, y: 8 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u4EBA\u306E\u5BBF",
-      theme: "inn",
-      keeper: "\u5BBF\u306E\u5973\u5C06",
-      service: "inn",
-      words: ["\u5BBF\u306E\u5973\u5C06\u300C\u75B2\u308C\u305F\u8DB3\u3092\u4F11\u3081\u3066\u3044\u304D\u306A\u3055\u3044\u3002\u6E29\u304B\u306A\u5BDD\u5E8A\u3092\u7528\u610F\u3057\u307E\u3059\u300D"]
-    },
-    {
-      id: "leaf-shop",
-      map: "leaf",
-      door: { x: 14, y: 8 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u85AC\u8349\u5C4B",
-      theme: "shop",
-      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
-      service: "shop",
-      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u4F55\u304C\u5FC5\u8981\u304B\u3001\u68DA\u3092\u898B\u3066\u304B\u3089\u6C7A\u3081\u3066\u304A\u304F\u308C\u300D"]
-    },
-    {
-      id: "sailun-inn",
-      map: "sailun",
-      door: { x: 4, y: 9 },
-      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u6F6E\u98A8\u306E\u5BBF",
-      theme: "harbor-inn",
-      keeper: "\u5BBF\u306E\u4E3B\u4EBA",
-      service: "inn",
-      words: ["\u5BBF\u306E\u4E3B\u4EBA\u300C\u6E2F\u3092\u884C\u304D\u4EA4\u3046\u8239\u306E\u4EBA\u3082\u3001\u3053\u3053\u3067\u591C\u3092\u660E\u304B\u3059\u3093\u3060\u300D"]
-    },
-    {
-      id: "sailun-shop",
-      map: "sailun",
-      door: { x: 16, y: 9 },
-      name: "\u30BB\u30A4\u30EB\u30F3\u30FB\u8239\u5177\u3068\u9053\u5177\u306E\u5E97",
-      theme: "harbor-shop",
-      keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
-      service: "shop",
-      words: ["\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA\u300C\u6D77\u306E\u9053\u5177\u3082\u3001\u65C5\u306B\u5F79\u7ACB\u3064\u3082\u306E\u3082\u63C3\u3048\u3066\u3044\u308B\u3088\u300D"]
-    }
-  ]);
-  var W = 12;
-  var H = 10;
-  var ENTRY = { x: 6, y: 8 };
-  var blocked = /* @__PURE__ */ new Set(["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"]);
-  var SLOTS = ["2,3", "2,4", "9,3", "9,4", "3,6", "8,6", "1,2", "10,2"];
-  var PRESETS = {
-    "castle-library": [
-      ["shelf", "\u6B74\u53F2\u66F8\u306E\u68DA", "\u3053\u306E\u56FD\u306E\u53E4\u3044\u5730\u56F3\u304C\u4F55\u518A\u3082\u3042\u308B\u3002\u3069\u308C\u3082\u9053\u304C\u5C11\u3057\u305A\u3064\u9055\u3046\u3002"],
-      ["shelf", "\u65C5\u306E\u8A18\u9332", "\u4ED6\u56FD\u306E\u8A00\u8449\u3067\u66F8\u304B\u308C\u305F\u65C5\u306E\u8A18\u9332\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["scrollcase", "\u5DFB\u7269\u68DA", "\u53E4\u3044\u5199\u672C\u304C\u4E01\u5BE7\u306B\u5DFB\u304B\u308C\u3066\u3044\u308B\u3002\u8AB0\u304B\u304C\u3053\u3053\u3067\u5B88\u308A\u7D9A\u3051\u305F\u306E\u3060\u308D\u3046\u3002"],
-      ["shelf", "\u661F\u306E\u8A18\u9332", "\u7D30\u304B\u306A\u661F\u56F3\u304C\u63CF\u304B\u308C\u3066\u3044\u308B\u3002\u8A18\u3055\u308C\u305F\u5E74\u6708\u306F\u3059\u3067\u306B\u6D88\u3048\u3066\u3044\u305F\u3002"],
-      ["table", "\u8AAD\u66F8\u673A", "\u624B\u5165\u308C\u3055\u308C\u305F\u7FBD\u6839\u30DA\u30F3\u3068\u3001\u8AAD\u307F\u304B\u3051\u306E\u672C\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
-      ["crate", "\u4FDD\u7BA1\u7BB1", "\u6E7F\u6C17\u3092\u9632\u3050\u5E03\u3067\u5927\u5207\u306A\u6587\u66F8\u304C\u5305\u307E\u308C\u3066\u3044\u305F\u3002"],
-      ["window", "\u66F8\u5EAB\u306E\u7A93", "\u9AD8\u3044\u7A93\u304B\u3089\u3001\u9060\u304F\u306E\u753A\u4E26\u307F\u306B\u5149\u304C\u5DEE\u3057\u8FBC\u3093\u3067\u3044\u308B\u3002"],
-      ["globe", "\u53E4\u3044\u5730\u7403\u5100", "\u5927\u9678\u306E\u6771\u7AEF\u306F\u307E\u3060\u7A7A\u767D\u3060\u3002\u66F8\u5EAB\u756A\u3082\u305D\u306E\u5148\u3092\u77E5\u3089\u306A\u3044\u3089\u3057\u3044\u3002"]
-    ],
-    "leaf-west-home": [
-      ["wardrobe", "\u4ED5\u7ACB\u3066\u68DA", "\u4ED5\u7ACB\u3066\u9014\u4E2D\u306E\u65C5\u88C5\u304C\u80A9\u3092\u4E26\u3079\u3066\u3044\u308B\u3002"],
-      ["fabric", "\u5E03\u306E\u5C71", "\u4E08\u592B\u306A\u5E03\u3068\u3001\u5B50\u3069\u3082\u7528\u306E\u5C0F\u3055\u306A\u4E0A\u7740\u304C\u7A4D\u307E\u308C\u3066\u3044\u308B\u3002"],
-      ["loom", "\u6A5F\u7E54\u308A\u6A5F", "\u8DB3\u8E0F\u307F\u3067\u52D5\u304F\u6A5F\u7E54\u308A\u6A5F\u3002\u4FEE\u7E55\u306E\u305F\u3081\u306B\u4F55\u5EA6\u3082\u4F7F\u308F\u308C\u3066\u3044\u308B\u3002"],
-      ["fabric", "\u7CF8\u3068\u91DD", "\u67D3\u3081\u305F\u7CF8\u304C\u8272\u3054\u3068\u306B\u5DFB\u304B\u308C\u3001\u91DD\u304C\u5C0F\u7BB1\u306B\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["sewing", "\u88C1\u7E2B\u53F0", "\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u306E\u7834\u308C\u305F\u8896\u304C\u3001\u4E00\u91DD\u305A\u3064\u7E2B\u3044\u5408\u308F\u3055\u308C\u3066\u3044\u308B\u3002"],
-      ["crate", "\u670D\u306E\u6728\u7BB1", "\u6D17\u3044\u305F\u3066\u306E\u8863\u670D\u304C\u5E03\u306B\u5305\u307E\u308C\u3066\u3044\u308B\u3002"],
-      ["window", "\u5C0F\u3055\u306A\u7A93", "\u7A93\u306E\u5916\u306B\u306F\u3001\u30EA\u30FC\u30D5\u30A1\u306E\u5E83\u5834\u304C\u898B\u3048\u308B\u3002"],
-      ["vase", "\u767D\u3044\u82B1", "\u5C0F\u3055\u306A\u82B1\u304C\u4E00\u8F2A\u3002\u8584\u6697\u3044\u90E8\u5C4B\u304C\u307B\u3093\u306E\u5C11\u3057\u660E\u308B\u304F\u306A\u308B\u3002"]
-    ],
-    "leaf-east-home": [
-      ["shelf", "\u601D\u3044\u51FA\u306E\u68DA", "\u5BB6\u65CF\u306E\u53E4\u3044\u5199\u771F\u7ACB\u3066\u3068\u3001\u65C5\u5148\u3067\u62FE\u3063\u305F\u5C0F\u77F3\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["cupboard", "\u98DF\u5668\u68DA", "\u6B20\u3051\u305F\u76BF\u3082\u5927\u5207\u306B\u4E26\u3079\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["hearth", "\u6696\u7089", "\u7070\u306F\u307E\u3060\u6E29\u304B\u3044\u3002\u8AB0\u304B\u304C\u3055\u3063\u304D\u307E\u3067\u706B\u3092\u711A\u3044\u3066\u3044\u305F\u3002"],
-      ["cupboard", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u305F\u91CE\u83DC\u3068\u9EA6\u306E\u888B\u3002\u51AC\u306B\u5099\u3048\u3066\u96C6\u3081\u305F\u98DF\u6599\u3060\u3002"],
-      ["table", "\u5915\u98DF\u306E\u673A", "\u4E09\u4EBA\u5206\u306E\u6728\u306E\u5668\u3068\u3001\u5C11\u3057\u3060\u3051\u6B8B\u3063\u305F\u30D1\u30F3\u304C\u3042\u308B\u3002"],
-      ["crate", "\u85AA\u5165\u308C", "\u3088\u304F\u4E7E\u304B\u3057\u305F\u85AA\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
-      ["window", "\u901A\u308A\u306E\u7A93", "\u901A\u308A\u306B\u306F\u4EBA\u304C\u623B\u308A\u3001\u5C11\u3057\u305A\u3064\u65E5\u5E38\u3092\u53D6\u308A\u623B\u3057\u3066\u3044\u308B\u3002"],
-      ["vase", "\u7A93\u8FBA\u306E\u9262", "\u5BB6\u306E\u4EBA\u304C\u80B2\u3066\u3066\u3044\u308B\u3001\u5C0F\u3055\u306A\u7DD1\u306E\u9262\u690D\u3048\u3002"]
-    ],
-    "leaf-inn": [
-      ["bed", "\u65C5\u4EBA\u306E\u5BDD\u5E8A", "\u6E05\u6F54\u306A\u5BDD\u5177\u304C\u63C3\u3063\u3066\u3044\u308B\u3002\u3053\u3053\u306A\u3089\u75B2\u308C\u3092\u53D6\u308C\u305D\u3046\u3060\u3002"],
-      ["bed", "\u7A93\u969B\u306E\u5BDD\u5E8A", "\u6BDB\u5E03\u304C\u4E01\u5BE7\u306B\u7573\u307E\u308C\u3066\u3044\u308B\u3002"],
-      ["cupboard", "\u5BBF\u306E\u98DF\u5668\u68DA", "\u5BA2\u4EBA\u7528\u306E\u6E6F\u98F2\u307F\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["shelf", "\u65C5\u306E\u6848\u5185\u68DA", "\u8857\u9053\u306E\u9053\u9806\u3092\u66F8\u3044\u305F\u5C0F\u3055\u306A\u7D19\u304C\u3042\u308B\u3002"],
-      ["table", "\u5BBF\u306E\u671D\u98DF\u53F0", "\u6E29\u304B\u306A\u30B9\u30FC\u30D7\u306E\u9999\u308A\u304C\u3059\u308B\u3002"],
-      ["crate", "\u65C5\u4EBA\u306E\u8377\u7269\u7BB1", "\u5BA2\u304C\u9810\u3051\u305F\u8377\u7269\u306B\u306F\u3001\u4E00\u3064\u3072\u3068\u3064\u672D\u304C\u4ED8\u3044\u3066\u3044\u308B\u3002"],
-      ["window", "\u671D\u65E5\u306E\u7A93", "\u671D\u306B\u306A\u308B\u3068\u3001\u3053\u3053\u304B\u3089\u3084\u3055\u3057\u3044\u5149\u304C\u5DEE\u3059\u3002"],
-      ["vase", "\u5BBF\u306E\u82B1", "\u67AF\u3089\u3055\u306A\u3044\u3088\u3046\u3001\u6BCE\u65E5\u6C34\u304C\u66FF\u3048\u3089\u308C\u3066\u3044\u308B\u3002"]
-    ],
-    "leaf-shop": [
-      ["shelf", "\u65C5\u306E\u9053\u5177\u68DA", "\u56DE\u5FA9\u85AC\u3084\u5305\u5E2F\u306A\u3069\u304C\u7528\u9014\u3054\u3068\u306B\u6574\u7406\u3055\u308C\u3066\u3044\u308B\u3002"],
-      ["shelf", "\u4FDD\u5B58\u98DF\u306E\u68DA", "\u5E72\u3057\u8089\u3068\u6728\u306E\u6C34\u7B52\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"],
-      ["cupboard", "\u4E88\u5099\u306E\u85AC\u7BB1", "\u3044\u3056\u3068\u3044\u3046\u3068\u304D\u306E\u305F\u3081\u306E\u85AC\u304C\u304D\u3061\u3093\u3068\u3057\u307E\u308F\u308C\u3066\u3044\u308B\u3002"],
-      ["fabric", "\u65C5\u88C5\u306E\u5E03", "\u96E8\u3088\u3051\u306E\u5916\u5957\u304C\u4F55\u679A\u304B\u639B\u3051\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["counter", "\u9053\u5177\u5C4B\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u5E97\u306E\u4E3B\u4EBA\u304C\u6BCE\u671D\u78E8\u3044\u3066\u3044\u308B\u6728\u306E\u30AB\u30A6\u30F3\u30BF\u30FC\u3002"],
-      ["crate", "\u88DC\u5145\u5F85\u3061\u306E\u7BB1", "\u6E2F\u304B\u3089\u5C4A\u3044\u305F\u54C1\u306E\u8377\u672D\u304C\u3064\u3044\u3066\u3044\u308B\u3002"],
-      ["window", "\u901A\u308A\u306E\u7A93", "\u30EA\u30FC\u30D5\u30A1\u306E\u4EBA\u305F\u3061\u304C\u8CB7\u3044\u7269\u306B\u7ACB\u3061\u5BC4\u3063\u3066\u3044\u308B\u3002"],
-      ["vase", "\u5C0F\u3055\u306A\u98FE\u308A", "\u6728\u5F6B\u308A\u306E\u304A\u5B88\u308A\u304C\u3001\u68DA\u306E\u9685\u306B\u98FE\u3089\u308C\u3066\u3044\u308B\u3002"]
-    ],
-    "sailun-inn": [
-      ["bed", "\u8239\u4E57\u308A\u306E\u5BDD\u5E8A", "\u9577\u65C5\u306E\u8239\u4E57\u308A\u3092\u8FCE\u3048\u308B\u9811\u4E08\u306A\u6728\u306E\u5BDD\u53F0\u3002"],
-      ["bed", "\u6CE2\u97F3\u306E\u5BDD\u5E8A", "\u7720\u308B\u3068\u3001\u7A93\u306E\u5916\u304B\u3089\u6CE2\u306E\u97F3\u304C\u805E\u3053\u3048\u308B\u3002"],
-      ["cupboard", "\u8239\u5BA2\u306E\u98DF\u5668\u68DA", "\u539A\u624B\u306E\u5668\u306F\u3001\u63FA\u308C\u308B\u8239\u3067\u3082\u5272\u308C\u306B\u304F\u3044\u3002"],
-      ["shelf", "\u6D77\u56F3\u306E\u68DA", "\u6E2F\u304B\u3089\u5317\u3078\u4F38\u3073\u308B\u822A\u8DEF\u304C\u66F8\u304B\u308C\u3066\u3044\u308B\u3002"],
-      ["table", "\u6E2F\u5BBF\u306E\u98DF\u4E8B\u53F0", "\u9B5A\u306E\u716E\u8FBC\u307F\u304C\u6E6F\u6C17\u3092\u7ACB\u3066\u3066\u3044\u308B\u3002"],
-      ["barrel", "\u6C34\u306E\u6A3D", "\u8239\u304B\u3089\u904B\u3093\u3060\u771F\u6C34\u304C\u84C4\u3048\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["window", "\u6E2F\u306E\u7A93", "\u505C\u6CCA\u3057\u3066\u3044\u308B\u5C0F\u821F\u306E\u5E06\u304C\u98A8\u306B\u63FA\u308C\u3066\u3044\u308B\u3002"],
-      ["vase", "\u6D5C\u306E\u82B1", "\u6F6E\u98A8\u306B\u3082\u8CA0\u3051\u305A\u54B2\u304F\u3001\u5C0F\u3055\u306A\u9EC4\u8272\u3044\u82B1\u3002"]
-    ],
-    "sailun-shop": [
-      ["shelf", "\u65C5\u306E\u88C5\u5099\u68DA", "\u4E08\u592B\u306A\u9769\u7D10\u3068\u9632\u6C34\u888B\u304C\u63C3\u3048\u3066\u3042\u308B\u3002"],
-      ["shelf", "\u8239\u5177\u68DA", "\u6ED1\u8ECA\u3084\u30ED\u30FC\u30D7\u306A\u3069\u3001\u8239\u306E\u4FEE\u7406\u306B\u5FC5\u8981\u306A\u9053\u5177\u304C\u3042\u308B\u3002"],
-      ["cupboard", "\u91D1\u5C5E\u306E\u88C5\u5099\u7BB1", "\u78E8\u304B\u308C\u305F\u91D1\u5177\u304C\u6574\u7136\u3068\u53CE\u3081\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["barrel", "\u5E06\u5E03\u306E\u675F", "\u6F6E\u98A8\u306B\u3082\u4E08\u592B\u306A\u5E06\u5E03\u304C\u4E38\u304F\u675F\u306D\u3089\u308C\u3066\u3044\u308B\u3002"],
-      ["counter", "\u6E2F\u753A\u306E\u30AB\u30A6\u30F3\u30BF\u30FC", "\u65C5\u4EBA\u3068\u8239\u4E57\u308A\u304C\u4EA4\u308F\u3059\u3001\u53E4\u3044\u5546\u8AC7\u306E\u8DE1\u304C\u6B8B\u3063\u3066\u3044\u308B\u3002"],
-      ["crate", "\u6D77\u8DEF\u306E\u8377\u7BB1", "\u6E2F\u3078\u5C4A\u3044\u305F\u3070\u304B\u308A\u306E\u54C1\u304C\u5C01\u3092\u3055\u308C\u305F\u307E\u307E\u7F6E\u3044\u3066\u3042\u308B\u3002"],
-      ["window", "\u6F6E\u98A8\u306E\u7A93", "\u5916\u304B\u3089\u6F6E\u306E\u9999\u308A\u3068\u3001\u30AB\u30E2\u30E1\u306E\u58F0\u304C\u5C4A\u304F\u3002"],
-      ["globe", "\u5C0F\u3055\u306A\u822A\u6D77\u56F3", "\u30BB\u30A4\u30EB\u30F3\u304B\u3089\u5317\u306E\u5CAC\u307E\u3067\u3001\u5371\u967A\u306A\u6D45\u702C\u304C\u66F8\u304D\u8FBC\u307E\u308C\u3066\u3044\u308B\u3002"]
-    ]
-  };
-  var ROOM_FURNISHINGS = new Map(Object.entries(PRESETS).map(([id, items]) => {
-    if (items.length !== SLOTS.length) throw Error("Interior item layout mismatch: " + id);
-    return [id, new Map(items.map(([kind, name, description], i) => [
-      SLOTS[i],
-      Object.freeze({ kind, name, description })
-    ]))];
-  }));
-  function interiorFixtures(room) {
-    const items = ROOM_FURNISHINGS.get(room.id);
-    if (!items) throw Error("Unknown furnished interior: " + room.id);
-    return items;
-  }
-  var resident = { x: 6, y: 3 };
-  function enterableDoor(pos) {
-    const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[pos.facing];
-    return ENTRIES.find((e) => e.map === pos.map && e.door.x === pos.x + delta[0] && e.door.y === pos.y + delta[1]) || null;
-  }
-  function makeInterior(door) {
-    if (!ENTRIES.some((e) => e.id === door.id)) throw Error("Unknown interior");
-    return { id: door.id, x: ENTRY.x, y: ENTRY.y, facing: "up" };
-  }
-  function interiorDefinition(room) {
-    const definition = ENTRIES.find((e) => e.id === room.id);
-    if (!definition) throw Error("Unknown interior " + room.id);
-    return definition;
-  }
-  function moveInside(room, dir) {
-    if (!["up", "down", "left", "right"].includes(dir)) throw Error("Direction invalid");
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
-    const x = room.x + dx, y = room.y + dy;
-    if (x === 6 && y === 9) return { kind: "exit", room: null };
-    const facing = { ...room, facing: dir };
-    if (x <= 0 || y <= 1 || x >= W - 1 || y >= H - 1 || blocked.has(x + "," + y) || x === resident.x && y === resident.y)
-      return { kind: "blocked", room: facing };
-    return { kind: "walk", room: { ...facing, x, y } };
-  }
-  function interiorTarget(room) {
-    const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
-    if (!d) throw Error("Invalid interior direction");
-    return { x: room.x + d[0], y: room.y + d[1] };
-  }
-  function investigateInside(room) {
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
-    const x = room.x + dx, y = room.y + dy;
-    const definition = interiorDefinition(room);
-    if (x === resident.x && y === resident.y) return definition.words;
-    const item = interiorFixtures(room).get(x + "," + y);
-    if (item) return [item.description];
-    if (x === 6 && y === 9) return ["\u6249\u304B\u3089\u5916\u3078\u623B\u308C\u308B\u3002\u4E0B\u3078\u6B69\u3053\u3046\u3002"];
-    return ["\u3042\u305F\u308A\u3092\u8ABF\u3079\u305F\u3002\u5BB6\u5177\u3084\u751F\u6D3B\u306E\u9053\u5177\u304C\u4E26\u3093\u3067\u3044\u308B\u3002"];
-  }
-  function interiorPrompt(room) {
-    const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[room.facing];
-    const x = room.x + dx, y = room.y + dy;
-    if (x === resident.x && y === resident.y) {
-      const def = interiorDefinition(room);
-      return def.service === "inn" ? "A  \u5BBF\u6CCA\u3059\u308B" : def.service === "shop" ? "A  \u8CB7\u3044\u7269\u3092\u3059\u308B" : "A  " + def.keeper + "\u3068\u8A71\u3059";
-    }
-    const fixture = interiorFixtures(room).get(x + "," + y);
-    if (fixture) return "A  " + fixture.name + "\u3092\u8ABF\u3079\u308B";
-    return "";
-  }
-
   // src/game/room-scene-art.mjs
   var F2 = (c, x, y, w, h, col) => {
     c.fillStyle = col;
@@ -17409,7 +17365,7 @@
     "west-home": [141, 180],
     "east-home": [105, 180]
   };
-  var images = /* @__PURE__ */ new Map();
+  var images2 = /* @__PURE__ */ new Map();
   var loaded = null;
   function preloadLeafRedoArt() {
     if (loaded) return loaded;
@@ -17421,7 +17377,7 @@
           reject(Error("Invalid Leaf source: " + src));
           return;
         }
-        images.set(key, image);
+        images2.set(key, image);
         resolve();
       };
       image.onerror = () => reject(Error("Missing generated Leaf source: " + src));
@@ -17431,7 +17387,7 @@
     return loaded;
   }
   var img = (key) => {
-    const image = images.get(key);
+    const image = images2.get(key);
     if (!image) throw Error("Leaf redo art not preloaded: " + key);
     return image;
   };
@@ -17458,22 +17414,6 @@
     c.ellipse(Math.round(left + w / 2), Math.round(bottom - 3), Math.round(w * 0.43), 6, 0, 0, Math.PI * 2);
     c.fill();
     c.drawImage(img(key), Math.round(left), Math.round(bottom - h), w, h);
-    c.restore();
-  }
-  function paintLeafNpc(c, x, y, kind, facing = "down") {
-    const roles = ["elder", "helper", "inn", "shop"];
-    const idx = roles.indexOf(kind);
-    if (idx < 0) throw Error("Missing Leaf NPC role " + kind);
-    const direction2 = ["down", "right", "up", "left"].indexOf(facing);
-    if (direction2 < 0) throw Error("Invalid Leaf NPC facing " + facing);
-    const feetX = x + 12, feetY = y + 24, width = 38, height = 54;
-    c.save();
-    c.imageSmoothingEnabled = false;
-    c.fillStyle = "#14242f85";
-    c.beginPath();
-    c.ellipse(feetX, feetY - 2, 12, 3, 0, 0, Math.PI * 2);
-    c.fill();
-    c.drawImage(img("npc"), direction2 * 96, idx * 136, 96, 136, Math.round(feetX - width / 2), Math.round(feetY - height), width, height);
     c.restore();
   }
 
@@ -18879,7 +18819,12 @@
   function addMapActors(s, m, npcFacing = {}) {
     const drawables = [];
     for (const n of m.npcs) {
-      drawables.push({ x: n.x, y: n.y, depth: n.y, draw: (c, screen) => m.id === "leaf" ? paintLeafNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : m.id === "sailun" ? paintSailunNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : paintActor(c, ...screen(n.x, n.y), actors[n.kind] || n.kind, "down", 0) });
+      drawables.push({ x: n.x, y: n.y, depth: n.y, draw: (c, screen) => {
+        const [x, y] = screen(n.x, n.y);
+        const id = npcCast(n);
+        if (id) paintCast(c, id, x + TILE / 2, y + TILE, npcFacing[n.kind] || "down", 52);
+        else paintActor(c, x, y, actors[n.kind] || n.kind, "down", 0);
+      } });
     }
     if (m.id === "leaf" && s.stage === "S02") {
       drawables.push(
@@ -18888,15 +18833,23 @@
           c.save();
           c.translate(x + 27, y + 2);
           c.rotate(Math.PI / 3);
-          paintActor(c, 0, 0, "elder", "down", 0);
+          paintCast(c, "elder", 12, 24, "down", 48);
           c.restore();
         } },
-        { x: 8, y: 9, depth: 9, draw: (c, screen) => paintActor(c, ...screen(8, 9), "refugee", "right", 0) }
+        { x: 8, y: 9, depth: 9, draw: (c, screen) => {
+          const [x, y] = screen(8, 9);
+          paintCast(c, "townswoman", x + 12, y + 24, "right", 48);
+        } }
       );
     }
     for (const obj of m.objects) {
       if (!entityAt(s, m, obj.x, obj.y)) continue;
-      drawables.push({ x: obj.x, y: obj.y, depth: obj.y, draw: (c, screen) => paintObject(c, obj, screen, s) });
+      drawables.push({ x: obj.x, y: obj.y, depth: obj.y, draw: (c, screen) => {
+        if (obj.kind === "onyxBoss") {
+          const [x, y] = screen(obj.x, obj.y);
+          paintCast(c, "voldo", x + TILE / 2, y + TILE, "down", 54);
+        } else paintObject(c, obj, screen, s);
+      } });
     }
     return drawables;
   }
@@ -18989,12 +18942,11 @@
     drawables.push({ x: v.px, y: v.py, depth: v.py + 0.12, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(v.px, v.py);
       const f = motion && v.t < 1 ? heroGaitFrame(motion, v.t) : 0;
-      paintSharedHero(ctx, x + TILE / 2, y + TILE, s.pos.facing, f, 0.4, s.equipment.weapon);
+      paintFieldHero(ctx, x + TILE / 2, y + TILE, motion?.facing ?? s.pos.facing, f, 54, s.equipment.weapon);
     } });
     if (follower) drawables.push({ x: follower.x, y: follower.y, depth: follower.y + 0.11, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(follower.x, follower.y);
-      if (follower.sprite === "luca-field") paintLucaFieldSprite(ctx, x, y, follower.facing);
-      else paintActor(ctx, x, y, follower.sprite, follower.facing, follower.frame);
+      paintCast(ctx, follower.id, x + TILE / 2, y + TILE, follower.facing, 52, follower.frame);
     } });
     drawables.sort((a, b) => a.depth - b.depth);
     for (const actor of drawables) {
@@ -19042,32 +18994,32 @@
     const x = moving ? motion.fromX + (room.x - motion.fromX) * t : room.x;
     const y = moving ? motion.fromY + (room.y - motion.fromY) * t : room.y;
     const drawables = [
-      { y: resident2.y, fn: () => paintActor(
+      { y: resident2.y, fn: () => paintCast(
         ctx,
-        ox + resident2.x * TILE,
-        oy + resident2.y * TILE,
         {
           library: "elder",
-          tailor: "helper",
+          tailor: "townswoman",
           home: "elder",
-          inn: "inn",
-          shop: "shop",
-          "harbor-inn": "inn",
-          "harbor-shop": "shop"
+          inn: "townsman",
+          shop: "townsman",
+          "harbor-inn": "townsman",
+          "harbor-shop": "townsman"
         }[interiorDefinition(room).theme],
+        ox + (resident2.x + 0.5) * TILE,
+        oy + (resident2.y + 1) * TILE,
         "down",
-        0
+        52
       ) },
-      { y: y + 0.1, fn: () => paintSharedHero(
+      { y: y + 0.1, fn: () => paintFieldHero(
         ctx,
         ox + x * TILE + TILE / 2,
         oy + y * TILE + TILE,
         room.facing,
         t < 1 ? heroGaitFrame(motion, t) : 0,
-        0.4
+        54
       ) }
     ];
-    if (lucaVisiting) drawables.push({ y: 6, fn: () => paintLucaFieldSprite(ctx, ox + 5 * TILE, oy + 6 * TILE, "right") });
+    if (lucaVisiting) drawables.push({ y: 6, fn: () => paintCast(ctx, "luca", ox + 5.5 * TILE, oy + 7 * TILE, "right", 52) });
     drawables.sort((a, b) => a.y - b.y).forEach((a) => a.fn());
     ctx.restore();
   }
@@ -19105,9 +19057,10 @@
         const enemyAdvance = active && moving && impact.type === "enemy" ? Math.round(16 * Math.sin(Math.PI * progress)) : 0;
         ctx.save();
         ctx.translate(x + (active ? foeRecoil : 0) + enemyAdvance, feet);
-        ctx.scale(-scale, scale);
+        ctx.scale(enemy.id === "m01" ? scale : -scale, scale);
         if (enemy.hp === 0) ctx.globalAlpha = (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8);
-        if (area === "cave" && enemy.id === "m06" && retroAssetsReady()) {
+        if (enemy.id === "m01") paintPoyon(ctx, 0, 0, 104);
+        else if (area === "cave" && enemy.id === "m06" && retroAssetsReady()) {
           ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
         } else paintMonster(ctx, enemy.id, 0, 0);
         ctx.restore();
@@ -19398,7 +19351,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261119-title-opening-03";
+  $("build-id").textContent = "20261119-castle-device-feedback";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -19468,12 +19421,19 @@
     state = next;
     paint();
   }
-  var landscapeLayout = matchMedia("(orientation:landscape) and (min-width:560px)");
+  var portraitViewport = matchMedia("(orientation:portrait)");
+  function layoutStage() {
+    const portrait = portraitViewport.matches;
+    document.body.classList.toggle("is-portrait", portrait);
+    $("rotate-notice").hidden = !portrait;
+    if (portrait) document.body.style.setProperty("--stage-scale", Math.min(window.innerWidth / 844, window.innerHeight / 390));
+  }
+  layoutStage();
   var explorationPixels = null;
   function sizeGameCanvas(exploring) {
     const canvas = $("game");
     explorationPixels = null;
-    if (exploring && landscapeLayout.matches) {
+    if (exploring && !portraitViewport.matches) {
       const rect4 = $("screen-shell").getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const left = Math.ceil(rect4.left * dpr), top = Math.ceil(rect4.top * dpr);
@@ -19495,8 +19455,7 @@
     for (const prop of ["position", "width", "height", "left", "top"]) canvas.style.removeProperty(prop);
     const rect3 = canvas.getBoundingClientRect();
     if (rect3.width < 1 || rect3.height < 1) return;
-    const landscape = landscapeLayout.matches;
-    const desiredWidth = landscape ? 480 : 288;
+    const desiredWidth = 480;
     if (battle) {
       const ratio = rect3.width / rect3.height;
       const height = Math.max(175, Math.round(desiredWidth / ratio));
@@ -19572,6 +19531,10 @@
     const line = queue[0] || hint || "";
     const dialogue = $("dialogue"), message2 = $("message"), tab = $("speaker-tab");
     const prefix = !battle && queue.length ? line.match(/^([^「」\n]{1,24})(?=「[^」]+」$)/)?.[0] : null;
+    const portrait = $("dialogue-portrait"), src = speakerPortrait(prefix, state.name);
+    dialogue.dataset.portrait = String(Boolean(src));
+    portrait.hidden = !src;
+    if (src && portrait.getAttribute("src") !== src) portrait.src = src;
     dialogue.hidden = !line;
     tab.hidden = !prefix;
     tab.textContent = prefix ?? "";
@@ -19595,7 +19558,7 @@
     }
     const goal = STAGE_GOALS[state.stage];
     if ($("objective-text").textContent !== goal) $("objective-text").textContent = goal;
-    paintLocation(!battle);
+    paintLocation(!battle && !panelMode);
     paintDialogue();
     $("rpg").classList.toggle("in-dialogue", Boolean(queue.length));
     const target = front(state), visible = interior ? null : entityAt(state, MAPS[state.pos.map], target.x, target.y);
@@ -19685,6 +19648,7 @@
       button.classList.remove("is-selected");
       button.removeAttribute("aria-current");
     }
+    $("rpg").classList.remove("in-panel");
     $panel.hidden = true;
     $panel.removeAttribute("data-panel-type");
     $panel.removeAttribute("data-target-selection");
@@ -19710,9 +19674,9 @@
         menuIndex = group[nextMenuSelection(group.map((entry) => entry.choice), index, dir, 1)].index;
       }
     } else {
-      const targetRow = panelMode === "\u306D\u3089\u3046\u6575" && landscapeLayout.matches;
+      const targetRow = panelMode === "\u306D\u3089\u3046\u6575";
       const step = targetRow ? { up: "left", down: "right" }[dir] ?? dir : dir;
-      menuIndex = nextMenuSelection(menuChoices, menuIndex, step, battle && !panelMode ? 1 : 2);
+      menuIndex = nextMenuSelection(menuChoices, menuIndex, step, panelMode === "\u305D\u3046\u3073" || battle && !panelMode ? 1 : 2);
     }
     audio.cue("step");
     markMenu();
@@ -19733,6 +19697,8 @@
     const panelHost = battle ? $("control-actions") : $("screen-shell");
     $shortcuts.hidden = Boolean(battle);
     if ($panel.parentElement !== panelHost) panelHost.prepend($panel);
+    $("rpg").classList.add("in-panel");
+    paintLocation(false);
     $panel.hidden = false;
     $panel.dataset.panelType = battle ? "battle" : summary ? "menu" : "field";
     $("panel-title").textContent = title;
@@ -19757,12 +19723,19 @@
       $content.append(primary, details);
     }
     choices.forEach((choice, i) => {
+      if (choice.section) {
+        const heading = document.createElement("h3");
+        heading.className = "equipment-section";
+        heading.textContent = choice.section;
+        primary.append(heading);
+      }
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = choice.label;
       btn.disabled = Boolean(choice.disabled);
       btn.dataset.commandIndex = String(i);
       if (choice.wide) btn.className = "wide";
+      btn.toggleAttribute("data-equipped", Boolean(choice.equipped));
       btn.addEventListener("click", () => {
         try {
           menuIndex = i;
@@ -20149,16 +20122,33 @@
     ], itemDescription(item), back);
   }
   function equipmentMenu() {
-    const owned = Object.entries(EQUIPMENT).flatMap(([category, list]) => list.filter((e) => ownsEquipment(state, category, e.id)).map((e) => ({ ...e, category })));
-    openPanel("\u305D\u3046\u3073", [
-      ...owned.map((e) => ({ label: e.name + (state.equipment[{ weapons: "weapon", armors: "armor", shields: "shield", accessories: "accessory" }[e.category]] === e.id ? " \u2713" : ""), run: () => {
-        const r2 = equip(state, e.id, e.category);
-        closePanel();
-        storeAndSet(r2.state, true);
-        message([r2.message]);
-      } })),
-      { label: "\u3082\u3069\u308B", run: showMenu, wide: true }
-    ], "\u88C5\u5099\u3092\u9078\u3093\u3067\u5909\u66F4\u3067\u304D\u307E\u3059\u3002");
+    const sections = [
+      ["weapons", "weapon", "\u6B66\u5668"],
+      ["armors", "armor", "\u9632\u5177"],
+      ["shields", "shield", "\u76FE"],
+      ["accessories", "accessory", "\u88C5\u98FE\u54C1"]
+    ];
+    const choices = sections.flatMap(([category, slot, section]) => {
+      const owned = EQUIPMENT[category].filter((item) => ownsEquipment(state, category, item.id));
+      if (!owned.length) return [{ section, label: "\u6240\u6301\u306A\u3057", disabled: true, wide: true }];
+      return owned.map((item, index) => {
+        const equipped = state.equipment[slot] === item.id;
+        const bonus = slot === "weapon" ? "\u3000\u653B\u6483 +" + weaponAttack(state, item) : "";
+        return {
+          label: item.name + bonus + (equipped ? "\u3000\u88C5\u5099\u4E2D" : ""),
+          section: index === 0 ? section : null,
+          equipped,
+          wide: true,
+          run: () => {
+            const result = equip(state, item.id, category);
+            closePanel();
+            storeAndSet(result.state, true);
+            message([result.message]);
+          }
+        };
+      });
+    });
+    openPanel("\u305D\u3046\u3073", [...choices, { label: "\u3082\u3069\u308B", run: showMenu, wide: true }], "\u73FE\u5728\u306E\u653B\u6483\u529B " + stats(state).attack);
   }
   function bookMenu() {
     const seen = CATALOG.monsters.filter((e) => state.defeated[e.id]);
@@ -20306,6 +20296,7 @@
       return;
     }
     if (battle || queue.length || introPage(state)) return;
+    if (walkMotion?.facing && dir !== walkMotion.facing) return;
     if (interior) {
       const previous2 = interior;
       const moved = moveInside(interior, dir);
@@ -20332,7 +20323,16 @@
       const from = followerPosition() ?? previous;
       const facing = from.x === previous.x ? from.y === previous.y ? previous.facing : from.y > previous.y ? "up" : "down" : from.x > previous.x ? "left" : "right";
       followerTrail = activeChapterGuest(state) ? { from, to: { x: previous.x, y: previous.y, facing } } : null;
-      walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145, step: walkStep++ };
+      const stair = previous.map === "castle" && dx === 0 && Math.min(previous.y, r2.state.pos.y) === 2;
+      walkMotion = {
+        map: previous.map,
+        fromX: previous.x,
+        fromY: previous.y,
+        start: performance.now(),
+        duration: 145,
+        step: walkStep++,
+        facing: stair ? dir : null
+      };
     }
     if (r2.kind === "portal") audio.cue("run");
     hint = r2.message || "";
@@ -20418,22 +20418,13 @@
     }
   }
   function cancel() {
-    if (!state) return;
+    if (!state || !panelMode) return;
     audio.cue("cancel");
-    if (panelMode) {
-      try {
-        menuBack?.();
-      } catch (err) {
-        fatal(err);
-      }
-      return;
+    try {
+      menuBack?.();
+    } catch (err) {
+      fatal(err);
     }
-    if (introPage(state) && !battle) return;
-    if (queue.length) {
-      advanceMessage();
-      return;
-    }
-    if (!battle) showMenu();
   }
   var pressedButtons = /* @__PURE__ */ new Map();
   var movePointer = null;
@@ -20514,11 +20505,9 @@
       } catch (err) {
         fatal(err);
       }
-      return;
     }
-    if (panelMode) closePanel();
-    else showMenu();
   });
+  $("adventure-menu").addEventListener("click", showMenu);
   $("panel-close").addEventListener("click", () => {
     if (battle && menuBack && (pendingHeroAction || panelMode === "\u306D\u3089\u3046\u6575")) menuBack();
     else if (battle) battleChoices();
@@ -20540,12 +20529,6 @@
     if (["Escape", "x", "X"].includes(ev.key)) {
       ev.preventDefault();
       if (!ev.repeat) cancel();
-    }
-    if (ev.key.toLowerCase() === "m" && !ev.repeat) {
-      ev.preventDefault();
-      if (!battle) {
-        panelMode ? closePanel() : showMenu();
-      }
     }
   });
   var introPosition = (x, y, facing) => ({ map: "castle", x, y, facing });
@@ -20599,8 +20582,8 @@
     animateIntroWalk(from, path, { page: previousPage }, showIntroPage);
   }
   function playSwordPickup() {
-    const pedestal = introPosition(6, 4, "left");
-    const approach = state.pos.x === pedestal.x && state.pos.y === pedestal.y ? [] : [introPosition(7, 4, "up"), introPosition(6, 4, "left")];
+    const pedestal = introPosition(7, 3, "left");
+    const approach = state.pos.x === pedestal.x && state.pos.y === pedestal.y ? [] : [introPosition(7, 4, "up"), pedestal];
     animateIntroWalk(state.pos, approach, { page: "pickup" }, () => {
       introShot = { pos: pedestal, swordGlow: true };
       try {
@@ -20615,7 +20598,7 @@
         hint = "";
         paint();
         const defense = [
-          introPosition(7, 4, "right"),
+          introPosition(7, 4, "down"),
           introPosition(7, 5, "down"),
           introEntrance,
           introPosition(7, 7, "down"),
@@ -20673,7 +20656,12 @@
     $("opening-plate").src = plate;
     $("opening-subject").hidden = !subject;
     if (subject) $("opening-subject").src = subject;
-    $("opening-text").textContent = text;
+    $("opening-text").replaceChildren(...text.split(/(?<=[。、])/u).filter(Boolean).map((phrase2) => {
+      const clause = document.createElement("span");
+      clause.className = "opening-clause";
+      clause.textContent = phrase2;
+      return clause;
+    }));
     for (const element of [opening.querySelector(".opening-art"), openingCaption]) {
       for (const animation of element.getAnimations()) {
         animation.currentTime = 0;
@@ -20778,23 +20766,18 @@
     }
   }
   function showTitleMenu(menu, focus) {
-    for (const id of ["start-commands", "start-name", "start-slots"]) $(id).hidden = id !== menu;
+    for (const id of ["start-commands", "start-slots"]) $(id).hidden = id !== menu;
     $("start-error").textContent = "";
     focus.focus();
   }
-  $("new-game").addEventListener("click", () => showTitleMenu("start-name", $("hero-name")));
   $("continue-game").addEventListener("click", () => {
     const firstSlot = $("start-slots").querySelector("button:not(:disabled)");
     showTitleMenu("start-slots", firstSlot);
   });
-  for (const [menu, button] of [["start-name", "new-game"], ["start-slots", "continue-game"]]) {
-    $(menu).querySelector(".start-back").addEventListener("click", () => showTitleMenu("start-commands", $(button)));
-  }
-  $("start-name").addEventListener("submit", (ev) => {
-    ev.preventDefault();
+  $("start-slots").querySelector(".start-back").addEventListener("click", () => showTitleMenu("start-commands", $("continue-game")));
+  $("new-game").addEventListener("click", () => {
     try {
-      const name = $("hero-name").value.trim();
-      const s = createState(name);
+      const s = createState();
       if ((has("auto") || has("manual")) && !window.confirm("\u65B0\u3057\u3044\u5192\u967A\u3092\u59CB\u3081\u308B\u3068\u30AA\u30FC\u30C8\u30BB\u30FC\u30D6\u3092\u4E0A\u66F8\u304D\u3057\u307E\u3059\u3002\u738B\u69D8\u306E\u30BB\u30FC\u30D6\u306F\u6B8B\u3057\u307E\u3059\u3002\u7D9A\u3051\u307E\u3059\u304B\uFF1F")) return;
       s.pos = introEntrance;
       s.flags.introPage = "prologue1";
@@ -20833,22 +20816,23 @@
       return;
     }
     try {
-      const loading2 = [
+      const loading3 = [
         preloadRetroAssets(),
         preloadCastleArt(),
         preloadSfcBattleArt(),
         preloadLeafRedoArt(),
         preloadSailunArt(),
-        preloadOpeningArt()
+        preloadOpeningArt(),
+        preloadCastArt()
       ];
       let completed = 0;
       const showProgress = () => {
-        $("loading-label").textContent = `\u7D20\u6750\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026 ${completed} / ${loading2.length}`;
-        $("loading-progress").max = loading2.length;
+        $("loading-label").textContent = `\u7D20\u6750\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026 ${completed} / ${loading3.length}`;
+        $("loading-progress").max = loading3.length;
         $("loading-progress").value = completed;
       };
       showProgress();
-      await Promise.all(loading2.map(async (group) => {
+      await Promise.all(loading3.map(async (group) => {
         await group;
         if (status.hidden) return;
         completed++;
@@ -20871,6 +20855,7 @@
   }
   prepareTitle();
   window.addEventListener("resize", () => {
+    layoutStage();
     if (state) paint();
   });
   window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });

@@ -8,9 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261119-title-opening-03">
+<link rel="stylesheet" href="rpg.css?v=20261119-castle-device-feedback">
 </head>
 <body>
+<div id="game-stage">
 <main class="game-shell" id="rpg" hidden>
   <section class="world-zone" aria-label="星屑の勇者 ゲーム画面">
     <header class="game-topline">
@@ -30,7 +31,7 @@
       <div class="dialogue" id="dialogue" tabindex="-1" data-portrait="false" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
         <span class="speaker-tab" id="speaker-tab" aria-hidden="true" hidden></span>
         <div class="dialogue-body">
-          <span class="portrait-frame" aria-hidden="true"></span>
+          <img class="portrait-frame" id="dialogue-portrait" alt="" hidden>
           <p id="message"></p>
         </div>
         <span class="message-arrow" id="message-arrow" aria-hidden="true" hidden>▼</span>
@@ -82,6 +83,7 @@
         <button id="item-shortcut" type="button">どうぐ</button>
         <button id="menu-button" type="button">にげる</button>
       </div>
+      <button id="adventure-menu" type="button">メニュー</button>
       <div class="action-pair" role="group" aria-label="決定と戻る">
         <button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button>
         <button id="confirm" class="face face-a" type="button"><span>A</span><small>決定</small></button>
@@ -97,12 +99,6 @@
       <button id="new-game" type="button" disabled>NEW GAME</button>
       <button id="continue-game" type="button" disabled>CONTINUE</button>
     </div>
-    <form class="start-commands" id="start-name" hidden>
-      <label for="hero-name">主人公の名前</label>
-      <input id="hero-name" maxlength="12" value="アレン" autocomplete="off" enterkeyhint="done">
-      <button id="begin-game" type="submit">冒険を始める</button>
-      <button class="start-back" type="button">戻る</button>
-    </form>
     <div class="start-commands" id="start-slots" role="group" aria-label="続きから再開する記録" hidden>
       <button id="load-auto" type="button" disabled>つづきから（自動）<small>記録なし</small></button>
       <button id="load-manual" type="button" disabled>つづきから（王様の記録）<small>記録なし</small></button>
@@ -134,6 +130,8 @@
   <button id="opening-skip" class="opening-skip" type="button">スキップ</button>
   <p id="opening-error" class="opening-error" role="alert"></p>
 </section>
-<script defer src="app.js?v=20261119-title-opening-03"></script>
+</div>
+<p id="rotate-notice" hidden>端末を横向きにすると、画面が大きくなります。</p>
+<script defer src="app.js?v=20261119-castle-device-feedback"></script>
 </body>
 </html>
