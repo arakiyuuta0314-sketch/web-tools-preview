@@ -572,3 +572,19 @@
 
 .tutorial-intro-step-4 .tutorial-welcome-copy {max-width:580px}
 .tutorial-intro-step-4 .tutorial-welcome-copy p {text-align:left;white-space:pre-line}
+
+.teacher-bubble .teacher-speech:has(.teacher-stock-example) {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  column-gap:10px;
+}
+.teacher-bubble .teacher-speech:has(.teacher-stock-example) > :is(small,h3,p) {grid-column:1}
+.teacher-stock-example {
+  grid-column:2;
+  grid-row:3;
+  align-self:center;
+}
+.teacher-stock-example img {
+  display:block;
+  height:38px;
+}
