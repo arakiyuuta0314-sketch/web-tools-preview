@@ -10485,6 +10485,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (!v || v.version !== 1 || !Number.isInteger(v.travelUnlocked) || v.travelUnlocked < 1 || v.travelUnlocked > 12 || !Number.isInteger(v.travelCleared) || v.travelCleared < 0 || v.travelCleared > 12 || !Array.isArray(v.seen) || !v.quiz || !v.stats || !v.settings || !["full", "brief", "none"].includes(v.settings.narration) || typeof v.settings.beginner !== "boolean" || v.tutorialCompleted !== void 0 && typeof v.tutorialCompleted !== "boolean" || !v.active && v.active !== null) throw new Error("\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002\u4E0A\u66F8\u304D\u305B\u305A\u306B\u505C\u6B62\u3057\u307E\u3057\u305F\u3002");
   }
   var store2 = createJsonStore({ store: window.localStorage, key: KEY, createInitial: initial, validate });
+  var serviceWorkerUpdatePending = false;
+  var serviceWorkerReloadStarted = false;
   var state = store2.read();
   var screen = "home";
   var selectedHand = null;
@@ -10972,6 +10974,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       game: gameView,
       credits
     }[screen]() + (pendingStart ? replacementConfirmView() : "");
+    reloadForServiceWorkerUpdate();
   }
   function recordIfDone() {
     const g = state.active;
@@ -11774,8 +11777,43 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     console.error("AdMob init", e);
     toast("\u5E83\u544A\u306E\u521D\u671F\u5316\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002\u5BFE\u5C40\u306F\u7D9A\u3051\u3089\u308C\u307E\u3059\u3002");
   });
+  function reloadForServiceWorkerUpdate() {
+    if (!serviceWorkerUpdatePending || serviceWorkerReloadStarted || screen !== "home" || document.visibilityState !== "visible") return;
+    serviceWorkerReloadStarted = true;
+    location.reload();
+  }
   if (!ports.native && "serviceWorker" in navigator && (location.protocol === "https:" || ["localhost", "127.0.0.1"].includes(location.hostname))) {
-    void navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then((reg) => reg.update().catch((err) => console.warn("Update check unavailable", err))).catch((err) => console.warn("Offline cache is unavailable", err));
+    const workers = navigator.serviceWorker;
+    let controller = workers.controller;
+    workers.addEventListener("controllerchange", () => {
+      const next = workers.controller;
+      if (!next || next === controller) return;
+      if (controller) serviceWorkerUpdatePending = true;
+      controller = next;
+      reloadForServiceWorkerUpdate();
+    });
+    const registration = workers.register("./sw.js", { updateViaCache: "none" }).catch((err) => {
+      console.warn("Offline cache is unavailable", err);
+    });
+    let updateInProgress = false;
+    async function checkForServiceWorkerUpdate() {
+      if (updateInProgress || serviceWorkerReloadStarted) return;
+      updateInProgress = true;
+      try {
+        const reg = await registration;
+        await reg?.update();
+      } catch (err) {
+        console.warn("Update check unavailable", err);
+      } finally {
+        updateInProgress = false;
+      }
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") return;
+      reloadForServiceWorkerUpdate();
+      void checkForServiceWorkerUpdate();
+    });
+    void checkForServiceWorkerUpdate();
   }
 })();
 /*! Bundled license information:
