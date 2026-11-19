@@ -19351,7 +19351,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261119-castle-device-feedback";
+  $("build-id").textContent = "20261120-preview-new-game";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -20766,7 +20766,7 @@
     }
   }
   function showTitleMenu(menu, focus) {
-    for (const id of ["start-commands", "start-slots"]) $(id).hidden = id !== menu;
+    for (const id of ["start-commands", "start-slots", "start-new-confirm"]) $(id).hidden = id !== menu;
     $("start-error").textContent = "";
     focus.focus();
   }
@@ -20775,16 +20775,28 @@
     showTitleMenu("start-slots", firstSlot);
   });
   $("start-slots").querySelector(".start-back").addEventListener("click", () => showTitleMenu("start-commands", $("continue-game")));
-  $("new-game").addEventListener("click", () => {
+  function startNewAdventure() {
     try {
       const s = createState();
-      if ((has("auto") || has("manual")) && !window.confirm("\u65B0\u3057\u3044\u5192\u967A\u3092\u59CB\u3081\u308B\u3068\u30AA\u30FC\u30C8\u30BB\u30FC\u30D6\u3092\u4E0A\u66F8\u304D\u3057\u307E\u3059\u3002\u738B\u69D8\u306E\u30BB\u30FC\u30D6\u306F\u6B8B\u3057\u307E\u3059\u3002\u7D9A\u3051\u307E\u3059\u304B\uFF1F")) return;
       s.pos = introEntrance;
       s.flags.introPage = "prologue1";
       auto.write(s);
       begin(s);
     } catch (err) {
       setError(err);
+    }
+  }
+  $("new-game").addEventListener("click", () => {
+    if (has("auto") || has("manual")) showTitleMenu("start-new-confirm", $("new-confirm-back"));
+    else startNewAdventure();
+  });
+  $("new-confirm-accept").addEventListener("click", startNewAdventure);
+  var closeNewConfirmation = () => showTitleMenu("start-commands", $("new-game"));
+  $("new-confirm-back").addEventListener("click", closeNewConfirmation);
+  $("start-new-confirm").addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      closeNewConfirmation();
     }
   });
   $("load-auto").addEventListener("click", () => {

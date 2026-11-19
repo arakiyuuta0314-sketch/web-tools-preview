@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261119-castle-device-feedback">
+<link rel="stylesheet" href="rpg.css?v=20261120-preview-new-game">
 </head>
 <body>
 <div id="game-stage">
@@ -104,6 +104,11 @@
       <button id="load-manual" type="button" disabled>つづきから（王様の記録）<small>記録なし</small></button>
       <button class="start-back" type="button">戻る</button>
     </div>
+    <div class="start-commands" id="start-new-confirm" role="group" aria-labelledby="new-confirm-text" hidden>
+      <p id="new-confirm-text">新しい冒険を始めるとオートセーブを上書きします。王様のセーブは残します。続けますか？</p>
+      <button id="new-confirm-accept" type="button">新しい冒険を始める</button>
+      <button id="new-confirm-back" class="start-back" type="button">戻る</button>
+    </div>
     <div id="start-loading" class="start-loading">
       <p id="loading-label" role="status">素材を読み込み中…</p>
       <progress id="loading-progress" aria-labelledby="loading-label"></progress>
@@ -132,6 +137,6 @@
 </section>
 </div>
 <p id="rotate-notice" hidden>端末を横向きにすると、画面が大きくなります。</p>
-<script defer src="app.js?v=20261119-castle-device-feedback"></script>
+<script defer src="app.js?v=20261120-preview-new-game"></script>
 </body>
 </html>
