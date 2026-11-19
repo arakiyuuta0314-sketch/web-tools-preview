@@ -24,7 +24,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  clip:rect(0,0,0,0)!important;white-space:nowrap!important;overflow:hidden!important
 }
 .game-shell{
- width:min(100%,510px);height:100vh;height:100dvh;
+ width:min(100%,510px);height:100cqh;
  display:grid;grid-template-rows:minmax(260px,1.63fr) minmax(210px,.96fr);
  margin:0 auto;overflow:hidden;background:#141c21;
  box-shadow:0 0 0 1px #566163,0 10px 38px #0009
@@ -236,7 +236,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  font-size:9px;color:#a0aba7;text-align:center;letter-spacing:.02em;pointer-events:none
 }
 .start-overlay,.opening{
- position:fixed;inset:0;isolation:isolate;overflow:hidden;background:#080d16
+ position:absolute;inset:0;isolation:isolate;overflow:hidden;background:#080d16
 }
 .start-overlay{
  --title-art:url("assets/battle/ruins-battle-960x540.png");
@@ -253,11 +253,11 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  text-shadow:0 2px 12px #000
 }
 .start-box h1{
- margin:0;font:700 clamp(34px,6vw,60px)/1.18 "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
+ margin:0;font:700 clamp(34px,6cqw,60px)/1.18 "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
  letter-spacing:.06em
 }
 .start-subtitle{
- margin:8px 0 22px;font-size:clamp(11px,2vw,14px);letter-spacing:.065em;color:#e5d8ba
+ margin:8px 0 22px;font-size:clamp(11px,2cqw,14px);letter-spacing:.065em;color:#e5d8ba
 }
 .start-commands{
  display:grid;gap:4px;width:min(100%,250px);margin:0 auto
@@ -274,11 +274,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 .start-commands button:disabled{color:#b5bac7;cursor:default}
 .start-commands small{display:block;font-size:10px;line-height:1.2;color:#b5bac7}
-.start-commands label{font-size:12px;color:#ead8b1}
-.start-commands input{
- width:100%;min-height:42px;padding:6px 10px;border:1px solid #d6be8699;
- background:#0b1222;color:#fff4df;text-align:center
-}
 .start-commands .start-back{
  justify-self:center;min-height:32px;border:0;background:transparent;font-size:12px;text-decoration:underline
 }
@@ -347,10 +342,10 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 @keyframes opening-caption-in{from{opacity:0}to{opacity:1}}
 .opening-caption p{
- margin:0 auto 10px;font:600 clamp(16px,2.6vw,22px)/1.75 "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
- text-shadow:0 2px 8px #000,0 1px 3px #000;line-break:strict;text-wrap:pretty
+ margin:0 auto 10px;font:600 clamp(11px,1.82cqw,15.4px)/2.15 "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
+ text-shadow:0 2px 8px #000,0 1px 3px #000;line-break:strict;white-space:pre-line;text-wrap:pretty
 }
-.opening-caption span{font-size:11px;color:#e1ce9f;letter-spacing:.12em}
+.opening-caption > span{font-size:11px;color:#e1ce9f;letter-spacing:.12em}
 .opening-skip{
  position:absolute;top:max(12px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));
  min-height:40px;padding:0 12px;border:1px solid #f8e3ab80;background:#0b1222bf;color:inherit;font-size:12px
@@ -359,7 +354,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 @media(prefers-reduced-motion:reduce){
  .opening-art,.opening-caption,.opening[data-effect] :is(#opening-subject,.opening-effect){animation:none}
 }
-@media(max-width:355px){
+@container game-stage (max-width:355px){
  .game-shell{grid-template-rows:minmax(252px,1.55fr) minmax(206px,.98fr)}
  .dpad{grid-template-columns:repeat(3,45px);grid-template-rows:repeat(3,45px)}
  .dpad button,.dpad-center{width:45px;height:45px;min-width:45px;min-height:45px}
@@ -373,7 +368,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .objective{gap:6px;padding-inline:7px}
  .objective-text{font-size:11px}
 }
-@media(max-height:655px){
+@container game-stage (max-height:655px){
  .game-shell{grid-template-rows:minmax(255px,1.63fr) minmax(195px,.99fr)}
  .game-topline{min-height:0}
  .game-title{font-size:16px}
@@ -391,17 +386,17 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .dialogue p{font-size:12px}
  .control-tip{font-size:8px}
 }
-@media(min-width:650px){
- .game-shell{height:min(100dvh,965px);margin:auto;border-radius:10px}
+@container game-stage (min-width:650px){
+ .game-shell{height:min(100cqh,965px);margin:auto;border-radius:10px}
  .world-zone{border-radius:10px 10px 0 0;overflow:hidden}
 }
 @media(prefers-reduced-motion:reduce){
  .message-arrow{animation:none}
 }
 
-@media (orientation:landscape) and (min-width:560px){
+@container game-stage (min-width:560px){
  .start-overlay{
-  padding-left:max(5vw,env(safe-area-inset-left));
+  padding-left:max(5cqw,env(safe-area-inset-left));
   background:linear-gradient(90deg,#080d16f5,#080d16ad 33%,#080d161a 74%),
    linear-gradient(0deg,#080d16b5,transparent 32%),var(--title-art) center 42%/cover no-repeat #080d16
  }
@@ -409,7 +404,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .start-commands,.start-loading{margin-left:0}
  .start-links{justify-content:flex-start}
 }
-@media (max-height:330px){
+@container game-stage (max-height:330px){
  .start-subtitle{margin-bottom:10px}
  .start-box h1{font-size:34px}
 }
@@ -419,7 +414,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .game-topline,.objective{display:none!important}
 .world-zone{grid-template-rows:minmax(0,1fr)!important}
 .screen-shell{grid-row:1!important;min-height:0;border-top:0}
-@media (orientation:landscape) and (min-width:560px){
+@container game-stage (min-width:560px){
  .world-zone{grid-template-rows:minmax(0,1fr)!important}
  .screen-shell{grid-row:1!important}
 }
@@ -507,7 +502,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .game-shell:not(.in-battle,.in-dialogue,.in-intro) .dialogue{
  bottom:calc(var(--edge-bottom) + 138px)
 }
-.dialogue-body{display:flex;align-items:start;gap:10px;max-height:30dvh;overflow:auto}
+.dialogue-body{display:flex;align-items:start;gap:10px;max-height:30cqh;overflow:auto}
 .speaker-tab{
  position:absolute;bottom:100%;left:-2px;z-index:1;
  padding:4px 13px;background:#273961;border:2px solid var(--window-border);border-bottom:0;
@@ -515,7 +510,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 .portrait-frame{display:none}
 .dialogue[data-portrait="true"] .portrait-frame{
- display:block;flex:0 0 52px;aspect-ratio:1;border:1px solid var(--window-border);border-radius:3px
+ display:block;flex:0 0 52px;width:52px;height:68px;object-fit:contain;object-position:bottom;border:1px solid var(--window-border);border-radius:3px
 }
 .in-battle{
  --battle-window-height:clamp(104px,28%,148px);
@@ -580,7 +575,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .in-battle .panel-content button:is(.is-selected,:focus-visible){
  border-color:#a6b4d1;background:#44567c
 }
-@media (max-width:480px){
+@container game-stage (max-width:480px){
  .in-battle{--battle-window-height:clamp(124px,28%,180px)}
  .battle-status{align-content:start;gap:4px}
 }
@@ -602,12 +597,12 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 .menu-commands button{text-align:left;padding-inline:12px}
 .menu-extras button{background:#283653}
-@media (orientation:landscape) and (min-width:560px){
+@container game-stage (min-width:560px){
  .in-battle [data-target-selection] .panel-content{
   grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)
  }
  .in-battle [data-target-selection] .panel-content button{overflow-wrap:anywhere}
- .game-shell{width:100%;max-width:none;height:100dvh;margin:0;box-shadow:none}
+ .game-shell{width:100%;max-width:none;height:100cqh;margin:0;box-shadow:none}
  .game-shell:not(.in-battle,.in-dialogue,.in-intro) .dialogue{
   left:calc(var(--edge-left) + 142px);right:calc(var(--edge-right) + 121px);
   bottom:var(--edge-bottom)
@@ -631,8 +626,39 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .battle-resource span[data-remaining="low"]{color:#f1c360}
 .battle-resource span[data-remaining="critical"]{color:#ff9ca0}
 
-@media (orientation:landscape) and (min-width:560px){
+@container game-stage (min-width:560px){
  .battle-status.has-guest{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-right:96px}
  .has-guest .battle-member + .battle-member{border-top:0;border-left:1px solid #8293b366;padding:0 0 0 8px}
  .has-guest .battle-resource{max-width:none}
 }
+
+
+#game-stage{
+ container:game-stage / size;position:absolute;inset:0;overflow:hidden;
+}
+body.is-portrait{background:#05080d}
+.is-portrait #game-stage{
+ inset:50% auto auto 50%;width:844px;height:390px;
+ transform:translate(-50%,-50%) scale(var(--stage-scale));
+}
+#rotate-notice{
+ position:absolute;inset:auto 12px max(20px,env(safe-area-inset-bottom));
+ margin:0;text-align:center;color:#e1d6bd;font-size:13px;
+}
+#adventure-menu{
+ position:absolute;z-index:1;top:var(--edge-top);right:var(--edge-right);
+ min-height:40px;padding:0 12px;pointer-events:auto;
+ color:#fff7e6;background:var(--window-fill);
+ border:2px solid var(--window-border);border-radius:5px;
+}
+.game-shell:is(.in-battle,.in-dialogue,.in-intro,.in-panel) #adventure-menu{display:none}
+.equipment-section{
+ grid-column:1/-1;margin:2px 0 0;padding-block:2px;border-bottom:1px solid #8293b388;
+ font-size:13px;color:#eee0bc;
+}
+.panel-content button[data-equipped]{border-color:#e7cb89;color:#ffe6aa}
+
+.opening-clause{display:inline-block;max-width:100%}
+.action-panel:has(.equipment-section){width:min(360px,70%)}
+.panel-content:has(.equipment-section){gap:3px}
+.panel-content:has(.equipment-section) button{min-height:25px;padding-block:3px}
