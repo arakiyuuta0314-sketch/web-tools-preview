@@ -1016,6 +1016,7 @@
 .stock-face.drawn-card,
 .stock-frame-example.drawn-card,
 .turn-flying-card.drawn-card,
+.lesson-played-card.drawn-card,
 .play-layout.seated-layout .fieldcards .hana.drawn-card img{
   outline:2px solid #9ffff3;
   box-shadow:0 0 9px 2px #34dfcb;
