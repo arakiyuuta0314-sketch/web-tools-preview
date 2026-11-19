@@ -378,7 +378,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .dpad button:active,.dpad button.pressed{transform:none}
 .dialogue.can-advance{cursor:pointer}
 .battle-resource progress{
- appearance:none;display:block;width:100%;height:5px;border:0;border-radius:2px;
+ appearance:none;display:block;width:100%;height:3px;border:0;border-radius:2px;
  background:#344356;color:var(--fill);--fill:#68d995
 }
 .battle-resource progress#battle-mp-bar[data-remaining="normal"]{--fill:#7cbaff}
@@ -468,13 +468,11 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 
 .in-battle{
  --battle-window-height:clamp(104px,28%,148px);
- --battle-log-height:calc(var(--edge-top) + 43px);
 }
 .in-battle .world-zone{bottom:var(--battle-window-height)}
-.in-battle #game{position:absolute;top:var(--battle-log-height);height:calc(100% - var(--battle-log-height))}
 .in-battle .screen-shell{background:#0b111b}
 .in-battle .dialogue{
- top:var(--edge-top);bottom:auto;min-height:35px;max-height:40px;
+ top:max(2px,env(safe-area-inset-top));bottom:auto;min-height:35px;max-height:40px;
  padding:5px 28px 5px 10px
 }
 .in-battle .dialogue-body{max-height:26px}
@@ -496,7 +494,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 .in-battle .shortcut-grid button{
  min-width:0;min-height:0;padding:0 6px 0 24px;position:relative;
- background:none;border:1px solid transparent;box-shadow:none;color:inherit;
+ background:none;border:1px solid transparent;box-shadow:none;color:#fff;
  font-size:13px;text-align:left;line-height:1.1
 }
 .in-battle .shortcut-grid button.is-selected{border-color:#a6b4d1;background:#44567c}
@@ -509,12 +507,14 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  font-size:13px
 }
 .battle-resource{
- display:grid;grid-template-columns:3.65em minmax(0,1fr);align-items:center;gap:4px;
- max-width:calc(100% - 86px);font:700 12px monospace;white-space:nowrap
+ display:grid;grid-template-columns:3.65em minmax(0,48px);align-items:center;gap:4px;
+ font:700 12px monospace;white-space:nowrap
 }
 .battle-status strong{padding-right:0;overflow-wrap:anywhere}
-.in-battle .action-pair{right:calc(var(--edge-right) + 7px);bottom:calc(var(--edge-bottom) + 6px)}
-.in-battle .face{width:40px;height:40px;min-width:40px;min-height:40px}
+.in-battle .action-pair{
+ right:var(--edge-right);bottom:calc(100% + 6px);opacity:.62
+}
+.in-battle .face{width:36px;height:36px;min-width:36px;min-height:36px}
 .in-battle .face span{font-size:16px}
 .in-battle .face small{font-size:8px}
 .in-battle .action-panel[data-panel-type="battle"]{
@@ -525,11 +525,13 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  padding:2px 0;margin-bottom:3px
 }
 .in-battle .panel-content{gap:4px}
-.in-battle .panel-content button{min-height:32px;padding:3px}
+.in-battle .panel-content button{min-height:32px;padding:3px;color:#fff}
+.in-battle .panel-content button:is(.is-selected,:focus-visible){
+ border-color:#a6b4d1;background:#44567c
+}
 @media (max-width:480px){
  .in-battle{--battle-window-height:clamp(124px,28%,180px)}
  .battle-status{align-content:start;gap:4px}
- .battle-resource{max-width:none}
 }
 
 .action-panel[data-panel-type="menu"]{

@@ -17218,8 +17218,7 @@
       light: "#dfd4b5",
       shade: "#54556b",
       dark: "#323b56",
-      accent: "#cba765",
-      shadow: "#29283e"
+      accent: "#cba765"
     },
     field: {
       sky: "#537e98",
@@ -17232,8 +17231,7 @@
       light: "#c8b69a",
       shade: "#4c5e58",
       dark: "#293e43",
-      accent: "#9ab29a",
-      shadow: "#223638"
+      accent: "#9ab29a"
     },
     east: {
       sky: "#718da0",
@@ -17246,8 +17244,7 @@
       light: "#e0c7a2",
       shade: "#655e64",
       dark: "#3c4650",
-      accent: "#abb49c",
-      shadow: "#35434a"
+      accent: "#abb49c"
     },
     cave: {
       sky: "#3b4356",
@@ -17260,8 +17257,7 @@
       light: "#a99aa3",
       shade: "#414357",
       dark: "#242d40",
-      accent: "#bd9d78",
-      shadow: "#202938"
+      accent: "#bd9d78"
     },
     ruins: {
       sky: "#526875",
@@ -17274,8 +17270,7 @@
       light: "#b8bcaa",
       shade: "#4a5f65",
       dark: "#293f4a",
-      accent: "#adbf9e",
-      shadow: "#1c3942"
+      accent: "#adbf9e"
     },
     onyx: {
       sky: "#48374f",
@@ -17288,8 +17283,7 @@
       light: "#a17e9e",
       shade: "#312c49",
       dark: "#171b30",
-      accent: "#da9d94",
-      shadow: "#171626"
+      accent: "#da9d94"
     }
   };
   function battleComposition(W2, H2) {
@@ -17453,13 +17447,6 @@
       const v = hash3(i, 7, 10), x = v % W2, yy = y + 5 + (v >>> 11) % Math.max(3, H2 - y - 9);
       rect(c, x, yy, v % 3 + 1, 1, v % 2 ? p.shade : p.light);
     }
-    for (const x of [layout.enemyX, layout.heroX]) {
-      c.fillStyle = p.shadow;
-      c.beginPath();
-      c.ellipse(x, layout.foot - 1, x === layout.enemyX ? 52 : 32, 7, 0, 0, Math.PI * 2);
-      c.fill();
-      rect(c, x - 18, layout.foot - 4, 30, 1, p.light);
-    }
   }
   function paintSfcBattleBackground(c, W2, H2, area = "field") {
     if (!palette[area]) throw Error("Unknown battle area " + area);
@@ -17475,25 +17462,10 @@
       if (area === "castle" || area === "onyx" || area === "cave" || area === "ruins") {
         const plate = area === "castle" ? paintedCastle : area === "onyx" ? paintedOnyx : area === "cave" ? paintedCave : paintedRuins;
         if (!plate) throw Error("Original " + area + " battle art not preloaded");
-        const srcRatio = plate.naturalWidth / plate.naturalHeight;
-        const dstRatio = W2 / H2;
-        let sx = 0, sy = 0, sw = plate.naturalWidth, sh = plate.naturalHeight;
-        if (srcRatio > dstRatio) {
-          sw = Math.round(sh * dstRatio);
-          sx = Math.round((plate.naturalWidth - sw) / 2);
-        } else {
-          sh = Math.round(sw / dstRatio);
-          sy = plate.naturalHeight - sh;
-        }
+        const scale = Math.max(W2 / plate.naturalWidth, H2 / plate.naturalHeight);
+        const width = plate.naturalWidth * scale, height = plate.naturalHeight * scale;
         target.imageSmoothingEnabled = true;
-        target.drawImage(plate, sx, sy, sw, sh, 0, 0, W2, H2);
-        target.imageSmoothingEnabled = false;
-        for (const [x, size] of [[layout.enemyX, 51], [layout.heroX, 31]]) {
-          target.fillStyle = "#171b2e77";
-          target.beginPath();
-          target.ellipse(x, layout.foot, Math.max(20, size), 6, 0, 0, Math.PI * 2);
-          target.fill();
-        }
+        target.drawImage(plate, (W2 - width) / 2, H2 - height, width, height);
       } else {
         if (area === "field" || area === "east") forest(target, W2, H2, p, area === "east");
         else dungeon(target, W2, H2, p, area);
@@ -18813,30 +18785,21 @@
       const { enemyX: x, enemyFoot: feet, enemySize: size } = effects[enemy.slot];
       const defeated = impact?.enemySlot === enemy.slot && impact.defeated && progress < 0.85;
       if (enemy.hp === 0 && !defeated && !solo) continue;
-      const selected = selectedSlot === enemy.slot;
-      const barW = solo ? Math.min(120, Math.round(W2 * 0.27)) : Math.min(70, Math.round(W2 * 0.145));
-      const barX = Math.round(x - barW / 2), barY = Math.round(feet + 8);
-      shot(ctx, barX - 1, barY - 1, barW + 2, 10, "#18283a");
-      shot(ctx, barX, barY, barW, 8, "#442c43");
-      const hpWidth = Math.round(barW * enemy.hp / enemy.maxHp);
-      shot(ctx, barX, barY, hpWidth, 7, "#c88d91");
-      shot(ctx, barX, barY, hpWidth, 2, "#f6ccc0");
-      ctx.font = solo ? "bold 14px sans-serif" : "bold 11px sans-serif";
-      const labelW = solo ? Math.min(Math.max(105, Math.round(ctx.measureText(enemy.name).width + 26)), Math.round(W2 * 0.38)) : barW + 2;
-      const left = Math.round(x - labelW / 2), top = solo ? 9 : feet - size - 20, height = solo ? 25 : 17;
-      shot(ctx, left, top, labelW, height, "#131d2edc");
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = selected ? "#ffe099" : "#d3b5a0";
-      ctx.strokeRect(left + 0.5, top + 0.5, labelW - 1, height - 1);
+      const barW = Math.round(Math.min(52, size * 0.55));
+      const barX = Math.round(x - barW / 2), barY = Math.round(feet + 9);
+      shot(ctx, barX, barY, barW, 3, "#222636");
+      shot(ctx, barX, barY, Math.round(barW * enemy.hp / enemy.maxHp), 3, "#f6acae");
+      if (selectedSlot !== enemy.slot) continue;
+      ctx.font = "bold 12px sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillStyle = "#fff0d7";
-      if (solo) ctx.fillText(enemy.name, x, 21);
-      else ctx.fillText(enemy.name, x, top + Math.floor(height / 2), labelW - 6);
-      if (selected) {
-        ctx.fillStyle = "#ffe099";
-        ctx.fillText("\u25BC", x, top - 8);
-      }
+      const labelW = Math.ceil(ctx.measureText(enemy.name).width) + 14;
+      const top = feet - size - 21;
+      shot(ctx, Math.round(x - labelW / 2), top, labelW, 18, "#131d2eec");
+      ctx.fillStyle = "#fff";
+      ctx.fillText(enemy.name, x, top + 9);
+      ctx.fillStyle = "#ffe099";
+      ctx.fillText("\u25BC", x, top + 24);
     }
     if (b.ward > 0) {
       ctx.textAlign = "center";
@@ -19181,6 +19144,14 @@
     if (rect3.width < 1 || rect3.height < 1) return;
     const landscape = landscapeLayout.matches;
     const desiredWidth = landscape ? 480 : 288;
+    if (battle) {
+      const ratio = rect3.width / rect3.height;
+      const height = Math.max(175, Math.round(desiredWidth / ratio));
+      const width = Math.round(height * ratio);
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      return;
+    }
     if (canvas.width !== desiredWidth) canvas.width = desiredWidth;
     const pixels = Math.max(175, Math.min(560, Math.round(desiredWidth * rect3.height / rect3.width)));
     if (canvas.height !== pixels) canvas.height = pixels;
