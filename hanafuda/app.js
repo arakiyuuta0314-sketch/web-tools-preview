@@ -10827,7 +10827,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const drawChoice = !playback && r.current === 0 && r.phase === "draw-target";
     const handChoice = !playback && matchingNow.length === 2;
     const choiceCard = drawChoice ? card(r.pendingDraw) : null;
-    const stockFace = drawChoice ? r.pendingDraw : playback?.stockCard;
+    const stagedDrawChoice = drawChoice && g.matchLesson === 6;
+    const stockFace = stagedDrawChoice ? null : drawChoice ? r.pendingDraw : playback?.stockCard;
     const markedStock = drawChoice || stockFace && playback.drawnCard === stockFace;
     const teachingStock = Boolean(g.tutorial || g.matchLesson);
     const stockExplanation = teachingStock && (drawChoice || playback?.explainStock) ? STOCK_FRAME_EXPLANATION : "";
@@ -10847,9 +10848,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const roundLabel = g.matchLesson === 6 ? "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3" : g.matchLesson === 7 ? "3\u304B\u6708\u52DD\u8CA0" : tutor ? "\u7DF4\u7FD2" : g.length + "\u304B\u6708\u5BFE\u5C40";
     const recentDraw = g.matchLesson && [...r.log].reverse().find((event) => event.actor === 0 && event.source === "stock");
     const fieldCaption = playback?.caption || (recentDraw ? "\u5C71\u672D\u304B\u3089 " + card(recentDraw.card).name + "\uFF08" + (recentDraw.taken.length ? "\u53D6\u3063\u305F" : "\u5834\u306B\u51FA\u305F") + "\uFF09" : "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3088\u3046");
-    const playedCard = playback?.lesson?.playedCard;
-    const stagedHandCard = playedCard ? '<img class="lesson-played-card" src="' + photo(playedCard) + '" alt="' + esc(card(playedCard).name) + '">' : "";
-    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + "</div>" + (r.current === 1 ? stagedHandCard : "") + '</section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText || deciding || isEnd ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section>" + (r.current === 0 ? stagedHandCard : "") + '</div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
+    const stagedCard = stagedDrawChoice ? r.pendingDraw : playback?.stagedCard;
+    const stagedImage = stagedCard ? '<img class="lesson-played-card' + (stagedDrawChoice || playback.drawnCard === stagedCard ? " drawn-card" : "") + '" src="' + photo(stagedCard) + '" alt="' + esc(card(stagedCard).name) + '">' : "";
+    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + "</div>" + (r.current === 1 ? stagedImage : "") + '</section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText || deciding || isEnd ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section>" + (r.current === 0 ? stagedImage : "") + '</div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
     const hintButton = g.matchLesson === 7 && !isEnd && !playback ? '<button class="coach-detail" data-action="match-hint">\u5148\u751F\u306B\u805E\u304F</button>' : "";
     const playAction = playback || deciding ? "" : (lesson.action || "") + hintButton;
     const matchNotice = g.lessonNotices?.[0];
@@ -10979,8 +10980,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     ...TURN_MOTION,
     handFlight: 600,
     drawFlight: 550,
-    captureFlight: 550,
-    reveal: 350
+    captureFlight: 550
   });
   var MATCH_LESSON_HOLD = 1800;
   var MATCH_LESSON_YAKU_HOLD = 3200;
@@ -11097,11 +11097,10 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         const fromStock = source === "stock";
         const emphasize = fromStock || actor === 1 || matchLesson;
         board.current = actor;
-        if (fromStock && playback.stockCard !== id) {
-          board.stock.shift();
+        const newDraw = fromStock && playback.stockCard !== id;
+        if (newDraw) board.stock.shift();
+        if (newDraw && !matchLesson) {
           playback.stockCard = id;
-          if (matchLesson) playback.drawnCard = id;
-          setLesson({ title: who + "\u304C\u5C71\u672D\u3092\u5F15\u304F", description: card(id).name + "\u30921\u679A\u5F15\u3044\u305F\u3088\u3002" });
           frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
           const face = find(".stock-face");
           if (!reducedMotion && !await finish([face.animate(
@@ -11111,54 +11110,65 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           playback.drawnCard = id;
           face.classList.add("drawn-card");
           const explain = teachingStock && actor === 0 && !board.log.some((event) => event.actor === 0 && event.source === "stock");
-          if (matchLesson) {
-            if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
-          } else if (explain) {
+          if (explain) {
             playback.explainStock = true;
             frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
             if (!await finish([overlay.animate([{}, {}], { duration: 1200 })])) return false;
             playback.explainStock = false;
           } else if (!await wait(motion.afterReveal)) return false;
         }
-        if (move.awaitingChoice) break;
-        const stagedHand = matchLesson && !fromStock;
-        if (stagedHand) playback.lesson = null;
-        frame("source", who + "\u306E\u756A");
-        const hand = board.hands[actor];
-        const handIndex = hand.indexOf(id);
-        let origin = bounds(fromStock ? find(".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex]);
-        if (!fromStock) hand.splice(handIndex, 1);
-        playback.stockCard = null;
-        if (stagedHand) {
-          setLesson({ title: who + "\u304C\u624B\u672D\u3092\u51FA\u3059", description: card(id).name + "\u30921\u679A\u51FA\u3057\u305F\u3088\u3002", playedCard: id });
-          frame("hand-play", who + "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
-          const staged = find(".lesson-played-card");
-          if (!await landCard(id, origin, staged, motion.handFlight, emphasize)) return false;
-          if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
-          origin = bounds(staged);
-        }
-        board.field.push(id);
-        if (matchLesson) setLesson(matchResolutionLesson(move));
-        if (stagedHand) {
-          playback.matches = taken;
-          frame(taken.length ? "hand-match" : "hand-stay", taken.length ? "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F" : "\u672D\u304C\u5834\u306B\u6B8B\u308B");
-        } else {
-          const caption = who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
-          frame(fromStock ? "stock-play" : "hand-play", caption);
-        }
-        const played = fieldCard(id);
+        if (move.awaitingChoice && !matchLesson) break;
+        const kind = fromStock ? "stock" : "hand";
         const duration = fromStock ? motion.drawFlight : emphasize ? motion.handFlight : motion.playerHandFlight;
-        if (!await landCard(id, origin, played, duration, emphasize)) return false;
-        if (!matchLesson && !await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
+        const alreadyStaged = matchLesson && fromStock && !newDraw;
+        let origin;
+        if (!alreadyStaged) {
+          playback.lesson = null;
+          frame("source", who + "\u306E\u756A");
+          const hand = board.hands[actor];
+          const handIndex = hand.indexOf(id);
+          const sourceCard = fromStock ? find(matchLesson ? ".stock-back" : ".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex];
+          origin = bounds(sourceCard);
+          if (!fromStock) hand.splice(handIndex, 1);
+        }
+        playback.stockCard = null;
+        if (matchLesson) {
+          playback.stagedCard = id;
+          if (fromStock) playback.drawnCard = id;
+          if (!alreadyStaged) {
+            setLesson(fromStock ? { title: who + "\u304C\u5C71\u672D\u3092\u5F15\u304F", description: card(id).name + "\u30921\u679A\u5F15\u3044\u305F\u3088\u3002" } : { title: who + "\u304C\u624B\u672D\u3092\u51FA\u3059", description: card(id).name + "\u30921\u679A\u51FA\u3057\u305F\u3088\u3002" });
+            frame(fromStock ? "stock-reveal" : "hand-play", who + (fromStock ? "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F"));
+            const staged = find(".lesson-played-card");
+            if (!await landCard(id, origin, staged, duration, emphasize)) return false;
+            if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
+            if (move.awaitingChoice) break;
+            origin = bounds(staged);
+          }
+          setLesson(matchResolutionLesson(move));
+        }
+        let played;
+        if (matchLesson && taken.length) {
+          playback.matches = taken.filter((cardId) => cardId !== id);
+          frame(kind + "-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
+        } else {
+          playback.stagedCard = null;
+          board.field.push(id);
+          const caption = matchLesson ? "\u672D\u304C\u5834\u306B\u6B8B\u308B" : who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
+          frame(kind + (matchLesson ? "-stay" : "-play"), caption);
+          played = fieldCard(id);
+          if (!await landCard(id, origin, played, duration, emphasize)) return false;
+          if (!matchLesson && !await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
+        }
         if (taken.length) {
-          if (!stagedHand) {
-            playback.matches = matchLesson ? taken : matching(board.field.filter((cardId) => cardId !== id), id);
-            frame(fromStock ? "stock-match" : "hand-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
+          if (!matchLesson) {
+            playback.matches = matching(board.field.filter((cardId) => cardId !== id), id);
+            frame(kind + "-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
           }
           if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(emphasize ? motion.match : motion.playerHandMatch))) return false;
-          const origins = taken.map((cardId) => bounds(fieldCard(cardId).querySelector("img")));
+          const origins = taken.map((cardId) => bounds(matchLesson && cardId === id ? find(".lesson-played-card") : fieldCard(cardId).querySelector("img")));
+          playback.stagedCard = null;
           const side = actor === 0 ? ".player-side" : ".opponent-side";
-          const captureStage = fromStock ? "stock-capture" : "hand-capture";
+          const captureStage = kind + "-capture";
           const captureCaption = who + "\u306E\u53D6\u308A\u672D\u3078";
           playback.matches = [];
           board.field = board.field.filter((cardId) => !taken.includes(cardId));
@@ -11181,7 +11191,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           frame(captureStage + "-arrival", captureCaption);
           if (!await wait(emphasize ? motion.afterCapture : motion.playerHandCapturePause)) return false;
         } else if (matchLesson) {
-          if (fromStock) frame("stock-stay", "\u672D\u304C\u5834\u306B\u6B8B\u308B");
           if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
           playback.drawnCard = null;
         } else if (fromStock) {
