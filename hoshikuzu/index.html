@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261119-screen-layout-01">
+<link rel="stylesheet" href="rpg.css?v=20261119-title-opening-03">
 </head>
 <body>
-<main class="game-shell" id="rpg">
+<main class="game-shell" id="rpg" hidden>
   <section class="world-zone" aria-label="星屑の勇者 ゲーム画面">
     <header class="game-topline">
       <span class="game-title">星屑の勇者</span>
@@ -27,7 +27,7 @@
     <div class="screen-shell" id="screen-shell">
       <canvas id="game" width="480" height="270" aria-label="探索中のマップと登場人物、または戦闘中の敵と主人公"></canvas>
       <div class="location-banner" id="location-banner" hidden></div>
-      <div class="dialogue" id="dialogue" data-portrait="false" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
+      <div class="dialogue" id="dialogue" tabindex="-1" data-portrait="false" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
         <span class="speaker-tab" id="speaker-tab" aria-hidden="true" hidden></span>
         <div class="dialogue-body">
           <span class="portrait-frame" aria-hidden="true"></span>
@@ -90,23 +90,50 @@
   </section>
 </main>
 <div class="start-overlay" id="start-overlay">
-  <section class="start-box" aria-label="星屑の勇者を始める">
-    <span class="start-spark" aria-hidden="true">✦</span>
-    <h1>星屑の勇者</h1>
+  <section class="start-box" aria-labelledby="start-title">
+    <h1 id="start-title">星屑の勇者</h1>
     <p class="start-subtitle">はじまりの剣と黒曜の魔王城</p>
-    <div class="start-mountain" aria-hidden="true"><span></span><span></span><span></span></div>
-    <p class="start-story">魔物の軍勢が王国へ迫る。<br>誰かを守ろうとした、その一歩から<br>ひとりの剣士の旅が始まる。</p>
-    <label for="hero-name">なまえ</label>
-    <input id="hero-name" maxlength="12" value="アレン" autocomplete="off" enterkeyhint="done" aria-label="主人公の名前">
-    <p id="start-loading" class="start-loading" role="status">素材を読み込み中…</p>
-    <button id="new-game" class="start-primary" type="button" disabled>はじめから</button>
-    <button id="load-auto" class="start-secondary" type="button" disabled>つづきから（自動）</button>
-    <button id="load-manual" class="start-secondary" type="button" disabled>つづきから（王様の記録）</button>
-    <button id="start-sound" class="start-sound" type="button" aria-pressed="false">♫ タイトル音楽を聴く</button>
+    <div class="start-commands" id="start-commands" role="group" aria-label="タイトルコマンド">
+      <button id="new-game" type="button" disabled>NEW GAME</button>
+      <button id="continue-game" type="button" disabled>CONTINUE</button>
+    </div>
+    <form class="start-commands" id="start-name" hidden>
+      <label for="hero-name">主人公の名前</label>
+      <input id="hero-name" maxlength="12" value="アレン" autocomplete="off" enterkeyhint="done">
+      <button id="begin-game" type="submit">冒険を始める</button>
+      <button class="start-back" type="button">戻る</button>
+    </form>
+    <div class="start-commands" id="start-slots" role="group" aria-label="続きから再開する記録" hidden>
+      <button id="load-auto" type="button" disabled>つづきから（自動）<small>記録なし</small></button>
+      <button id="load-manual" type="button" disabled>つづきから（王様の記録）<small>記録なし</small></button>
+      <button class="start-back" type="button">戻る</button>
+    </div>
+    <div id="start-loading" class="start-loading">
+      <p id="loading-label" role="status">素材を読み込み中…</p>
+      <progress id="loading-progress" aria-labelledby="loading-label"></progress>
+    </div>
     <p id="start-error" class="start-error" role="alert"></p>
-    <div class="legal"><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a><span>·</span><a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></div>
   </section>
+  <footer class="start-links">
+    <button id="start-sound" type="button" aria-pressed="false">♫ タイトル音楽</button>
+    <a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a>
+    <a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a>
+  </footer>
 </div>
-<script defer src="app.js?v=20261119-screen-layout-01"></script>
+<section class="opening" id="opening" aria-label="プロローグ" hidden>
+  <div class="opening-art" aria-hidden="true">
+    <img id="opening-plate" alt="">
+    <img id="opening-subject" alt="" hidden>
+    <div class="opening-effect"></div>
+  </div>
+  <button id="opening-next" class="opening-next" type="button" aria-label="次の字幕へ"></button>
+  <div class="opening-caption">
+    <p id="opening-text" aria-live="polite"></p>
+    <span aria-hidden="true">タップで進む ▾</span>
+  </div>
+  <button id="opening-skip" class="opening-skip" type="button">スキップ</button>
+  <p id="opening-error" class="opening-error" role="alert"></p>
+</section>
+<script defer src="app.js?v=20261119-title-opening-03"></script>
 </body>
 </html>

@@ -235,59 +235,130 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  position:absolute;bottom:max(5px,env(safe-area-inset-bottom));left:0;right:0;
  font-size:9px;color:#a0aba7;text-align:center;letter-spacing:.02em;pointer-events:none
 }
+.start-overlay,.opening{
+ position:fixed;inset:0;isolation:isolate;overflow:hidden;background:#080d16
+}
 .start-overlay{
- position:fixed;inset:0;z-index:40;
- display:flex;align-items:center;justify-content:center;
- padding:max(12px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom));
- background:radial-gradient(ellipse at 50% 22%,#28434c 0%,#111f29 48%,#070d16 100%);
- overflow-y:auto
+ --title-art:url("assets/battle/ruins-battle-960x540.png");
+ display:grid;align-items:center;align-content:start;grid-template-rows:1fr auto;
+ overflow-y:auto;
+ padding:max(16px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right))
+  max(10px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));
+ background:
+  linear-gradient(180deg,#080d1640 10%,#080d16b0 55%,#080d16f7 100%),
+  var(--title-art) 66% center/cover no-repeat #080d16
 }
 .start-box{
- width:min(380px,100%);max-height:95dvh;overflow:auto;
- padding:19px 22px 17px;text-align:center;
- border:2px solid #e6dbc6;border-radius:5px;
- box-shadow:inset 0 0 0 4px #1d2e3a,0 16px 55px #000b;
- background:linear-gradient(180deg,#1d3543,#101e2a 90%);
+ width:min(100%,340px);justify-self:center;color:#f8ecd0;text-align:center;
+ text-shadow:0 2px 12px #000
 }
-.start-spark{font-size:30px;color:#ead2a1;line-height:1.3}
 .start-box h1{
- font-family:Georgia,"Hiragino Mincho ProN","Yu Mincho",serif;
- color:#fff1cf;font-size:33px;letter-spacing:.09em;
- margin:3px 0 5px;text-shadow:1px 3px #030b12
+ margin:0;font:700 clamp(34px,6vw,60px)/1.18 "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
+ letter-spacing:.06em
 }
-.start-subtitle{color:#c8c9bb;font-size:11px;letter-spacing:.075em;margin:0 0 12px}
-.start-mountain{
- position:relative;height:72px;overflow:hidden;
- background:linear-gradient(180deg,#263e4e 0%,#294658 45%,#152735 46%,#162835 100%);
- margin:9px -8px 14px
+.start-subtitle{
+ margin:8px 0 22px;font-size:clamp(11px,2vw,14px);letter-spacing:.065em;color:#e5d8ba
 }
-.start-mountain span{
- position:absolute;bottom:-7px;display:block;
- width:145px;height:90px;background:#101e2d;
- clip-path:polygon(0 100%,55% 11%,100% 100%)
+.start-commands{
+ display:grid;gap:4px;width:min(100%,250px);margin:0 auto
 }
-.start-mountain span:nth-child(1){left:-15px;background:#1a3240}
-.start-mountain span:nth-child(2){left:78px;background:#132b38;height:84px}
-.start-mountain span:nth-child(3){right:-35px;background:#0d202d;height:74px}
-.start-story{font-size:13px;line-height:1.7;color:#e6ebe2;margin:9px 0 16px}
-.start-box label{display:block;font-size:11px;color:#c9d5d0;text-align:left;margin:0 0 5px 4px}
-.start-box input{
- width:100%;height:43px;padding:6px;
- text-align:center;border:1px solid #9aa8a5;border-radius:2px;
- background:#0b1821;color:#fff4df;font-size:17px;margin-bottom:13px
+.start-commands button{
+ border:1px solid #d6be8666;background:#0b1222d9;color:inherit;
+ min-height:44px;padding:6px 10px
 }
-.start-box button{
- display:block;width:100%;min-height:41px;margin:7px 0;
- border-radius:3px;color:#fef4de;font-size:13px;font-weight:700;
+.start-commands button:enabled:is(:hover,:focus-visible){
+ background:#23334d;border-color:#e3c58b
 }
-.start-box button:disabled{opacity:.35}
-.start-primary{background:#6a5552;border:2px solid #d7c8aa!important;font-size:15px!important}
-.start-secondary{background:#243943;border:1px solid #789192}
-.start-sound{background:transparent;color:#b8cbbd!important;border:1px solid #4e6d6c;font-size:11px!important}
-.start-loading{margin:4px 0;color:#fff1cf;font-size:13px}
-.start-error{font-size:12px;color:#f4b09c;white-space:pre-wrap;overflow-wrap:anywhere}
-.legal{display:flex;justify-content:center;gap:12px;padding-top:9px}
-.legal a,.legal span{font-size:10px;color:#b7c7c4}
+#start-commands button{
+ font:600 17px Georgia,serif;letter-spacing:.14em
+}
+.start-commands button:disabled{color:#b5bac7;cursor:default}
+.start-commands small{display:block;font-size:10px;line-height:1.2;color:#b5bac7}
+.start-commands label{font-size:12px;color:#ead8b1}
+.start-commands input{
+ width:100%;min-height:42px;padding:6px 10px;border:1px solid #d6be8699;
+ background:#0b1222;color:#fff4df;text-align:center
+}
+.start-commands .start-back{
+ justify-self:center;min-height:32px;border:0;background:transparent;font-size:12px;text-decoration:underline
+}
+.start-links{
+ display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 16px
+}
+.start-links a,.start-links button{
+ font-size:11px;color:#d5d8e3;text-shadow:0 1px 4px #000
+}
+.start-links button{min-height:32px;padding:0;border:0;background:transparent}
+.start-loading{width:min(100%,250px);margin:8px auto 0;color:#fff1cf;font-size:12px}
+.start-loading p{margin:0 0 2px}
+.start-loading progress{display:block;width:100%;height:5px;accent-color:#ebcc8b}
+.start-error,.opening-error{
+ font-size:12px;color:#ffb9a4;white-space:pre-wrap;overflow-wrap:anywhere
+}
+.start-error:empty,.opening-error:empty{display:none}
+
+.opening{z-index:40;color:#fff4d9}
+.opening-art,.opening-art::after,.opening-effect,.opening-next{
+ position:absolute;inset:0
+}
+.opening-art{animation:opening-pan 14s ease-out both,opening-caption-in 650ms ease-out both}
+.opening[data-pan="left"] .opening-art{--pan-x:-3%}
+@keyframes opening-pan{
+ from{transform:scale(1.025)}
+ to{transform:translateX(var(--pan-x,3%)) scale(1.16)}
+}
+#opening-plate{display:block;width:100%;height:100%;object-fit:cover;object-position:center 45%}
+#opening-subject{
+ position:absolute;top:7%;left:50%;transform:translateX(-50%);
+ height:min(55%,270px);max-width:76%;object-fit:contain
+}
+.opening-art::after{
+ content:"";background:linear-gradient(180deg,#03061130 0%,transparent 20%,#03061116 49%,#030611e8 88%,#030611 100%)
+}
+.opening[data-effect="crystal"] #opening-subject{animation:opening-glint 2.6s ease-in-out infinite alternate}
+@keyframes opening-glint{
+ from{filter:drop-shadow(0 0 3px #72d8ff66)}
+ to{filter:brightness(1.28) drop-shadow(0 0 18px #72d8ffee)}
+}
+.opening[data-effect="legend"] #opening-plate{filter:sepia(.65) brightness(.65)}
+.opening[data-effect="omen"] #opening-plate{filter:saturate(.45) brightness(.65)}
+.opening[data-effect="smoke"] :is(#opening-plate,#opening-subject){filter:sepia(.8) brightness(.65)}
+.opening[data-effect="smoke"] #opening-subject{height:71%;top:-3%;image-rendering:pixelated}
+.opening[data-effect="smoke"] .opening-effect{
+ background:radial-gradient(ellipse at 25% 70%,#bd927e99,transparent 45%),
+  radial-gradient(ellipse at 65% 35%,#554953ef,transparent 58%);
+ animation:opening-smoke 7s ease-in-out infinite alternate
+}
+@keyframes opening-smoke{from{transform:translate(8%,16%) scale(1.15)}to{transform:translate(-8%,-14%) scale(1.5)}}
+.opening[data-effect="danger"] #opening-plate{filter:sepia(.55) saturate(1.7) brightness(.6)}
+.opening[data-effect="hero"] #opening-plate{filter:brightness(.6)}
+.opening[data-effect="hero"] #opening-subject{
+ top:18%;height:51%;object-position:50% 25%;image-rendering:pixelated
+}
+.opening-next{
+ width:100%;height:100%;padding:0;border:0;background:transparent;cursor:pointer
+}
+.opening-next:focus-visible{outline-offset:-4px}
+.opening-caption{
+ position:absolute;inset:auto max(24px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom))
+  max(24px,env(safe-area-inset-left));pointer-events:none;
+ margin:0 auto;max-width:640px;text-align:center;
+ animation:opening-caption-in 380ms ease-out both
+}
+@keyframes opening-caption-in{from{opacity:0}to{opacity:1}}
+.opening-caption p{
+ margin:0 auto 10px;font:600 clamp(16px,2.6vw,22px)/1.75 "Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;
+ text-shadow:0 2px 8px #000,0 1px 3px #000;line-break:strict;text-wrap:pretty
+}
+.opening-caption span{font-size:11px;color:#e1ce9f;letter-spacing:.12em}
+.opening-skip{
+ position:absolute;top:max(12px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));
+ min-height:40px;padding:0 12px;border:1px solid #f8e3ab80;background:#0b1222bf;color:inherit;font-size:12px
+}
+.opening-error{position:absolute;inset:0 8rem auto 1rem}
+@media(prefers-reduced-motion:reduce){
+ .opening-art,.opening-caption,.opening[data-effect] :is(#opening-subject,.opening-effect){animation:none}
+}
 @media(max-width:355px){
  .game-shell{grid-template-rows:minmax(252px,1.55fr) minmax(206px,.98fr)}
  .dpad{grid-template-columns:repeat(3,45px);grid-template-rows:repeat(3,45px)}
@@ -329,31 +400,18 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 
 @media (orientation:landscape) and (min-width:560px){
- .start-overlay{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
- .start-box{
-  width:min(720px,96%);max-height:96dvh;
-  padding:10px 20px 12px;
-  display:grid;grid-template-columns:1fr 1fr;column-gap:18px;
-  align-items:center
+ .start-overlay{
+  padding-left:max(5vw,env(safe-area-inset-left));
+  background:linear-gradient(90deg,#080d16f5,#080d16ad 33%,#080d161a 74%),
+   linear-gradient(0deg,#080d16b5,transparent 32%),var(--title-art) center 42%/cover no-repeat #080d16
  }
- .start-box h1,.start-subtitle,.start-mountain,.start-story,.start-spark,.start-loading,.start-error,.legal{grid-column:1/-1}
- .start-spark{font-size:18px}
- .start-box h1{font-size:23px;margin:0}
- .start-subtitle{margin:0 0 3px}
- .start-mountain{display:none}
- .start-story{font-size:11px;line-height:1.35;margin:0 0 4px}
- .start-story br{display:none}
- .start-box label{text-align:center;grid-column:1/-1;margin:0}
- .start-box input{grid-column:1/-1;height:34px;margin-bottom:3px;font-size:14px}
- .start-box button{min-height:34px;margin:3px 0}
- .start-sound{grid-column:1/-1}
- .legal{padding-top:2px}
+ .start-box{justify-self:start;text-align:left}
+ .start-commands,.start-loading{margin-left:0}
+ .start-links{justify-content:flex-start}
 }
-@media (orientation:landscape) and (min-width:560px) and (max-height:350px){
- .start-box{padding:5px 16px}
- .start-spark,.start-story{display:none}
- .start-box h1{font-size:19px}
- .start-box button{min-height:30px}
+@media (max-height:330px){
+ .start-subtitle{margin-bottom:10px}
+ .start-box h1{font-size:34px}
 }
 
 /* Town-v2: remove both upper game bands across landscape AND portrait.
@@ -459,13 +517,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .dialogue[data-portrait="true"] .portrait-frame{
  display:block;flex:0 0 52px;aspect-ratio:1;border:1px solid var(--window-border);border-radius:3px
 }
-.in-prologue .dialogue{
- inset:0;max-height:none;display:grid;place-content:center;padding:2rem;
- border:0;background:transparent;box-shadow:none;text-align:center
-}
-.in-prologue .dialogue p{max-width:32ch;font-size:clamp(16px,3.6vw,22px);line-height:1.9}
-.in-prologue .message-arrow{left:50%;right:auto;bottom:12%}
-
 .in-battle{
  --battle-window-height:clamp(104px,28%,148px);
 }

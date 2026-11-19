@@ -1,20 +1,113 @@
 (() => {
+  // src/game/scenario-s00-s03.mjs
+  var PROLOGUE_TEXT = [
+    "\u30A2\u30EB\u30C6\u30EA\u30A2\u738B\u56FD\u3002\u5C71\u3042\u3044\u306E\u7551\u3068\u3001\u6E2F\u306E\u706F\u308A\u306B\u652F\u3048\u3089\u308C\u305F\u3001\u5C0F\u3055\u304F\u7A4F\u3084\u304B\u306A\u56FD\u3060\u3063\u305F\u3002",
+    "\u3053\u306E\u56FD\u306E\u5927\u5730\u306B\u306F\u3001\u6614\u304B\u3089\u661F\u5C51\u3068\u547C\u3070\u308C\u308B\u5C0F\u3055\u306A\u7D50\u6676\u304C\u7720\u3063\u3066\u3044\u305F\u3002\u591C\u306E\u7551\u3067\u3001\u304B\u3059\u304B\u306B\u5149\u308B\u77F3\u3002\u4EBA\u3005\u306F\u305D\u308C\u3092\u3001\u5E78\u904B\u306E\u5370\u3068\u3057\u3066\u6458\u3093\u3067\u306F\u30DD\u30B1\u30C3\u30C8\u306B\u5165\u308C\u305F\u3002",
+    "\u9060\u3044\u6614\u3001\u9B54\u738B\u304C\u3053\u306E\u56FD\u3092\u8972\u3063\u305F\u6642\u3001\u4E00\u4EBA\u306E\u52C7\u8005\u304C\u661F\u306E\u5149\u3092\u5BBF\u3059\u5263\u3067\u9B54\u738B\u3092\u5C01\u3058\u305F\u3068\u3044\u3046\u3002\u2014\u2014\u53E4\u3044\u4F1D\u627F\u3067\u3042\u308B\u3002",
+    "\u305D\u306E\u5263\u306F\u4ECA\u3001\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u306E\u738B\u306E\u9593\u306B\u796D\u5263\u3068\u3057\u3066\u7D0D\u3081\u3089\u308C\u3066\u3044\u308B\u3002\u3082\u3046\u4F55\u4EE3\u3082\u3001\u8AB0\u306E\u624B\u306B\u3082\u53D6\u3089\u308C\u3066\u3044\u306A\u3044\u3002",
+    "\u7570\u5909\u306F\u3001\u9759\u304B\u306B\u59CB\u307E\u3063\u305F\u3002\u666E\u6BB5\u306F\u7FA4\u308C\u306A\u3044\u306F\u305A\u306E\u9B54\u7269\u305F\u3061\u304C\u3001\u8ECD\u52E2\u306E\u3088\u3046\u306B\u96C6\u843D\u3092\u8972\u3044\u59CB\u3081\u305F\u306E\u3060\u3002",
+    "\u6751\u306F\u713C\u304B\u308C\u3001\u4EBA\u3005\u306F\u5BB6\u3092\u6368\u3066\u305F\u3002\u8ECD\u306F\u5404\u5730\u306E\u9632\u885B\u306B\u5272\u304B\u308C\u3001\u738B\u306B\u3067\u304D\u308B\u306E\u306F\u3001\u9003\u308C\u3066\u304F\u308B\u4EBA\u3005\u3092\u57CE\u306B\u53D7\u3051\u5165\u308C\u308B\u3053\u3068\u3060\u3051\u3060\u3063\u305F\u3002",
+    "\u305D\u3057\u3066\u3042\u308B\u65E5\u3001\u9B54\u7269\u304C\u57CE\u306E\u4E2D\u306B\u307E\u3067\u7D1B\u308C\u8FBC\u3093\u3060\u3002\u9003\u3052\u9045\u308C\u305F\u89AA\u5B50\u306B\u3001\u7259\u304C\u8FEB\u308B\u3002",
+    "\u2014\u2014\u305D\u306E\u6642\u3001\u898B\u7FD2\u3044\u5263\u58EB\u306E\u9752\u5E74\u304C\u3001\u4E8C\u4EBA\u306E\u524D\u306B\u7ACB\u3063\u305F\u3002"
+  ];
+  var ROYAL_REPORT = [
+    "\u30ED\u30A4\u300C\u57CE\u4E0B\u306E\u53D7\u3051\u5165\u308C\u306F\u9650\u754C\u3067\u3059\u3002\u8CA0\u50B7\u5175\u3082\u3001\u6B21\u3005\u3068\u2026\u2026\u300D",
+    "\u30A2\u30EB\u30C9\u738B\u300C\u2026\u2026\u305D\u308C\u3067\u3082\u3001\u6249\u306F\u9589\u3081\u308B\u306A\u3002\u6765\u308B\u8005\u306F\u3001\u7686\u5165\u308C\u3066\u3084\u308C\u300D"
+  ];
+  var CASTLE_EXIT = [
+    "\u57CE\u9580\u3092\u304F\u3050\u308B\u3002\u632F\u308A\u8FD4\u308C\u3070\u3001\u4EBA\u3005\u304C\u307E\u3060\u57CE\u3078\u9003\u3052\u8FBC\u3093\u3067\u3044\u305F",
+    "\u5263\u306E\u91CD\u3055\u304C\u3001\u8155\u306B\u305A\u3057\u308A\u3068\u6B8B\u308B\u3002\u2014\u2014\u4FFA\u306B\u3001\u4F55\u304C\u3067\u304D\u308B\u3093\u3060\u308D\u3046",
+    "\u305D\u308C\u3067\u3082\u3001\u884C\u304F\u3057\u304B\u306A\u304B\u3063\u305F"
+  ];
+  var MINA_ARRIVAL = "\u30DF\u30CA\u300C\u3053\u3063\u3061\u3078\uFF01 \u6C34\u3092\u6301\u3063\u3066\u304D\u3066\uFF01 \u2026\u2026\u3042\u3042\u3001\u3088\u304B\u3063\u305F\u3001\u606F\u304C\u3042\u308B\u300D";
+  var MINA_REQUEST = [
+    "\u30DF\u30CA\u300C\u3042\u3001\u3054\u3081\u3093\u306A\u3055\u3044\u3002\u2026\u2026\u3042\u306A\u305F\u3001\u57CE\u304B\u3089\u6765\u305F\u4EBA\uFF1F \u305D\u306E\u5263\u2026\u2026\u300D",
+    "\u30DF\u30CA\u300C\u79C1\u306F\u30DF\u30CA\u3002\u3053\u306E\u753A\u306E\u753A\u9577\u306E\u5A18\u3067\u3059\u3002\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u305F\u3061\u306E\u4E16\u8A71\u3092\u3057\u3066\u3044\u307E\u3059\u300D",
+    "\u30DF\u30CA\u300C\u6E2F\u3078\u306E\u907F\u96E3\u8DEF\u306F\u3001\u9244\u306E\u9580\u3067\u585E\u304C\u308C\u3066\u3044\u308B\u3093\u3067\u3059\u3002\u9375\u3092\u6301\u3064\u898B\u5F35\u308A\u306E\u30AC\u30EB\u30C9\u3055\u3093\u304C\u3001\u8A66\u7DF4\u306E\u6D1E\u7A9F\u3078\u9003\u308C\u305F\u304D\u308A\u3001\u623B\u3089\u306A\u304F\u3066\u300D",
+    "\u30DF\u30CA\u300C\u304A\u9858\u3044\u3067\u3059\u3002\u30AC\u30EB\u30C9\u3055\u3093\u3092\u635C\u3057\u3066\u304F\u308C\u307E\u305B\u3093\u304B\u3002\u3042\u306E\u4EBA\u304C\u3044\u306A\u3044\u3068\u3001\u3053\u306E\u4EBA\u305F\u3061\u306F\u3069\u3053\u306B\u3082\u884C\u3051\u306A\u3044\u300D"
+  ];
+  var MINA_REMINDER = "\u30DF\u30CA\u300C\u6D1E\u7A9F\u306E\u5965\u306B\u30AC\u30EB\u30C9\u3055\u3093\u304C\u3044\u308B\u306F\u305A\u3067\u3059\u3002\u3069\u3046\u304B\u3001\u6C17\u3092\u3064\u3051\u3066\u300D";
+  var LUCA_JOIN = [
+    "\u30EB\u30AB\u300C\u79C1\u306F\u30EB\u30AB\u3002\u3053\u306E\u753A\u306E\u85AC\u8349\u5C4B\u306E\u5A18\u3060\u3088\u3002\u898B\u5F35\u308A\u3055\u3093\u3092\u635C\u3057\u306B\u884C\u304F\u306E\uFF1F\u300D",
+    "\u30EB\u30AB\u300C\u6D1E\u7A9F\u306A\u3089\u3001\u79C1\u304C\u6848\u5185\u3059\u308B\uFF01\u300D"
+  ];
+  var SCENARIO_INSPECTIONS = {
+    "empty-house": [
+      "\u7559\u5B88\u306E\u5BB6\u3060\u3002\u6249\u306F\u958B\u3044\u305F\u307E\u307E\u3067\u3001\u98DF\u5353\u306B\u306F\u51B7\u3081\u305F\u98DF\u4E8B\u304C\u6B8B\u3063\u3066\u3044\u308B",
+      "\u6301\u3061\u4E3B\u306F\u3001\u5E30\u3063\u3066\u304F\u308B\u3064\u3082\u308A\u3060\u3063\u305F\u306E\u3060\u308D\u3046"
+    ],
+    "new-graves": [
+      "\u65B0\u3057\u3044\u5893\u6A19\u304C\u4E26\u3093\u3067\u3044\u308B\u3002\u3044\u3061\u3070\u3093\u65B0\u3057\u3044\u3082\u306E\u306B\u306F\u3001\u307E\u3060\u571F\u304C\u6E7F\u3063\u3066\u3044\u305F",
+      "\u540D\u306F\u523B\u307E\u308C\u3066\u3044\u306A\u3044\u3002\u523B\u3080\u6687\u3082\u3001\u306A\u304B\u3063\u305F\u306E\u304B\u3082\u3057\u308C\u306A\u3044"
+    ],
+    "watchman-traces": [
+      "\u7834\u308C\u305F\u5916\u5957\u3068\u3001\u7A7A\u306E\u6C34\u7B52\u304C\u843D\u3061\u3066\u3044\u308B\u3002\u898B\u5F35\u308A\u306E\u5236\u670D\u3068\u540C\u3058\u8272\u3060",
+      "\u6301\u3061\u4E3B\u306F\u3001\u5965\u3078\u9003\u3052\u305F\u306E\u3060"
+    ]
+  };
+  var LUCA_TRACES = "\u30EB\u30AB\u300C\u3053\u306E\u5916\u5957\u2026\u2026\u898B\u5F35\u308A\u3055\u3093\u306E\u3060\u3002\u306D\u3048\u3001\u307E\u3060\u5965\u306B\u3044\u308B\u3088\u3001\u304D\u3063\u3068\u300D";
+  var CAVE_BOSS = [
+    "\u30B4\u30D6\u30EA\u30F3\u306E\u982D\u76EE\u304C\u3001\u5965\u3078\u7D9A\u304F\u9053\u3092\u585E\u3044\u3067\u3044\u308B\uFF01",
+    "\u982D\u76EE\u306E\u5411\u3053\u3046\u306B\u3001\u4EBA\u5F71\u304C\u898B\u3048\u305F\u3002\u2014\u2014\u307E\u3060\u3001\u751F\u304D\u3066\u3044\u308B"
+  ];
+  var LUCA_BOSS = "\u30EB\u30AB\u300C\u3042\u308C\u304C\u982D\u76EE\u2026\u2026\uFF01 \u79C1\u306F\u5F8C\u308D\u3067\u85AC\u8349\u306E\u7528\u610F\u3092\u3057\u3066\u308B\u3002\u5408\u56F3\u3057\u3066\uFF01\u300D";
+  var GARDO_RESCUE = (name) => [
+    "\u30AC\u30EB\u30C9\u300C\u2026\u2026\u8AB0\u3060\u3002\u2026\u2026\u3042\u3042\u3001\u52A9\u3051\u306B\u3001\u6765\u3066\u304F\u308C\u305F\u306E\u304B\u300D",
+    "\u30AC\u30EB\u30C9\u300C\u4FFA\u306F\u30AC\u30EB\u30C9\u3002\u8857\u9053\u306E\u9580\u306E\u898B\u5F35\u308A\u3060\u3002\u9B54\u7269\u3069\u3082\u304C\u6751\u3092\u8972\u3063\u3066\u306A\u3002\u9375\u3060\u3051\u306F\u6E21\u3059\u307E\u3044\u3068\u3001\u3053\u3053\u307E\u3067\u9003\u3052\u305F\u300D",
+    "\u30AC\u30EB\u30C9\u300C\u898B\u3066\u306E\u901A\u308A\u3001\u8DB3\u3092\u3084\u3089\u308C\u305F\u3002\u60C5\u3051\u306A\u3044\u8A71\u3060\u300D",
+    name + "\u300C\u9375\u306F\u3001\u3042\u306A\u305F\u304C\u5B88\u3063\u305F\u3093\u3067\u3059\u3002\u2026\u2026\u3082\u3046\u5927\u4E08\u592B\u3067\u3059\u300D",
+    "\u30AC\u30EB\u30C9\u300C\u3053\u306E\u9244\u306E\u9375\u3067\u3001\u8857\u9053\u306E\u9580\u3092\u958B\u3051\u3066\u304F\u308C\u3002\u9003\u3052\u9053\u3092\u3064\u306A\u3050\u3093\u3060\u300D",
+    "\u30AC\u30EB\u30C9\u300C\u4FFA\u306F\u5C11\u3057\u4F11\u3093\u3067\u304B\u3089\u5E30\u308B\u3002\u5148\u306B\u884C\u3063\u3066\u304F\u308C\u3002\u2026\u2026\u3042\u308A\u304C\u3068\u3046\u300D",
+    "\u9244\u306E\u9375\u30921\u3064\u624B\u306B\u5165\u308C\u305F\u3002"
+  ];
+  var CAVE_MURAL = [
+    "\u53E4\u3044\u58C1\u753B\u3060\u3002\u661F\u306E\u6A21\u69D8\u306B\u56F2\u307E\u308C\u3066\u3001\u5263\u3092\u6301\u3064\u4EBA\u7269\u304C\u63CF\u304B\u308C\u3066\u3044\u308B",
+    "\u9854\u3068\u3001\u540D\u306E\u3042\u3063\u305F\u306F\u305A\u306E\u5834\u6240\u3060\u3051\u304C\u3001\u6B20\u3051\u3066\u3044\u305F",
+    "\u306A\u305C\u304B\u3001\u61D0\u304B\u3057\u3044\u6C17\u304C\u3057\u305F"
+  ];
+
   // src/game/intro.mjs
+  var valley = "assets/battle/ruins-battle-960x540.png";
+  var cavern = "assets/cave/cave_battle_960x540.png";
+  var throne = "assets/battle/castle-battle-960x540.png";
+  var village = "assets/leaf-ground-v8/leaf-ground-full-672x504.png";
+  var OPENING_SCENES = [
+    { plate: valley, text: PROLOGUE_TEXT[0] },
+    { plate: cavern, effect: "crystal", subject: "assets/cave/cave_crystal_256x256.png", text: PROLOGUE_TEXT[1] },
+    { plate: cavern, effect: "legend", subject: "assets/cave/cave_mural_384x256.png", text: PROLOGUE_TEXT[2] },
+    { plate: throne, text: PROLOGUE_TEXT[3] },
+    { plate: valley, effect: "omen", text: PROLOGUE_TEXT[4] },
+    { plate: village, effect: "smoke", subject: "assets/leaf-redo/leaf-building-west-home.png", text: PROLOGUE_TEXT[5] },
+    { plate: throne, effect: "danger", text: PROLOGUE_TEXT[6] },
+    { plate: throne, effect: "hero", subject: "assets/castle/castle-hero-up-0.png", text: PROLOGUE_TEXT[7] }
+  ];
+  var preloadOpeningArt = () => Promise.all([...new Set(OPENING_SCENES.flatMap(
+    ({ plate, subject }) => subject ? [plate, subject] : [plate]
+  ))].map((src) => {
+    const image = new Image();
+    image.src = src;
+    return image.decode();
+  }));
   var INTRO_PAGES = {
-    S00: ["prologue1", "prologue2", "refugee", "pickup", "fight", "retry"],
+    S00: ["prologue1", "prologue2", "royalReport", "refugee", "pickup", "fight", "retry"],
     S01: ["witness", "audience1", "audience2", "audience3", "departure"]
   };
   function introPage(s) {
     return INTRO_PAGES[s.stage] ? s.flags.introPage ?? (s.stage === "S00" ? "refugee" : "witness") : null;
   }
   var INTRO_TEXT = {
-    prologue1: () => "\u9B54\u7269\u306E\u8ECD\u52E2\u304C\u96C6\u843D\u3092\u8972\u3063\u305F\u3002\u4EBA\u3005\u306F\u9003\u3052\u306E\u3073\u3001\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u306B\u8EAB\u3092\u5BC4\u305B\u3066\u3044\u305F\u3002",
-    prologue2: () => "\u57CE\u306E\u738B\u306E\u9593\u306B\u306F\u3001\u661F\u5C51\u3092\u5BBF\u3059\u3068\u4F1D\u308F\u308B\u53E4\u3044\u5263\u304C\u3001\u796D\u5263\u3068\u3057\u3066\u7D0D\u3081\u3089\u308C\u3066\u3044\u305F\u3002",
-    refugee: () => "\u907F\u96E3\u8005\u300C\u305F\u3059\u3051\u3066\u2026\u2026\uFF01 \u9B54\u7269\u304C\u3053\u3053\u307E\u3067\uFF01\u300D",
+    royalReport: () => ROYAL_REPORT,
+    refugee: () => "\u30EA\u30BF\u300C\u305F\u3059\u3051\u3066\u2026\u2026\uFF01 \u9B54\u7269\u304C\u3001\u3053\u3053\u307E\u3067\u2026\u2026\uFF01\u300D",
     pickup: (name) => name + "\u300C\u3053\u3053\u306F\u4FFA\u304C\u98DF\u3044\u6B62\u3081\u308B\u3002\u5F8C\u308D\u3078\uFF01\u300D",
     fight: () => "\u300C\u305F\u305F\u304B\u3046\u300D\u3067\u30DD\u30E8\u30F3\u306B\u7ACB\u3061\u5411\u304B\u304A\u3046\uFF01",
-    retry: (name) => "\u5B88\u5099\u5175\u300C" + name + "\u3001\u624B\u5F53\u3066\u306F\u6E08\u3093\u3060\u305E\u3002\u907F\u96E3\u8005\u306F\u307E\u3060\u738B\u306E\u9593\u306B\u3044\u308B\u3002\u7ACB\u3066\u308B\u306A\u3089\u3001\u3082\u3046\u4E00\u5EA6\u983C\u3080\u300D",
-    witness: () => "\u907F\u96E3\u8005\u300C\u52A9\u304B\u3063\u305F\u2026\u2026\uFF01 \u305D\u306E\u5263\u3001\u3044\u307E\u661F\u5C51\u307F\u305F\u3044\u306B\u5149\u308A\u307E\u3057\u305F\u306D\u300D",
+    retry: (name) => [
+      "\u30ED\u30A4\u300C" + name + "\u3001\u624B\u5F53\u3066\u306F\u6E08\u3093\u3060\u305E\u3002\u907F\u96E3\u8005\u306F\u307E\u3060\u738B\u306E\u9593\u306B\u3044\u308B\u300D",
+      "\u30ED\u30A4\u300C\u304A\u524D\u304C\u5012\u308C\u3066\u904B\u3070\u308C\u3066\u304D\u305F\u6642\u3001\u6B63\u76F4\u3001\u809D\u304C\u51B7\u3048\u305F\u3002\u2026\u2026\u7ACB\u3066\u308B\u306A\u3089\u3001\u3082\u3046\u4E00\u5EA6\u983C\u3080\u300D"
+    ],
+    witness: () => [
+      "\u30EA\u30BF\u300C\u52A9\u304B\u3063\u305F\u2026\u2026\uFF01 \u305D\u306E\u5263\u3001\u3044\u307E\u661F\u5C51\u307F\u305F\u3044\u306B\u5149\u308A\u307E\u3057\u305F\u306D\u300D",
+      "\u30EA\u30BF\u300C\u3042\u306E\u5B50\u3092\u3001\u5B88\u3063\u3066\u304F\u308C\u3066\u2026\u2026\u3042\u308A\u304C\u3068\u3046\u300D"
+    ],
     audience1: (name) => "\u30A2\u30EB\u30C9\u738B\u300C" + name + "\u3001\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u3005\u3092\u5B88\u3063\u3066\u304F\u308C\u305F\u305D\u3046\u3060\u306A\u3002\u793C\u3092\u8A00\u3046\u300D",
     audience2: () => "\u30A2\u30EB\u30C9\u738B\u300C\u305D\u306E\u796D\u5263\u306F\u661F\u5C51\u306E\u5263\u3002\u5B88\u308B\u305F\u3081\u306B\u7ACB\u3064\u8005\u306B\u3001\u661F\u306E\u5149\u3067\u5FDC\u3048\u308B\u3068\u4F1D\u308F\u308B\u300D",
     audience3: () => "\u30A2\u30EB\u30C9\u738B\u300C\u5263\u304C\u5FDC\u3058\u305F\u8005\u3092\u3001\u308F\u3057\u306F\u4FE1\u3058\u308B\u3002\u305D\u306E\u5263\u3092\u305D\u306A\u305F\u306B\u8A17\u305D\u3046\u300D",
@@ -135,6 +228,23 @@
         store.removeItem(key);
       }
     };
+  }
+
+  // src/game/guests.mjs
+  var lucaSkills = [{ id: "herbal", name: "\u85AC\u8349", mp: 2, power: 20 }];
+  var kyleSkills = [{ id: "cover", name: "\u304B\u3070\u3046", mp: 0 }, { id: "heavy", name: "\u5F37\u6483", mp: 3, power: 1.6 }];
+  var guestsByStage = {
+    S03: { id: "luca", name: "\u30EB\u30AB", sprite: "helper", maxHp: 34, maxMp: 8, attack: 14, defense: 8, speed: 13, skills: lucaSkills },
+    S05: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 52, maxMp: 9, attack: 24, defense: 17, speed: 12, skills: kyleSkills },
+    S06: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 60, maxMp: 12, attack: 30, defense: 21, speed: 15, skills: kyleSkills },
+    S07: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 68, maxMp: 15, attack: 36, defense: 25, speed: 18, skills: kyleSkills }
+  };
+  var chapterGuest = (stage) => guestsByStage[stage] ?? null;
+  var activeChapterGuest = (s) => s.companion === null ? null : chapterGuest(s.stage);
+  function battleGuest(stage, tag, enemyIds) {
+    const guest = chapterGuest(stage);
+    if (!guest || tag !== "random" || enemyIds.includes("vold")) return null;
+    return { ...guest, hp: guest.maxHp, mp: guest.maxMp, status: "normal" };
   }
 
   // src/game/data/catalog.json
@@ -935,14 +1045,14 @@
           },
           {
             id: "refugee",
-            name: "\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA",
+            name: "\u30EA\u30BF",
             x: 9,
             y: 6,
             kind: "refugee"
           },
           {
             id: "castle-guard",
-            name: "\u5B88\u5099\u5175",
+            name: "\u30ED\u30A4",
             x: 5,
             y: 3,
             kind: "guard"
@@ -10910,9 +11020,9 @@
         npcs: [
           {
             id: "elder",
-            name: "\u753A\u306E\u4E16\u8A71\u5F79",
-            x: 8,
-            y: 4,
+            name: "\u30DF\u30CA",
+            x: 9,
+            y: 10,
             kind: "elder"
           },
           {
@@ -10938,6 +11048,20 @@
           }
         ],
         objects: [
+          {
+            id: "empty-house",
+            x: 21,
+            y: 17,
+            kind: "scenarioInspect",
+            name: "\u7A7A\u304D\u5BB6"
+          },
+          {
+            id: "new-graves",
+            x: 20,
+            y: 12,
+            kind: "scenarioInspect",
+            name: "\u65B0\u3057\u3044\u5893\u6A19"
+          },
           {
             id: "star-leaf",
             x: 14,
@@ -11463,13 +11587,20 @@
         npcs: [
           {
             id: "watchman",
-            name: "\u907F\u96E3\u8DEF\u306E\u898B\u5F35\u308A",
+            name: "\u30AC\u30EB\u30C9",
             x: 19,
             y: 3,
             kind: "watchman"
           }
         ],
         objects: [
+          {
+            id: "watchman-traces",
+            x: 10,
+            y: 15,
+            kind: "scenarioInspect",
+            name: "\u7834\u308C\u305F\u5916\u5957\u3068\u6C34\u7B52"
+          },
           {
             id: "cave-boss",
             x: 17,
@@ -13929,6 +14060,7 @@
     shop: [224, 230],
     npc_front_soldier: [384, 136],
     npc_riona: [384, 136],
+    npc_riona_legacy: [384, 136],
     npc_lighthouse: [384, 136],
     npc_innkeeper: [384, 136],
     npc_toolshop: [384, 136],
@@ -13944,7 +14076,7 @@
   function preloadSailunArt() {
     if (promise) return promise;
     promise = Promise.all(Object.entries(sizes).map(([kind, size]) => new Promise((resolve, reject) => {
-      const src = "assets/sailun-v1/" + (kind === "ground" ? "ground-552x360" : kind.startsWith("npc_") ? kind.replaceAll("_", "-") + "-4dir" : kind.replaceAll("_", "-")) + ".png";
+      const src = "assets/sailun-v1/" + (kind === "ground" ? "ground-552x360" : kind === "npc_riona" ? "npc-riona-4dir-new" : kind === "npc_riona_legacy" ? "npc-riona-4dir" : kind.startsWith("npc_") ? kind.replaceAll("_", "-") + "-4dir" : kind.replaceAll("_", "-")) + ".png";
       const image = new Image();
       image.onload = () => {
         if (image.naturalWidth !== size[0] || image.naturalHeight !== size[1]) return reject(Error("Sailun asset dimensions invalid: " + src));
@@ -13982,6 +14114,19 @@
     ctx.ellipse(Math.round(footX), Math.round(footY - 3), Math.round(w * 0.42), 5, 0, 0, 2 * Math.PI);
     ctx.fill();
     ctx.drawImage(im, Math.round(footX - w / 2), Math.round(footY - h), w, h);
+    ctx.restore();
+  }
+  function paintLucaFieldSprite(ctx, x, y, facing) {
+    const dirs = { down: 0, right: 1, up: 2, left: 3 };
+    if (!(facing in dirs)) throw Error("Invalid Luca facing " + facing);
+    const im = sprite("npc_riona_legacy"), feetX = x + 12, feetY = y + 24;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "#14242f85";
+    ctx.beginPath();
+    ctx.ellipse(feetX, feetY - 2, 12, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.drawImage(im, dirs[facing] * 96, 0, 96, 136, Math.round(feetX - 19), Math.round(feetY - 54), 38, 54);
     ctx.restore();
   }
   function paintSailunNpc(ctx, x, y, kind, facing) {
@@ -14127,6 +14272,7 @@
     }
     if (!Array.isArray(s.owned) || s.owned.some((e) => !Object.values(EQUIPMENT).flat().some((x) => x.id === e) && !["armor:iron", "armor:mythril"].includes(e)) || new Set(s.owned).size !== s.owned.length) fail("\u6240\u6301\u88C5\u5099");
     if (!Array.isArray(s.relics) || s.relics.some((id) => !["beginning-sword", "dawn-mirror"].includes(id)) || new Set(s.relics).size !== s.relics.length) fail("\u5927\u5207\u306A\u3082\u306E");
+    if (s.companion !== void 0 && (s.stage !== "S03" || ![null, "luca"].includes(s.companion))) fail("\u540C\u884C\u8005");
     if (!plain(s.flags) || ["openingDefeated", "swordGiven", "watchmanRescued", "caveBossDefeated", "gateOpen"].some((k) => typeof s.flags[k] !== "boolean")) fail("\u30A4\u30D9\u30F3\u30C8\u30D5\u30E9\u30B0");
     if (s.flags.introPage !== void 0 && (s.pos.map !== "castle" || !INTRO_PAGES[s.stage]?.includes(s.flags.introPage))) fail("\u5C0E\u5165\u30A4\u30D9\u30F3\u30C8");
     for (const k of ["frontIntel", "mirrorIntel", "ruinsIntel", "switchA", "switchB", "ruinsBossDefeated", "mirrorObtained", "optionalDoorOpen"]) if (s.flags[k] !== void 0 && typeof s.flags[k] !== "boolean") fail("\u7B2C\u4E8C\u5E55\u30D5\u30E9\u30B0 " + k);
@@ -14239,7 +14385,8 @@
       if (portal.to === "ruins" && STAGES.indexOf(s.stage) < 6) return { state: next, kind: "blocked", message: "\u307E\u305A\u6E2F\u753A\u3067\u60C5\u5831\u3092\u96C6\u3081\u3088\u3046\u3002" };
       if (portal.to === "onyx" && !s.flags.onyxBarrierOpen) return { state: next, kind: "blocked", message: "\u95C7\u306E\u7D50\u754C\u304C\u9053\u3092\u585E\u3044\u3067\u3044\u308B\u3002" };
       next.pos = { map: portal.to, x: portal.entry.x, y: portal.entry.y, facing: direction2 };
-      return { state: next, kind: "portal", autoSave: ["castle", "leaf", "sailun", "ruins", "onyx"].includes(portal.to), message: MAPS[portal.to].name + "\u306B\u7740\u3044\u305F\u3002" };
+      const messages = s.stage === "S02" ? map.id === "castle" ? CASTLE_EXIT : portal.to === "leaf" ? [MINA_ARRIVAL] : void 0 : void 0;
+      return { state: next, kind: "portal", messages, autoSave: ["castle", "leaf", "sailun", "ruins", "onyx"].includes(portal.to), message: MAPS[portal.to].name + "\u306B\u7740\u3044\u305F\u3002" };
     }
     next.pos.x = x;
     next.pos.y = y;
@@ -14248,6 +14395,10 @@
   function front(s) {
     const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[s.pos.facing];
     return { x: s.pos.x + d[0], y: s.pos.y + d[1] };
+  }
+  function recruitLuca(s) {
+    if (s.pos.map !== "leaf" || s.stage !== "S03" || s.companion !== null) return null;
+    return { state: { ...s, companion: "luca" }, messages: LUCA_JOIN, autoSave: true };
   }
   function interact(s) {
     const target = front(s), e = entityAt(s, MAPS[s.pos.map], target.x, target.y);
@@ -14261,9 +14412,9 @@
       case "raider":
         return { state: takeStardustSword(next), kind: "battle", monsterId: "m01", tag: "tutorial", messages: ["\u9B54\u7269\u304C\u907F\u96E3\u8005\u306B\u8FEB\u308B\uFF01 " + s.name + "\u306F\u305D\u306E\u524D\u306B\u7ACB\u3061\u306F\u3060\u304B\u3063\u305F\u3002"] };
       case "refugee":
-        return { ...result, messages: s.flags.openingDefeated ? ["\u907F\u96E3\u8005\u300C\u3042\u308A\u304C\u3068\u3046\u2026\u2026\u3042\u306A\u305F\u306E\u304A\u304B\u3052\u3067\u52A9\u304B\u308A\u307E\u3057\u305F\u300D"] : ["\u907F\u96E3\u8005\u300C\u305F\u3059\u3051\u3066\u2026\u2026\uFF01 \u3042\u306E\u9B54\u7269\u304C\u2026\u2026\uFF01\u300D"] };
+        return { ...result, messages: s.flags.openingDefeated ? ["\u30EA\u30BF\u300C\u3042\u308A\u304C\u3068\u3046\u2026\u2026\u3042\u306A\u305F\u306E\u304A\u304B\u3052\u3067\u52A9\u304B\u308A\u307E\u3057\u305F\u300D"] : [INTRO_TEXT.refugee()] };
       case "guard":
-        return { ...result, messages: ["\u5B88\u5099\u5175\u300C\u5317\u306E\u738B\u306E\u9593\u3078\u3002\u57CE\u306E\u5175\u306F\u5404\u5730\u306E\u9632\u885B\u3067\u624B\u4E00\u676F\u3060\u300D"] };
+        return { ...result, messages: [e.name + "\u300C\u5317\u306E\u738B\u306E\u9593\u3078\u3002\u57CE\u306E\u5175\u306F\u5404\u5730\u306E\u9632\u885B\u3067\u624B\u4E00\u676F\u3060\u300D"] };
       case "sword":
         return { ...result, messages: ["\u53E4\u3073\u305F\u5263\u304C\u98FE\u3089\u308C\u3066\u3044\u308B\u3002\u67C4\u306B\u306F\u5C0F\u3055\u306A\u661F\u306E\u7D0B\u7AE0\u304C\u3042\u308B\u3002"] };
       case "king":
@@ -14296,9 +14447,15 @@
       case "elder":
         if (s.stage === "S02") {
           next.stage = "S03";
-          return { ...result, kind: "quest", autoSave: true, messages: ["\u4E16\u8A71\u5F79\u300C\u3053\u3053\u306B\u306F\u9B54\u7269\u306B\u8FFD\u308F\u308C\u305F\u4EBA\u304C\u96C6\u307E\u3063\u3066\u3044\u308B\u3002\u98DF\u3079\u7269\u3082\u5BDD\u5E8A\u3082\u8DB3\u308A\u306A\u3044\u300D", "\u4E16\u8A71\u5F79\u300C\u6E2F\u3078\u306E\u907F\u96E3\u8DEF\u306F\u9244\u306E\u9580\u3067\u585E\u304C\u308C\u3066\u3044\u308B\u3002\u9375\u3092\u6301\u3063\u305F\u898B\u5F35\u308A\u304C\u3001\u8A66\u7DF4\u306E\u6D1E\u7A9F\u306B\u9003\u308C\u305F\u304D\u308A\u623B\u3089\u306A\u3044\u3093\u3060\u300D", "\u4E16\u8A71\u5F79\u300C\u304A\u9858\u3044\u3060\u3002\u3042\u306E\u4EBA\u3092\u635C\u3057\u3066\u304F\u308C\u306A\u3044\u304B\u300D"] };
+          next.companion = null;
+          return { ...result, kind: "quest", autoSave: true, messages: MINA_REQUEST };
         }
-        return { ...result, messages: s.flags.bossDefeated ? ["\u4E16\u8A71\u5F79\u300C\u907F\u96E3\u3057\u3066\u3044\u305F\u4EBA\u305F\u3061\u304C\u3001\u5C11\u3057\u305A\u3064\u5BB6\u306B\u5E30\u308A\u59CB\u3081\u305F\u3088\u3002\u672C\u5F53\u306B\u3042\u308A\u304C\u3068\u3046\u300D"] : s.stage === "S03" ? ["\u4E16\u8A71\u5F79\u300C\u6D1E\u7A9F\u306E\u5965\u306B\u898B\u5F35\u308A\u304C\u3044\u308B\u306F\u305A\u3060\u3002\u6C17\u3092\u3064\u3051\u3066\u300D"] : ["\u4E16\u8A71\u5F79\u300C\u3042\u306A\u305F\u306E\u304A\u304B\u3052\u3067\u3001\u907F\u96E3\u8DEF\u306B\u5E0C\u671B\u304C\u898B\u3048\u307E\u3057\u305F\u300D"] };
+        return { ...result, messages: s.flags.bossDefeated ? ["\u30DF\u30CA\u300C\u907F\u96E3\u3057\u3066\u3044\u305F\u4EBA\u305F\u3061\u304C\u3001\u5C11\u3057\u305A\u3064\u5BB6\u306B\u5E30\u308A\u59CB\u3081\u305F\u3088\u3002\u672C\u5F53\u306B\u3042\u308A\u304C\u3068\u3046\u300D"] : s.stage === "S03" ? [MINA_REMINDER] : ["\u30DF\u30CA\u300C\u3042\u306A\u305F\u306E\u304A\u304B\u3052\u3067\u3001\u907F\u96E3\u8DEF\u306B\u5E0C\u671B\u304C\u898B\u3048\u307E\u3057\u305F\u300D"] };
+      case "scenarioInspect": {
+        const lines = SCENARIO_INSPECTIONS[e.id];
+        const luca = e.id === "watchman-traces" && activeChapterGuest(s)?.id === "luca";
+        return { ...result, messages: luca ? [...lines, LUCA_TRACES] : lines };
+      }
       case "helper":
         return { ...result, messages: ["\u5973\u6027\u300C\u77E5\u3089\u306A\u3044\u4EBA\u540C\u58EB\u3067\u3082\u3001\u56F0\u3063\u3066\u3044\u308B\u306A\u3089\u52A9\u3051\u308B\u3067\u3057\u3087\u3046\u300D", "\u5973\u6027\u300C\u6E2F\u3078\u306E\u9053\u304C\u4F7F\u3048\u308C\u3070\u3001\u3082\u3063\u3068\u305F\u304F\u3055\u3093\u306E\u4EBA\u3092\u907F\u96E3\u3055\u305B\u3089\u308C\u308B\u306E\u306B\u300D"] };
       case "inn":
@@ -14307,7 +14464,7 @@
         return { ...result, kind: "shop", messages: ["\u9053\u5177\u5C4B\u300C\u65C5\u306E\u652F\u5EA6\u306A\u3089\u4EFB\u305B\u3066\u304F\u3060\u3055\u3044\uFF01\u300D"] };
       case "caveBoss":
         if (s.stage !== "S03") return { ...result, messages: ["\u5965\u306B\u5F37\u3044\u9B54\u7269\u304C\u3044\u308B\u3002\u5148\u306B\u30EA\u30FC\u30D5\u30A1\u3067\u8A71\u3092\u805E\u3053\u3046\u3002"] };
-        return { state: next, kind: "battle", monsterId: "m06", tag: "caveBoss", messages: ["\u30B4\u30D6\u30EA\u30F3\u306E\u982D\u76EE\u304C\u3001\u5965\u3078\u7D9A\u304F\u9053\u3092\u585E\u3044\u3067\u3044\u308B\uFF01"] };
+        return { state: next, kind: "battle", monsterId: "m06", tag: "caveBoss", messages: activeChapterGuest(s)?.id === "luca" ? [...CAVE_BOSS, LUCA_BOSS] : CAVE_BOSS };
       case "watchman":
         if (s.flags.watchmanRescued) return { ...result, messages: ["\u898B\u5F35\u308A\u300C\u3042\u306A\u305F\u304C\u958B\u3044\u3066\u304F\u308C\u305F\u9053\u3092\u3001\u307F\u3093\u306A\u3067\u5B88\u308B\u3088\u300D"] };
         if (s.stage !== "S03" && s.stage !== "S04" && s.stage !== "S05") return { ...result, messages: ["\u898B\u5F35\u308A\u300C\u8AB0\u304B\u2026\u2026\u30EA\u30FC\u30D5\u30A1\u306E\u753A\u306B\u77E5\u3089\u305B\u3066\u304F\u308C\u2026\u2026\u300D"] };
@@ -14316,7 +14473,8 @@
           next.flags.watchmanRescued = true;
           next.inventory["iron-key"] += 1;
           next.stage = "S04";
-          return { ...result, kind: "key", autoSave: true, messages: ["\u898B\u5F35\u308A\u300C\u52A9\u3051\u306B\u6765\u3066\u304F\u308C\u305F\u306E\u304B\uFF01 \u3042\u308A\u304C\u3068\u3046\u2026\u2026\uFF01\u300D", "\u898B\u5F35\u308A\u300C\u3053\u306E\u9244\u306E\u9375\u3067\u3001\u8857\u9053\u306E\u9580\u3092\u958B\u3051\u3066\u304F\u308C\u3002\u9003\u3052\u9053\u3092\u3064\u306A\u3050\u3093\u3060\u300D", "\u9244\u306E\u9375\u30921\u3064\u624B\u306B\u5165\u308C\u305F\u3002"] };
+          delete next.companion;
+          return { ...result, kind: "key", autoSave: true, messages: GARDO_RESCUE(s.name) };
         }
         return { ...result, messages: ["\u898B\u5F35\u308A\u300C\u3042\u306A\u305F\u304C\u958B\u3044\u3066\u304F\u308C\u305F\u9053\u3092\u3001\u307F\u3093\u306A\u3067\u5B88\u308B\u3088\u300D"] };
       case "gate":
@@ -14341,7 +14499,7 @@
         }
         return { ...result, messages: ["\u3053\u3053\u306B\u306F\u4F55\u3082\u6B8B\u3063\u3066\u3044\u306A\u3044\u3002"] };
       case "mural":
-        return { ...result, messages: ["\u58C1\u306B\u306F\u53E4\u3044\u5263\u58EB\u304C\u63CF\u304B\u308C\u3066\u3044\u308B\u3002\u5263\u306E\u67C4\u306B\u661F\u306E\u5370\u3002\u9854\u306E\u90E8\u5206\u3060\u3051\u304C\u524A\u308C\u3066\u8AAD\u3081\u306A\u3044\u3002"] };
+        return { ...result, messages: CAVE_MURAL };
       case "sign":
         return { ...result, messages: ["\u9053\u6A19\u306B\u306F\u300C\u6E2F\u753A\u30BB\u30A4\u30EB\u30F3\u300D\u3068\u523B\u307E\u308C\u3066\u3044\u308B\u3002", "\u6771\u3078\u9032\u3081\u3070\u6E2F\u753A\u306B\u7740\u304F\u3002"] };
       case "waystone": {
@@ -14612,22 +14770,6 @@
     const slot = { weapons: "weapon", armors: "armor", shields: "shield", accessories: "accessory" }[category];
     next.equipment[slot] = id;
     return { state: next, message: "\u88C5\u5099\u3092\u5909\u66F4\u3057\u305F\u3002" };
-  }
-
-  // src/game/guests.mjs
-  var lucaSkills = [{ id: "herbal", name: "\u85AC\u8349", mp: 2, power: 20 }];
-  var kyleSkills = [{ id: "cover", name: "\u304B\u3070\u3046", mp: 0 }, { id: "heavy", name: "\u5F37\u6483", mp: 3, power: 1.6 }];
-  var guestsByStage = {
-    S03: { id: "luca", name: "\u30EB\u30AB", sprite: "helper", maxHp: 34, maxMp: 8, attack: 14, defense: 8, speed: 13, skills: lucaSkills },
-    S05: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 52, maxMp: 9, attack: 24, defense: 17, speed: 12, skills: kyleSkills },
-    S06: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 60, maxMp: 12, attack: 30, defense: 21, speed: 15, skills: kyleSkills },
-    S07: { id: "kyle", name: "\u30AB\u30A4\u30EB", sprite: "guard", maxHp: 68, maxMp: 15, attack: 36, defense: 25, speed: 18, skills: kyleSkills }
-  };
-  var chapterGuest = (stage) => guestsByStage[stage] ?? null;
-  function battleGuest(stage, tag, enemyIds) {
-    const guest = chapterGuest(stage);
-    if (!guest || tag !== "random" || enemyIds.includes("vold")) return null;
-    return { ...guest, hp: guest.maxHp, mp: guest.maxMp, status: "normal" };
   }
 
   // src/game/combat.mjs
@@ -15862,6 +16004,23 @@
   }
   function paintObject(c, obj, tileToPixel, s) {
     const [x, y] = tileToPixel(obj.x, obj.y), k = obj.kind;
+    if (k === "scenarioInspect") {
+      if (obj.id === "watchman-traces") {
+        F(c, x + 3, y + 15, 14, 6, "#6e795e");
+        F(c, x + 5, y + 13, 9, 5, "#9aa080");
+        F(c, x + 17, y + 15, 4, 6, "#b0b0a3");
+        F(c, x + 18, y + 13, 2, 2, "#d1cdc1");
+      } else if (obj.id === "new-graves") {
+        F(c, x + 2, y + 15, 20, 7, "#654e3b");
+        F(c, x + 4, y + 8, 6, 11, "#9c9b8a");
+        F(c, x + 14, y + 5, 6, 13, "#b2ad9a");
+      } else if (obj.id === "empty-house") {
+        F(c, x + 12, y + 10, 10, 15, "#332b29");
+        F(c, x + 12, y + 10, 4, 15, "#97664a");
+        F(c, x + 15, y + 19, 1, 2, "#e3c289");
+      }
+      return;
+    }
     if (s.pos.map === "cave" && retroAssetsReady()) {
       const caveSpec = {
         "cave-boss": ["caveChief", 52, 53],
@@ -16533,7 +16692,9 @@
     const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
     const actors2 = [];
     for (const n of map.npcs) {
-      const p = plot(n.x, n.y);
+      const entering = n.kind === "refugee" && intro.page === "royalReport";
+      const p = plot(n.x, entering ? 6 + 2 * ((intro.raiderY ?? 8) - 7) : n.y);
+      if (entering && intro.raiderY === void 0) continue;
       actors2.push({ z: p.y, draw: () => {
         let im, anchor = 0, lift = 0;
         if (n.kind === "king") {
@@ -16553,10 +16714,24 @@
           return;
         }
         c.drawImage(im, snap(p.x - im.width / 2 + anchor), snap(p.y + lift - im.height));
+        if (n.kind === "refugee") {
+          c.save();
+          c.translate(p.x + 35, p.y + 23);
+          c.scale(0.62, 0.62);
+          drawSmallPerson(c, 0, 0, "refugee");
+          c.restore();
+        }
       } });
+    }
+    if (intro.page === "royalReport") {
+      for (const [x, y] of [[4, 5], [5, 6], [10, 5], [11, 6]]) {
+        const p = plot(x, y);
+        actors2.push({ z: p.y, draw: () => drawSmallPerson(c, p.x, p.y, "refugee") });
+      }
     }
     for (const e of map.objects) {
       if (!entityAt(s, map, e.x, e.y)) continue;
+      if (e.kind === "raider" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
       const p = plot(e.x, e.kind === "raider" ? intro.raiderY ?? (intro.page && intro.page !== "refugee" ? e.y - 1 : e.y) : e.y);
       actors2.push({ z: p.y, draw: () => {
         if (e.kind === "raider") {
@@ -16589,7 +16764,8 @@
         c.save();
         c.translate(snap(p.x), snap(p.y + 38));
         c.scale(3, 3);
-        paintActor(c, -12, -24, follower.sprite, follower.facing, follower.frame);
+        if (follower.sprite === "luca-field") paintLucaFieldSprite(c, -12, -24, follower.facing);
+        else paintActor(c, -12, -24, follower.sprite, follower.facing, follower.frame);
         c.restore();
       } });
     }
@@ -16728,7 +16904,7 @@
       id: "leaf-shop",
       map: "leaf",
       door: { x: 14, y: 8 },
-      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u65C5\u306E\u9053\u5177\u5C4B",
+      name: "\u30EA\u30FC\u30D5\u30A1\u30FB\u85AC\u8349\u5C4B",
       theme: "shop",
       keeper: "\u9053\u5177\u5C4B\u306E\u4E3B\u4EBA",
       service: "shop",
@@ -18065,7 +18241,7 @@
     r(c, x + 37, y - 10, 1, 12, gold);
     r(c, x + 4, y + 16, 17, 3, "#bca584");
   }
-  function village(c, x, y) {
+  function village2(c, x, y) {
     const dark = "#554b3f", wood = "#906446", woodHi = "#d8b187", roof = "#a06749";
     r(c, x - 18, y + 14, 64, 7, "#486847");
     r(c, x - 17, y - 11, 12, 29, dark);
@@ -18203,7 +18379,7 @@
         castle(c, x, y);
         break;
       case "leaf":
-        village(c, x, y);
+        village2(c, x, y);
         break;
       case "cave":
         cave(c, x, y);
@@ -18705,6 +18881,19 @@
     for (const n of m.npcs) {
       drawables.push({ x: n.x, y: n.y, depth: n.y, draw: (c, screen) => m.id === "leaf" ? paintLeafNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : m.id === "sailun" ? paintSailunNpc(c, ...screen(n.x, n.y), n.kind, npcFacing[n.kind] || "down") : paintActor(c, ...screen(n.x, n.y), actors[n.kind] || n.kind, "down", 0) });
     }
+    if (m.id === "leaf" && s.stage === "S02") {
+      drawables.push(
+        { x: 9, y: 10, depth: 10.1, draw: (c, screen) => {
+          const [x, y] = screen(9, 10);
+          c.save();
+          c.translate(x + 27, y + 2);
+          c.rotate(Math.PI / 3);
+          paintActor(c, 0, 0, "elder", "down", 0);
+          c.restore();
+        } },
+        { x: 8, y: 9, depth: 9, draw: (c, screen) => paintActor(c, ...screen(8, 9), "refugee", "right", 0) }
+      );
+    }
     for (const obj of m.objects) {
       if (!entityAt(s, m, obj.x, obj.y)) continue;
       drawables.push({ x: obj.x, y: obj.y, depth: obj.y, draw: (c, screen) => paintObject(c, obj, screen, s) });
@@ -18804,7 +18993,8 @@
     } });
     if (follower) drawables.push({ x: follower.x, y: follower.y, depth: follower.y + 0.11, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(follower.x, follower.y);
-      paintActor(ctx, x, y, follower.sprite, follower.facing, follower.frame);
+      if (follower.sprite === "luca-field") paintLucaFieldSprite(ctx, x, y, follower.facing);
+      else paintActor(ctx, x, y, follower.sprite, follower.facing, follower.frame);
     } });
     drawables.sort((a, b) => a.depth - b.depth);
     for (const actor of drawables) {
@@ -18834,7 +19024,7 @@
     rooms.set(id, canvas);
     return canvas;
   }
-  function drawRoom(canvas, room, motion = null, pixels = null) {
+  function drawRoom(canvas, room, motion = null, pixels = null, lucaVisiting = false) {
     const bg = roomBackground(room);
     const fit = Math.min(pixels?.worldScale ?? 1, canvas.width / bg.width, canvas.height / bg.height);
     const scale = pixels ? fit >= 1 ? Math.floor(fit) : 1 / Math.ceil(1 / fit) : fit;
@@ -18877,6 +19067,7 @@
         0.4
       ) }
     ];
+    if (lucaVisiting) drawables.push({ y: 6, fn: () => paintLucaFieldSprite(ctx, ox + 5 * TILE, oy + 6 * TILE, "right") });
     drawables.sort((a, b) => a.y - b.y).forEach((a) => a.fn());
     ctx.restore();
   }
@@ -19207,7 +19398,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261119-screen-layout-01";
+  $("build-id").textContent = "20261119-title-opening-03";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -19249,7 +19440,7 @@
     $("sound-toggle").textContent = audio.muted ? "\u266B OFF" : "\u266B ON";
     $("sound-toggle").setAttribute("aria-pressed", String(audio.muted));
     $("sound-toggle").setAttribute("aria-label", audio.muted ? "\u97F3\u3092\u51FA\u3059" : "\u97F3\u3092\u6D88\u3059");
-    $("start-sound").textContent = audio.ctx && !audio.muted ? "\u266B \u30BF\u30A4\u30C8\u30EB\u97F3\u697D\u3092\u505C\u6B62" : "\u266B \u30BF\u30A4\u30C8\u30EB\u97F3\u697D\u3092\u8074\u304F";
+    $("start-sound").textContent = audio.ctx && !audio.muted ? "\u266B \u30BF\u30A4\u30C8\u30EB\u97F3\u697D ON" : "\u266B \u30BF\u30A4\u30C8\u30EB\u97F3\u697D OFF";
     $("start-sound").setAttribute("aria-pressed", String(Boolean(audio.ctx && !audio.muted)));
   }
   function toggleSound() {
@@ -19319,7 +19510,7 @@
     if (canvas.height !== pixels) canvas.height = pixels;
   }
   function followerPosition() {
-    const guest = chapterGuest(state.stage);
+    const guest = activeChapterGuest(state);
     if (!guest) return null;
     const { map, x, y, facing } = state.pos;
     const offsets = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] };
@@ -19330,6 +19521,7 @@
     const t = walkMotion ? Math.min(1, (performance.now() - walkMotion.start) / walkMotion.duration) : 1;
     return {
       ...guest,
+      sprite: "luca-field",
       ...rest2,
       x: from.x + (rest2.x - from.x) * t,
       y: from.y + (rest2.y - from.y) * t,
@@ -19354,7 +19546,7 @@
     if (interior?.id === "castle-library") {
       if (!castleArtReady()) throw Error("Approved castle library art not loaded");
       renderCastleLibrary($("game"), state, interior, roomMotion, performance.now(), explorationPixels);
-    } else drawRoom($("game"), interior, roomMotion, explorationPixels);
+    } else drawRoom($("game"), interior, roomMotion, explorationPixels, LUCA_JOIN.includes(queue[0]));
   }
   function drawBattle() {
     const display = battleDisplay ? { ...battle, enemies: battleDisplay.enemies, ward: battleDisplay.ward, guest: battleDisplay.guest } : battle;
@@ -19376,10 +19568,10 @@
     }
     if (!show) banner.hidden = true;
   }
-  function paintDialogue(prologue) {
+  function paintDialogue() {
     const line = queue[0] || hint || "";
     const dialogue = $("dialogue"), message2 = $("message"), tab = $("speaker-tab");
-    const prefix = !battle && !prologue && queue.length ? line.match(/^([^「」\n]{1,24})(?=「[^」]+」$)/)?.[0] : null;
+    const prefix = !battle && queue.length ? line.match(/^([^「」\n]{1,24})(?=「[^」]+」$)/)?.[0] : null;
     dialogue.hidden = !line;
     tab.hidden = !prefix;
     tab.textContent = prefix ?? "";
@@ -19391,30 +19583,20 @@
     } else message2.textContent = line;
   }
   function paint() {
-    if (!state) return;
+    if (!state || $("rpg").hidden) return;
     $("rpg").classList.toggle("in-battle", Boolean(battle));
     audio.setTheme(musicFor());
     const page = introPage(state);
-    const prologue = page?.startsWith("prologue");
-    $("rpg").classList.toggle("in-prologue", Boolean(prologue));
     $("rpg").classList.toggle("in-intro", Boolean(page && !battle));
-    sizeGameCanvas(!battle && !prologue);
-    if (prologue) {
-      const canvas = $("game"), c = canvas.getContext("2d");
-      c.fillStyle = "#080b15";
-      c.fillRect(0, 0, canvas.width, canvas.height);
-      c.fillStyle = "#bccbe8";
-      for (const [x, y] of [[0.14, 0.3], [0.21, 0.12], [0.73, 0.18], [0.89, 0.33], [0.38, 0.24], [0.56, 0.11], [0.83, 0.73], [0.1, 0.8], [0.63, 0.86]]) {
-        c.fillRect(Math.round(canvas.width * x), Math.round(canvas.height * y), 1, 1);
-      }
-    } else if (!battle) {
+    sizeGameCanvas(!battle);
+    if (!battle) {
       if (interior) paintCurrentRoom();
       else paintCurrentWorld();
     }
     const goal = STAGE_GOALS[state.stage];
     if ($("objective-text").textContent !== goal) $("objective-text").textContent = goal;
-    paintLocation(!battle && !prologue);
-    paintDialogue(prologue);
+    paintLocation(!battle);
+    paintDialogue();
     $("rpg").classList.toggle("in-dialogue", Boolean(queue.length));
     const target = front(state), visible = interior ? null : entityAt(state, MAPS[state.pos.map], target.x, target.y);
     const door = interior ? null : enterableDoor(state.pos);
@@ -19711,7 +19893,7 @@
     stopWalkAnimation();
     stopMoving();
     audio.cue("attack");
-    battle = beginCombat(group, tag, state.stage);
+    battle = beginCombat(group, tag, state.companion === null ? void 0 : state.stage);
     pendingHeroAction = null;
     const map = state.pos.map;
     battleArea = ["castle", "cave", "ruins", "onyx"].includes(map) ? map : monsterById(battle.id).area;
@@ -20149,13 +20331,14 @@
     if (r2.kind === "walk") {
       const from = followerPosition() ?? previous;
       const facing = from.x === previous.x ? from.y === previous.y ? previous.facing : from.y > previous.y ? "up" : "down" : from.x > previous.x ? "left" : "right";
-      followerTrail = chapterGuest(state.stage) ? { from, to: { x: previous.x, y: previous.y, facing } } : null;
+      followerTrail = activeChapterGuest(state) ? { from, to: { x: previous.x, y: previous.y, facing } } : null;
       walkMotion = { map: previous.map, fromX: previous.x, fromY: previous.y, start: performance.now(), duration: 145, step: walkStep++ };
     }
     if (r2.kind === "portal") audio.cue("run");
     hint = r2.message || "";
     storeAndSet(r2.state, Boolean(r2.autoSave));
     if (walkMotion) walkFrame = requestAnimationFrame(animateWalkFrame);
+    if (r2.messages) message(r2.messages);
     if (r2.kind === "walk") {
       startRandom();
       if (lightSteps > 0) lightSteps--;
@@ -20196,16 +20379,19 @@
       message(investigateInside(interior));
       return;
     }
-    const doorway = enterableDoor(state.pos);
-    if (doorway) {
-      stopWalkAnimation();
-      stopRoomAnimation();
-      interior = makeInterior(doorway);
-      audio.cue("run");
-      message([doorway.name + "\u306B\u5165\u3063\u305F\u3002\u5BB6\u5177\u3084\u4F4F\u4EBA\u306B\u8FD1\u3065\u304D\u3001A\u3067\u8A71\u3059\u30FB\u8ABF\u3079\u308B\u3002\u51FA\u53E3\u306F\u4E0B\u306E\u6249\u3002"]);
-      return;
-    }
     try {
+      const doorway = enterableDoor(state.pos);
+      if (doorway) {
+        stopWalkAnimation();
+        stopRoomAnimation();
+        interior = makeInterior(doorway);
+        audio.cue("run");
+        const arrival = doorway.name + "\u306B\u5165\u3063\u305F\u3002\u5BB6\u5177\u3084\u4F4F\u4EBA\u306B\u8FD1\u3065\u304D\u3001A\u3067\u8A71\u3059\u30FB\u8ABF\u3079\u308B\u3002\u51FA\u53E3\u306F\u4E0B\u306E\u6249\u3002";
+        const recruitment = doorway.id === "leaf-shop" ? recruitLuca(state) : null;
+        if (recruitment) apply({ ...recruitment, messages: [arrival, ...recruitment.messages] });
+        else message([arrival]);
+        return;
+      }
       if (["leaf", "sailun"].includes(state.pos.map)) {
         const target = front(state);
         const recipient = MAPS[state.pos.map].npcs.find((n) => n.x === target.x && n.y === target.y);
@@ -20340,7 +20526,7 @@
   });
   $("dialogue").addEventListener("click", advanceMessage);
   document.addEventListener("keydown", (ev) => {
-    if (!$("start-overlay").hidden || ev.target.tagName === "INPUT") return;
+    if ($("rpg").hidden || ev.target.tagName === "INPUT") return;
     const dirs = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
     if (dirs[ev.key]) {
       ev.preventDefault();
@@ -20369,7 +20555,13 @@
   function showIntroPage() {
     const page = introPage(state);
     if (page === "fight") beginFight("m01", "tutorial");
-    else message([INTRO_TEXT[page](state.name)]);
+    else if (page === "royalReport") {
+      paint();
+      introPause = setTimeout(() => {
+        introPause = 0;
+        message(INTRO_TEXT.royalReport());
+      }, 500);
+    } else message([INTRO_TEXT[page](state.name)].flat());
   }
   var reducedIntroMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var EVENT_STEP_MS = 360;
@@ -20393,7 +20585,7 @@
         page,
         pos: path[step],
         motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step },
-        raiderY: page === "refugee" ? 8 - Math.min(1, (now - start) / duration) : void 0
+        raiderY: ["refugee", "royalReport"].includes(page) ? 8 - Math.min(1, (now - start) / duration) : void 0
       };
       paintCurrentWorld();
       introFrame = requestAnimationFrame(frame);
@@ -20444,6 +20636,9 @@
     try {
       const page = introPage(state);
       switch (page) {
+        case "royalReport":
+          playIntroWalk("refugee", [introEntrance]);
+          return;
         case "refugee":
           playIntroWalk("pickup", [introPosition(7, 5, "up")]);
           return;
@@ -20459,13 +20654,77 @@
           return;
         }
       }
-      const next = { prologue1: "prologue2", prologue2: "refugee", retry: "fight", audience1: "audience2", audience2: "audience3", audience3: "departure" }[page];
+      const next = { retry: "fight", audience1: "audience2", audience2: "audience3", audience3: "departure" }[page];
       storeAndSet({ ...state, flags: { ...state.flags, introPage: next } }, true);
       showIntroPage();
     } catch (err) {
       fatal(err);
     }
   }
+  var opening = $("opening");
+  var openingCaption = opening.querySelector(".opening-caption");
+  var openingIndex = 0;
+  var openingTransition = false;
+  function showOpeningScene() {
+    const { plate, subject, effect, text } = OPENING_SCENES[openingIndex];
+    opening.dataset.effect = effect ?? "";
+    opening.dataset.pan = openingIndex % 2 ? "left" : "right";
+    $("opening-plate").src = plate;
+    $("opening-subject").hidden = !subject;
+    if (subject) $("opening-subject").src = subject;
+    $("opening-text").textContent = text;
+    for (const element of [opening.querySelector(".opening-art"), openingCaption]) {
+      for (const animation of element.getAnimations()) {
+        animation.currentTime = 0;
+        animation.play();
+      }
+    }
+  }
+  async function advanceOpening(skip = false) {
+    if (opening.hidden || openingTransition) return;
+    openingTransition = true;
+    $("opening-error").textContent = "";
+    const ending = skip || openingIndex === OPENING_SCENES.length - 1;
+    const target = ending ? opening : openingCaption;
+    const fade = target.animate({ opacity: [1, 0] }, {
+      duration: reducedIntroMotion() ? 0 : ending ? 420 : 180,
+      fill: "forwards"
+    });
+    try {
+      await fade.finished;
+      if (ending) {
+        const next = { ...state, pos: introEntrance, flags: { ...state.flags, introPage: "royalReport" } };
+        validateState(next);
+        auto.write(next);
+        state = next;
+        opening.hidden = true;
+        $("rpg").hidden = false;
+        showIntroPage();
+        $("dialogue").focus();
+      } else {
+        openingIndex++;
+        fade.cancel();
+        showOpeningScene();
+      }
+    } catch (err) {
+      if (opening.hidden) fatal(err);
+      else {
+        console.error("[RPG]", err);
+        $("opening-error").textContent = String(err.message || err);
+      }
+    } finally {
+      fade.cancel();
+      openingTransition = false;
+    }
+  }
+  $("opening-next").addEventListener("click", () => advanceOpening());
+  $("opening-skip").addEventListener("click", () => advanceOpening(true));
+  opening.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      advanceOpening(true);
+    }
+  });
   function begin(s) {
     stopWalkAnimation();
     stopRoomAnimation();
@@ -20492,6 +20751,15 @@
     $("start-overlay").hidden = true;
     document.title = "\u661F\u5C51\u306E\u52C7\u8005\uFF5C\u306F\u3058\u307E\u308A\u306E\u5263\u3068\u9ED2\u66DC\u306E\u9B54\u738B\u57CE";
     const page = introPage(state);
+    if (page === "prologue1" || page === "prologue2") {
+      openingIndex = page === "prologue1" ? 0 : 1;
+      opening.hidden = false;
+      showOpeningScene();
+      audio.setTheme(musicFor());
+      $("opening-next").focus();
+      return;
+    }
+    $("rpg").hidden = false;
     if (page && !state.flags.introPage) {
       const pos = page === "refugee" ? introEntrance : introDefense;
       storeAndSet({ ...state, pos, flags: { ...state.flags, introPage: page } }, true);
@@ -20502,11 +20770,27 @@
   function verifySlots() {
     for (const [key, store] of [["auto", auto], ["manual", manual]]) {
       const button = $(key === "auto" ? "load-auto" : "load-manual");
-      button.disabled = !has(key);
-      if (has(key)) store.read();
+      const exists = has(key);
+      button.disabled = !exists;
+      button.querySelector("small").hidden = exists;
+      if (exists) store.read();
     }
   }
-  $("new-game").addEventListener("click", () => {
+  function showTitleMenu(menu, focus) {
+    for (const id of ["start-commands", "start-name", "start-slots"]) $(id).hidden = id !== menu;
+    $("start-error").textContent = "";
+    focus.focus();
+  }
+  $("new-game").addEventListener("click", () => showTitleMenu("start-name", $("hero-name")));
+  $("continue-game").addEventListener("click", () => {
+    const firstSlot = $("start-slots").querySelector("button:not(:disabled)");
+    showTitleMenu("start-slots", firstSlot);
+  });
+  for (const [menu, button] of [["start-name", "new-game"], ["start-slots", "continue-game"]]) {
+    $(menu).querySelector(".start-back").addEventListener("click", () => showTitleMenu("start-commands", $(button)));
+  }
+  $("start-name").addEventListener("submit", (ev) => {
+    ev.preventDefault();
     try {
       const name = $("hero-name").value.trim();
       const s = createState(name);
@@ -20540,7 +20824,7 @@
     saveSlotError = err;
     setError(err);
   }
-  for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
+  for (const id of ["new-game", "continue-game", "load-auto", "load-manual"]) $(id).disabled = true;
   async function prepareTitle() {
     const status = $("start-loading");
     if (saveSlotError) {
@@ -20553,11 +20837,14 @@
         preloadCastleArt(),
         preloadSfcBattleArt(),
         preloadLeafRedoArt(),
-        preloadSailunArt()
+        preloadSailunArt(),
+        preloadOpeningArt()
       ];
       let completed = 0;
       const showProgress = () => {
-        status.textContent = `\u7D20\u6750\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026 ${completed}/${loading2.length} \u30B0\u30EB\u30FC\u30D7`;
+        $("loading-label").textContent = `\u7D20\u6750\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D\u2026 ${completed} / ${loading2.length}`;
+        $("loading-progress").max = loading2.length;
+        $("loading-progress").value = completed;
       };
       showProgress();
       await Promise.all(loading2.map(async (group) => {
@@ -20575,9 +20862,10 @@
     try {
       verifySlots();
       $("new-game").disabled = false;
+      $("continue-game").disabled = false;
     } catch (err) {
       setError(err);
-      for (const id of ["new-game", "load-auto", "load-manual"]) $(id).disabled = true;
+      for (const id of ["new-game", "continue-game", "load-auto", "load-manual"]) $(id).disabled = true;
     }
   }
   prepareTitle();
