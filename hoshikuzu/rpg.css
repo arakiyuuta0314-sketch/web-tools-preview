@@ -328,78 +328,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .message-arrow{animation:none}
 }
 
-/* Landscape is the primary presentation: scenery and side-view combat on the
-   broad left screen, physical controls on a compact right-hand rail.
-   Portrait is kept as an accessible fallback for browser windows that cannot
-   rotate. No forced CSS rotation or fake viewport transformation. */
 @media (orientation:landscape) and (min-width:560px){
- html,body{width:100%;height:100%;overflow:hidden}
- body{background:#0b141c}
- .game-shell{
-  width:100%;max-width:1440px;
-  height:100dvh;max-height:none;margin:0 auto;border-radius:0;
-  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);
-  display:grid;grid-template-columns:minmax(0,1fr) clamp(208px,26vw,268px);
-  grid-template-rows:minmax(0,1fr);gap:0;
-  overflow:hidden;box-shadow:0 0 0 1px #40525a
- }
- .world-zone{
-  min-height:0;min-width:0;overflow:hidden;border-radius:0;
-  grid-template-rows:31px minmax(30px,auto) minmax(0,1fr);
-  border:0;border-right:1px solid #78817d;
- }
- .game-topline{height:31px;min-height:31px;padding:0 10px}
- .game-title{font-size:16px;letter-spacing:.07em}
- .sound{min-height:26px}
- .objective{min-height:30px;max-height:49px;padding:3px 9px;gap:5px}
- .objective-caption{font-size:10px}
- .objective-text{font-size:11px;line-height:1.2}
- .screen-shell{border:2px solid #30414a;border-top:0;min-height:0}
- #game{width:100%;height:100%}
- .dialogue{
-  left:7px;right:7px;bottom:7px;min-height:51px;max-height:41%;
-  padding:8px 25px 8px 11px
- }
- .dialogue p{font-size:12px;line-height:1.4}
- .context-hint{right:8px;bottom:8px;font-size:10px;padding:5px 8px}
- .completion{top:42%;padding:8px 11px;font-size:15px}
- .action-panel{
-  top:7px;left:7px;width:min(340px,64%);
-  max-height:calc(100% - 14px);padding:6px 8px
- }
- .panel-head{padding-bottom:2px;margin-bottom:4px}
- .panel-content{gap:4px}
- .panel-content button{min-height:40px;font-size:11px}
- .action-panel:has(.overworld-atlas){top:4px;left:7px;max-height:calc(100% - 8px);width:min(540px,83%)}
- .controls{
-  min-height:0;min-width:0;position:relative;
-  display:flex;flex-direction:column;justify-content:space-between;
-  gap:4px;align-items:center;flex-wrap:nowrap;
-  padding:24px 8px max(7px,env(safe-area-inset-bottom));
-  border-top:0;border-left:3px solid #101a21;
-  box-shadow:inset 2px 0 #6b7973,-4px 0 10px #0007
- }
- .controls::before{inset:7px 5px;border-radius:12px}
- .controls-label{top:7px;left:13px}
- .dpad{
-  margin:0;transform:none;
-  grid-template-columns:repeat(3,44px);
-  grid-template-rows:repeat(3,44px);
- }
- .dpad button,.dpad-center{width:44px;height:44px;min-width:44px;min-height:44px}
- .dpad-center::before{margin:13px auto}
- .control-actions{
-  width:100%;max-width:none;min-width:0;
-  flex:0 0 auto;display:flex;flex-direction:column;
-  justify-content:flex-end;gap:5px;padding:0 5px;
- }
- .shortcut-grid{gap:5px}
- .shortcut-grid button{min-height:44px;padding:4px 1px;font-size:11px}
- .action-pair{justify-content:space-around;gap:5px}
- .face,.face-b{width:48px;height:48px;min-width:48px;min-height:48px}
- .face span{font-size:18px}
- .face small{font-size:8px}
- .control-tip{display:none}
  .start-overlay{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
  .start-box{
   width:min(720px,96%);max-height:96dvh;
@@ -421,97 +350,10 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  .legal{padding-top:2px}
 }
 @media (orientation:landscape) and (min-width:560px) and (max-height:350px){
- .game-shell{grid-template-columns:minmax(0,1fr) 198px}
- .world-zone{grid-template-rows:26px minmax(27px,auto) minmax(0,1fr)}
- .game-topline{height:26px;min-height:26px}
- .game-title{font-size:14px}
- .objective{min-height:27px}
- .controls{padding-top:16px;padding-bottom:4px;gap:2px}
- .controls-label{display:none}
- .control-actions{gap:2px}
- .shortcut-grid button{min-height:44px}
- .face,.face-b{width:44px;height:44px;min-width:44px;min-height:44px}
  .start-box{padding:5px 16px}
  .start-spark,.start-story{display:none}
  .start-box h1{font-size:19px}
  .start-box button{min-height:30px}
-}
-
-
-/* 2026-11-11 UI v1.1 — gameplay-wide immersive landscape controls.
-   Only positioning and presentation change. Portrait styles above are retained. */
-@media (orientation:landscape) and (min-width:560px){
- .game-shell{
-   width:100%;max-width:none;height:100dvh;max-height:none;
-   display:block;position:relative;overflow:hidden;margin:0;
-   padding:0;border-radius:0;box-shadow:none;
- }
- .world-zone{
-   position:absolute;inset:0;min-height:0;min-width:0;
-   display:grid;grid-template-rows:30px minmax(29px,auto) minmax(0,1fr);
-   border:0;border-radius:0;overflow:hidden;
-   padding-left:env(safe-area-inset-left);
-   padding-right:env(safe-area-inset-right);
- }
- .game-topline{height:30px;min-height:30px;padding:0 13px}
- .objective{min-height:29px;max-height:50px}
- .screen-shell{border:0;min-height:0;overflow:hidden}
- .controls{
-   position:absolute;inset:0;z-index:18;
-   display:block;min-width:0;min-height:0;
-   padding:0;margin:0;overflow:visible;
-   background:transparent;border:0;box-shadow:none;
-   pointer-events:none;
- }
- .controls::before,.controls-label,.control-tip,.game-shell:not(.in-battle) .shortcut-grid{display:none!important}
- .dpad{
-   position:absolute;left:max(12px,env(safe-area-inset-left));
-   bottom:max(38px,calc(env(safe-area-inset-bottom) + 17px));
-   display:grid;grid-template-columns:repeat(3,44px);
-   grid-template-rows:repeat(3,44px);width:132px;height:132px;
-   margin:0;transform:none;pointer-events:auto;
-   filter:drop-shadow(0 2px 4px #010509a8);
- }
- .dpad button,.dpad-center{
-   width:44px;height:44px;min-width:44px;min-height:44px;
- }
- .dpad-center::before{margin:13px auto}
- .control-actions{
-   position:absolute;right:max(17px,calc(env(safe-area-inset-right) + 10px));
-   bottom:max(38px,calc(env(safe-area-inset-bottom) + 17px));
-   height:auto;width:58px;min-width:58px;max-width:58px;
-   display:block;padding:0;margin:0;flex:none;pointer-events:none;
- }
- .action-pair{
-   width:58px;display:flex;flex-direction:column-reverse;
-   align-items:center;justify-content:flex-start;gap:11px;
-   pointer-events:auto;
- }
- .face,.face-b{
-   width:58px;height:58px;min-width:58px;min-height:58px;
-   transform:none;touch-action:manipulation;
- }
- .face span{font-size:21px}
- .face small{font-size:8px}
- .action-panel{
-   position:absolute;left:max(150px,calc(env(safe-area-inset-left) + 146px));
-   top:7px;max-height:calc(100% - 14px);
-   width:min(365px,calc(100% - 265px));overflow:auto;
- }
- .dialogue{bottom:10px;left:clamp(145px,20vw,185px);right:clamp(87px,12vw,115px)}
- .context-hint{right:max(97px,calc(env(safe-area-inset-right) + 88px));bottom:9px}
- .action-panel:has(.overworld-atlas){
-   top:4px;left:max(149px,calc(env(safe-area-inset-left) + 145px));
-   width:min(540px,calc(100% - 260px));max-height:calc(100% - 8px);
- }
- .start-overlay{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
-}
-@media (orientation:landscape) and (min-width:560px) and (max-height:350px){
- .world-zone{grid-template-rows:26px minmax(27px,auto) minmax(0,1fr)}
- .game-topline{height:26px;min-height:26px}
- .objective{min-height:27px}
- .dpad,.control-actions{bottom:max(24px,calc(env(safe-area-inset-bottom) + 8px))}
-
 }
 
 /* Town-v2: remove both upper game bands across landscape AND portrait.
@@ -525,7 +367,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 
 
-/* Keep battle controls and messages outside the canvas drawing area. */
+/* Shared input feedback. */
 .game-shell,.start-overlay{
  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation
 }
@@ -535,28 +377,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 }
 .dpad button:active,.dpad button.pressed{transform:none}
 .dialogue.can-advance{cursor:pointer}
-.in-battle .screen-shell{
- display:grid;grid-template-rows:minmax(0,1fr) 64px
-}
-.in-battle .dialogue{
- position:relative;inset:auto;grid-row:2;min-height:0;max-height:none;
- margin:2px 7px 4px;box-shadow:none
-}
-.in-battle .completion{top:auto;bottom:64px;transform:translateX(-50%);pointer-events:none}
-.in-battle .controls{
- display:grid;grid-template-columns:auto minmax(0,225px);
- grid-template-rows:auto minmax(0,1fr);justify-content:center;
- padding:5px 11px max(8px,env(safe-area-inset-bottom));gap:5px 10px
-}
-.in-battle .controls-label,.in-battle .control-tip{display:none}
-.battle-status:not([hidden]){
- grid-column:1/-1;z-index:2;
- display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);
- min-height:27px;padding:4px 8px;background:#0d1828;color:#fff4e2;
- border:1px solid #a5afae;font-size:12px
-}
-.battle-status span{font:700 12px monospace;white-space:nowrap}
-.battle-resource{display:grid;gap:2px;width:clamp(44px,13vw,76px)}
 .battle-resource progress{
  appearance:none;display:block;width:100%;height:5px;border:0;border-radius:2px;
  background:#344356;color:var(--fill);--fill:#68d995
@@ -569,78 +389,178 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .battle-resource progress::-moz-progress-bar{background:var(--fill);border-radius:2px}
 .battle-status.is-damaged{animation:battle-damage .31s ease-in-out 2 alternate}
 @keyframes battle-damage{50%{background:#842f41}}
-.in-battle .control-actions{height:100%;min-height:0;gap:5px}
-.in-battle .shortcut-grid button.is-selected{border-color:#f4d6a6;background:#3b4a55}
-.in-battle .action-panel[data-panel-type="battle"]{
- position:relative;inset:auto;width:100%;min-height:0;max-height:100%;overflow:auto;
- padding:4px;background:#0d1828
-}
-.in-battle .panel-head{position:sticky;top:0;background:#0d1828;margin-bottom:3px;padding-bottom:2px}
-.in-battle .panel-content{gap:3px}
-.in-battle .panel-content button{min-height:44px;padding:3px}
-@media (orientation:landscape) and (min-width:560px){
- .game-shell.in-battle{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
- .in-battle .world-zone{position:relative}
- .in-battle .screen-shell{grid-template-rows:minmax(0,1fr) 49px}
- .in-battle .completion{bottom:49px}
- .in-battle .controls{
-  position:relative;inset:auto;pointer-events:auto;min-height:142px;
-  grid-template-columns:132px minmax(0,470px);grid-template-rows:auto 103px;
-  padding-inline:max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right));
-  background:#202b30
- }
- .in-battle .dpad{position:static;grid-row:1/-1}
- .in-battle .battle-status{grid-column:2}
- .in-battle .control-actions{
-  position:relative;inset:auto;display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  width:auto;min-width:0;max-width:none;pointer-events:auto
- }
- .in-battle .shortcut-grid,.in-battle .action-panel[data-panel-type="battle"]{grid-column:1;grid-row:1}
- .in-battle .shortcut-grid{grid-template-rows:repeat(2,minmax(44px,1fr))}
- .in-battle .action-pair{grid-column:2;grid-row:1;width:auto;flex-direction:row;gap:5px;align-self:center}
- .in-battle .face{width:48px;height:48px;min-width:48px;min-height:48px}
- .in-battle .dialogue{max-width:660px;width:calc(100% - 14px);justify-self:center}
-}
-@media(prefers-reduced-motion:reduce){
+@media (prefers-reduced-motion:reduce){
  .battle-status.is-damaged{animation:none;background:#842f41}
 }
 
-.in-prologue .dialogue {
-  inset: 0;
-  display: grid;
-  place-content: center;
-  padding: 2rem;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  text-align: center;
+.game-shell{
+ --edge-left:max(10px,env(safe-area-inset-left));
+ --edge-right:max(10px,env(safe-area-inset-right));
+ --edge-top:max(8px,env(safe-area-inset-top));
+ --edge-bottom:max(8px,env(safe-area-inset-bottom));
+ --window-border:#e3e5ee;
+ --window-fill:linear-gradient(155deg,#273961,#111a36);
+ position:relative;
+ display:block;
+ border-radius:0;
 }
-.in-prologue .dialogue p {
-  max-width: 32ch;
-  font-size: clamp(16px, 3.6vw, 22px);
-  line-height: 1.9;
+.world-zone{position:absolute;inset:0;border:0;border-radius:0}
+.screen-shell{border:0}
+.controls{
+ position:absolute;inset:0;z-index:18;
+ display:block;padding:0;border:0;background:none;box-shadow:none;pointer-events:none
 }
-.in-prologue .message-arrow {
-  left: 50%;
-  right: auto;
-  bottom: 12%;
+.controls::before{display:none}
+.dpad{
+ position:absolute;left:var(--edge-left);bottom:var(--edge-bottom);
+ grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);
+ transform:none;opacity:.70
 }
-.in-intro .dpad, .in-intro .control-tip {
-  visibility: hidden;
+.dpad button,.dpad-center{width:44px;height:44px;min-width:44px;min-height:44px}
+.dpad-center::before{margin:13px auto}
+.control-actions{position:static;width:auto;max-width:none;padding:0}
+.action-pair{
+ position:absolute;right:var(--edge-right);bottom:var(--edge-bottom);
+ width:auto;display:flex;flex-direction:row;gap:7px;opacity:.78
+}
+.face,.face-b{
+ width:52px;height:52px;min-width:52px;min-height:52px;
+ transform:none;pointer-events:auto
+}
+.dpad button{pointer-events:auto}
+.game-shell:is(.in-dialogue,.in-intro):not(.in-battle) :is(.dpad,.action-pair),
+.game-shell:has(.action-panel[data-panel-type="menu"]:not([hidden])) .dpad,
+.in-battle .dpad,.game-shell:not(.in-battle) .shortcut-grid{display:none}
+.context-hint{right:var(--edge-right);bottom:calc(var(--edge-bottom) + 60px)}
+
+.location-banner,.dialogue,.battle-status,.in-battle .shortcut-grid,
+.in-battle .action-panel,.action-panel[data-panel-type="menu"]{
+ background:var(--window-fill);border:2px solid var(--window-border);border-radius:5px;
+ color:#fff7e6;box-shadow:inset 0 0 0 2px #7785af66,0 2px 5px #050a1a66
+}
+.location-banner{
+ position:absolute;z-index:6;top:var(--edge-top);left:50%;transform:translateX(-50%);
+ padding:5px 14px;font-size:13px;font-weight:700;pointer-events:none
+}
+.dialogue{
+ left:var(--edge-left);right:var(--edge-right);bottom:var(--edge-bottom);
+ min-height:66px;max-height:45%;padding:10px 30px 10px 13px;overflow:visible
+}
+.game-shell:not(.in-battle,.in-dialogue,.in-intro) .dialogue{
+ bottom:calc(var(--edge-bottom) + 138px)
+}
+.dialogue-body{display:flex;align-items:start;gap:10px;max-height:30dvh;overflow:auto}
+.speaker-tab{
+ position:absolute;bottom:100%;left:-2px;z-index:1;
+ padding:4px 13px;background:#273961;border:2px solid var(--window-border);border-bottom:0;
+ border-radius:5px 5px 0 0;font-size:12px;font-weight:700
+}
+.portrait-frame{display:none}
+.dialogue[data-portrait="true"] .portrait-frame{
+ display:block;flex:0 0 52px;aspect-ratio:1;border:1px solid var(--window-border);border-radius:3px
+}
+.in-prologue .dialogue{
+ inset:0;max-height:none;display:grid;place-content:center;padding:2rem;
+ border:0;background:transparent;box-shadow:none;text-align:center
+}
+.in-prologue .dialogue p{max-width:32ch;font-size:clamp(16px,3.6vw,22px);line-height:1.9}
+.in-prologue .message-arrow{left:50%;right:auto;bottom:12%}
+
+.in-battle{
+ --battle-window-height:clamp(104px,28%,148px);
+ --battle-log-height:calc(var(--edge-top) + 43px);
+}
+.in-battle .world-zone{bottom:var(--battle-window-height)}
+.in-battle #game{position:absolute;top:var(--battle-log-height);height:calc(100% - var(--battle-log-height))}
+.in-battle .screen-shell{background:#0b111b}
+.in-battle .dialogue{
+ top:var(--edge-top);bottom:auto;min-height:35px;max-height:40px;
+ padding:5px 28px 5px 10px
+}
+.in-battle .dialogue-body{max-height:26px}
+.in-battle .dialogue p{font-size:12px;line-height:1.35}
+.in-battle .completion{pointer-events:none}
+.in-battle .controls{
+ top:auto;height:var(--battle-window-height);
+ display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+ grid-template-rows:minmax(0,1fr);align-items:stretch;gap:5px;
+ padding:3px var(--edge-right) var(--edge-bottom) var(--edge-left)
+}
+.in-battle .control-actions{display:contents}
+.in-battle :is(.shortcut-grid,.action-panel[data-panel-type="battle"]){
+ grid-column:1;grid-row:1;min-height:0;pointer-events:auto
+}
+.in-battle .shortcut-grid{
+ grid-template-columns:1fr;grid-template-rows:repeat(4,minmax(0,1fr));
+ gap:0;padding:3px 5px
+}
+.in-battle .shortcut-grid button{
+ min-width:0;min-height:0;padding:0 6px 0 24px;position:relative;
+ background:none;border:1px solid transparent;box-shadow:none;color:inherit;
+ font-size:13px;text-align:left;line-height:1.1
+}
+.in-battle .shortcut-grid button.is-selected{border-color:#a6b4d1;background:#44567c}
+.in-battle .shortcut-grid button.is-selected::before{
+ content:"▶";position:absolute;left:6px;color:#ffe6aa
+}
+.battle-status{
+ grid-column:2;grid-row:1;min-width:0;
+ display:grid;align-content:center;gap:5px;padding:5px 10px;
+ font-size:13px
+}
+.battle-resource{
+ display:grid;grid-template-columns:3.65em minmax(0,1fr);align-items:center;gap:4px;
+ max-width:calc(100% - 86px);font:700 12px monospace;white-space:nowrap
+}
+.battle-status strong{padding-right:0;overflow-wrap:anywhere}
+.in-battle .action-pair{right:calc(var(--edge-right) + 7px);bottom:calc(var(--edge-bottom) + 6px)}
+.in-battle .face{width:40px;height:40px;min-width:40px;min-height:40px}
+.in-battle .face span{font-size:16px}
+.in-battle .face small{font-size:8px}
+.in-battle .action-panel[data-panel-type="battle"]{
+ position:relative;inset:auto;width:100%;max-height:100%;padding:0 5px 4px
+}
+.in-battle .panel-head{
+ position:sticky;top:0;z-index:1;background:#25365a;
+ padding:2px 0;margin-bottom:3px
+}
+.in-battle .panel-content{gap:4px}
+.in-battle .panel-content button{min-height:32px;padding:3px}
+@media (max-width:480px){
+ .in-battle{--battle-window-height:clamp(124px,28%,180px)}
+ .battle-status{align-content:start;gap:4px}
+ .battle-resource{max-width:none}
 }
 
-/* Exploration keeps the landscape stage behind the corner controls. */
+.action-panel[data-panel-type="menu"]{
+ inset:var(--edge-top) var(--edge-right) var(--edge-bottom) var(--edge-left);
+ width:auto;max-height:none;padding:10px 12px
+}
+[data-panel-type="menu"] .panel-head{margin-bottom:10px}
+[data-panel-type="menu"] .panel-content{
+ grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:14px
+}
+.menu-commands,.menu-details,.menu-extras{display:grid;align-content:start;gap:5px;min-width:0}
+.menu-details{gap:12px}
+.menu-extras{grid-template-columns:repeat(auto-fit,minmax(min(100%,110px),1fr))}
+.panel-content .menu-summary{
+ margin:0;padding:9px 10px;border:1px solid #a2abc5;border-radius:3px;
+ background:#0f1b37;font-size:14px;line-height:1.55
+}
+.menu-commands button{text-align:left;padding-inline:12px}
+.menu-extras button{background:#283653}
 @media (orientation:landscape) and (min-width:560px){
- .game-shell:not(.in-battle) .dpad{
-  left:calc(12px + env(safe-area-inset-left));
-  pointer-events:none;
+ .in-battle [data-target-selection] .panel-content{
+  grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)
  }
- .game-shell:not(.in-battle) .dpad button,
- .game-shell:not(.in-battle) .face{pointer-events:auto}
- .game-shell:not(.in-battle) .action-pair{pointer-events:none}
- .game-shell:not(.in-battle) .dialogue{
-  left:max(clamp(145px,20vw,185px),calc(145px + env(safe-area-inset-left)));
-  right:max(clamp(87px,12vw,115px),calc(78px + env(safe-area-inset-right)));
+ .in-battle [data-target-selection] .panel-content button{overflow-wrap:anywhere}
+ .game-shell{width:100%;max-width:none;height:100dvh;margin:0;box-shadow:none}
+ .game-shell:not(.in-battle,.in-dialogue,.in-intro) .dialogue{
+  left:calc(var(--edge-left) + 142px);right:calc(var(--edge-right) + 121px);
+  bottom:var(--edge-bottom)
+ }
+ .action-panel[data-panel-type="field"]{
+  left:calc(var(--edge-left) + 139px);top:var(--edge-top);
+  max-height:calc(100% - var(--edge-top) - var(--edge-bottom))
  }
 }

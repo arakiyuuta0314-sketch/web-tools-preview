@@ -14615,152 +14615,278 @@
   }
 
   // src/game/combat.mjs
-  function beginCombat(enemyId, tag = "random") {
-    const enemy = monsterById(enemyId);
-    if (!enemy) throw Error("\u672A\u5B9A\u7FA9\u306E\u6575: " + enemyId);
-    const hp = tag === "tutorial" && enemyId === "m01" ? 23 : enemy.hp;
-    return { id: enemyId, hp, maxHp: hp, tag, round: 1, asleep: 0, silenced: 0, ward: 0 };
-  }
+  var enemySpellKinds = ["damage", "sleep", "silence"];
+  var magicEnemies = ["m12", "m18", "m21", "m22", "m23", "vold"];
   var roll = (rng, min, max) => Math.floor(min + (max - min + 1) * rng());
-  function strike(attack, defense, rng) {
-    return Math.max(1, Math.floor(attack * (0.82 + rng() * 0.42)) - Math.floor(defense * 0.5));
+  var strike = (attack, defense, rng) => Math.max(1, Math.floor(attack * (0.82 + rng() * 0.42)) - Math.floor(defense * 0.5));
+  function beginCombat(group, tag = "random") {
+    const ids2 = Array.isArray(group) ? group : [group];
+    if (ids2.length < 1 || ids2.length > 4) throw Error("\u6575\u30B0\u30EB\u30FC\u30D7\u306F1\u301C4\u4F53");
+    if ((tag === "voldBoss" || ids2.includes("vold")) && (ids2.length !== 1 || ids2[0] !== "vold"))
+      throw Error("\u9B54\u738B\u30F4\u30A9\u30EB\u30C9\u6226\u306F\u4E00\u5BFE\u4E00");
+    const enemies = Array.from(ids2, (id, slot) => {
+      const enemy = monsterById(id);
+      if (!enemy) throw Error("\u672A\u5B9A\u7FA9\u306E\u6575: " + id);
+      const hp = tag === "tutorial" && id === "m01" ? 23 : enemy.hp;
+      const duplicate = ids2.indexOf(id) !== ids2.lastIndexOf(id);
+      const letter = "ABCD"[ids2.slice(0, slot).filter((other) => other === id).length];
+      const name = enemy.name + (duplicate ? " " + letter : "");
+      return { id, side: "enemy", slot, name, hp, maxHp: hp, asleep: 0, silenced: 0 };
+    });
+    return battleView({ tag, round: 1, ward: 0, enemies });
   }
-  function combatTurn(state2, combat, action, rng = Math.random) {
-    let s = clone(state2), b = clone(combat);
-    const e = monsterById(b.id), lines = [];
-    const presentation = [];
-    let heroDamage = 0;
-    const cue = (type, damage = 0) => {
-      presentation.push({ line: lines.length, type, damage });
-    };
-    const heroCue = (healing2 = 0) => {
-      presentation.push({
-        line: 0,
-        type: "hero",
-        enemyHp: b.hp,
-        mp: s.player.mp,
-        ward: b.ward,
-        healing: healing2,
-        damage: heroDamage
-      });
-    };
+  function battleView(b) {
+    const { id, hp, maxHp: maxHp2, asleep, silenced } = b.enemies[0];
+    return { ...b, id, hp, maxHp: maxHp2, asleep, silenced };
+  }
+  function combatTargetMode(action) {
+    if (action.type === "attack") return "enemy";
+    if (action.type === "spell") {
+      const spell = spellById(action.id);
+      if (enemySpellKinds.includes(spell?.kind)) return spell.target ?? "enemy";
+    }
+    if (action.type === "item") {
+      const item = itemById(action.id);
+      if (item?.effect === "damage") return item.target ?? "enemy";
+    }
+    return "self";
+  }
+  function commandError(s, b, action) {
     if (!action || typeof action !== "object") throw Error("\u6226\u95D8\u30B3\u30DE\u30F3\u30C9\u4E0D\u6B63");
     if (action.type === "run" || action.type === "item" && action.id === "smoke") {
-      if (b.tag !== "random") return { state: s, battle: b, lines: ["\u3053\u3053\u3067\u306F\u9003\u3052\u3089\u308C\u306A\u3044\uFF01"], outcome: "continue" };
-      if (action.type === "item") {
-        if (s.inventory.smoke < 1) return { state: s, battle: b, lines: ["\u3051\u3080\u308A\u7389\u3092\u6301\u3063\u3066\u3044\u306A\u3044\u3002"], outcome: "continue" };
-        s.inventory.smoke--;
-        lines.push("\u3051\u3080\u308A\u7389\u3092\u6295\u3052\u305F\uFF01");
-      }
-      const escapeChance = Math.max(0.35, Math.min(0.85, 0.55 + (stats(s).speed - e.speed) * 0.025));
-      if (action.type === "item" || rng() < escapeChance) {
-        heroCue();
-        return { state: s, battle: null, lines: [...lines, "\u3046\u307E\u304F\u9003\u3052\u304D\u308C\u305F\uFF01"], outcome: "escaped", presentation };
-      }
-      lines.push("\u9003\u3052\u3089\u308C\u306A\u304B\u3063\u305F\uFF01");
-    } else if (action.type === "attack") {
-      if (rng() < 0.05) lines.push(s.name + "\u306E\u653B\u6483\u306F\u5916\u308C\u305F\uFF01");
-      else {
-        const damage = strike(stats(s).attack, e.defense, rng);
-        heroDamage = damage;
-        b.hp = Math.max(0, b.hp - damage);
-        lines.push(s.name + "\u306E\u653B\u6483\uFF01 " + e.name + "\u306B" + damage + "\u30C0\u30E1\u30FC\u30B8\u3002");
-      }
+      if (b.tag !== "random") return "\u3053\u3053\u3067\u306F\u9003\u3052\u3089\u308C\u306A\u3044\uFF01";
+      if (action.type === "item" && !s.inventory.smoke) return "\u3051\u3080\u308A\u7389\u3092\u6301\u3063\u3066\u3044\u306A\u3044\u3002";
     } else if (action.type === "spell") {
       const spell = spellById(action.id);
-      if (!spell || s.player.level < spell.level) return { state: s, battle: b, lines: ["\u305D\u306E\u546A\u6587\u306F\u307E\u3060\u4F7F\u3048\u306A\u3044\u3002"], outcome: "continue" };
-      if (!["heal", "damage", "sleep", "silence", "ward"].includes(spell.kind)) return { state: s, battle: b, lines: ["\u3053\u306E\u546A\u6587\u306F\u6226\u95D8\u4E2D\u306B\u306F\u4F7F\u3048\u306A\u3044\u3002"], outcome: "continue" };
-      const cost = Math.max(1, spell.mp - (s.equipment.accessory === "star-orb" ? 1 : 0));
-      if (spell.kind === "heal" && s.player.hp === maxHp(s.player.level)) return { state: s, battle: b, lines: ["HP\u306F\u6E80\u30BF\u30F3\u3060\u3002"], outcome: "continue" };
-      if (s.player.mp < cost) return { state: s, battle: b, lines: ["MP\u304C\u8DB3\u308A\u306A\u3044\uFF01"], outcome: "continue" };
-      s.player.mp -= cost;
+      if (!spell || s.player.level < spell.level) return "\u305D\u306E\u546A\u6587\u306F\u307E\u3060\u4F7F\u3048\u306A\u3044\u3002";
+      if (!["heal", "ward", ...enemySpellKinds].includes(spell.kind)) return "\u3053\u306E\u546A\u6587\u306F\u6226\u95D8\u4E2D\u306B\u306F\u4F7F\u3048\u306A\u3044\u3002";
+      if (spell.kind === "heal" && s.player.hp === maxHp(s.player.level)) return "HP\u306F\u6E80\u30BF\u30F3\u3060\u3002";
+      if (s.player.mp < spellCost(s, spell)) return "MP\u304C\u8DB3\u308A\u306A\u3044\uFF01";
+    } else if (action.type === "item") {
+      if (itemById(action.id)?.effect === "damage") {
+        if (!s.inventory[action.id]) return "\u305D\u306E\u9053\u5177\u306F\u6301\u3063\u3066\u3044\u306A\u3044\u3002";
+      } else {
+        const result = useItem(s, action.id);
+        if (!result.used) return result.message;
+      }
+    } else if (action.type !== "attack") throw Error("\u672A\u5B9A\u7FA9\u306E\u6226\u95D8\u30B3\u30DE\u30F3\u30C9: " + action.type);
+  }
+  var spellCost = (s, spell) => Math.max(1, spell.mp - (s.equipment.accessory === "star-orb" ? 1 : 0));
+  var livingEnemies = (b) => b.enemies.filter((enemy) => enemy.hp > 0);
+  function escapeChance(heroSpeed, enemies) {
+    const fastest = Math.max(...enemies.map((enemy) => monsterById(enemy.id).speed));
+    return Math.max(0.35, Math.min(0.85, 0.55 + (heroSpeed - fastest) * 0.025));
+  }
+  function heroAction(s, b, action, lines, presentation, rng) {
+    const live = livingEnemies(b);
+    const target = live.find((enemy) => enemy.slot === action.targetSlot) ?? live[0];
+    const mode = combatTargetMode(action);
+    let healing = 0;
+    const cue = (enemy, damage = 0) => presentation.push({
+      line: lines.length,
+      type: "hero",
+      enemyHp: (enemy ?? b.enemies[0]).hp,
+      mp: s.player.mp,
+      ward: b.ward,
+      healing,
+      damage,
+      targetSlot: enemy?.slot
+    });
+    const hit = (enemy, damage, label) => {
+      enemy.hp = Math.max(0, enemy.hp - damage);
+      cue(enemy, damage);
+      lines.push(label + "\uFF01 " + enemy.name + "\u306B" + damage + "\u30C0\u30E1\u30FC\u30B8\u3002");
+    };
+    if (action.type === "run" || action.type === "item" && action.id === "smoke") {
+      const smoke = action.type === "item";
+      if (smoke || rng() < escapeChance(stats(s).speed, live)) {
+        cue();
+        if (smoke) {
+          s.inventory.smoke--;
+          lines.push("\u3051\u3080\u308A\u7389\u3092\u6295\u3052\u305F\uFF01");
+        }
+        lines.push("\u3046\u307E\u304F\u9003\u3052\u304D\u308C\u305F\uFF01");
+        return { escaped: true, healing };
+      }
+      cue();
+      lines.push("\u9003\u3052\u3089\u308C\u306A\u304B\u3063\u305F\uFF01");
+    } else if (action.type === "attack") {
+      if (rng() < 0.05) {
+        cue(target);
+        lines.push(s.name + "\u306E\u653B\u6483\u306F\u5916\u308C\u305F\uFF01");
+      } else hit(target, strike(stats(s).attack, monsterById(target.id).defense, rng), s.name + "\u306E\u653B\u6483");
+    } else if (action.type === "spell") {
+      const spell = spellById(action.id);
+      s.player.mp -= spellCost(s, spell);
       if (spell.kind === "heal") {
-        const heal = Math.min(maxHp(s.player.level) - s.player.hp, spell.power);
-        s.player.hp += heal;
-        lines.push(spell.name + "\uFF01 HP\u304C" + heal + "\u56DE\u5FA9\u3057\u305F\u3002");
-      } else if (spell.kind === "damage") {
-        const damage = Math.max(1, spell.power + roll(rng, -3, 3) - Math.floor(e.defense / 3));
-        heroDamage = damage;
-        b.hp = Math.max(0, b.hp - damage);
-        lines.push(spell.name + "\uFF01 " + e.name + "\u306B" + damage + "\u30C0\u30E1\u30FC\u30B8\u3002");
-      } else if (spell.kind === "sleep") {
-        if (b.id === "vold") lines.push(spell.name + "\uFF01 \u3057\u304B\u3057\u9B54\u738B\u306B\u7720\u308A\u306E\u8853\u306F\u52B9\u304B\u306A\u304B\u3063\u305F\u3002");
-        else {
-          b.asleep = 3;
-          lines.push(spell.name + "\uFF01 " + e.name + "\u306F\u7720\u308A\u8FBC\u3093\u3060\u3002");
-        }
-      } else if (spell.kind === "silence") {
-        if (b.id === "vold") lines.push(spell.name + "\uFF01 \u3057\u304B\u3057\u9B54\u738B\u306E\u95C7\u306E\u529B\u3092\u5C01\u3058\u3089\u308C\u306A\u3044\u3002");
-        else {
-          b.silenced = 4;
-          lines.push(spell.name + "\uFF01 " + e.name + "\u306E\u8853\u3092\u5C01\u3058\u305F\u3002");
-        }
+        healing = Math.min(maxHp(s.player.level) - s.player.hp, spell.power);
+        s.player.hp += healing;
+        cue();
+        lines.push(spell.name + "\uFF01 HP\u304C" + healing + "\u56DE\u5FA9\u3057\u305F\u3002");
       } else if (spell.kind === "ward") {
         b.ward = 4;
+        cue();
         lines.push(spell.name + "\uFF01 \u661F\u306E\u5B88\u308A\u304C\u8EAB\u3092\u5305\u3093\u3060\u3002\u6B21\u306E3\u56DE\u306E\u88AB\u30C0\u30E1\u30FC\u30B8\u3092\u8EFD\u6E1B\u3059\u308B\u3002");
+      } else for (const enemy of mode === "allEnemies" ? live : [target]) {
+        if (spell.kind === "damage") {
+          const damage = Math.max(1, spell.power + roll(rng, -3, 3) - Math.floor(monsterById(enemy.id).defense / 3));
+          hit(enemy, damage, spell.name);
+        } else {
+          cue(enemy);
+          if (spell.kind === "sleep") {
+            if (enemy.id === "vold") lines.push(spell.name + "\uFF01 \u3057\u304B\u3057\u9B54\u738B\u306B\u7720\u308A\u306E\u8853\u306F\u52B9\u304B\u306A\u304B\u3063\u305F\u3002");
+            else {
+              enemy.asleep = 3;
+              lines.push(spell.name + "\uFF01 " + enemy.name + "\u306F\u7720\u308A\u8FBC\u3093\u3060\u3002");
+            }
+          } else if (enemy.id === "vold") lines.push(spell.name + "\uFF01 \u3057\u304B\u3057\u9B54\u738B\u306E\u95C7\u306E\u529B\u3092\u5C01\u3058\u3089\u308C\u306A\u3044\u3002");
+          else {
+            enemy.silenced = 4;
+            lines.push(spell.name + "\uFF01 " + enemy.name + "\u306E\u8853\u3092\u5C01\u3058\u305F\u3002");
+          }
+        }
       }
-    } else if (action.type === "item") {
-      const r2 = useItem(s, action.id);
-      s = r2.state;
-      if (!r2.used) return { state: s, battle: b, lines: [r2.message], outcome: "continue" };
-      const recovered = s.player.hp - state2.player.hp;
-      lines.push(r2.message + (recovered > 0 ? " HP\u304C" + recovered + "\u56DE\u5FA9\u3057\u305F\u3002" : ""));
-    } else throw Error("\u672A\u5B9A\u7FA9\u306E\u6226\u95D8\u30B3\u30DE\u30F3\u30C9: " + action.type);
-    const hpAfterAction = s.player.hp;
-    const healing = Math.max(0, hpAfterAction - state2.player.hp);
-    heroCue(healing);
-    if (b.hp === 0) {
-      cue("won");
-      const win = gainVictory(s, b.id, b.tag);
-      return { state: win.state, battle: null, lines: [...lines, ...win.messages], outcome: "won", autoSave: win.autoSave, presentation };
-    }
-    if (b.id === "vold" && b.hp <= e.hp / 2 && b.round === 3) lines.push("\u30F4\u30A9\u30EB\u30C9\u300C\u4EBA\u9593\u304C\u2026\u2026\u3053\u3053\u307E\u3067\u6297\u3046\u3068\u306F\uFF01\u300D");
-    if (b.asleep > 0) {
-      lines.push(e.name + "\u306F\u7720\u3063\u3066\u3044\u308B\u2026\u2026\u3002");
-      b.asleep--;
-    } else if (["m12", "m18", "m21", "m22", "m23", "vold"].includes(b.id) && rng() < 0.32) {
-      if (b.silenced > 0) lines.push(e.name + "\u306F\u546A\u6587\u3092\u5531\u3048\u3088\u3046\u3068\u3057\u305F\u304C\u3001\u5C01\u3058\u3089\u308C\u3066\u3044\u308B\uFF01");
-      else {
-        const spellDamage = Math.max(3, Math.floor(e.attack * 0.72) + roll(rng, 0, 4));
-        const damage = b.ward > 0 ? Math.max(1, Math.ceil(spellDamage * 0.5)) : spellDamage;
-        s.player.hp = Math.max(0, s.player.hp - damage);
-        cue("dark", damage);
-        lines.push(e.name + "\u306E\u95C7\u306E\u8853\uFF01 " + damage + "\u30C0\u30E1\u30FC\u30B8\u3092\u53D7\u3051\u305F\u3002");
-      }
-    } else if (rng() < 0.04) {
-      cue("enemy");
-      lines.push(e.name + "\u306E\u653B\u6483\u306F\u5916\u308C\u305F\uFF01");
-    } else if (rng() < 0.06) {
-      cue("enemy");
-      lines.push(s.name + "\u306F\u653B\u6483\u3092\u304B\u308F\u3057\u305F\uFF01");
     } else {
-      const rawDamage = strike(e.attack, stats(s).defense, rng);
-      const damage = b.ward > 0 ? Math.max(1, Math.ceil(rawDamage * 0.5)) : rawDamage;
-      s.player.hp = Math.max(0, s.player.hp - damage);
-      cue("enemy", damage);
-      lines.push(e.name + "\u306E\u653B\u6483\uFF01 " + damage + "\u30C0\u30E1\u30FC\u30B8\u3092\u53D7\u3051\u305F\u3002");
-      if (e.status === "poison" && rng() < 0.2) {
-        s.player.status = "poison";
-        lines.push(s.name + "\u306F\u6BD2\u306B\u304A\u304B\u3055\u308C\u305F\uFF01");
+      const item = itemById(action.id);
+      if (item.effect === "damage") {
+        s.inventory[action.id]--;
+        for (const enemy of mode === "allEnemies" ? live : [target]) hit(enemy, item.amount, item.name + "\u3092\u4F7F\u3063\u305F");
+      } else {
+        const result = useItem(s, action.id);
+        healing = result.state.player.hp - s.player.hp;
+        Object.assign(s, result.state);
+        cue();
+        lines.push(result.message + (healing > 0 ? " HP\u304C" + healing + "\u56DE\u5FA9\u3057\u305F\u3002" : ""));
       }
     }
-    if (s.player.hp === 0) {
-      cue("lost");
-      const lost = defeat(s, b.tag);
-      return { state: lost.state, battle: null, lines: [...lines, ...lost.messages], outcome: "lost", autoSave: true, healing, playerDamage: hpAfterAction, presentation };
+    return { escaped: false, healing };
+  }
+  function enemyAction(actor, target, ward, lines, cue, rng) {
+    const e = monsterById(actor.id);
+    const { name } = actor;
+    const receive = (rawDamage, type, label) => {
+      const damage = ward > 0 ? Math.max(1, Math.ceil(rawDamage * 0.5)) : rawDamage;
+      target.player.hp = Math.max(0, target.player.hp - damage);
+      cue(type, damage, actor.slot);
+      lines.push(label + "\uFF01 " + damage + "\u30C0\u30E1\u30FC\u30B8\u3092\u53D7\u3051\u305F\u3002");
+    };
+    if (actor.asleep > 0) {
+      lines.push(name + "\u306F\u7720\u3063\u3066\u3044\u308B\u2026\u2026\u3002");
+      actor.asleep--;
+    } else if (magicEnemies.includes(actor.id) && rng() < 0.32) {
+      if (actor.silenced > 0) lines.push(name + "\u306F\u546A\u6587\u3092\u5531\u3048\u3088\u3046\u3068\u3057\u305F\u304C\u3001\u5C01\u3058\u3089\u308C\u3066\u3044\u308B\uFF01");
+      else receive(Math.max(3, Math.floor(e.attack * 0.72) + roll(rng, 0, 4)), "dark", name + "\u306E\u95C7\u306E\u8853");
+    } else if (rng() < 0.04) {
+      cue("enemy", 0, actor.slot);
+      lines.push(name + "\u306E\u653B\u6483\u306F\u5916\u308C\u305F\uFF01");
+    } else if (rng() < 0.06) {
+      cue("enemy", 0, actor.slot);
+      lines.push(target.name + "\u306F\u653B\u6483\u3092\u304B\u308F\u3057\u305F\uFF01");
+    } else {
+      receive(strike(e.attack, stats(target).defense, rng), "enemy", name + "\u306E\u653B\u6483");
+      if (e.status === "poison" && rng() < 0.2) {
+        target.player.status = "poison";
+        lines.push(target.name + "\u306F\u6BD2\u306B\u304A\u304B\u3055\u308C\u305F\uFF01");
+      }
+    }
+    if (actor.silenced > 0) actor.silenced--;
+  }
+  function combatTurn(state2, combat, action, rng = Math.random) {
+    const s = clone(state2), b = clone(combat), lines = [], presentation = [];
+    const error = commandError(s, b, action);
+    if (error) return { state: s, battle: b, lines: [error], outcome: "continue" };
+    const cue = (type, damage = 0, actorSlot) => presentation.push({ line: lines.length, type, damage, actorSlot });
+    const participants = [
+      { side: "ally", speed: stats(s).speed, state: s },
+      ...livingEnemies(b).map((enemy) => ({ side: enemy.side, speed: monsterById(enemy.id).speed, enemy }))
+    ];
+    const actions = participants.map((actor) => ({ actor, command: actor.side === "ally" ? action : { type: "enemy" } }));
+    if (b.id !== "vold") actions.sort((a, b2) => b2.actor.speed - a.actor.speed);
+    let healing = 0, playerDamage = 0;
+    for (const { actor, command } of actions) {
+      if (command.type === "enemy") {
+        if (actor.enemy.hp === 0) continue;
+        const targets = participants.filter((p) => p.side === "ally" && p.state.player.hp > 0);
+        const target = targets.length === 1 ? targets[0] : targets[roll(rng, 0, targets.length - 1)];
+        const before = target.state.player.hp;
+        if (actor.enemy.id === "vold" && actor.enemy.hp <= actor.enemy.maxHp / 2 && b.round === 3)
+          lines.push("\u30F4\u30A9\u30EB\u30C9\u300C\u4EBA\u9593\u304C\u2026\u2026\u3053\u3053\u307E\u3067\u6297\u3046\u3068\u306F\uFF01\u300D");
+        enemyAction(actor.enemy, target.state, b.ward, lines, cue, rng);
+        playerDamage += before - target.state.player.hp;
+        if (s.player.hp === 0) {
+          cue("lost");
+          const lost = defeat(s, b.tag);
+          return { state: lost.state, battle: null, lines: [...lines, ...lost.messages], outcome: "lost", autoSave: true, healing, playerDamage, presentation };
+        }
+      } else {
+        const result = heroAction(s, b, command, lines, presentation, rng);
+        healing = result.healing;
+        if (result.escaped) return { state: s, battle: null, lines, outcome: "escaped", presentation };
+        if (b.enemies.every((enemy) => enemy.hp === 0)) {
+          cue("won");
+          let rewarded = s, autoSave = false;
+          for (const enemy of b.enemies) {
+            const win = gainVictory(rewarded, enemy.id, b.tag);
+            rewarded = win.state;
+            autoSave ||= win.autoSave;
+            lines.push(...win.messages);
+          }
+          return { state: rewarded, battle: null, lines, outcome: "won", autoSave, presentation };
+        }
+      }
     }
     if (s.player.status === "poison") {
       const poison = Math.min(s.player.hp - 1, 2);
       if (poison > 0) {
         cue("poison", poison);
         s.player.hp -= poison;
+        playerDamage += poison;
         lines.push("\u6BD2\u306E\u30C0\u30E1\u30FC\u30B8\u3092" + poison + "\u53D7\u3051\u305F\u3002");
       }
     }
-    if (b.silenced > 0) b.silenced--;
     if (b.ward > 0) b.ward--;
     b.round++;
-    return { state: s, battle: b, lines, outcome: "continue", healing, playerDamage: hpAfterAction - s.player.hp, presentation };
+    return { state: s, battle: battleView(b), lines, outcome: "continue", healing, playerDamage, presentation };
+  }
+
+  // src/game/encounters.mjs
+  var encounterGroups = {
+    meadow: [["m01"], ["m02"], ["m03"], ["m01", "m01"], ["m01", "m07"]],
+    east: [["m07"], ["m08"], ["m09"], ["m10"], ["m07", "m08", "m09"]],
+    cave: [["m02"], ["m03"], ["m04"], ["m05"], ["m02", "m03"]],
+    ruins: [["m08"], ["m09"], ["m10"], ["m11"], ["m12"], ["m13"], ["m14"], ["m15"], ["m08", "m09", "m10"]],
+    onyx: [["m16"], ["m17"], ["m18"], ["m19"], ["m20"], ["m21"], ["m22"], ["m23"], ["m24"], ["m16", "m17", "m18", "m19"]]
+  };
+  function chooseEncounter(area, rng = Math.random) {
+    const groups = encounterGroups[area];
+    if (!groups) throw Error("\u672A\u5B9A\u7FA9\u306E\u906D\u9047\u30A8\u30EA\u30A2: " + area);
+    return [...groups[Math.floor(rng() * groups.length)]];
+  }
+
+  // src/game/battle-formation-layout.mjs
+  function battleFormationSlots(width, height, { enemies = 1, allies = 1 } = {}) {
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width < 220 || height < 165)
+      throw Error("Invalid formation view dimensions");
+    if (!Number.isInteger(enemies) || enemies < 1 || enemies > 4 || !Number.isInteger(allies) || allies < 1 || allies > 3)
+      throw Error("Formation supports 1\u20134 enemies and 1\u20133 allies");
+    const enemyFeet = Math.round(height * 0.82);
+    const allyFeet = Math.round(height * 0.84);
+    const foeCenter = width * 0.34, friendCenter = width * 0.86;
+    const stride = Math.min(76, Math.round(width * 0.155));
+    const positions = (count, center, feet) => Array.from({ length: count }, (_, i) => Object.freeze({
+      x: Math.round(center + (i - (count - 1) / 2) * stride),
+      feet: feet - i % 2 * Math.round(Math.min(12, height * 0.04))
+    }));
+    return Object.freeze({
+      enemies: positions(enemies, foeCenter, enemyFeet),
+      allies: positions(allies, friendCenter, allyFeet)
+    });
+  }
+  function enemySlotAt(width, height, count, x, y) {
+    const { enemies } = battleFormationSlots(width, height, { enemies: count });
+    const halfWidth = Math.min(76, Math.round(width * 0.155)) / 2;
+    const index = enemies.findIndex((point) => Math.abs(point.x - x) < halfWidth && y >= point.feet - 105 && y <= point.feet + 33);
+    return index < 0 ? null : index;
   }
 
   // src/game/combat-visuals.mjs
@@ -14972,34 +15098,13 @@
       c.fill();
     }
   }
-  function uiLabel(c, canvas, s, title = "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u738B\u306E\u9593") {
-    const W2 = canvas.width, H2 = canvas.height;
-    const locationW = Math.min(W2 - 12, Math.ceil(title.length * 15 + 16));
-    c.fillStyle = "#0b1229e8";
-    c.fillRect(5, 5, locationW, 26);
-    c.strokeStyle = "#dfc58e";
-    c.lineWidth = 1;
-    c.strokeRect(5.5, 5.5, locationW, 25);
-    c.font = "bold 14px sans-serif";
-    c.textBaseline = "middle";
-    c.fillStyle = "#f5e9ce";
-    c.textAlign = "left";
-    c.fillText(title, 13, 19);
-    c.fillStyle = "#081527ef";
-    c.fillRect(0, H2 - 28, W2, 28);
-    c.fillStyle = "#dbc18d";
-    c.fillRect(0, H2 - 28, W2, 1);
-    c.fillStyle = "#f7ecd7";
-    c.font = "bold 13px monospace";
-    c.fillText("HP " + s.player.hp + "/" + stats(s).maxHp + "   MP " + s.player.mp + "/" + stats(s).maxMp, 10, H2 - 14);
-  }
-  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, zoom = 1) {
+  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, pixels = null) {
     if (!cache.ready) return false;
     if (s.pos.map !== "castle") throw Error("Castle art on another map");
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
     const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
-    const z = wideShot ? 0.36 : CASTLE_SCENE_SCALE * zoom;
+    const z = pixels?.castleScale ?? (wideShot ? 0.36 : CASTLE_SCENE_SCALE);
     const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
     const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
     if (wideShot) {
@@ -15007,11 +15112,12 @@
       camera.x = clamp2(center.x - W2 / 2, 0, Math.max(0, CASTLE_ART_SCENE.width - W2));
       camera.y = clamp2(center.y - H2 * 0.43, 0, Math.max(0, CASTLE_ART_SCENE.height - H2));
     }
+    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
     c.save();
     c.scale(z, z);
     c.fillStyle = "#0b101c";
     c.fillRect(0, 0, W2, H2);
-    c.drawImage(cache.images.background, Math.round(-camera.x), Math.round(-camera.y));
+    c.drawImage(cache.images.background, snap(-camera.x), snap(-camera.y));
     const plot = (x, y) => {
       const p = castleMapPoint(x, y);
       return { x: p.x - camera.x, y: p.y - camera.y };
@@ -15039,7 +15145,7 @@
           drawSmallPerson(c, p.x, p.y, n.kind);
           return;
         }
-        c.drawImage(im, Math.round(p.x - im.width / 2 + anchor), Math.round(p.y + lift - im.height));
+        c.drawImage(im, snap(p.x - im.width / 2 + anchor), snap(p.y + lift - im.height));
       } });
     }
     for (const e of map.objects) {
@@ -15048,9 +15154,9 @@
       actors2.push({ z: p.y, draw: () => {
         if (e.kind === "raider") {
           const im = cache.images.raider;
-          c.drawImage(im, Math.round(p.x - im.width / 2), Math.round(p.y + 42 - im.height));
+          c.drawImage(im, snap(p.x - im.width / 2), snap(p.y + 42 - im.height));
         } else if (e.kind === "sword") {
-          const x = Math.round(p.x - 32), y = Math.round(p.y + 30);
+          const x = snap(p.x - 32), y = snap(p.y + 30);
           c.fillStyle = "#5a506b";
           c.fillRect(x - 23, y + 5, 46, 18);
           c.fillStyle = "#8e8099";
@@ -15079,8 +15185,8 @@
       if (!hero) throw Error("Missing directional hero sprite: " + s.pos.facing + "/" + frame);
       lastHeroSprite = `hero_${s.pos.facing}_${frame}`;
       const bob = isMoving ? -Math.round(Math.sin(t * Math.PI) * 2) : 0;
-      const sx = Math.round(pp.x - camera.x - hero.width / 2);
-      const sy = Math.round(pp.y - camera.y + 43 - hero.height + bob);
+      const sx = snap(pp.x - camera.x - hero.width / 2);
+      const sy = snap(pp.y - camera.y + 43 - hero.height + bob);
       c.fillStyle = "#11132065";
       c.beginPath();
       c.ellipse(sx + hero.width / 2, sy + hero.height - 10, 35, 10, 0, 0, Math.PI * 2);
@@ -15090,9 +15196,8 @@
     } });
     actors2.sort((a, b) => a.z - b.z);
     for (const actor of actors2) actor.draw();
-    c.drawImage(cache.images.foreground, Math.round(-camera.x), Math.round(-camera.y));
+    c.drawImage(cache.images.foreground, snap(-camera.x), snap(-camera.y));
     c.restore();
-    uiLabel(c, canvas, s);
     return true;
   }
   var CASTLE_LIBRARY_SCENE = Object.freeze({
@@ -15120,19 +15225,20 @@
       t
     };
   }
-  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), zoom = 1) {
+  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), pixels = null) {
     if (!cache.ready) return false;
     if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
     const c = canvas.getContext("2d");
     c.imageSmoothingEnabled = false;
-    const z = CASTLE_SCENE_SCALE * zoom;
+    const z = pixels?.castleScale ?? CASTLE_SCENE_SCALE;
     const cam = castleLibraryCamera({
       width: Math.ceil(canvas.width / z),
       height: Math.ceil(canvas.height / z)
     }, room, motion, now);
     c.save();
     c.scale(z, z);
-    const sx = (x) => Math.round(x - cam.x), sy = (y) => Math.round(y - cam.y);
+    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
+    const sx = (x) => snap(x - cam.x), sy = (y) => snap(y - cam.y);
     c.fillStyle = "#131321";
     c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
     c.drawImage(cache.images.libraryBackground, sx(0), sy(0));
@@ -15159,7 +15265,6 @@
     for (const actor of actors2) actor.draw();
     c.drawImage(cache.images.libraryForeground, sx(0), sy(0));
     c.restore();
-    uiLabel(c, canvas, s, "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u66F8\u5EAB");
     return true;
   }
 
@@ -17067,16 +17172,16 @@
   function preloadSfcBattleArt() {
     if (paintedCastle && paintedOnyx && paintedCave && paintedRuins) return Promise.resolve();
     if (castleLoading) return castleLoading;
-    const load = (src, label2) => new Promise((resolve, reject) => {
+    const load = (src, label) => new Promise((resolve, reject) => {
       const art = new Image();
       art.onload = () => {
         if (art.naturalWidth !== 960 || art.naturalHeight !== 540) {
-          reject(Error("Wrong " + label2 + " battle image dimensions: " + src.split("?")[0]));
+          reject(Error("Wrong " + label + " battle image dimensions: " + src.split("?")[0]));
           return;
         }
         resolve(art);
       };
-      art.onerror = () => reject(Error(label2 + " battle backdrop failed to load: " + src.split("?")[0]));
+      art.onerror = () => reject(Error(label + " battle backdrop failed to load: " + src.split("?")[0]));
       art.src = src;
     });
     castleLoading = Promise.all([
@@ -17409,7 +17514,7 @@
     const t = fx.reduced ? 0.25 : combatFeedbackProgress(fx, now);
     if (t >= 1) return;
     const { enemyX, heroX, foot } = layout;
-    const enemyY = foot - layout.enemySize * 0.48, heroY = foot - 54;
+    const enemyY = (layout.enemyFoot ?? foot) - layout.enemySize * 0.48, heroY = foot - 54;
     const action = fx.reduced || fx.phase !== "impact";
     const xTarget = fx.target === "hero" ? heroX : enemyX;
     const yTarget = fx.target === "hero" ? heroY : enemyY;
@@ -17461,7 +17566,7 @@
       c.fillText(String(n), x, y - Math.round(27 * t));
       c.restore();
     }
-    if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX, Math.max(61, foot - layout.enemySize - 8), fx.type === "spell" ? "#d9caff" : "#fff1d5");
+    if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX, Math.max(61, (layout.enemyFoot ?? foot) - layout.enemySize - 8), fx.type === "spell" ? "#d9caff" : "#fff1d5");
     if (fx.playerDamage > 0) {
       floating("-" + fx.playerDamage, heroX, Math.max(60, heroY - 34), "#ffc2af");
     }
@@ -18398,7 +18503,6 @@
   // src/game/reboot-view.mjs
   var clamp3 = (v, a, b) => Math.max(a, Math.min(b, v));
   var backgrounds = /* @__PURE__ */ new Map();
-  var STATUS_HEIGHT = 27;
   var actors = { hero: "hero", king: "king", guard: "guard", refugee: "refugee" };
   var shot = (context, x, y, w, h, color2) => {
     context.fillStyle = color2;
@@ -18485,31 +18589,6 @@
     const cy = m.height <= rows ? 0 : clamp3(py - rows / 2 + 0.5, 0, m.height - rows);
     return { px, py, t, ox, oy, cx, cy, cols, rows };
   }
-  function label(c, W2, H2, main, st) {
-    const left = Math.round(Math.max(6, (W2 - main.length * 13) / 2));
-    if (main) {
-      shot(c, 6, 6, Math.min(W2 - 12, main.length * 14 + 16), 23, "#0a1426ec");
-      c.strokeStyle = "#e4d8b7";
-      c.lineWidth = 1;
-      c.strokeRect(7.5, 7.5, Math.min(W2 - 15, main.length * 14 + 13), 20);
-      c.fillStyle = "#f6edd5";
-      c.font = "bold 12px sans-serif";
-      c.textBaseline = "middle";
-      c.textAlign = "left";
-      c.fillText(main, 14, 18);
-    }
-    const status = "HP " + st.hp + "  MP " + st.mp;
-    const maxWidth = W2 - 12;
-    shot(c, 0, H2 - STATUS_HEIGHT, W2, STATUS_HEIGHT, "#09111ee8");
-    shot(c, 0, H2 - STATUS_HEIGHT, W2, 1, "#c9bd9f");
-    c.font = "bold 12px monospace";
-    c.fillStyle = "#fff0d1";
-    c.textAlign = "left";
-    c.fillText(status, 9, H2 - 12);
-    c.textAlign = "right";
-    c.fillText("Lv." + st.level + "  " + st.gold + "G", maxWidth, H2 - 12);
-    c.textAlign = "left";
-  }
   function addMapActors(s, m, npcFacing = {}) {
     const drawables = [];
     for (const n of m.npcs) {
@@ -18521,7 +18600,8 @@
     }
     return drawables;
   }
-  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, zoom = 1) {
+  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, pixels = null) {
+    const zoom = pixels?.worldScale ?? 1;
     const W2 = Math.ceil(canvas.width / zoom), H2 = Math.ceil(canvas.height / zoom);
     const c = canvas.getContext("2d", { alpha: false });
     c.imageSmoothingEnabled = false;
@@ -18624,7 +18704,6 @@
       shot(c, x + 3, y - 16, 7, 1, "#e0dbb6");
     }
     c.restore();
-    label(c, canvas.width, canvas.height, m.name, { hp: s.player.hp, mp: s.player.mp, level: s.player.level, gold: s.player.gold });
   }
   var rooms = /* @__PURE__ */ new Map();
   function roomBackground(room) {
@@ -18640,17 +18719,17 @@
     rooms.set(id, canvas);
     return canvas;
   }
-  function drawRoom(canvas, state2, room, motion = null, zoom = 1) {
+  function drawRoom(canvas, room, motion = null, pixels = null) {
     const bg = roomBackground(room);
-    const roomHeight = zoom < 1 ? canvas.height - STATUS_HEIGHT : canvas.height;
-    const scale = Math.min(zoom, canvas.width / bg.width, roomHeight / bg.height);
+    const fit = Math.min(pixels?.worldScale ?? 1, canvas.width / bg.width, canvas.height / bg.height);
+    const scale = pixels ? fit >= 1 ? Math.floor(fit) : 1 / Math.ceil(1 / fit) : fit;
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.imageSmoothingEnabled = false;
     shot(ctx, 0, 0, canvas.width, canvas.height, "#0b101c");
     ctx.save();
     ctx.scale(scale, scale);
-    const ox = Math.round((canvas.width / scale - bg.width) / 2);
-    const oy = Math.round((roomHeight / scale - bg.height) / 2);
+    const ox = pixels ? Math.floor((canvas.width - bg.width * scale) / 2) / scale : Math.round((canvas.width / scale - bg.width) / 2);
+    const oy = pixels ? Math.floor((canvas.height - bg.height * scale) / 2) / scale : Math.round((canvas.height / scale - bg.height) / 2);
     ctx.drawImage(bg, ox, oy);
     const resident2 = { x: 6, y: 3 };
     const moving = motion && motion.id === room.id;
@@ -18685,20 +18764,11 @@
     ];
     drawables.sort((a, b) => a.y - b.y).forEach((a) => a.fn());
     ctx.restore();
-    label(
-      ctx,
-      canvas.width,
-      canvas.height,
-      interiorDefinition(room).name,
-      { hp: state2.player.hp, mp: state2.player.mp, level: state2.player.level, gold: state2.player.gold }
-    );
   }
-  function drawFight(canvas, s, b, impact = null, area = monsterById(b.id).area) {
+  function drawFight(canvas, s, b, impact = null, area = monsterById(b.id).area, selectedSlot = null) {
     const W2 = canvas.width, H2 = canvas.height;
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.imageSmoothingEnabled = false;
-    const enemy = monsterById(b.id);
-    if (!enemy) throw Error("Invalid battle monster " + b.id);
     const now = performance.now();
     const layout = paintSfcBattleBackground(ctx, W2, H2, area);
     const progress = impact?.reduced ? 0.25 : combatFeedbackProgress(impact, now);
@@ -18708,47 +18778,66 @@
     const hurt = impact?.playerDamage > 0 && !impact.reduced && progress < 0.65;
     const recoil = hurt ? Math.round(13 * (1 - progress / 0.65) * Math.cos(progress * 30)) : 0;
     const foeRecoil = impact && !impact.reduced && impact.enemyDamage > 0 && progress < 0.55 ? Math.round(5 * Math.sin(progress * 19)) : 0;
-    const enemySize = Math.min(W2 * 0.36, layout.foot - 60, b.id === "vold" ? 174 : 144);
-    const enemyScale = enemySize / (b.id === "vold" ? 158 : 144);
-    const enemyFoot = layout.foot;
-    const enemyAdvance = moving && impact.type === "enemy" ? Math.round(16 * Math.sin(Math.PI * progress)) : 0;
+    const solo = b.enemies.length === 1;
+    const slots = solo ? [{ x: layout.enemyX, feet: layout.foot }] : battleFormationSlots(W2, H2, { enemies: b.enemies.length }).enemies;
     const retreat = moving && impact.type === "escape" ? Math.round(18 * Math.sin(Math.PI * progress)) : 0;
-    if (b.hp > 0 || impact?.defeated && progress < 0.85) {
-      ctx.save();
-      ctx.translate(layout.enemyX + foeRecoil + enemyAdvance, enemyFoot);
-      ctx.scale(-enemyScale, enemyScale);
-      if (b.hp === 0) ctx.globalAlpha = (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8);
-      if (area === "cave" && b.id === "m06" && retroAssetsReady()) {
-        ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
-      } else paintMonster(ctx, b.id, 0, 0);
-      ctx.restore();
+    const effects = slots.map(({ x, feet }, i) => {
+      const enemy = b.enemies[i];
+      const size = solo ? Math.min(W2 * 0.36, feet - 60, enemy.id === "vold" ? 174 : 144) : Math.min(W2 * 0.15, feet - 56, 85);
+      return { enemyX: x, enemyFoot: feet, enemySize: size };
+    });
+    for (const enemy of b.enemies) {
+      const { enemyX: x, enemyFoot: feet, enemySize: size } = effects[enemy.slot];
+      const active = impact?.enemySlot === enemy.slot;
+      const defeated = active && impact.defeated && progress < 0.85;
+      if (enemy.hp === 0 && !defeated && !solo) continue;
+      if (enemy.hp > 0 || defeated) {
+        const scale = size / (enemy.id === "vold" ? 158 : 144);
+        const enemyAdvance = active && moving && impact.type === "enemy" ? Math.round(16 * Math.sin(Math.PI * progress)) : 0;
+        ctx.save();
+        ctx.translate(x + (active ? foeRecoil : 0) + enemyAdvance, feet);
+        ctx.scale(-scale, scale);
+        if (enemy.hp === 0) ctx.globalAlpha = (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8);
+        if (area === "cave" && enemy.id === "m06" && retroAssetsReady()) {
+          ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
+        } else paintMonster(ctx, enemy.id, 0, 0);
+        ctx.restore();
+      }
     }
     ctx.save();
     if (hurt && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
     paintSharedHero(ctx, layout.heroX - advance + recoil + retreat, layout.foot, "left", 0, layout.heroScale, s.equipment.weapon);
     ctx.restore();
-    paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, enemySize });
-    function nameplate(name, x, color2) {
-      ctx.font = "bold 14px sans-serif";
-      const width = Math.min(Math.max(105, Math.round(ctx.measureText(name).width + 26)), Math.round(W2 * 0.38));
-      const left = Math.round(x - width / 2);
-      shot(ctx, left, 9, width, 25, "#131d2edc");
+    paintSfcBattleEffects(ctx, W2, H2, impact, now, { ...layout, ...effects[impact?.enemySlot] ?? effects[0] });
+    for (const enemy of b.enemies) {
+      const { enemyX: x, enemyFoot: feet, enemySize: size } = effects[enemy.slot];
+      const defeated = impact?.enemySlot === enemy.slot && impact.defeated && progress < 0.85;
+      if (enemy.hp === 0 && !defeated && !solo) continue;
+      const selected = selectedSlot === enemy.slot;
+      const barW = solo ? Math.min(120, Math.round(W2 * 0.27)) : Math.min(70, Math.round(W2 * 0.145));
+      const barX = Math.round(x - barW / 2), barY = Math.round(feet + 8);
+      shot(ctx, barX - 1, barY - 1, barW + 2, 10, "#18283a");
+      shot(ctx, barX, barY, barW, 8, "#442c43");
+      const hpWidth = Math.round(barW * enemy.hp / enemy.maxHp);
+      shot(ctx, barX, barY, hpWidth, 7, "#c88d91");
+      shot(ctx, barX, barY, hpWidth, 2, "#f6ccc0");
+      ctx.font = solo ? "bold 14px sans-serif" : "bold 11px sans-serif";
+      const labelW = solo ? Math.min(Math.max(105, Math.round(ctx.measureText(enemy.name).width + 26)), Math.round(W2 * 0.38)) : barW + 2;
+      const left = Math.round(x - labelW / 2), top = solo ? 9 : feet - size - 20, height = solo ? 25 : 17;
+      shot(ctx, left, top, labelW, height, "#131d2edc");
       ctx.lineWidth = 1;
-      ctx.strokeStyle = color2;
-      ctx.strokeRect(left + 0.5, 9.5, width - 1, 24);
+      ctx.strokeStyle = selected ? "#ffe099" : "#d3b5a0";
+      ctx.strokeRect(left + 0.5, top + 0.5, labelW - 1, height - 1);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#fff0d7";
-      ctx.fillText(name, x, 21);
+      if (solo) ctx.fillText(enemy.name, x, 21);
+      else ctx.fillText(enemy.name, x, top + Math.floor(height / 2), labelW - 6);
+      if (selected) {
+        ctx.fillStyle = "#ffe099";
+        ctx.fillText("\u25BC", x, top - 8);
+      }
     }
-    nameplate(enemy.name, layout.enemyX, "#d3b5a0");
-    const barW = Math.min(120, Math.round(W2 * 0.27)), barX = Math.round(layout.enemyX - barW / 2);
-    const barY = Math.round(enemyFoot + 8);
-    shot(ctx, barX - 1, barY - 1, barW + 2, 10, "#18283a");
-    shot(ctx, barX, barY, barW, 8, "#442c43");
-    const hpWidth = Math.round(barW * Math.max(0, b.hp) / (b.maxHp ?? enemy.hp));
-    shot(ctx, barX, barY, hpWidth, 7, "#c88d91");
-    shot(ctx, barX, barY, hpWidth, 2, "#f6ccc0");
     if (b.ward > 0) {
       ctx.textAlign = "center";
       ctx.font = "bold 11px sans-serif";
@@ -18978,10 +19067,10 @@
   };
 
   // src/game/menu-navigation.mjs
-  function nextMenuSelection(choices, index, dir) {
+  function nextMenuSelection(choices, index, dir, columns = 2) {
     if (!["up", "down", "left", "right"].includes(dir)) throw Error("\u30E1\u30CB\u30E5\u30FC\u65B9\u5411\u304C\u4E0D\u6B63");
     if (!Array.isArray(choices) || choices.length === 0) return -1;
-    const n = choices.length, columns = 2, delta = { up: -columns, down: columns, left: -1, right: 1 }[dir];
+    const n = choices.length, delta = { up: -columns, down: columns, left: -1, right: 1 }[dir];
     let at2 = Math.max(0, Math.min(n - 1, index));
     for (let count = 0; count < n; count++) {
       at2 = (at2 + delta + n) % n;
@@ -18996,7 +19085,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261118-intro-event-01";
+  $("build-id").textContent = "20261119-screen-layout-01";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -19052,7 +19141,7 @@
   var $panel = $("action-panel");
   var $content = $("panel-content");
   var $shortcuts = $("shortcut-grid");
-  var battleButtons = ["talk-shortcut", "item-shortcut", "spell-shortcut", "menu-button"].map($);
+  var battleButtons = ["talk-shortcut", "spell-shortcut", "item-shortcut", "menu-button"].map($);
   var setError = (err) => {
     console.error("[RPG]", err);
     $("start-error").textContent = String(err.message || err);
@@ -19064,9 +19153,31 @@
     paint();
   }
   var landscapeLayout = matchMedia("(orientation:landscape) and (min-width:560px)");
-  var explorationZoom = () => landscapeLayout.matches ? 0.8 : 1;
-  function sizeGameCanvas() {
-    const canvas = $("game"), rect3 = canvas.getBoundingClientRect();
+  var explorationPixels = null;
+  function sizeGameCanvas(exploring) {
+    const canvas = $("game");
+    explorationPixels = null;
+    if (exploring && landscapeLayout.matches) {
+      const rect4 = $("screen-shell").getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const left = Math.ceil(rect4.left * dpr), top = Math.ceil(rect4.top * dpr);
+      const width = Math.floor(rect4.right * dpr) - left, height = Math.floor(rect4.bottom * dpr) - top;
+      if (width < 1 || height < 1) return;
+      canvas.style.position = "relative";
+      canvas.style.width = width / dpr + "px";
+      canvas.style.height = height / dpr + "px";
+      canvas.style.left = left / dpr - rect4.left + "px";
+      canvas.style.top = top / dpr - rect4.top + "px";
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      explorationPixels = {
+        worldScale: Math.ceil(1.5 * dpr),
+        castleScale: dpr < 1.5 ? 0.5 : Math.max(1, Math.round(2 * dpr / 3))
+      };
+      return;
+    }
+    for (const prop of ["position", "width", "height", "left", "top"]) canvas.style.removeProperty(prop);
+    const rect3 = canvas.getBoundingClientRect();
     if (rect3.width < 1 || rect3.height < 1) return;
     const landscape = landscapeLayout.matches;
     const desiredWidth = landscape ? 480 : 288;
@@ -19084,28 +19195,58 @@
         page: shot2?.page ?? page,
         raiderY: shot2?.raiderY,
         swordGlow: shot2?.swordGlow
-      }, explorationZoom());
-    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing, explorationZoom());
+      }, explorationPixels);
+    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing, explorationPixels);
   }
   function paintCurrentRoom() {
     if (interior?.id === "castle-library") {
       if (!castleArtReady()) throw Error("Approved castle library art not loaded");
-      renderCastleLibrary($("game"), state, interior, roomMotion, performance.now(), explorationZoom());
-    } else drawRoom($("game"), state, interior, roomMotion, explorationZoom());
+      renderCastleLibrary($("game"), state, interior, roomMotion, performance.now(), explorationPixels);
+    } else drawRoom($("game"), interior, roomMotion, explorationPixels);
   }
   function drawBattle() {
-    const display = battleDisplay ? { ...battle, hp: battleDisplay.enemyHp, ward: battleDisplay.ward } : battle;
-    drawFight($("game"), state, display, battleFx, battleArea);
+    const display = battleDisplay ? { ...battle, enemies: battleDisplay.enemies, ward: battleDisplay.ward } : battle;
+    drawFight($("game"), state, display, battleFx, battleArea, menuChoices[menuIndex]?.targetSlot);
+  }
+  var displayedLocation = "";
+  var locationTimer;
+  function paintLocation(show) {
+    const banner = $("location-banner");
+    const location = interior?.id ?? state.pos.map;
+    if (show && location !== displayedLocation) {
+      displayedLocation = location;
+      clearTimeout(locationTimer);
+      banner.textContent = interior ? interiorDefinition(interior).name : location === "castle" ? "\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3000\u738B\u306E\u9593" : MAPS[location].name;
+      banner.hidden = false;
+      locationTimer = setTimeout(() => {
+        banner.hidden = true;
+      }, 1800);
+    }
+    if (!show) banner.hidden = true;
+  }
+  function paintDialogue(prologue) {
+    const line = queue[0] || hint || "";
+    const dialogue = $("dialogue"), message2 = $("message"), tab = $("speaker-tab");
+    const prefix = !battle && !prologue && queue.length ? line.match(/^([^「」\n]{1,24})(?=「[^」]+」$)/)?.[0] : null;
+    dialogue.hidden = !line;
+    tab.hidden = !prefix;
+    tab.textContent = prefix ?? "";
+    if (prefix) {
+      const speaker = document.createElement("span");
+      speaker.className = "visually-hidden";
+      speaker.textContent = prefix;
+      message2.replaceChildren(speaker, line.slice(prefix.length));
+    } else message2.textContent = line;
   }
   function paint() {
     if (!state) return;
     $("rpg").classList.toggle("in-battle", Boolean(battle));
-    sizeGameCanvas();
     audio.setTheme(musicFor());
     const page = introPage(state);
     const prologue = page?.startsWith("prologue");
     $("rpg").classList.toggle("in-prologue", Boolean(prologue));
     $("rpg").classList.toggle("in-intro", Boolean(page && !battle));
+    sizeGameCanvas(!battle && !prologue);
     if (prologue) {
       const canvas = $("game"), c = canvas.getContext("2d");
       c.fillStyle = "#080b15";
@@ -19120,8 +19261,9 @@
     }
     const goal = STAGE_GOALS[state.stage];
     if ($("objective-text").textContent !== goal) $("objective-text").textContent = goal;
-    $("dialogue").hidden = !(queue.length || hint);
-    $("message").textContent = queue[0] || hint || "";
+    paintLocation(!battle && !prologue);
+    paintDialogue(prologue);
+    $("rpg").classList.toggle("in-dialogue", Boolean(queue.length));
     const target = front(state), visible = interior ? null : entityAt(state, MAPS[state.pos.map], target.x, target.y);
     const door = interior ? null : enterableDoor(state.pos);
     const roomPrompt = interior ? interiorPrompt(interior) : "";
@@ -19131,8 +19273,6 @@
     const canAdvance = queue.length > 0 && !battleFrame;
     $("message-arrow").hidden = !canAdvance;
     $("dialogue").setAttribute("aria-busy", String(Boolean(battleFrame)));
-    $("talk-shortcut").textContent = battle ? "\u305F\u305F\u304B\u3046" : "\u306F\u306A\u3059";
-    $("menu-button").textContent = battle ? "\u306B\u3052\u308B" : "\u30E1\u30CB\u30E5\u30FC";
     $("dialogue").classList.toggle("can-advance", canAdvance);
     const status = $("battle-status");
     status.hidden = !battle;
@@ -19203,6 +19343,7 @@
     }
     $panel.hidden = true;
     $panel.removeAttribute("data-panel-type");
+    $panel.removeAttribute("data-target-selection");
     $content.replaceChildren();
   }
   function markMenu(scroll = true) {
@@ -19215,9 +19356,23 @@
   }
   function steerMenu(dir) {
     if (!menuChoices.length) return;
-    menuIndex = nextMenuSelection(menuChoices, menuIndex, dir);
+    if ($panel.dataset.panelType === "menu") {
+      const secondary = Boolean(menuChoices[menuIndex]?.secondary);
+      if (dir === "left" || dir === "right") {
+        menuIndex = menuChoices.findIndex((choice) => Boolean(choice.secondary) === (dir === "right"));
+      } else {
+        const group = menuChoices.map((choice, index2) => ({ choice, index: index2 })).filter(({ choice }) => Boolean(choice.secondary) === secondary);
+        const index = group.findIndex((entry) => entry.index === menuIndex);
+        menuIndex = group[nextMenuSelection(group.map((entry) => entry.choice), index, dir, 1)].index;
+      }
+    } else {
+      const targetRow = panelMode === "\u306D\u3089\u3046\u6575" && landscapeLayout.matches;
+      const step = targetRow ? { up: "left", down: "right" }[dir] ?? dir : dir;
+      menuIndex = nextMenuSelection(menuChoices, menuIndex, step, battle && !panelMode ? 1 : 2);
+    }
     audio.cue("step");
     markMenu();
+    if (panelMode === "\u306D\u3089\u3046\u6575") drawBattle();
   }
   function chooseMenu() {
     const choice = menuChoices[menuIndex];
@@ -19225,7 +19380,7 @@
     audio.cue("confirm");
     choice.run();
   }
-  function openPanel(title, choices, desc = "", back = null) {
+  function openPanel(title, choices, desc = "", back = null, summary = "") {
     closePanel();
     panelMode = title;
     menuChoices = choices;
@@ -19235,12 +19390,27 @@
     $shortcuts.hidden = Boolean(battle);
     if ($panel.parentElement !== panelHost) panelHost.prepend($panel);
     $panel.hidden = false;
-    $panel.dataset.panelType = battle ? "battle" : "field";
+    $panel.dataset.panelType = battle ? "battle" : summary ? "menu" : "field";
     $("panel-title").textContent = title;
+    $panel.toggleAttribute("data-target-selection", title === "\u306D\u3089\u3046\u6575");
     if (desc) {
       const p = document.createElement("p");
       p.textContent = desc;
       $content.append(p);
+    }
+    let primary = $content, secondary = $content;
+    if (summary) {
+      primary = document.createElement("div");
+      primary.className = "menu-commands";
+      const details = document.createElement("div");
+      details.className = "menu-details";
+      const status = document.createElement("p");
+      status.className = "menu-summary";
+      status.textContent = summary;
+      secondary = document.createElement("div");
+      secondary.className = "menu-extras";
+      details.append(status, secondary);
+      $content.append(primary, details);
     }
     choices.forEach((choice, i) => {
       const btn = document.createElement("button");
@@ -19258,7 +19428,7 @@
           fatal(err);
         }
       });
-      $content.append(btn);
+      (choice.secondary ? secondary : primary).append(btn);
     });
     $panel.scrollTop = 0;
     markMenu(false);
@@ -19312,29 +19482,29 @@
   }
   function showBattleMessage(cue) {
     if (!cue) return;
-    const { type, action, enemyHp, mp, ward, healing, damage = 0 } = cue;
+    const { type, action, enemyHp, mp, ward, healing, damage = 0, targetSlot, actorSlot } = cue;
     const display = battleDisplay;
     if (type === "hero") {
-      const kind = action.type === "spell" ? spellById(action.id).kind : action.type;
-      const target = ["attack", "damage", "sleep", "silence"].includes(kind) ? "enemy" : "hero";
+      const target = targetSlot === void 0 ? "hero" : "enemy";
       const visual = action.type === "attack" ? "blade" : action.type === "run" || action.id === "smoke" ? "escape" : action.type;
       audio.cue({ spell: "spell", item: "heal", escape: "run", blade: "attack" }[visual]);
       display.player.mp = mp;
       display.ward = ward;
-      showBattleEffect({ type: visual, target, duration: 230 }, damage || healing ? {
+      showBattleEffect({ type: visual, target, enemySlot: targetSlot, duration: 230 }, damage || healing ? {
         phase: "impact",
         type: visual,
+        enemySlot: targetSlot,
         duration: 390,
         enemyDamage: damage,
         healing,
         defeated: enemyHp === 0,
         update: () => {
-          display.enemyHp = enemyHp;
+          if (targetSlot !== void 0) display.enemies[targetSlot].hp = enemyHp;
           display.player.hp += healing;
         }
       } : null);
     } else if (type === "enemy" || type === "dark" || type === "poison") {
-      const effect = { type, target: "hero", duration: 230 };
+      const effect = { type, target: "hero", enemySlot: actorSlot, duration: 230 };
       if (type !== "poison") audio.cue(type === "dark" ? "spell" : "attack");
       const impact = damage ? { phase: "impact", type, duration: 620, playerDamage: damage, update: () => {
         audio.cue("hit");
@@ -19346,29 +19516,63 @@
       if (type === "won") display.player = { ...state.player };
     }
   }
-  function beginFight(id, tag, lines = []) {
+  function beginFight(group, tag, lines = []) {
     stopBattleFx();
     stopWalkAnimation();
     stopMoving();
     audio.cue("attack");
-    battle = beginCombat(id, tag);
+    battle = beginCombat(group, tag);
     const map = state.pos.map;
-    battleArea = ["castle", "cave", "ruins", "onyx"].includes(map) ? map : monsterById(id).area;
+    battleArea = ["castle", "cave", "ruins", "onyx"].includes(map) ? map : monsterById(battle.id).area;
+    const foes = battle.enemies.map((enemy) => enemy.name).join("\u3001");
     closePanel();
-    message([...lines, tag === "tutorial" ? INTRO_TEXT.fight() : monsterById(id).name + "\u304C\u73FE\u308C\u305F\uFF01"]);
+    message([...lines, tag === "tutorial" ? INTRO_TEXT.fight() : foes + "\u304C\u73FE\u308C\u305F\uFF01"]);
   }
+  function chooseBattleTarget(action, back = battleChoices) {
+    if (!battle || queue.length || battleEnding) return;
+    const live = battle.enemies.filter((enemy) => enemy.hp > 0);
+    if (combatTargetMode(action) !== "enemy" || live.length === 1) {
+      performBattle(action);
+      return;
+    }
+    const choices = live.map((enemy) => ({
+      label: enemy.name,
+      targetSlot: enemy.slot,
+      run: () => performBattle({ ...action, targetSlot: enemy.slot })
+    }));
+    openPanel("\u306D\u3089\u3046\u6575", choices, "", () => {
+      back();
+      paint();
+    });
+    paint();
+  }
+  $("game").addEventListener("click", (event) => {
+    if (panelMode !== "\u306D\u3089\u3046\u6575") return;
+    const canvas = $("game"), rect3 = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect3.left) * canvas.width / rect3.width;
+    const y = (event.clientY - rect3.top) * canvas.height / rect3.height;
+    const slot = enemySlotAt(canvas.width, canvas.height, battle.enemies.length, x, y);
+    const index = menuChoices.findIndex((choice) => choice.targetSlot === slot);
+    if (index < 0) return;
+    menuIndex = index;
+    try {
+      chooseMenu();
+    } catch (err) {
+      fatal(err);
+    }
+  });
   function performBattle(action) {
     if (!battle || queue.length || battleEnding) return;
     const result = combatTurn(state, battle, action);
     validateState(result.state);
     if (result.autoSave) auto.write(result.state);
     stopBattleFx();
-    battleDisplay = { player: { ...state.player }, enemyHp: battle.hp, ward: battle.ward };
+    battleDisplay = { player: { ...state.player }, enemies: clone(battle.enemies), ward: battle.ward };
     battleMessages = result.lines.map(() => null);
     for (const cue of result.presentation ?? []) battleMessages[cue.line] = { ...cue, action };
     closePanel();
     battleEnding = result.battle ? null : result.outcome;
-    battle = result.battle || (result.outcome === "won" ? { ...battle, hp: 0 } : battle);
+    battle = result.battle ?? battle;
     state = result.state;
     showBattleMessage(battleMessages[0]);
     message(result.lines);
@@ -19381,7 +19585,7 @@
     menuIndex = firstMenuSelection(menuChoices);
     markMenu();
   }
-  function spellCost(sp) {
+  function spellCost2(sp) {
     return Math.max(1, sp.mp - (state?.equipment.accessory === "star-orb" ? 1 : 0));
   }
   function spellDescription(sp) {
@@ -19407,7 +19611,7 @@
   function spellMenu(inBattle = false) {
     const known = CATALOG.spells.filter((sp) => state.player.level >= sp.level);
     const choices = known.map((sp) => ({
-      label: sp.name + " / " + spellCost(sp) + "MP",
+      label: sp.name + " / " + spellCost2(sp) + "MP",
       run: () => spellDetails(sp, inBattle)
     }));
     choices.push({ label: "\u3082\u3069\u308B", run: () => inBattle ? battleChoices() : showMenu(), wide: true });
@@ -19415,11 +19619,11 @@
   }
   function spellDetails(sp, inBattle) {
     const back = () => spellMenu(inBattle);
-    const cost = spellCost(sp);
+    const cost = spellCost2(sp);
     const usableKinds = inBattle ? ["heal", "damage", "sleep", "silence", "ward"] : ["heal", "light", "return", "escape"];
     const unavailable = !usableKinds.includes(sp.kind) ? "\u3053\u3053\u3067\u306F\u4F7F\u3048\u306A\u3044\u546A\u6587\u3067\u3059\u3002" : state.player.mp < cost ? "MP\u304C\u8DB3\u308A\u307E\u305B\u3093\u3002" : "";
     openPanel(sp.name, [
-      { label: "\u5531\u3048\u308B", disabled: Boolean(unavailable), run: () => inBattle ? performBattle({ type: "spell", id: sp.id }) : castFieldSpell(sp) },
+      { label: "\u5531\u3048\u308B", disabled: Boolean(unavailable), run: () => inBattle ? chooseBattleTarget({ type: "spell", id: sp.id }, () => spellDetails(sp, true)) : castFieldSpell(sp) },
       { label: "\u3084\u3081\u308B", run: back }
     ], ["\u6D88\u8CBBMP " + cost + "\u3002" + spellDescription(sp), unavailable].filter(Boolean).join("\n"), back);
   }
@@ -19429,7 +19633,7 @@
       notice("\u3053\u306E\u546A\u6587\u306F\u6226\u95D8\u7528\u3067\u3059\u3002");
       return;
     }
-    if (state.player.mp < spellCost(sp)) {
+    if (state.player.mp < spellCost2(sp)) {
       notice("MP\u304C\u8DB3\u308A\u306A\u3044\u3002");
       return;
     }
@@ -19439,14 +19643,14 @@
         notice("HP\u306F\u6E80\u30BF\u30F3\u3060\u3002");
         return;
       }
-      next.player.mp -= spellCost(sp);
+      next.player.mp -= spellCost2(sp);
       next.player.hp = Math.min(maxHp(next.player.level), next.player.hp + sp.power);
       storeAndSet(next, true);
       message([sp.name + "\uFF01 HP\u304C\u56DE\u5FA9\u3057\u305F\u3002"]);
       return;
     }
     if (sp.kind === "light") {
-      next.player.mp -= spellCost(sp);
+      next.player.mp -= spellCost2(sp);
       lightSteps = 45;
       storeAndSet(next, true);
       message(["\u30EB\u30FC\u30E1\u30F3\u306E\u5149\u304C\u8FBA\u308A\u3092\u7167\u3089\u3057\u305F\u300245\u6B69\u306E\u3042\u3044\u3060\u3001\u9B54\u7269\u3068\u306E\u906D\u9047\u304C\u5C11\u3057\u6E1B\u308A\u3001\u30C0\u30F3\u30B8\u30E7\u30F3\u306E\u5B9D\u3084\u4ED5\u639B\u3051\u304C\u5149\u308B\u3002"]);
@@ -19456,14 +19660,14 @@
       const exit = MAPS[next.pos.map].portals.find((p) => p.to === "field" || p.to === "sailun");
       if (!exit) throw Error("\u30C0\u30F3\u30B8\u30E7\u30F3\u306E\u51FA\u53E3\u304C\u898B\u3064\u304B\u3089\u306A\u3044: " + next.pos.map);
       const destination = { map: exit.to, ...exit.entry, facing: "down" };
-      next.player.mp -= spellCost(sp);
+      next.player.mp -= spellCost2(sp);
       next.pos = destination;
       storeAndSet(next, true);
       message(["\u30A8\u30B0\u30EC\u30B9\uFF01 \u30C0\u30F3\u30B8\u30E7\u30F3\u306E\u5165\u53E3\u3078\u623B\u3063\u305F\u3002"]);
       return;
     }
     if (sp.kind === "return" && next.pos.map !== "castle") {
-      next.player.mp -= spellCost(sp);
+      next.player.mp -= spellCost2(sp);
       next.pos = { map: "leaf", x: 8, y: 10, facing: "down" };
       storeAndSet(next, true);
       message(["\u30DD\u30EB\u30BF\uFF01 \u30EA\u30FC\u30D5\u30A1\u306E\u753A\u3078\u623B\u3063\u305F\u3002"]);
@@ -19481,6 +19685,8 @@
   }
   function itemDescription(item) {
     switch (item.effect) {
+      case "damage":
+        return `\u6575\u306B${item.amount}\u30C0\u30E1\u30FC\u30B8\u3092\u4E0E\u3048\u308B\u3002`;
       case "hp":
         return `\u81EA\u5206\u306EHP\u3092\u6700\u5927${item.amount}\u56DE\u5FA9\u3059\u308B\u3002`;
       case "poison":
@@ -19493,11 +19699,11 @@
   }
   function itemDetails(item, inBattle) {
     const back = () => itemMenu(inBattle);
-    const disabled = item.effect === "gate" || !inBattle && item.effect === "escape";
+    const disabled = item.effect === "gate" || !inBattle && ["escape", "damage"].includes(item.effect);
     openPanel(item.name, [
       { label: "\u4F7F\u3046", disabled, run: () => {
         if (inBattle) {
-          performBattle({ type: "item", id: item.id });
+          chooseBattleTarget({ type: "item", id: item.id }, () => itemDetails(item, true));
           return;
         }
         const r2 = useItem(state, item.id);
@@ -19547,25 +19753,32 @@
     stopWalkAnimation();
     const st = stats(state);
     openPanel("\u5192\u967A\u30E1\u30CB\u30E5\u30FC", [
-      { label: "\u306F\u306A\u3059 / \u3057\u3089\u3079\u308B", run: () => {
+      { label: "\u3069\u3046\u3050", run: () => itemMenu() },
+      { label: "\u3058\u3085\u3082\u3093", run: () => spellMenu() },
+      { label: "\u3064\u3088\u3055", run: () => openPanel("\u3064\u3088\u3055", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], state.name + " Lv" + state.player.level + "\nHP " + state.player.hp + "/" + st.maxHp + "\u3000MP " + state.player.mp + "/" + st.maxMp + "\n\u653B\u6483 " + st.attack + "\u3000\u5B88\u5099 " + st.defense + "\u3000\u901F\u3055 " + st.speed + "\nEXP " + state.player.exp + "\u3000" + state.player.gold + "G") },
+      { label: "\u305D\u3046\u3073", run: equipmentMenu },
+      { label: "\u30BB\u30FC\u30D6", run: () => openPanel("\u30BB\u30FC\u30D6", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], "\u738B\u69D8\u306E\u30BB\u30FC\u30D6\u306F\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3067\u30A2\u30EB\u30C9\u738B\u306B\u8A71\u3057\u304B\u3051\u3066\u304F\u3060\u3055\u3044\u3002\u30AA\u30FC\u30C8\u30BB\u30FC\u30D6\u306F\u57CE\u30FB\u753A\u3078\u306E\u5165\u5834\u3001\u30EC\u30D9\u30EB\u30A2\u30C3\u30D7\u3001\u91CD\u8981\u30A4\u30D9\u30F3\u30C8\u3067\u884C\u308F\u308C\u307E\u3059\u3002") },
+      { label: "\u30BF\u30A4\u30C8\u30EB\u3078", run: () => {
+        if (window.confirm("\u30BF\u30A4\u30C8\u30EB\u306B\u623B\u308A\u307E\u3059\u304B\uFF1F")) window.location.reload();
+      } },
+      { secondary: true, label: "\u306F\u306A\u3059 / \u3057\u3089\u3079\u308B", run: () => {
         closePanel();
         confirm();
       } },
-      { label: "\u30B9\u30C6\u30FC\u30BF\u30B9", run: () => openPanel("\u30B9\u30C6\u30FC\u30BF\u30B9", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], state.name + " Lv" + state.player.level + "\nHP " + state.player.hp + "/" + st.maxHp + "\u3000MP " + state.player.mp + "/" + st.maxMp + "\n\u653B\u6483 " + st.attack + "\u3000\u5B88\u5099 " + st.defense + "\u3000\u901F\u3055 " + st.speed + "\nEXP " + state.player.exp + "\u3000" + state.player.gold + "G") },
-      { label: "\u3069\u3046\u3050", run: () => itemMenu() },
-      { label: "\u3058\u3085\u3082\u3093", run: () => spellMenu() },
-      { label: "\u305D\u3046\u3073", run: equipmentMenu },
-      { label: "\u30E2\u30F3\u30B9\u30BF\u30FC\u56F3\u9451", run: bookMenu },
-      { label: "\u305B\u304B\u3044\u3061\u305A", run: showAtlas },
-      { label: "\u30BB\u30FC\u30D6", run: () => openPanel("\u30BB\u30FC\u30D6", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], "\u738B\u69D8\u306E\u30BB\u30FC\u30D6\u306F\u30A2\u30EB\u30C6\u30EA\u30A2\u57CE\u3067\u30A2\u30EB\u30C9\u738B\u306B\u8A71\u3057\u304B\u3051\u3066\u304F\u3060\u3055\u3044\u3002\u30AA\u30FC\u30C8\u30BB\u30FC\u30D6\u306F\u57CE\u30FB\u753A\u3078\u306E\u5165\u5834\u3001\u30EC\u30D9\u30EB\u30A2\u30C3\u30D7\u3001\u91CD\u8981\u30A4\u30D9\u30F3\u30C8\u3067\u884C\u308F\u308C\u307E\u3059\u3002") },
-      { label: "\u6B21\u306E\u76EE\u7684", run: () => openPanel("\u6B21\u306E\u76EE\u7684", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], STAGE_GOALS[state.stage] + "\u3000\u661F\u5C51\u306E\u6B20\u7247 " + state.stars.length + "/5\uFF08\u4EFB\u610F\u53CE\u96C6\uFF09") },
-      { label: audio.muted ? "\u266B \u97F3\u697D\uFF1AOFF\uFF08\u30AA\u30F3\u306B\u3059\u308B\uFF09" : "\u266B \u97F3\u697D\uFF1AON\uFF08\u30AA\u30D5\u306B\u3059\u308B\uFF09", run: () => {
+      { secondary: true, label: "\u30E2\u30F3\u30B9\u30BF\u30FC\u56F3\u9451", run: bookMenu },
+      { secondary: true, label: "\u305B\u304B\u3044\u3061\u305A", run: showAtlas },
+      { secondary: true, label: "\u6B21\u306E\u76EE\u7684", run: () => openPanel("\u6B21\u306E\u76EE\u7684", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], STAGE_GOALS[state.stage] + "\u3000\u661F\u5C51\u306E\u6B20\u7247 " + state.stars.length + "/5\uFF08\u4EFB\u610F\u53CE\u96C6\uFF09") },
+      { secondary: true, label: audio.muted ? "\u266B \u97F3\u697D\uFF1AOFF\uFF08\u30AA\u30F3\u306B\u3059\u308B\uFF09" : "\u266B \u97F3\u697D\uFF1AON\uFF08\u30AA\u30D5\u306B\u3059\u308B\uFF09", run: () => {
         toggleSound();
         showMenu();
       } },
-      { label: "\u5927\u5207\u306A\u3082\u306E", run: () => openPanel("\u5927\u5207\u306A\u3082\u306E", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], state.relics.map((id) => id === "beginning-sword" ? state.flags.swordAwakened ? "\u306F\u3058\u307E\u308A\u306E\u5263\uFF1A\u52C7\u8005\u306E\u5927\u5263\u3068\u3057\u3066\u899A\u9192\u3057\u305F\u3001\u540C\u3058\u4E00\u632F\u308A\u3002" : "\u306F\u3058\u307E\u308A\u306E\u5263\uFF1A\u661F\u306E\u7D0B\u7AE0\u3092\u6301\u3064\u53E4\u3044\u5263\u3002" : "\u9ECE\u660E\u306E\u93E1\uFF1A\u7D50\u754C\u3092\u9000\u3051\u308B\u53E4\u3044\u93E1\u3002").join("\n") || "\u307E\u3060\u4F55\u3082\u6301\u3063\u3066\u3044\u306A\u3044\u3002") },
-      { label: "\u3068\u3058\u308B", run: closePanel }
-    ]);
+      { secondary: true, label: "\u5927\u5207\u306A\u3082\u306E", run: () => openPanel("\u5927\u5207\u306A\u3082\u306E", [{ label: "\u3082\u3069\u308B", run: showMenu, wide: true }], state.relics.map((id) => id === "beginning-sword" ? state.flags.swordAwakened ? "\u306F\u3058\u307E\u308A\u306E\u5263\uFF1A\u52C7\u8005\u306E\u5927\u5263\u3068\u3057\u3066\u899A\u9192\u3057\u305F\u3001\u540C\u3058\u4E00\u632F\u308A\u3002" : "\u306F\u3058\u307E\u308A\u306E\u5263\uFF1A\u661F\u306E\u7D0B\u7AE0\u3092\u6301\u3064\u53E4\u3044\u5263\u3002" : "\u9ECE\u660E\u306E\u93E1\uFF1A\u7D50\u754C\u3092\u9000\u3051\u308B\u53E4\u3044\u93E1\u3002").join("\n") || "\u307E\u3060\u4F55\u3082\u6301\u3063\u3066\u3044\u306A\u3044\u3002") }
+    ], "", null, [
+      state.name + "\u3000Lv." + state.player.level,
+      "HP " + state.player.hp + "/" + st.maxHp + "\u3000MP " + state.player.mp + "/" + st.maxMp,
+      "\u6B21\u306E\u76EE\u7684\u3000" + STAGE_GOALS[state.stage],
+      "\u6240\u6301\u91D1\u3000" + state.player.gold + "G"
+    ].join("\n"));
   }
   var SHOP_STOCK = Object.freeze({
     leaf: { weapons: ["copper"], armors: ["leather"], shields: ["leathershield"], accessories: ["power"] },
@@ -19610,21 +19823,11 @@
     if (map === "field" && [0, 4].includes(terrain) && encounter(0.045)) {
       const gateX = MAPS.field.objects.find((x) => x.kind === "gate")?.x;
       if (gateX === void 0) throw Error("\u9244\u306E\u9580\u306E\u4F4D\u7F6E\u672A\u5B9A\u7FA9");
-      const pool = state.pos.x >= gateX ? ["m07", "m08", "m09", "m10"] : ["m01", "m02", "m03"];
-      beginFight(pool[Math.floor(Math.random() * pool.length)], "random");
+      beginFight(chooseEncounter(state.pos.x >= gateX ? "east" : "meadow"), "random");
     }
-    if (map === "ruins" && encounter(0.055)) {
-      const pool = ["m08", "m09", "m10", "m11", "m12", "m13", "m14", "m15"];
-      beginFight(pool[Math.floor(Math.random() * pool.length)], "random");
-    }
-    if (map === "onyx" && encounter(0.07)) {
-      const pool = ["m16", "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24"];
-      beginFight(pool[Math.floor(Math.random() * pool.length)], "random");
-    }
-    if (map === "cave" && encounter(0.065)) {
-      const id = ["m02", "m03", "m04", "m05"][Math.floor(Math.random() * 4)];
-      beginFight(id, "random");
-    }
+    if (map === "ruins" && encounter(0.055)) beginFight(chooseEncounter("ruins"), "random");
+    if (map === "onyx" && encounter(0.07)) beginFight(chooseEncounter("onyx"), "random");
+    if (map === "cave" && encounter(0.065)) beginFight(chooseEncounter("cave"), "random");
   }
   function stopWalkAnimation() {
     if (walkFrame) cancelAnimationFrame(walkFrame);
@@ -19846,7 +20049,7 @@
     }
     if (battle) {
       try {
-        performBattle({ type: "attack" });
+        chooseBattleTarget({ type: "attack" });
       } catch (err) {
         fatal(err);
       }
@@ -19875,7 +20078,11 @@
     if (panelMode) closePanel();
     else showMenu();
   });
-  $("panel-close").addEventListener("click", () => battle ? battleChoices() : closePanel());
+  $("panel-close").addEventListener("click", () => {
+    if (panelMode === "\u306D\u3089\u3046\u6575") menuBack?.();
+    else if (battle) battleChoices();
+    else closePanel();
+  });
   $("dialogue").addEventListener("click", advanceMessage);
   document.addEventListener("keydown", (ev) => {
     if (!$("start-overlay").hidden || ev.target.tagName === "INPUT") return;
@@ -20026,6 +20233,7 @@
     hint = "";
     lightSteps = 0;
     closePanel();
+    displayedLocation = "";
     $("start-overlay").hidden = true;
     document.title = "\u661F\u5C51\u306E\u52C7\u8005\uFF5C\u306F\u3058\u307E\u308A\u306E\u5263\u3068\u9ED2\u66DC\u306E\u9B54\u738B\u57CE";
     const page = introPage(state);
