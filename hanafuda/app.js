@@ -10445,6 +10445,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
+  var gameViewport = $("game-viewport");
+  var portraitViewport = matchMedia("(orientation: portrait)");
   var KEY = app_config_default.storageNamespace + ".hanafuda.v1";
   var initial = () => ({
     version: 1,
@@ -10946,7 +10948,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     dialog.className = "yaku-celebration yaku-celebration-" + tier;
     dialog.setAttribute("aria-labelledby", "yaku-celebration-title");
     dialog.innerHTML = '<div class="yaku-celebration-bubble">' + teacherAvatar() + '<h2 id="yaku-celebration-title">' + (actor === 1 ? "\u76F8\u624B\u306B\u5F79\u304C\u3067\u304D\u305F\uFF01" : "\u5F79\u304C\u3067\u304D\u305F\uFF01") + '</h2><ul class="yaku-celebration-names">' + yakus.map((yaku) => "<li>" + esc(yaku.name) + " <b>" + yaku.points + "\u70B9</b></li>").join("") + '</ul><div class="yaku-celebration-cards">' + cards.map((id) => '<img src="' + photo(id) + '" alt="' + esc(card(id).name) + '">').join("") + '</div><p class="yaku-celebration-prompt">\u753B\u9762\u3092\u30BF\u30C3\u30D7\u3057\u3066\u9032\u3080</p></div>' + (tier === 3 ? celebrationPetals() : "") + '<button type="button" class="yaku-celebration-skip" aria-label="\u5F79\u306E\u8868\u793A\u3092\u9589\u3058\u3066\u9032\u3080" autofocus></button>';
-    document.body.append(dialog);
+    gameViewport.append(dialog);
     const liftedCards = [...document.querySelectorAll((actor === 1 ? ".opponent-side" : ".player-side") + " .board-taken-card")].filter((button) => cards.includes(button.dataset.id));
     for (const button of liftedCards) button.classList.add("celebrating-card", "celebrating-card-" + tier);
     dialog.showModal();
@@ -11030,7 +11032,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const wait = (ms) => finish([overlay.animate([{}, {}], { duration: reducedMotion ? Math.min(ms, 35) : ms })]);
     const find = (selector) => document.querySelector(".play-layout " + selector);
     const fieldCard = (id) => find('.fieldcards [data-id="' + id + '"]');
-    const bounds = (element) => element.getBoundingClientRect();
+    const bounds = (element) => {
+      const rect = element.getBoundingClientRect();
+      if (!portraitViewport.matches) return rect;
+      const layer = overlay.getBoundingClientRect();
+      return new DOMRect(rect.top - layer.top, layer.right - rect.right, rect.height, rect.width);
+    };
     const frame = (stage, caption) => {
       playback.caption = caption;
       renderScreen();
@@ -11089,7 +11096,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (round.pendingDraw) entries.push({ actor: round.current, card: round.pendingDraw, taken: [], source: "stock", awaitingChoice: true });
     turnPresentation = playback;
     board.phase = "presentation";
-    document.body.append(overlay);
+    gameViewport.append(overlay);
     try {
       for (const move of entries) {
         const { actor, card: id, source, taken } = move;
@@ -11658,10 +11665,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const viewport = window.visualViewport;
     if (viewport?.scale !== 1) return;
     const root = document.documentElement.style;
-    root.setProperty("--home-width", viewport.width + "px");
-    root.setProperty("--home-height", viewport.height + "px");
-    root.setProperty("--home-left", viewport.offsetLeft + "px");
-    root.setProperty("--home-top", viewport.offsetTop + "px");
+    const portrait = portraitViewport.matches;
+    root.setProperty("--home-width", (portrait ? viewport.height : viewport.width) + "px");
+    root.setProperty("--home-height", (portrait ? viewport.width : viewport.height) + "px");
+    root.setProperty("--home-left", (portrait ? viewport.offsetTop : viewport.offsetLeft) + "px");
+    root.setProperty("--home-top", (portrait ? innerWidth - viewport.width - viewport.offsetLeft : viewport.offsetTop) + "px");
   }
   window.addEventListener("resize", syncHomeViewport);
   window.addEventListener("pageshow", syncHomeViewport);

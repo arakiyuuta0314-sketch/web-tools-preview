@@ -3,7 +3,8 @@
  * 844 x 390 primary target; no gameplay or text changes.
  */
 .score-sticks{display:none}
-@media (orientation:landscape) and (max-height:620px){
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
 html[data-hanafuda-preview="stage2"] .scene-home,
 html[data-hanafuda-preview="stage2"] .scene-game{
   background:#142721;
@@ -54,11 +55,11 @@ html[data-hanafuda-preview="stage2"] .scene-home .landscape-title>span{
 }
 html[data-hanafuda-preview="stage2"] .scene-home .landscape-title strong{
   font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
-  font-size:clamp(32px,4.2vw,46px);letter-spacing:.13em;
+  font-size:clamp(32px,calc(4.2 * var(--game-vw, 1vw)),46px);letter-spacing:.13em;
   color:#fff0d6;white-space:nowrap;font-weight:800;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .landscape-title b{
-  font:800 clamp(38px,5vw,56px) "Yu Mincho","Hiragino Mincho ProN",serif;
+  font:800 clamp(38px,calc(5 * var(--game-vw, 1vw)),56px) "Yu Mincho","Hiragino Mincho ProN",serif;
   color:#f0cd91;letter-spacing:.3em;line-height:1.13;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .landscape-title b::after{
@@ -103,7 +104,7 @@ html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial .hub-badge{
   font:700 9px sans-serif;letter-spacing:.035em;color:#f8c37f;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial strong{
-  font:800 clamp(17px,2.25vw,23px) "Yu Mincho",serif;
+  font:800 clamp(17px,calc(2.25 * var(--game-vw, 1vw)),23px) "Yu Mincho",serif;
   color:#fff2d9;text-shadow:0 2px #261710;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial>span:not(.hub-badge){
@@ -128,7 +129,7 @@ html[data-hanafuda-preview="stage2"] .scene-home .hub-free{
     linear-gradient(150deg,#815237,#4b3022 77%);
 }
 html[data-hanafuda-preview="stage2"] .scene-home .hub-mode strong{
-  font:800 clamp(15px,2vw,19px) "Yu Mincho",serif;
+  font:800 clamp(15px,calc(2 * var(--game-vw, 1vw)),19px) "Yu Mincho",serif;
   color:#fff0d2;white-space:nowrap;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .hub-mode span{
@@ -142,7 +143,7 @@ html[data-hanafuda-preview="stage2"] .scene-home .hub-learn{
   display:flex;flex-direction:column;justify-content:center;gap:2px;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .hub-learn strong{
-  color:#fff1d5;font:700 clamp(13px,1.6vw,16px) "Yu Mincho",serif;
+  color:#fff1d5;font:700 clamp(13px,calc(1.6 * var(--game-vw, 1vw)),16px) "Yu Mincho",serif;
   white-space:nowrap;
 }
 html[data-hanafuda-preview="stage2"] .scene-home .hub-learn span{
@@ -412,7 +413,8 @@ html[data-hanafuda-preview="stage2"] .scene-game .coach-footer{
   color:#775838;
 }
 }
-@media (orientation:landscape) and (max-height:365px) {
+@media (orientation:landscape) and (max-height:365px),
+       (orientation:portrait) and (max-width:365px){
  html[data-hanafuda-preview="stage2"] .scene-home .hub-tutorial,
  html[data-hanafuda-preview="stage2"] .scene-home .hub-modes,
  html[data-hanafuda-preview="stage2"] .scene-home .hub-learn{bottom:56px;height:61px;min-height:61px}

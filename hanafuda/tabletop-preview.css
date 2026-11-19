@@ -1,7 +1,8 @@
 /* Preview A — wa-fu tabletop game.
    Opt in only via ?theme=table. Scope exclusively to home + live match.
    No third-party images/fonts are embedded; original 48 card images stay intact. */
-@media (orientation:landscape) and (max-height:620px) {
+@media (orientation:landscape) and (max-height:620px),
+       (orientation:portrait) and (max-width:620px){
 html[data-hanafuda-preview="table"] .scene-home,
 html[data-hanafuda-preview="table"] .scene-game {
   --wood-highlight:#c39858;--lacquer:#281e19;--washi:#f4e7c6;
@@ -247,7 +248,8 @@ html[data-hanafuda-preview="table"] .scene-game button:active{
   filter:brightness(1.13);
 }
 }
-@media (orientation:landscape) and (max-height:390px){
+@media (orientation:landscape) and (max-height:390px),
+       (orientation:portrait) and (max-width:390px){
   html[data-hanafuda-preview="table"] .scene-game .play-layout .tabletop{
     border-width:5px;padding:3px 5px;
   }

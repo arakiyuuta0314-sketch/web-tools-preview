@@ -4,12 +4,12 @@
 .tutorial-welcome-scene{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;padding:10px;border:1px solid #c5a474;border-radius:11px;background:#f5e7c9eF;box-shadow:0 5px 14px #160f0b45,inset 0 0 0 3px #fff6df88}
 .tutorial-welcome-copy{text-align:center;flex:none}
 .tutorial-welcome-copy small{font:13px "TutorialYuji",serif;color:#86603d;letter-spacing:.12em}
-.tutorial-welcome-copy h1{margin:3px 0;font:clamp(21px,3vw,30px)/1.2 "TutorialYuji",serif;color:#5b3525}
+.tutorial-welcome-copy h1{margin:3px 0;font:clamp(21px,calc(3 * var(--game-vw, 1vw)),30px)/1.2 "TutorialYuji",serif;color:#5b3525}
 .tutorial-welcome-copy p{margin:0;font:12px "TutorialYuji",serif;color:#86603d}
 .tutorial-welcome .tutorial-purpose-art{display:flex;justify-content:center;align-items:center;min-height:0}
 .tutorial-purpose-art .purpose-cards{display:flex;gap:16px;justify-content:center}
 .tutorial-purpose-art .tinycards{gap:12px;overflow:visible}
-.tutorial-purpose-art .tinycards .hana{width:clamp(43px,6vw,61px);flex:0 0 auto;box-shadow:0 5px 9px #48332255}
+.tutorial-purpose-art .tinycards .hana{width:clamp(43px,calc(6 * var(--game-vw, 1vw)),61px);flex:0 0 auto;box-shadow:0 5px 9px #48332255}
 .tutorial-welcome .tutorial-almanac{width:100%;min-height:0;flex:1;display:flex;align-items:center;justify-content:center}
 .almanac-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:5px}
 .almanac-month{min-width:0;min-height:0;display:flex;align-items:center;justify-content:flex-start;gap:5px;padding:5px;border:1px solid #d2b98f;border-radius:6px;background:#fff9e9a8}
@@ -19,7 +19,7 @@
 .almanac-month small{font:10px "TutorialYuji",serif;color:#765b3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tutorial-month-quiz{display:flex;flex:1;min-height:0;align-items:center;justify-content:center;gap:16px}
 .tutorial-month-quiz>small{position:absolute;align-self:flex-start;margin-top:3px;color:#8d6642;font:12px "TutorialYuji",serif}
-.tutorial-month-quiz>img{height:min(29vh,142px);width:auto;max-width:27%;object-fit:contain;border-radius:3px;box-shadow:0 5px 12px #4934225c}
+.tutorial-month-quiz>img{height:min(calc(29 * var(--game-vh)),142px);width:auto;max-width:27%;object-fit:contain;border-radius:3px;box-shadow:0 5px 12px #4934225c}
 .month-quiz-choices{display:grid;grid-template-columns:repeat(3,minmax(66px,1fr));gap:8px}
 .month-quiz-choices button{min-height:46px;border:1px solid #a77a4d;border-radius:8px;background:linear-gradient(#fff8e8,#e6d0a8);color:#563824;font:17px "TutorialYuji",serif;box-shadow:0 3px 0 #b99b70}
 .tutorial-quiz-complete{padding:14px 28px;border:1px solid #c09c64;border-radius:9px;background:#fff8e8;color:#6b402b;font:22px "TutorialYuji",serif}
@@ -59,10 +59,10 @@
 .teacher-companion{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#68442c;font:12px "TutorialYuji",serif}
 .teacher-companion .teacher-avatar{width:54px;height:60px}
 .play-layout.tutorial-engawa .teacher-speech{min-height:0;max-height:100%;overflow:hidden;padding:6px 9px}.play-layout.tutorial-engawa .teacher-speech .teacher-visual{margin-top:3px}.play-layout.tutorial-engawa .teacher-speech .teacher-role{max-height:44px}
-.play-layout.tutorial-engawa .teacher-speech h3{font-size:clamp(13px,1.8vw,17px)}
-.play-layout.tutorial-engawa .teacher-speech p{font-size:clamp(10px,1.35vw,12px);line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.play-layout.tutorial-engawa .teacher-speech h3{font-size:clamp(13px,calc(1.8 * var(--game-vw, 1vw)),17px)}
+.play-layout.tutorial-engawa .teacher-speech p{font-size:clamp(10px,calc(1.35 * var(--game-vw, 1vw)),12px);line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .play-layout.tutorial-engawa .teacher-actions{display:flex;flex-direction:column;gap:4px;margin:0;max-height:100%;overflow:auto}
-.play-layout.tutorial-engawa .teacher-actions button{min-height:34px;padding:5px 7px;font-size:clamp(11px,1.5vw,14px)}
+.play-layout.tutorial-engawa .teacher-actions button{min-height:34px;padding:5px 7px;font-size:clamp(11px,calc(1.5 * var(--game-vw, 1vw)),14px)}
 .teacher-visual{min-width:0;display:flex;align-items:center;justify-content:center;gap:4px}
 .teacher-capture img{height:48px;width:auto;object-fit:contain;border:1px solid #b99b70;border-radius:2px;box-shadow:0 2px 4px #43301d40}
 .teacher-role{grid-column:auto;display:flex;flex-direction:column;gap:3px;max-height:65px;overflow:hidden}
@@ -79,7 +79,8 @@
 .play-layout.tutorial-decision-only .game-score,.play-layout.tutorial-decision-only .board-taken,.play-layout.tutorial-decision-only .board-zone-caption,.play-layout.tutorial-decision-only .tutorial-board-note,.play-layout.tutorial-decision-only .capture-link,.play-layout.tutorial-decision-only .field-stock small,.play-layout.tutorial-decision-only .round-badge small{display:none!important}
 .play-layout.tutorial-decision-only .tabletop{grid-template-rows:22px minmax(0,1fr) minmax(0,1fr);}
 .play-layout.tutorial-decision-only .tutorial-guide-panel{grid-template-columns:65px minmax(0,1fr) minmax(145px,220px)}
-@media(max-width:700px) and (orientation:landscape){
+@media (orientation:landscape) and (max-width:700px),
+       (orientation:portrait) and (max-height:700px){
  .scene-game .tutorial-welcome{grid-template-columns:minmax(0,1fr) 155px;gap:7px;padding:6px}
  .tutorial-welcome-guide{padding:6px;gap:5px}
  .tutorial-welcome-guide>.teacher-avatar{width:66px;height:73px}
@@ -97,7 +98,8 @@
  .teacher-capture img{height:38px}
  .teacher-role-cards img{height:32px}
 }
-@media(max-height:340px) and (orientation:landscape){.play-layout.tutorial-engawa{grid-template-rows:26px minmax(0,1fr) 84px}.play-layout.tutorial-engawa .tutorial-guide-panel{grid-template-columns:50px minmax(0,1fr) 125px}.teacher-companion .teacher-avatar{width:38px;height:42px}}
+@media (orientation:landscape) and (max-height:340px),
+       (orientation:portrait) and (max-width:340px){.play-layout.tutorial-engawa{grid-template-rows:26px minmax(0,1fr) 84px}.play-layout.tutorial-engawa .tutorial-guide-panel{grid-template-columns:50px minmax(0,1fr) 125px}.teacher-companion .teacher-avatar{width:38px;height:42px}}
 @media(prefers-reduced-motion:reduce){.play-layout.tutorial-engawa .hana.target{animation:none}}
 
 .play-layout.tutorial-engawa .tutorial-taken-cards{height:100%;display:flex;align-items:center;gap:4px;padding:0 4px}.play-layout.tutorial-engawa .tutorial-taken-cards img{height:22px;width:auto;max-width:17px;object-fit:contain;border:1px solid #9d8358;border-radius:1px;box-shadow:0 1px 2px #3a281b55}
@@ -115,7 +117,8 @@
 .play-layout.tutorial-engawa .opponent-label{min-width:0;max-width:42%}
 .play-layout.tutorial-engawa .opponent-label span{white-space:normal;overflow-wrap:anywhere;line-height:1.1}
 .month-quiz-choices button.correct{border-color:#78945f;background:linear-gradient(#e8f0d8,#cbdcb5);color:#38542f;box-shadow:0 3px 0 #91a879}
-@media(max-width:700px) and (orientation:landscape){
+@media (orientation:landscape) and (max-width:700px),
+       (orientation:portrait) and (max-height:700px){
  .play-layout.tutorial-engawa{grid-template-rows:28px minmax(0,1fr) 88px}
  .play-layout.tutorial-engawa .tabletop{grid-template-rows:20px minmax(0,1.1fr) 14px minmax(0,1.2fr);padding:3px 5px}
  .play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:40px;width:40px;min-width:40px;max-width:40px}
@@ -133,7 +136,8 @@
 .play-layout.tutorial-engawa .teacher-speech h3{font-size:12px}
 .play-layout.tutorial-engawa .teacher-speech p{font-size:10px;line-height:1.2;-webkit-line-clamp:2}
 .play-layout.tutorial-engawa .teacher-actions button{min-height:29px;padding:3px 5px;font-size:11px}
-@media(max-width:700px) and (orientation:landscape){
+@media (orientation:landscape) and (max-width:700px),
+       (orientation:portrait) and (max-height:700px){
  .play-layout.tutorial-engawa{grid-template-rows:28px minmax(0,1fr) 78px}
  .play-layout.tutorial-engawa .tabletop{grid-template-rows:19px minmax(0,1fr) 11px minmax(0,1fr);padding:3px 5px}
  .play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:36px;width:36px;min-width:36px;max-width:36px}
@@ -143,18 +147,23 @@
 /* The decision-only board has two card rows; preserve that compact arrangement. */
 .play-layout.tutorial-decision-only .tabletop{grid-template-rows:22px minmax(0,1fr) minmax(0,1fr)}
 .play-layout.tutorial-engawa .tutorial-board-note{display:none}
-@media(max-width:700px) and (orientation:landscape){.play-layout.tutorial-decision-only .tabletop{grid-template-rows:20px minmax(0,1fr) minmax(0,1fr)}}
+@media (orientation:landscape) and (max-width:700px),
+       (orientation:portrait) and (max-height:700px){.play-layout.tutorial-decision-only .tabletop{grid-template-rows:20px minmax(0,1fr) minmax(0,1fr)}}
 
 /* Field cards may grow to 16; let only that row shrink evenly while preserving portrait artwork. */
 .play-layout.tutorial-engawa .fieldcards>.hana{flex:0 1 42px;width:42px;min-width:0;max-width:42px}
-@media(max-width:700px) and (orientation:landscape){.play-layout.tutorial-engawa .fieldcards>.hana{flex:0 1 36px;width:36px;min-width:0;max-width:36px}}
+@media (orientation:landscape) and (max-width:700px),
+       (orientation:portrait) and (max-height:700px){.play-layout.tutorial-engawa .fieldcards>.hana{flex:0 1 36px;width:36px;min-width:0;max-width:36px}}
 
 /* Field-row cards fit the tighter caption-plus-art row and still shrink evenly at 16. */
 .play-layout.tutorial-engawa .fieldcards>.hana{flex:0 1 36px;width:36px;min-width:0;max-width:36px}
-@media(max-width:800px) and (orientation:landscape){.play-layout.tutorial-engawa .fieldcards>.hana{flex-basis:34px;width:34px;max-width:34px}}
-@media(max-width:700px) and (orientation:landscape){.play-layout.tutorial-engawa .fieldcards>.hana{flex-basis:32px;width:32px;max-width:32px}}
+@media (orientation:landscape) and (max-width:800px),
+       (orientation:portrait) and (max-height:800px){.play-layout.tutorial-engawa .fieldcards>.hana{flex-basis:34px;width:34px;max-width:34px}}
+@media (orientation:landscape) and (max-width:700px),
+       (orientation:portrait) and (max-height:700px){.play-layout.tutorial-engawa .fieldcards>.hana{flex-basis:32px;width:32px;max-width:32px}}
 
-@media(max-height:360px) and (orientation:landscape){
+@media (orientation:landscape) and (max-height:360px),
+       (orientation:portrait) and (max-width:360px){
  .play-layout.tutorial-engawa .board-field,.play-layout.tutorial-engawa .board-hand{padding:0 3px}
  .play-layout.tutorial-engawa .board-field .board-zone-caption,.play-layout.tutorial-engawa .board-hand .board-zone-caption{height:10px;min-height:10px;flex:0 0 10px}
  .play-layout.tutorial-engawa .board-zone-caption{gap:2px}
@@ -162,7 +171,8 @@
  .play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:31px;width:31px;min-width:0;max-width:31px}
 }
 
-@media(max-height:360px) and (orientation:landscape){.play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:28px;width:28px;max-width:28px}}
+@media (orientation:landscape) and (max-height:360px),
+       (orientation:portrait) and (max-width:360px){.play-layout.tutorial-engawa .fieldcards>.hana,.play-layout.tutorial-engawa .handcards>.hana{flex-basis:28px;width:28px;max-width:28px}}
 
 /* Tutorial scenes share the same table treatment as the playing board. */
 .scene-game .tutorial-welcome {
@@ -171,7 +181,7 @@
   align-items:center;
   gap:10px;
   min-height:0;
-  padding:10px clamp(14px,6vw,70px);
+  padding:10px clamp(14px,calc(6 * var(--game-vw, 1vw)),70px);
   overflow:auto;
   background:#15283e url("images/japanese-wooden-table-indigo-mat.jpg") center/cover no-repeat;
   color:#fff5dc;
@@ -204,7 +214,7 @@
   text-shadow:0 1px 3px #081324;
 }
 .tutorial-purpose-art img {
-  height:clamp(48px,17vh,124px);
+  height:clamp(48px,calc(17 * var(--game-vh)),124px);
   width:auto;
   max-width:100%;
   object-fit:contain;
@@ -243,12 +253,12 @@
 .tutorial-step-menu {
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(112px,29%);
-  gap:clamp(8px,3vw,30px);
+  gap:clamp(8px,calc(3 * var(--game-vw, 1vw)),30px);
   align-items:stretch;
   width:100%;
   height:100%;
   overflow:auto;
-  padding:clamp(10px,2.5vh,18px) clamp(10px,3.5vw,34px);
+  padding:clamp(10px,calc(2.5 * var(--game-vh)),18px) clamp(10px,calc(3.5 * var(--game-vw, 1vw)),34px);
   box-sizing:border-box;
   border:2px solid #785030;
   border-radius:12px;
@@ -262,7 +272,7 @@
   justify-content:center;
   min-width:0;
   gap:8px;
-  padding:10px clamp(8px,2vw,18px);
+  padding:10px clamp(8px,calc(2 * var(--game-vw, 1vw)),18px);
   border:1px solid #c5945366;
   border-radius:8px;
   background:#142437ca;
@@ -271,11 +281,11 @@
   margin:0;
   text-align:center;
   text-shadow:0 2px 4px #141017;
-  font:clamp(20px,4.3vh,26px)/1.2 "TutorialYuji",serif;
+  font:clamp(20px,calc(4.3 * var(--game-vh)),26px)/1.2 "TutorialYuji",serif;
 }
 .tutorial-step-menu ol {
   display:grid;
-  gap:clamp(4px,1.5vh,8px);
+  gap:clamp(4px,calc(1.5 * var(--game-vh)),8px);
   margin:0;
   padding:0;
   list-style:none;
@@ -292,7 +302,7 @@
     linear-gradient(#e9c98e,#cf9e5f);
   color:#312014;
   text-align:left;
-  font:700 clamp(12px,3vw,15px)/1.25 system-ui,sans-serif;
+  font:700 clamp(12px,calc(3 * var(--game-vw, 1vw)),15px)/1.25 system-ui,sans-serif;
 }
 .tutorial-step-plaque:focus-visible {outline:2px solid #fff5dc;outline-offset:2px}
 .tutorial-step-plaque[aria-describedby]::after {
@@ -314,15 +324,11 @@
   background-size:cover;
   background-position:center 48%;
 }
-@media (max-height:360px) and (orientation:landscape) {
+@media (orientation:landscape) and (max-height:360px),
+       (orientation:portrait) and (max-width:360px){
   .tutorial-step-picker {gap:5px;padding-block:6px}
   .tutorial-step-menu button.tutorial-step-plaque {min-height:36px}
 }
-@media (max-width:540px) and (orientation:portrait) {
-  .tutorial-welcome .tutorial-purpose-art {grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tutorial-welcome .almanac-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
-}
-
 :root {--teacher-scrim:rgb(0 0 0 / 48%)}
 .teacher-dim {
   position:fixed;
@@ -343,7 +349,7 @@
 .teacher-bubble {
   position:absolute;
   z-index:7;
-  inset-block-start:clamp(8px,4vh,26px);
+  inset-block-start:clamp(8px,calc(4 * var(--game-vh)),26px);
   inset-inline-start:50%;
   transform:translateX(-50%);
   display:grid;
@@ -437,11 +443,9 @@
   background:#291b14;
 }
 .scene-game:has(.tutorial-welcome) .topbar .brand {color:#fff5dc}
-@media (orientation:landscape) {
-  .scene-game .tutorial-welcome {
-    background-size:135% 100%;
-    background-position:14% center;
-  }
+.scene-game .tutorial-welcome {
+  background-size:135% 100%;
+  background-position:14% center;
 }
 
 /* Both game modes share the same player yaku presentation. */
@@ -486,14 +490,14 @@
   margin:0;
   padding:0;
   list-style:none;
-  font:800 clamp(22px,5vw,32px)/1.2 system-ui,sans-serif;
+  font:800 clamp(22px,calc(5 * var(--game-vw, 1vw)),32px)/1.2 system-ui,sans-serif;
 }
 .yaku-celebration-names b {color:#784e20}
 .yaku-celebration-cards {display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding-block:7px 2px}
 .yaku-celebration-cards img {
-  height:clamp(55px,22vh,100px);
+  height:clamp(55px,calc(22 * var(--game-vh)),100px);
   width:auto;
-  max-width:13vw;
+  max-width:calc(13 * var(--game-vw, 1vw));
   object-fit:contain;
   border-radius:4px;
   box-shadow:0 3px 8px #43281855;
@@ -507,8 +511,9 @@
 }
 .celebrating-card {animation:yaku-rise 420ms ease-out both}
 .celebrating-card-2,.celebrating-card-3 {outline:1px solid #e9bf62!important}
-@media (max-height:450px) {
-  .yaku-celebration-cards:has(img:nth-child(9)) img {height:clamp(38px,16vh,66px)}
+@media (orientation:landscape) and (max-height:450px),
+       (orientation:portrait) and (max-width:450px){
+  .yaku-celebration-cards:has(img:nth-child(9)) img {height:clamp(38px,calc(16 * var(--game-vh)),66px)}
 }
 .yaku-celebration-skip {
   position:absolute;
@@ -546,14 +551,15 @@
 @keyframes yaku-petal {
   from {transform:translate(12px,0) rotate(10deg);opacity:0}
   20% {opacity:.92}
-  to {transform:translate(-42px,82vh) rotate(310deg);opacity:0}
+  to {transform:translate(-42px,calc(82 * var(--game-vh))) rotate(310deg);opacity:0}
 }
 @media(prefers-reduced-motion:reduce) {
   .yaku-celebration .yaku-celebration-cards img,.celebrating-card {animation:none}
   .yaku-celebration-petals {display:none}
 }
 
-@media (orientation:landscape) and (max-height:440px) {
+@media (orientation:landscape) and (max-height:440px),
+       (orientation:portrait) and (max-width:440px){
   .tutorial-step-picker {gap:4px;padding-block:4px}
   .tutorial-step-menu ol {gap:3px}
   .tutorial-step-menu button.tutorial-step-plaque {min-height:32px;padding-block:3px}
