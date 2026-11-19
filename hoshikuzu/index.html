@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261118-intro-event-01">
+<link rel="stylesheet" href="rpg.css?v=20261119-screen-layout-01">
 </head>
 <body>
 <main class="game-shell" id="rpg">
@@ -26,8 +26,14 @@
     </div>
     <div class="screen-shell" id="screen-shell">
       <canvas id="game" width="480" height="270" aria-label="探索中のマップと登場人物、または戦闘中の敵と主人公"></canvas>
-      <div class="dialogue" id="dialogue" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
-        <p id="message"></p><span class="message-arrow" id="message-arrow" aria-hidden="true" hidden>▼</span>
+      <div class="location-banner" id="location-banner" hidden></div>
+      <div class="dialogue" id="dialogue" data-portrait="false" aria-live="polite" aria-label="会話と戦闘メッセージ" hidden>
+        <span class="speaker-tab" id="speaker-tab" aria-hidden="true" hidden></span>
+        <div class="dialogue-body">
+          <span class="portrait-frame" aria-hidden="true"></span>
+          <p id="message"></p>
+        </div>
+        <span class="message-arrow" id="message-arrow" aria-hidden="true" hidden>▼</span>
       </div>
       <div id="context-hint" class="context-hint" hidden></div>
       <div id="completion" class="completion" hidden></div>
@@ -49,7 +55,6 @@
           <progress id="battle-mp-bar" aria-label="MP残量" value="0"></progress>
         </div>
       </div>
-    <div class="controls-label" aria-hidden="true"><span>✦</span> ADVENTURE</div>
     <div class="dpad" role="group" aria-label="移動と選択">
       <button class="up" data-dir="up" aria-label="上" type="button"><span>▲</span></button>
       <button class="left" data-dir="left" aria-label="左" type="button"><span>◀</span></button>
@@ -58,18 +63,17 @@
       <button class="down" data-dir="down" aria-label="下" type="button"><span>▼</span></button>
     </div>
     <div class="control-actions" id="control-actions">
-      <div class="shortcut-grid" id="shortcut-grid" role="group" aria-label="ショートカット">
-        <button id="talk-shortcut" type="button">はなす</button>
-        <button id="item-shortcut" type="button">どうぐ</button>
+      <div class="shortcut-grid" id="shortcut-grid" role="group" aria-label="戦闘コマンド">
+        <button id="talk-shortcut" type="button">たたかう</button>
         <button id="spell-shortcut" type="button">じゅもん</button>
-        <button id="menu-button" type="button">メニュー</button>
+        <button id="item-shortcut" type="button">どうぐ</button>
+        <button id="menu-button" type="button">にげる</button>
       </div>
       <div class="action-pair" role="group" aria-label="決定と戻る">
         <button id="cancel" class="face face-b" type="button"><span>B</span><small>もどる</small></button>
         <button id="confirm" class="face face-a" type="button"><span>A</span><small>決定</small></button>
       </div>
     </div>
-    <div class="control-tip" aria-hidden="true">十字キーで歩く · Aで話す · Bでもどる</div>
   </section>
 </main>
 <div class="start-overlay" id="start-overlay">
@@ -90,6 +94,6 @@
     <div class="legal"><a id="privacy-link" target="_blank" rel="noopener noreferrer">プライバシー</a><span>·</span><a id="support-link" target="_blank" rel="noopener noreferrer">サポート</a></div>
   </section>
 </div>
-<script defer src="app.js?v=20261118-intro-event-01"></script>
+<script defer src="app.js?v=20261119-screen-layout-01"></script>
 </body>
 </html>
