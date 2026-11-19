@@ -1,0 +1,74 @@
+.scene-free .panel.match-setup {
+  justify-content:flex-start;
+  gap:8px;
+  overflow:auto;
+}
+.match-mode,.match-beginner,.betting-wallet {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.match-mode>button {flex:1}
+.match-setup .chip {min-height:36px}
+.match-beginner,.betting-rates {color:inherit;font-size:14px}
+.match-beginner strong {margin-right:auto;color:#f6deaa}
+.betting-options {
+  display:grid;
+  gap:8px;
+  padding:10px;
+  border:1px solid #c6a36780;
+  border-radius:12px;
+  background:#382c23;
+  color:#fff0c9;
+}
+.betting-wallet {justify-content:space-between;font-size:13px}
+.betting-wallet strong {display:block;font-size:clamp(20px,4vw,28px)}
+.betting-options p {margin:0;font-size:12px}
+.betting-rates small {font-weight:normal}
+.betting-rates .match-mode {margin-top:4px;gap:4px}
+.betting-rates .chip {padding-inline:4px;font-size:clamp(11px,3.3vw,14px)}
+.scene-free .panel.match-setup .stack {flex:1 0 auto;min-height:125px}
+.scene-free .panel.match-setup .stack button {min-height:36px}
+.coin-result {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  width:100%;
+  padding:6px 0;
+  border-block:1px solid #cba87580;
+  font-size:12px;
+}
+.coin-result strong {display:block;font-size:clamp(18px,5vw,27px);color:#ffe2a7}
+.play-layout .result.betting-finale {gap:4px;padding-block:8px;overflow:auto;justify-content:safe center}
+.betting-finale .result-action {display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+.coin-refill-dialog {
+  box-sizing:border-box;
+  width:min(350px,calc(100% - 28px));
+  max-height:calc(100dvh - 24px);
+  padding:16px;
+  border:1px solid #b89157;
+  border-radius:16px;
+  background:#fbefcf;
+  color:#432c20;
+  text-align:center;
+}
+.coin-refill-dialog::backdrop {background:#211810b5}
+.coin-refill-dialog h2,.coin-refill-dialog p {margin:0 0 8px}
+.coin-refill-dialog small {display:block;margin-bottom:6px}
+.coin-refill-dialog button {display:block;width:100%;margin:4px 0}
+.coin-refill-dialog button:disabled {opacity:.55;cursor:default}
+
+@media (orientation:landscape) and (min-width:620px) {
+  .scene-free .panel.match-setup-betting {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto auto 1fr;
+    align-content:start;
+    align-items:start;
+  }
+  .match-setup-betting>.match-mode {grid-column:1/-1}
+  .match-setup-betting .betting-options {grid-column:1;grid-row:2/5}
+  .match-setup-betting .match-beginner {grid-column:2;grid-row:2}
+  .match-setup-betting>h3 {grid-column:2;grid-row:3}
+  .match-setup-betting>.stack {grid-column:2;grid-row:4}
+}

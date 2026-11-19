@@ -8019,9 +8019,9 @@
     (function(Utils) {
       const HEX2STR = "0123456789abcdef".split("");
       function toHexString(r) {
-        for (var n = "", e = 0; e < 4; e++)
-          n += HEX2STR[r >> 8 * e + 4 & 15] + HEX2STR[r >> 8 * e & 15];
-        return n;
+        for (var n2 = "", e = 0; e < 4; e++)
+          n2 += HEX2STR[r >> 8 * e + 4 & 15] + HEX2STR[r >> 8 * e & 15];
+        return n2;
       }
       function hexStringFromArray(array) {
         const out = [];
@@ -8029,29 +8029,29 @@
           out.push(toHexString(array[i]));
         return out.join("");
       }
-      function add32(r, n) {
-        return r + n & 4294967295;
+      function add32(r, n2) {
+        return r + n2 & 4294967295;
       }
-      function complexShift(r, n, e, t, o, u, shiftFunction) {
+      function complexShift(r, n2, e, t, o, u, shiftFunction) {
         function shiftAdd32(op0, op1, v1) {
           return add32(op0 << op1 | op0 >>> 32 - op1, v1);
         }
         function add32x4(i0, i1, j0, j1) {
           return add32(add32(i1, i0), add32(j0, j1));
         }
-        return shiftAdd32(add32x4(r, n, t, u), o, e);
+        return shiftAdd32(add32x4(r, n2, t, u), o, e);
       }
-      var step1Function = function(shiftFunction, n, e, t, o, u, f, a) {
-        return complexShift(e & t | ~e & o, n, e, u, f, a);
+      var step1Function = function(shiftFunction, n2, e, t, o, u, f, a) {
+        return complexShift(e & t | ~e & o, n2, e, u, f, a);
       };
-      var step2Function = function(shiftFunction, n, e, t, o, u, f, a) {
-        return complexShift(e & o | t & ~o, n, e, u, f, a);
+      var step2Function = function(shiftFunction, n2, e, t, o, u, f, a) {
+        return complexShift(e & o | t & ~o, n2, e, u, f, a);
       };
-      var step3Function = function(shiftFunction, n, e, t, o, u, f, a) {
-        return complexShift(e ^ t ^ o, n, e, u, f, a);
+      var step3Function = function(shiftFunction, n2, e, t, o, u, f, a) {
+        return complexShift(e ^ t ^ o, n2, e, u, f, a);
       };
-      var step4Function = function(shiftFunction, n, e, t, o, u, f, a) {
-        return complexShift(t ^ (e | ~o), n, e, u, f, a);
+      var step4Function = function(shiftFunction, n2, e, t, o, u, f, a) {
+        return complexShift(t ^ (e | ~o), n2, e, u, f, a);
       };
       function hashStep(inOutVec4, strAsInts, shiftFunction) {
         if (!shiftFunction)
@@ -8164,9 +8164,9 @@
           return "";
         let shiftFunction;
         if ("5d41402abc4b2a76b9719d911017c592" !== hexStringFromArray(computeMD5("hello")))
-          shiftFunction = function(r, n) {
-            const e = (65535 & r) + (65535 & n);
-            return (r >> 16) + (n >> 16) + (e >> 16) << 16 | 65535 & e;
+          shiftFunction = function(r, n2) {
+            const e = (65535 & r) + (65535 & n2);
+            return (r >> 16) + (n2 >> 16) + (e >> 16) << 16 | 65535 & e;
           };
         return hexStringFromArray(computeMD5(str, shiftFunction));
       }
@@ -8753,7 +8753,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           }
           const RENEWS_EVERY_MS = 2 * 6e4;
           const receipt = new CdvPurchase2.Receipt(platform, this.context.apiDecorators);
-          const makeTransaction = (n) => {
+          const makeTransaction = (n2) => {
             var _a, _b;
             const tr = new CdvPurchase2.Transaction(platform, receipt, this.context.apiDecorators);
             tr.products = [{
@@ -8761,21 +8761,21 @@ Enter "E" to fail with an error.Anything else to cancel.`);
               offerId: Test.testProducts.PAID_SUBSCRIPTION_ACTIVE.extra.offerId
             }];
             tr.state = CdvPurchase2.TransactionState.APPROVED;
-            tr.transactionId = transactionId(n);
-            tr.isAcknowledged = n == 1;
+            tr.transactionId = transactionId(n2);
+            tr.isAcknowledged = n2 == 1;
             tr.renewalIntent = CdvPurchase2.RenewalIntent.RENEW;
             const firstPurchase = +(((_b = (_a = receipt === null || receipt === void 0 ? void 0 : receipt.transactions) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.purchaseDate) || /* @__PURE__ */ new Date());
             tr.purchaseDate = new Date(firstPurchase);
-            tr.lastRenewalDate = new Date(firstPurchase + RENEWS_EVERY_MS * (n - 1));
-            tr.expirationDate = new Date(firstPurchase + RENEWS_EVERY_MS * n);
+            tr.lastRenewalDate = new Date(firstPurchase + RENEWS_EVERY_MS * (n2 - 1));
+            tr.expirationDate = new Date(firstPurchase + RENEWS_EVERY_MS * n2);
             updateVerifiedPurchases(tr);
             return tr;
           };
           receipt.transactions.push(makeTransaction(1));
           this.receipts.push(receipt);
           this.context.listener.receiptsUpdated(CdvPurchase2.Platform.TEST, [receipt]);
-          function transactionId(n) {
-            return "test-active-subscription-transaction-" + n;
+          function transactionId(n2) {
+            return "test-active-subscription-transaction-" + n2;
           }
           let transactionNumber = 1;
           setInterval(() => {
@@ -9346,8 +9346,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         if (!iso)
           return "";
         const l = iso.length;
-        const n = iso.slice(1, l - 1);
-        if (n === "1") {
+        const n2 = iso.slice(1, l - 1);
+        if (n2 === "1") {
           if (options === null || options === void 0 ? void 0 : options.omitOne) {
             return { "D": "day", "W": "week", "M": "month", "Y": "year" }[iso[l - 1]] || iso[l - 1];
           } else {
@@ -9355,7 +9355,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           }
         } else {
           const u = { "D": "days", "W": "weeks", "M": "months", "Y": "years" }[iso[l - 1]] || iso[l - 1];
-          return `${n} ${u}`;
+          return `${n2} ${u}`;
         }
       }
       Utils.formatDurationEN = formatDurationEN;
@@ -10138,6 +10138,28 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   ];
   var CHAPTERS = MONTHS.map((m, i) => ({ ...m, opponent: passages[i][0], story: passages[i][1], quote: passages[i][2], difficulty: i < 4 ? 1 : i < 8 ? 2 : 3 }));
 
+  // src/game/betting.mjs
+  var BETTING_RATES = /* @__PURE__ */ new Map([[10, "\u6C17\u8EFD\uFF0810\uFF09"], [50, "\u666E\u901A\uFF0850\uFF09"], [100, "\u5927\u52DD\u8CA0\uFF08100\uFF09"]]);
+  var MIN_COINS = 100;
+  var REFILL_COINS = 1e3;
+  function createWallet() {
+    return { coins: 3e3, lastFreeRefill: null };
+  }
+  function localDay(now = /* @__PURE__ */ new Date()) {
+    const twoDigits = (value) => String(value).padStart(2, "0");
+    return now.getFullYear() + "-" + twoDigits(now.getMonth() + 1) + "-" + twoDigits(now.getDate());
+  }
+  function canRefillForFree(wallet, today = localDay()) {
+    return wallet.lastFreeRefill === null || wallet.lastFreeRefill < today;
+  }
+  function settleBettingMatch(wallet, game) {
+    if (!game?.finished || !game.betting || game.betting.settlement) return;
+    const difference = (game.scores[0] - game.scores[1]) * game.betting.rate;
+    const change = Math.max(-wallet.coins, difference) || 0;
+    wallet.coins += change;
+    game.betting.settlement = { change, balance: wallet.coins };
+  }
+
   // src/game/progress.mjs
   function recordFinishedGame(state2, g) {
     if (!g || !g.finished || g.recorded) return false;
@@ -10195,7 +10217,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         if (hint.length) summary.push("\u76F8\u624B\u306E\u516C\u958B\u53D6\u308A\u672D\u3092\u898B\u308B\u3068\u3001" + hint[0].name + "\u304C\u8FD1\u3044\u304B\u3082\u3057\u308C\u307E\u305B\u3093\u3002");
       }
     } else summary.push("\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u308B\u3068\u3001\u53D6\u308A\u672D\u306B\u306A\u308A\u307E\u3059\u3002\u307E\u305A\u624B\u672D\u3092\u9078\u3073\u307E\u3057\u3087\u3046\u3002");
-    const blocked = probableYaku(r.captured[0]).filter((y) => !nearMine.some((n) => n.id === y.id));
+    const blocked = probableYaku(r.captured[0]).filter((y) => !nearMine.some((n2) => n2.id === y.id));
     for (const y of blocked.slice(0, 2)) {
       const rule = YAKU_BY_ID[y.id];
       if (rule.group === "set" && typeof y.needed === "string" && r.captured[1].includes(y.needed)) {
@@ -10458,6 +10480,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     active: null
   });
   function validate(v) {
+    const wallet = v?.wallet;
+    if (wallet !== void 0 && (!wallet || !Number.isSafeInteger(wallet.coins) || wallet.coins < 0 || !(wallet.lastFreeRefill === null || /^\d{4}-\d{2}-\d{2}$/.test(wallet.lastFreeRefill)))) throw new Error("\u30B3\u30A4\u30F3\u306E\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002");
     if (!v || v.version !== 1 || !Number.isInteger(v.travelUnlocked) || v.travelUnlocked < 1 || v.travelUnlocked > 12 || !Number.isInteger(v.travelCleared) || v.travelCleared < 0 || v.travelCleared > 12 || !Array.isArray(v.seen) || !v.quiz || !v.stats || !v.settings || !["full", "brief", "none"].includes(v.settings.narration) || typeof v.settings.beginner !== "boolean" || v.tutorialCompleted !== void 0 && typeof v.tutorialCompleted !== "boolean" || !v.active && v.active !== null) throw new Error("\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002\u4E0A\u66F8\u304D\u305B\u305A\u306B\u505C\u6B62\u3057\u307E\u3057\u305F\u3002");
   }
   var store2 = createJsonStore({ store: window.localStorage, key: KEY, createInitial: initial, validate });
@@ -10489,6 +10513,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var gameDialogReturn = null;
   var pendingStart = null;
   var turnPresentation = null;
+  var matchMode = "free";
+  var bettingRate = 10;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
@@ -10502,6 +10528,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function esc(v) {
     return String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+  function n(v) {
+    return Number(v).toLocaleString("ja-JP");
   }
   function photo(id) {
     return card(id).asset;
@@ -10551,13 +10580,34 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function home() {
     const canResume = state.active !== null && (!state.active.finished || state.active.pendingYakuCelebration || state.active.pendingTurnPresentation) && state.active.mode !== "travel";
-    return shell('<div class="hub home-redesign"><div class="engawa-heading engawa-title-art" role="img" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></div>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u30D5\u30EA\u30FC\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label">\u30D5\u30EA\u30FC\u5BFE\u5C40</span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
+    return shell('<div class="hub home-redesign"><div class="engawa-heading engawa-title-art" role="img" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></div>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
   }
   function learn() {
     return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
   }
+  function optionChip(action, value, label, selected) {
+    return '<button type="button" class="chip' + (selected ? " active" : "") + '" data-action="' + action + '" data-value="' + value + '" aria-pressed="' + selected + '">' + label + "</button>";
+  }
   function free() {
-    return shell(headline("\u30D5\u30EA\u30FC\u5BFE\u5C40", "home", "FREE MATCH") + '<div class="panel"><p class="lead">\u5BFE\u5C40\u306F\u5408\u8A08\u70B9\u3067\u52DD\u6557\u3092\u6C7A\u3081\u307E\u3059\u3002\u5148\u751F\u306E\u89E3\u8AAC\u3092\u805E\u304D\u306A\u304C\u3089\u904A\u3079\u307E\u3059\u3002</p><h3>\u5BFE\u5C40\u306E\u9577\u3055</h3><div class="stack">' + [3, 6, 12].map((k) => '<button class="secondary full" data-action="start-free" data-length="' + k + '">' + k + "\u304B\u6708\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button>").join("") + "</div></div>");
+    const betting = matchMode === "betting";
+    return shell(headline("\u5BFE\u5C40", "home", "MATCH") + '<div class="panel match-setup' + (betting ? " match-setup-betting" : "") + '"><div class="match-mode" role="group" aria-label="\u5BFE\u5C40\u30E2\u30FC\u30C9">' + optionChip("match-mode", "free", "\u30D5\u30EA\u30FC\u5BFE\u5C40", !betting) + optionChip("match-mode", "betting", "\u52DD\u8CA0\u5BFE\u5C40", betting) + "</div>" + (betting ? '<div class="betting-options"><div class="betting-wallet"><span>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + ' \u30B3\u30A4\u30F3</strong></span><button class="chip" data-action="coin-refill">\u88DC\u5145</button></div><div class="betting-rates" role="group" aria-label="\u30EC\u30FC\u30C8\uFF081\u70B9\u3042\u305F\u308A\u306E\u30B3\u30A4\u30F3\uFF09"><strong>\u30EC\u30FC\u30C8 <small>1\u70B9\u3042\u305F\u308A</small></strong><div class="match-mode">' + [...BETTING_RATES].map(([rate, label]) => optionChip("betting-rate", rate, label, bettingRate === rate)).join("") + "</div></div><p>\u5BFE\u5C40\u7D42\u4E86\u6642\u306B\u5408\u8A08\u70B9\u306E\u5DEE\u3092\u7CBE\u7B97\u3057\u307E\u3059\u3002</p></div>" : '<p class="lead">\u5BFE\u5C40\u306F\u5408\u8A08\u70B9\u3067\u52DD\u6557\u3092\u6C7A\u3081\u307E\u3059\u3002\u5148\u751F\u306E\u89E3\u8AAC\u3092\u805E\u304D\u306A\u304C\u3089\u904A\u3079\u307E\u3059\u3002</p>') + '<div class="match-beginner" role="group" aria-label="\u521D\u5FC3\u8005\u30E2\u30FC\u30C9"><strong>\u521D\u5FC3\u8005\u30E2\u30FC\u30C9</strong>' + optionChip("beginner", "true", "\u30AA\u30F3", state.settings.beginner) + optionChip("beginner", "false", "\u30AA\u30D5", !state.settings.beginner) + '</div><h3>\u5BFE\u5C40\u306E\u9577\u3055</h3><div class="stack">' + [3, 6, 12].map((k) => '<button class="secondary full" data-action="start-free" data-length="' + k + '">' + k + "\u304B\u6708\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button>").join("") + "</div></div>");
+  }
+  function openCoinRefill(invoker) {
+    const dialog = document.createElement("dialog");
+    dialog.className = "coin-refill-dialog";
+    dialog.setAttribute("aria-labelledby", "coin-refill-title");
+    const freeAvailable = canRefillForFree(state.wallet);
+    dialog.innerHTML = '<h2 id="coin-refill-title">\u30B3\u30A4\u30F3\u3092\u88DC\u5145</h2><p>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + " \u30B3\u30A4\u30F3</strong></p>" + (state.wallet.coins < MIN_COINS ? "<p>\u52DD\u8CA0\u5BFE\u5C40\u3092\u59CB\u3081\u308B\u306B\u306F100\u30B3\u30A4\u30F3\u4EE5\u4E0A\u5FC5\u8981\u3067\u3059\u3002</p>" : "") + '<button class="primary" data-action="coin-free-claim" ' + (freeAvailable ? "" : "disabled") + ">\u7121\u6599\u88DC\u5145 \uFF0B1,000 \u30B3\u30A4\u30F3</button><small>" + (freeAvailable ? "1\u65E51\u56DE" : "\u672C\u65E5\u306E\u7121\u6599\u88DC\u5145\u306F\u53D7\u3051\u53D6\u308A\u6E08\u307F\u3067\u3059") + '</small><button class="secondary" data-action="coin-ad">\u5E83\u544A\u88DC\u5145 \uFF0B1,000 \u30B3\u30A4\u30F3</button><button class="quiet" data-action="coin-close">\u9589\u3058\u308B</button>';
+    document.body.append(dialog);
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      (invoker.isConnected ? invoker : $("app").querySelector('[data-action="coin-refill"]'))?.focus();
+    }, { once: true });
+    dialog.showModal();
+  }
+  function showRefillAdPreview(dialog) {
+    dialog.innerHTML = '<h2 id="coin-refill-title">\u5E83\u544A\u88DC\u5145</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u306F\u3053\u3053\u306B\u5E83\u544A\u304C\u8868\u793A\u3055\u308C\u307E\u3059\u3002\u5B8C\u4E86\u3092\u62BC\u3059\u30681,000\u30B3\u30A4\u30F3\u53D7\u3051\u53D6\u308C\u307E\u3059\u3002</p><button class="primary" data-action="coin-ad-claim">\u5B8C\u4E86</button><button class="quiet" data-action="coin-close">\u30AD\u30E3\u30F3\u30BB\u30EB</button>';
+    dialog.querySelector('[data-action="coin-ad-claim"]').focus();
   }
   function cardCollection() {
     const m = MONTHS[studyMonth - 1], cards = DECK.filter((c) => c.month === studyMonth);
@@ -10730,8 +10780,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const matchWinner = mine === opponent ? null : Number(mine < opponent);
     const yakus = winner === null ? [] : reason === "te-shi" ? [{ name: "\u624B\u56DB", points }] : reason === "kuttsuki" ? [{ name: "\u304F\u3063\u3064\u304D", points }] : evaluate(g.round.captured[winner]).yakus;
     const won = (finale ? matchWinner : winner) === 0;
+    const coins = finale ? g.betting?.settlement : null;
     const action = g.finished ? g.matchLesson ? '<button class="primary" data-action="finish-match-lesson">\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>' : '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>';
-    return '<div class="teacher-dim" aria-hidden="true"></div><section class="result table-panel' + (finale ? " match-finale" : "") + (won ? " result-win" : "") + '" role="dialog" aria-modal="true" aria-labelledby="result-title"><span class="result-label">' + (finale ? "\u5BFE\u5C40\u7D50\u679C" : "\u7B2C" + (g.index + 1) + "\u5C40\u306E\u7D50\u679C") + '</span><h2 id="result-title">' + resultTitle(finale ? matchWinner : winner) + "</h2>" + (finale ? '<p class="match-totals" aria-label="\u5BFE\u5C40\u306E\u5408\u8A08\u70B9"><span>\u3042\u306A\u305F <b>' + mine + "\u70B9</b></span> \uFF0F <span>\u76F8\u624B <b>" + opponent + "\u70B9</b></span></p>" : "") + '<div class="round-settlement"><p>' + (finale ? "\u6700\u7D42\u5C40 \xB7 " + resultTitle(winner) + "\u3000" : "") + "\u5F97\u70B9 <strong>" + points + "\u70B9</strong>" + (multiplier > 1 ? ' <span class="result-multiplier">\uFF08' + raw + "\u70B9 \xD7 " + multiplier + "\u500D\uFF09</span>" : "") + "</p>" + (yakus.length ? yakuNames(yakus) : "") + '</div><div class="result-action">' + action + "</div>" + (won ? celebrationPetals() : "") + "</section>";
+    return '<div class="teacher-dim" aria-hidden="true"></div><section class="result table-panel' + (finale ? " match-finale" : "") + (coins ? " betting-finale" : "") + (won ? " result-win" : "") + '" role="dialog" aria-modal="true" aria-labelledby="result-title"><span class="result-label">' + (finale ? "\u5BFE\u5C40\u7D50\u679C" : "\u7B2C" + (g.index + 1) + "\u5C40\u306E\u7D50\u679C") + '</span><h2 id="result-title">' + resultTitle(finale ? matchWinner : winner) + "</h2>" + (finale ? '<p class="match-totals" aria-label="\u5BFE\u5C40\u306E\u5408\u8A08\u70B9"><span>\u3042\u306A\u305F <b>' + mine + "\u70B9</b></span> \uFF0F <span>\u76F8\u624B <b>" + opponent + "\u70B9</b></span></p>" : "") + '<div class="round-settlement"><p>' + (finale ? "\u6700\u7D42\u5C40 \xB7 " + resultTitle(winner) + "\u3000" : "") + "\u5F97\u70B9 <strong>" + points + "\u70B9</strong>" + (multiplier > 1 ? ' <span class="result-multiplier">\uFF08' + raw + "\u70B9 \xD7 " + multiplier + "\u500D\uFF09</span>" : "") + "</p>" + (yakus.length ? yakuNames(yakus) : "") + "</div>" + (coins ? '<div class="coin-result"><div><span>\u30B3\u30A4\u30F3\u306E\u5897\u6E1B</span><strong>' + (coins.change > 0 ? "+" : coins.change < 0 ? "\u2212" : "") + n(Math.abs(coins.change)) + " \u30B3\u30A4\u30F3</strong></div><div><span>\u7CBE\u7B97\u5F8C\u306E\u6240\u6301\u30B3\u30A4\u30F3</span><strong>" + n(coins.balance) + " \u30B3\u30A4\u30F3</strong></div></div>" : "") + '<div class="result-action">' + (coins && state.wallet.coins < MIN_COINS ? '<button class="secondary" data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u88DC\u5145</button>' : "") + action + "</div>" + (won ? celebrationPetals() : "") + "</section>";
   }
   function gameDialogView(g) {
     if (!gameDialog || ["guide", "match-hint"].includes(gameDialog)) return "";
@@ -10939,6 +10990,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       }
       return;
     }
+    settleBettingMatch(state.wallet, g);
     recordFinishedGame(state, g);
   }
   function showYakuCelebration({ tier, yakus, cards, actor = 0 }) {
@@ -11232,6 +11284,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     selectedHand = null;
     if (before) g.pendingTurnPresentation = true;
+    if (g.betting && g.finished) recordIfDone();
     save();
     if (before && !await replayMoves(before, g.round, { teachingStock: g.tutorial || g.matchLesson, matchLesson: g.matchLesson === 6 })) return;
     if (g.pendingYakuCelebration) {
@@ -11273,8 +11326,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       await ads.recordCommittedAction();
     }
   }
-  function start(mode, len, month, tutorial = false, confirmed = false) {
-    if (!confirmed && requestStartConfirmation(() => start(mode, len, month, tutorial, true))) return;
+  function start(mode, len, month, tutorial = false, confirmed = false, rate = null) {
+    if (!confirmed && requestStartConfirmation(() => start(mode, len, month, tutorial, true, rate))) return;
     state.active = createGame({
       mode,
       length: len,
@@ -11282,6 +11335,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       beginner: tutorial || state.settings.beginner,
       difficulty: tutorial ? 1 : state.settings.difficulty
     });
+    if (rate !== null) state.active.betting = { rate };
     if (tutorial) {
       state.active.tutorial = true;
       state.active.tutorialIntroDone = false;
@@ -11367,6 +11421,32 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   async function clickAction(button, event) {
     const action = button.dataset.action, id = button.dataset.id, m = Number(button.dataset.month || 0), val = button.dataset.value;
+    const refillDialog = button.closest?.(".coin-refill-dialog");
+    if (refillDialog) {
+      if (!refillDialog.open) return;
+      if (action === "coin-close") {
+        refillDialog.close();
+        return;
+      }
+      if (action === "coin-ad") {
+        showRefillAdPreview(refillDialog);
+        return;
+      }
+      const today = localDay();
+      if (action === "coin-free-claim") {
+        if (!canRefillForFree(state.wallet, today)) return;
+        state.wallet.lastFreeRefill = today;
+      } else if (action !== "coin-ad-claim") return;
+      state.wallet.coins += REFILL_COINS;
+      save();
+      refillDialog.close();
+      render();
+      return;
+    }
+    if (action === "coin-refill") {
+      openCoinRefill(button);
+      return;
+    }
     if (action === "dismiss-toast") {
       hideToast();
       return;
@@ -11458,6 +11538,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       screen = "learn";
     } else if (action === "free") {
       screen = "free";
+      matchMode = "free";
     } else if (action === "cards") {
       studyMonth = 1;
       selectedCard = null;
@@ -11561,8 +11642,28 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       if (!g?.tutorial || g.tutorialIntroStep !== TUTORIAL_QUIZ_PHASE || tutorialMonthQuestion(g)) throw Error("3\u554F\u306E\u30AF\u30A4\u30BA\u3092\u7D42\u3048\u3066\u304F\u3060\u3055\u3044");
       showPracticeStep(3, g.tutorialSingleStep);
       return;
+    } else if (action === "match-mode") {
+      matchMode = val;
+      if (matchMode === "betting") {
+        if (!state.wallet) {
+          state.wallet = createWallet();
+          save();
+        }
+        if (state.wallet.coins < MIN_COINS) {
+          render();
+          openCoinRefill($("app").querySelector('[data-action="coin-refill"]'));
+          return;
+        }
+      }
+    } else if (action === "betting-rate") {
+      bettingRate = Number(val);
     } else if (action === "start-free") {
-      start("free", Number(button.dataset.length), 1);
+      const rate = matchMode === "betting" ? bettingRate : null;
+      if (rate !== null && state.wallet.coins < MIN_COINS) {
+        openCoinRefill(button);
+        return;
+      }
+      start("free", Number(button.dataset.length), 1, false, false, rate);
       return;
     } else if (action === "inspect") {
       if (state.active?.tutorial && screen === "game") {
