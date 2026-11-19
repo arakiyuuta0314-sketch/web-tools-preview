@@ -1,7 +1,6 @@
 /* Seasonal game-stage artwork: decorative only. Layout and card size
    are owned by screen-layout.css / landscape.css / ui-fit.css. */
-@media (orientation:landscape) and (max-height:620px),
-       (orientation:portrait) and (max-width:620px){
+@media (orientation:landscape) and (max-height:620px) {
   .shell {
     background:
       radial-gradient(ellipse at 12% 1%, #98734435 0%, transparent 33%),
@@ -131,7 +130,7 @@
   .scene-free .panel .stack button {
     position:relative;overflow:hidden;
     border:2px solid #d2ad74;border-radius:5px;
-    color:#fff2d1;font:800 clamp(14px,calc(1.86 * var(--game-vw, 1vw)),18px) "Yu Mincho",serif;
+    color:#fff2d1;font:800 clamp(14px,1.86vw,18px) "Yu Mincho",serif;
     letter-spacing:.1em;
     background:linear-gradient(180deg,#795039,#4e3027 70%,#38221e);
     box-shadow:inset 0 0 0 3px #f1d1a022,0 3px 0 #281d1c;
@@ -186,18 +185,14 @@
   button:focus-visible {outline:3px solid #ffe69b;outline-offset:1px}
   button:disabled {cursor:default}
 }
-@media (orientation:landscape) and (max-height:390px),
-       (orientation:portrait) and (max-width:390px){
+@media (orientation:landscape) and (max-height:390px){
   .scene-free .panel>h3{font-size:16px}
   .scene-free .panel .stack button::after{font-size:30px}
   .hub-mode::after{font-size:19px}
 }
-@media (prefers-reduced-motion:no-preference) and (hover:hover) and (pointer:fine) {
- @media (orientation:landscape) and (max-height:620px),
-       (orientation:portrait) and (max-width:620px){
+@media (orientation:landscape) and (max-height:620px) and (prefers-reduced-motion:no-preference) and (hover:hover) and (pointer:fine){
   .scene-travel .month:not(:disabled):hover,
   .scene-free .panel .stack button:hover,
   .hub-tutorial:hover,.hub-mode:hover,.hub-learn:hover,
   .scene-learn .study-actions button:hover {filter:brightness(1.08)}
- }
 }

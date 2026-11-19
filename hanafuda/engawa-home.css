@@ -9,8 +9,8 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading{
  color:#f8e6b9;text-shadow:0 2px 2px #172434,0 3px 10px #101d30,1px 0 #b2844b;
  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.06;
 }
-.engawa-heading .engawa-kicker{font:normal clamp(15px,calc(2.9 * var(--game-vw, 1vw)),29px)/1.25 "EngawaYuji",serif;white-space:nowrap;letter-spacing:.05em}
-.engawa-heading .engawa-name{font:normal clamp(43px,calc(9 * var(--game-vw, 1vw)),93px)/1.04 "EngawaYuji",serif;white-space:nowrap;color:#ffdfa0;letter-spacing:.05em}
+.engawa-heading .engawa-kicker{font:normal clamp(15px,2.9vw,29px)/1.25 "EngawaYuji",serif;white-space:nowrap;letter-spacing:.05em}
+.engawa-heading .engawa-name{font:normal clamp(43px,9vw,93px)/1.04 "EngawaYuji",serif;white-space:nowrap;color:#ffdfa0;letter-spacing:.05em}
 html[data-hanafuda-preview="stage5"] .scene-home .home-object.engawa-board{
  position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;
  margin:0;padding:0;border:0;min-width:0;min-height:0;width:auto;height:auto;background:transparent;
@@ -29,29 +29,28 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-board .engawa-caption{c
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
  left:26%;top:43%;width:49%;height:35%;z-index:6;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main{font-size:clamp(25px,calc(4.55 * var(--game-vw, 1vw)),45px);margin-top:0}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(9px,calc(1.6 * var(--game-vw, 1vw)),16px);margin-top:3px}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main{font-size:clamp(25px,4.55vw,45px);margin-top:0}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(9px,1.6vw,16px);margin-top:3px}
 html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board,
 html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{
  top:77%;height:21%;width:25%;z-index:7;
 }
 html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{left:25%}
 html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board{left:51%}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(16px,calc(2.5 * var(--game-vw, 1vw)),24px)}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-caption{font-size:clamp(9px,calc(1.3 * var(--game-vw, 1vw)),13px)}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(16px,2.5vw,24px)}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-caption{font-size:clamp(9px,1.3vw,13px)}
 html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{
  left:81%;top:81%;width:16%;height:16%;z-index:8;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(16px,calc(2.4 * var(--game-vw, 1vw)),23px)}
+html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(16px,2.4vw,23px)}
 html[data-hanafuda-preview="stage5"] .scene-home .home-resume{left:7%;top:85%;width:17%;height:12%;z-index:9;font-family:"EngawaYuji",serif}
-@media (orientation:landscape) and (max-height:340px),
-       (orientation:portrait) and (max-width:340px){
+@media (max-height:340px) and (orientation:landscape){
  html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading{top:0;height:39%}
  html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{top:40%;height:37%}
 }
 @media (prefers-reduced-motion:reduce){html[data-hanafuda-preview="stage5"] .scene-home .engawa-board{transition:none}}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-overline{font-size:clamp(10px,calc(1.6 * var(--game-vw, 1vw)),16px);margin-top:2px;color:#5f3927}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(11px,calc(1.65 * var(--game-vw, 1vw)),16px);margin-top:0}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-overline{font-size:clamp(10px,1.6vw,16px);margin-top:2px;color:#5f3927}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(11px,1.65vw,16px);margin-top:0}
 
 
 
@@ -71,8 +70,7 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-board:active{
  transform:perspective(850px) rotateX(7deg) translateY(2px)!important;
  filter:drop-shadow(1px 3px 2px #20110a77) brightness(.97)!important;
 }
-@media (orientation:landscape) and (max-height:340px),
-       (orientation:portrait) and (max-width:340px){
+@media (max-height:340px) and (orientation:landscape){
  html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{top:45%;height:34%}
 }
 
@@ -97,7 +95,7 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{inset:0;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::before{inset:-6% -3% 0;}
 
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {
-  font-size:clamp(23px,calc(4.2 * var(--game-vw, 1vw)),42px);
+  font-size:clamp(23px,4.2vw,42px);
   transform:translateX(-4%);
 }
 
@@ -107,7 +105,7 @@ html[data-hanafuda-preview="stage5"] .scene-home{
  top:var(--home-top,0px);
  left:var(--home-left,0px);
  width:min(100%,var(--home-width,100%));
- height:min(calc(100 * var(--game-dvh, 1dvh)),var(--home-height,calc(100 * var(--game-dvh, 1dvh))));
+ height:min(100dvh,var(--home-height,100dvh));
  min-height:0;
  padding:0;
  overflow:hidden;

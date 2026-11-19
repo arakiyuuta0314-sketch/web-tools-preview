@@ -114,7 +114,7 @@ body {
 }
 .hero h1 {
   position: relative;
-  font-size: clamp(31px,calc(8 * var(--game-vw, 1vw)),39px);
+  font-size: clamp(31px,8vw,39px);
   max-width: 255px;
   letter-spacing: .12em;
   line-height: 1.42;
@@ -402,8 +402,7 @@ body {
 .stat strong {color:#285341}
 .footerlinks {color:#8b816e}
 .footerlinks a {color:#876347}
-@media (orientation:landscape) and (min-width:650px),
-       (orientation:portrait) and (min-height:650px){
+@media(min-width:650px) {
  .page {padding:28px 32px}
  .hero {min-height:327px;padding:34px}
  .hero-cards{right:80px;top:79px}
@@ -413,8 +412,7 @@ body {
  .fieldcards {gap:11px}
  .mode-card.story-entry{min-height:160px}
 }
-@media (orientation:landscape) and (max-width:355px),
-       (orientation:portrait) and (max-height:355px){
+@media(max-width:355px) {
  .page{padding:12px}
  .hero{padding:23px 18px;min-height:276px}
  .hero h1{max-width:205px;font-size:30px}
@@ -449,5 +447,4 @@ body {
   box-shadow:0 2px 0 #c7b28b;
 }
 .nav-jump:active{transform:translateY(2px);box-shadow:none}
-@media (orientation:landscape) and (max-width:355px),
-       (orientation:portrait) and (max-height:355px){.nav-jump{padding:8px 10px;font-size:11px}}
+@media(max-width:355px){.nav-jump{padding:8px 10px;font-size:11px}}

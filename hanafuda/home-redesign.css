@@ -10,7 +10,7 @@ html[data-hanafuda-preview="stage5"] .scene-home .hub.home-redesign{
 html[data-hanafuda-preview="stage5"] .scene-home .home-title,
 html[data-hanafuda-preview="stage5"] .scene-home .home-object{position:absolute;display:block;padding:0;margin:0;border:0;background:none;box-shadow:none;min-width:0;min-height:0;max-width:none;max-height:none;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-title{left:29%;top:0;width:43%;height:34%;z-index:3;pointer-events:none;}
-html[data-hanafuda-preview="stage5"] .scene-home .home-resume{position:absolute;left:24%;top:82%;width:14%;height:13%;z-index:12;border:5px solid #694326;border-radius:9px;background:linear-gradient(145deg,#f2dfb8,#c49b63);box-shadow:0 5px 9px #071b1d99,inset 0 0 0 3px #a77b45;color:#392519;font:700 clamp(8px,calc(1.1 * var(--game-vw, 1vw)),12px) "Yu Mincho",serif;padding:2px;transform:rotate(2deg);}
+html[data-hanafuda-preview="stage5"] .scene-home .home-resume{position:absolute;left:24%;top:82%;width:14%;height:13%;z-index:12;border:5px solid #694326;border-radius:9px;background:linear-gradient(145deg,#f2dfb8,#c49b63);box-shadow:0 5px 9px #071b1d99,inset 0 0 0 3px #a77b45;color:#392519;font:700 clamp(8px,1.1vw,12px) "Yu Mincho",serif;padding:2px;transform:rotate(2deg);}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial{left:2%;top:34%;width:29%;height:64%;z-index:5;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-free{left:31%;top:49%;width:22%;height:46%;z-index:6;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary{left:54%;top:49%;width:25%;height:46%;z-index:7;}
@@ -27,8 +27,7 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-object:focus-visible{outl
 html[data-hanafuda-preview="stage5"] .scene-home .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
 @keyframes home-sign-sway{0%,100%{rotate:0deg}25%{rotate:-1.2deg}65%{rotate:.9deg}}
 @media (prefers-reduced-motion:reduce){html[data-hanafuda-preview="stage5"] .scene-home .home-object:active{animation:none;filter:brightness(1.08)}}
-@media (orientation:landscape) and (max-height:340px),
-       (orientation:portrait) and (max-width:340px){
+@media (orientation:landscape) and (max-height:340px){
  html[data-hanafuda-preview="stage5"] .scene-home .home-title{height:35%}
  html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial{top:27%;height:72%}
 }
