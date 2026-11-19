@@ -17,61 +17,61 @@
     \u9B54\u738B\u30F4\u30A9\u30EB\u30C9: "voldo"
   });
   var cast = [...new Set(Object.values(names))];
-  var sheets = Object.fromEntries([
-    ...cast.map((id) => [id, "cast_" + id + "_4dir.png"]),
-    ...["townsman", "townswoman", "elder"].map((id) => [id, "mob_" + id + "_4dir.png"])
-  ]);
-  var faces = Object.fromEntries(cast.map((id) => ["face_" + id, "face_" + id + ".png"]));
+  var chips = [...cast, "mobman", "mobwoman", "mobold"];
   var images = {};
   var loading;
   function preloadCastArt() {
-    return loading ??= Promise.all(Object.entries({
-      ...sheets,
-      ...faces,
-      throne: "castle_throne_room.png",
-      pedestal: "castle_pedestal.png",
-      poyon: "enemy_poyon.png"
-    }).map(async ([id, file]) => {
+    return loading ??= Promise.all(chips.map(async (id) => {
       const image = new Image();
-      image.src = root + file;
+      image.src = "assets/chips/chip_" + id + "_48.png";
       await image.decode();
+      if (image.naturalWidth !== 192 || image.naturalHeight !== 192) throw Error("Invalid chip sheet: " + id);
       images[id] = image;
     }));
   }
+  var castArtReady = () => chips.every((id) => images[id]);
+  var castPortrait = (id) => root + "face_" + id + ".png";
   function speakerPortrait(speaker, heroName) {
     const id = Object.hasOwn(names, speaker) ? names[speaker] : speaker && speaker === heroName ? "allen" : null;
-    return id ? root + faces["face_" + id] : null;
+    return id ? castPortrait(id) : null;
   }
   function npcCast(npc) {
     return Object.hasOwn(names, npc.name) ? names[npc.name] : {
-      helper: "townswoman",
-      inn: "townsman",
-      shop: "townsman",
-      lighthouse: "elder",
-      frontSoldier: "roy",
-      guard: "roy"
+      helper: "mobwoman",
+      inn: "mobwoman",
+      shop: "mobman",
+      lighthouse: "mobold",
+      elder: "mobold",
+      frontSoldier: "kyle",
+      guard: "roy",
+      hero: "allen",
+      king: "aldo",
+      refugee: "rita",
+      watchman: "gald",
+      riona: "riona"
     }[npc.kind];
   }
   var directions = { down: 0, up: 1, left: 2, right: 3 };
-  function paintCast(c, id, feetX, feetY, facing, height, frame = 0) {
-    const image = images[id];
-    const sw = image.width / 4, sh = image.height;
-    const w = Math.round(height * sw / sh);
-    const bob = frame ? Math.max(1, Math.round(height / 72)) : 0;
-    const y = Math.round(feetY), x = Math.round(feetX - w / 2);
-    c.save();
-    c.fillStyle = "#10132565";
-    c.beginPath();
-    c.ellipse(Math.round(feetX), y - 1, Math.max(2, w * 0.29), Math.max(1, height * 0.035), 0, 0, Math.PI * 2);
-    c.fill();
-    c.drawImage(image, directions[facing] * sw, 0, sw, sh, x, y - height - bob, w, height);
-    c.restore();
+  var lastHeroSprite = "";
+  var heroSprite = () => lastHeroSprite;
+  function heroGaitFrame(motion, t) {
+    if (!motion || t < 0.17 || t > 0.86) return 0;
+    return motion.step % 2 === 0 ? 1 : 2;
   }
-  var castAsset = (id) => images[id];
-  function paintPoyon(c, feetX, feetY, height) {
-    const image = images.poyon;
-    const width = Math.round(height * image.width / image.height);
-    c.drawImage(image, Math.round(feetX - width / 2), Math.round(feetY - height), width, height);
+  function paintCast(c, id, feetX, feetY, facing, height = 32, frame = 0) {
+    if (id === "allen") lastHeroSprite = "hero_" + facing + "_" + frame;
+    const width = Math.round(height * 48 / 64);
+    c.drawImage(
+      images[id],
+      directions[facing] * 48,
+      frame * 64,
+      48,
+      64,
+      Math.round(feetX - width / 2),
+      Math.round(feetY - height),
+      width,
+      height
+    );
   }
 
   // src/game/scenario-s00-s03.mjs
@@ -11554,9 +11554,9 @@
             9,
             9,
             9,
-            9,
-            9,
-            9,
+            10,
+            10,
+            10,
             9,
             9,
             9,
@@ -15175,8 +15175,8 @@
       throw Error("Formation supports 1\u20134 enemies and 1\u20133 allies");
     const enemyFeet = Math.round(height * 0.82);
     const allyFeet = Math.round(height * 0.84);
-    const foeCenter = width * 0.34, friendCenter = width * 0.86;
-    const stride = Math.min(76, Math.round(width * 0.155));
+    const foeCenter = width * 0.5, friendCenter = width * 0.86;
+    const stride = Math.min(132, Math.floor(width / (enemies + 0.2)));
     const positions = (count, center, feet) => Array.from({ length: count }, (_, i) => Object.freeze({
       x: Math.round(center + (i - (count - 1) / 2) * stride),
       feet: feet - i % 2 * Math.round(Math.min(12, height * 0.04))
@@ -15188,8 +15188,8 @@
   }
   function enemySlotAt(width, height, count, x, y) {
     const { enemies } = battleFormationSlots(width, height, { enemies: count });
-    const halfWidth = Math.min(76, Math.round(width * 0.155)) / 2;
-    const index = enemies.findIndex((point) => Math.abs(point.x - x) < halfWidth && y >= point.feet - 105 && y <= point.feet + 33);
+    const halfWidth = Math.min(132, Math.floor(width / (count + 0.2))) / 2;
+    const index = enemies.findIndex((point) => Math.abs(point.x - x) < halfWidth && y >= point.feet - 128 && y <= point.feet + 33);
     return index < 0 ? null : index;
   }
 
@@ -15202,324 +15202,131 @@
     return clamp((now - fx.startedAt) / fx.duration, 0, 1);
   }
 
-  // src/game/castle-visual.mjs
-  var CASTLE_ART_SCENE = Object.freeze({
-    width: 1536,
-    height: 1024,
-    tileWidth: 98,
-    tileHeight: 65,
-    originX: 87,
-    originY: 268
-  });
-  var scenes = {
-    libraryBackground: "castle-library-background.png",
-    libraryForeground: "castle-library-foreground.png"
+  // src/game/chapter-tile-art.mjs
+  var block = (c, x, y, w, h, color2) => {
+    c.fillStyle = color2;
+    c.fillRect(Math.round(x), Math.round(y), w, h);
   };
-  for (const direction2 of ["up", "down", "left", "right"]) for (let frame = 0; frame < 3; frame++) {
-    scenes[`hero_${direction2}_${frame}`] = `castle-hero-${direction2}-${frame}.png`;
-  }
-  var CASTLE_SCENE_SCALE = 0.44;
-  var ART_VERSION = "20261111-generated-hero-walk-v1";
-  var cache = { ready: false, failed: false, images: {} };
-  var lastHeroSprite = "";
-  function castleArtDebug() {
-    return { ready: cache.ready, lastHeroSprite };
-  }
-  function heroGaitFrame(motion, t) {
-    if (!motion || t < 0.17 || t > 0.86) return 0;
-    return motion.step % 2 === 0 ? 1 : 2;
-  }
-  function paintSharedHero(c, feetX, feetY, facing = "down", frame = 0, scale = 0.4, weapon = null) {
-    if (!cache.ready) throw Error("Shared protagonist art not loaded");
-    const key = `hero_${facing}_${frame}`;
-    const sprite2 = cache.images[key];
-    if (!sprite2) throw Error("Missing protagonist art: " + key);
-    lastHeroSprite = key;
-    const w = Math.round(sprite2.width * scale), h = Math.round(sprite2.height * scale);
-    const x = Math.round(feetX - w / 2), y = Math.round(feetY - h);
-    c.save();
-    c.imageSmoothingEnabled = false;
-    c.fillStyle = "#1319297a";
-    c.beginPath();
-    c.ellipse(
-      Math.round(feetX),
-      Math.round(feetY - 3),
-      Math.max(7, Math.round(w * 0.34)),
-      Math.max(3, Math.round(w * 0.09)),
-      0,
-      0,
-      Math.PI * 2
-    );
-    c.fill();
-    c.drawImage(sprite2, x, y, w, h);
-    drawHeldSword(c, weapon, facing, x, y, scale);
-    c.restore();
-  }
-  function paintFieldHero(c, x, y, facing, frame, height, weapon, glow = false) {
-    lastHeroSprite = "hero_" + facing + "_" + frame;
-    paintCast(c, "allen", x, y, facing, height, frame);
-    const scale = height / 136;
-    drawHeldSword(c, weapon, facing, x - 48 * scale, y - height, scale, glow);
-  }
-  var clamp2 = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-  function castleArtReady() {
-    return cache.ready;
-  }
-  function preloadCastleArt(onReady = () => {
-  }) {
-    if (cache.ready) {
-      onReady();
-      return Promise.resolve();
-    }
-    if (cache.loading) return cache.loading.then(onReady);
-    cache.loading = Promise.all(Object.entries(scenes).map(([name, file]) => new Promise((resolve, reject) => {
-      const path = "assets/castle/" + file;
-      const image = new Image();
-      image.onload = () => {
-        cache.images[name] = image;
-        resolve();
-      };
-      image.onerror = () => {
-        cache.failed = true;
-        reject(Error("Castle art missing: " + path));
-      };
-      image.src = path + "?v=" + ART_VERSION;
-    }))).then(() => {
-      cache.ready = true;
-      onReady();
-    });
-    return cache.loading;
-  }
-  function castleMapPoint(x, y) {
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: m.originX + (x + 0.5) * m.tileWidth,
-      y: m.originY + (y + 0.5) * m.tileHeight
-    };
-  }
-  function castleVisualPosition(s, motion = null, now = performance.now()) {
-    const pos = s.pos;
-    const t = motion && motion.map === "castle" ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
-    return {
-      x: motion && motion.map === "castle" ? motion.fromX + (pos.x - motion.fromX) * t : pos.x,
-      y: motion && motion.map === "castle" ? motion.fromY + (pos.y - motion.fromY) * t : pos.y,
-      t
-    };
-  }
-  function sceneOffset(target, viewSize, sceneSize) {
-    return viewSize >= sceneSize ? (sceneSize - viewSize) / 2 : clamp2(target, 0, sceneSize - viewSize);
-  }
-  function castleCamera(canvas, s, motion = null, now = performance.now()) {
-    const pos = castleVisualPosition(s, motion, now), p = castleMapPoint(pos.x, pos.y);
-    const viewWidth = canvas.width, viewHeight = canvas.height;
-    const m = CASTLE_ART_SCENE;
-    return {
-      x: sceneOffset(p.x - viewWidth / 2, viewWidth, m.width),
-      // Initial view shows the throne and the hero together, rather
-      // than cutting the king off above the phone viewport.
-      y: sceneOffset(p.y - viewHeight * 0.75, viewHeight, m.height),
-      player: p
-    };
-  }
-  function drawSword(c, x, y) {
-    c.save();
-    c.translate(Math.round(x), Math.round(y));
-    c.fillStyle = "#252b42";
-    c.fillRect(-6, -32, 12, 53);
-    c.fillStyle = "#e9e4d5";
-    c.fillRect(-4, -39, 8, 32);
-    c.fillStyle = "#88cbd9";
-    c.fillRect(-1, -35, 3, 23);
-    c.fillStyle = "#e4ba61";
-    c.fillRect(-22, -11, 44, 7);
-    c.fillStyle = "#765c50";
-    c.fillRect(-5, -6, 10, 22);
-    c.fillStyle = "#ffdf99";
-    c.fillRect(-8, 16, 16, 5);
-    c.restore();
-  }
-  var swordHand = {
-    left: [50, 95, -1.1],
-    right: [46, 95, 1.1],
-    down: [24, 95, -0.84],
-    up: [18, 94, -0.48]
-  };
-  function drawHeldSword(c, weapon, facing, x, y, scale, glow = false) {
-    if (weapon !== STARDUST_SWORD.id && weapon !== "hero") return;
-    const [handX, handY, angle] = swordHand[facing];
-    c.save();
-    c.translate(x + handX * scale, y + handY * scale);
-    c.scale(scale, scale);
-    c.rotate(angle);
-    const swordScale = weapon === "hero" ? 0.84 : 0.66;
-    c.scale(swordScale, swordScale);
-    drawSword(c, 0, -5);
-    if (glow) drawStarGlow(c, 0, -42);
-    c.restore();
-  }
-  function drawStarGlow(c, x, y) {
-    const glow = c.createRadialGradient(x, y, 2, x, y, 43);
-    glow.addColorStop(0, "#d2f4ffe6");
-    glow.addColorStop(1, "#83c8ff00");
-    c.fillStyle = glow;
-    c.fillRect(x - 43, y - 43, 86, 86);
-    for (const [dx, dy, r2] of [[0, 0, 10], [-19, -12, 6], [20, -20, 8], [27, 9, 5], [-25, 14, 4]]) {
-      c.fillStyle = "#fff5c6";
-      c.beginPath();
-      c.moveTo(x + dx, y + dy - r2);
-      c.lineTo(x + dx + 2, y + dy - 2);
-      c.lineTo(x + dx + r2 * 0.65, y + dy);
-      c.lineTo(x + dx + 2, y + dy + 2);
-      c.lineTo(x + dx, y + dy + r2);
-      c.lineTo(x + dx - 2, y + dy + 2);
-      c.lineTo(x + dx - r2 * 0.65, y + dy);
-      c.lineTo(x + dx - 2, y + dy - 2);
-      c.fill();
-    }
-  }
-  function renderCastleScene(canvas, s, motion = null, now = performance.now(), intro = {}, pixels = null, follower = null) {
-    if (!cache.ready) return false;
-    if (s.pos.map !== "castle") throw Error("Castle art on another map");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const wideShot = intro.page && !intro.page.startsWith("audience") && intro.page !== "departure";
-    const z = wideShot ? Math.min(canvas.width / 1390, canvas.height / 925) : pixels?.castleScale ?? CASTLE_SCENE_SCALE;
-    const W2 = Math.ceil(canvas.width / z), H2 = Math.ceil(canvas.height / z);
-    const camera = castleCamera({ width: W2, height: H2 }, s, motion, now);
-    if (wideShot) {
-      const center = castleMapPoint(7, 5.5);
-      camera.x = sceneOffset(center.x - W2 / 2, W2, CASTLE_ART_SCENE.width);
-      camera.y = sceneOffset(center.y - H2 * 0.53, H2, CASTLE_ART_SCENE.height);
-    }
-    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
-    c.save();
-    c.scale(z, z);
-    c.fillStyle = "#0b101c";
-    c.fillRect(0, 0, W2, H2);
-    c.drawImage(castAsset("throne"), snap(-camera.x), snap(-camera.y));
-    const plot = (x, y) => {
-      const p = castleMapPoint(x, y);
-      return { x: p.x - camera.x, y: p.y - camera.y };
-    };
-    const map = MAPS.castle;
-    const swordTaken = s.owned.includes(STARDUST_SWORD.id) || s.flags.swordGiven;
-    const actors2 = [];
-    for (const n of map.npcs) {
-      const entering = n.kind === "refugee" && intro.page === "royalReport";
-      const p = plot(n.x, entering ? 6 + 2 * ((intro.raiderY ?? 8) - 7) : n.y);
-      if (entering && intro.raiderY === void 0) continue;
-      actors2.push({ z: p.y, draw: () => {
-        const facing = n.id === "castle-guard" ? "right" : n.id === "castle-guard-east" ? "left" : "down";
-        const y = n.kind === "king" ? p.y - 53 : p.y;
-        paintCast(c, npcCast(n), p.x, y, facing, n.kind === "king" ? 166 : 148);
-        if (n.kind === "refugee") paintCast(c, "townswoman", p.x + 56, p.y + 22, "left", 108);
-      } });
-    }
-    if (intro.page === "royalReport") {
-      for (const [x, y, id] of [[4, 5, "townsman"], [5, 6, "townswoman"], [10, 5, "elder"], [11, 6, "townsman"]]) {
-        const p = plot(x, y);
-        actors2.push({ z: p.y, draw: () => paintCast(c, id, p.x, p.y, x < 7 ? "right" : "left", 136) });
-      }
-    }
-    for (const e of map.objects) {
-      if (!entityAt(s, map, e.x, e.y)) continue;
-      if (e.kind === "raider" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
-      const p = plot(e.x, e.kind === "raider" ? intro.raiderY ?? (intro.page && intro.page !== "refugee" ? e.y - 1 : e.y) : e.y);
-      actors2.push({ z: p.y, draw: () => {
-        if (e.kind === "raider") paintPoyon(c, p.x, p.y, 70);
-        else if (e.kind === "sword") {
-          const im = castAsset("pedestal"), w = 88, h = 140;
-          const top = swordTaken ? 590 : 0;
-          const croppedH = Math.round(h * (im.height - top) / im.height);
-          c.drawImage(im, 0, top, im.width, im.height - top, snap(p.x - w / 2), snap(p.y - croppedH), w, croppedH);
+  function paintChapterTile(c, map, tile, x, y, edges) {
+    const px = x * 24, py = y * 24;
+    const draw = (dx, dy, w, h, color2) => block(c, px + dx, py + dy, w, h, color2);
+    const tone = (x * 29 + y * 13) % 4;
+    if (map === "castle") {
+      if (tile === 1) {
+        draw(0, 0, 24, 24, "#192232");
+        if (edges.s !== 1 && edges.s !== void 0) {
+          draw(0, 9, 24, 15, "#454e62");
+          draw(0, 8, 24, 3, "#87909d");
+          draw(0, 17, 24, 1, "#252d3c");
+          draw(tone * 4, 11, 1, 6, "#252d3c");
+          draw(0, 22, 24, 2, "#242b3a");
         }
-      } });
+        return;
+      }
+      draw(0, 0, 24, 24, ["#777680", "#777780", "#7f7e88", "#81808a"][tone]);
+      draw(0, 23, 24, 1, "#505362");
+      draw(23, 0, 1, 24, "#505362");
+      draw(1, 1, 19, 1, "#92929c");
+      if (tile === 8) {
+        draw(0, 0, 24, 24, "#783147");
+        for (const [side, cell2] of [[0, edges.w], [22, edges.e]]) {
+          if (cell2 !== 8) {
+            draw(side, 0, 2, 24, "#d6ac62");
+            draw(side + (side ? -3 : 3), 0, 1, 24, "#a55553");
+          }
+        }
+        draw(11, 11, 3, 2, "#a95f60");
+      }
+      if (tile === 5) {
+        draw(3, 1, 18, 22, "#2c2533");
+        draw(5, 3, 14, 18, "#75574c");
+      }
+      return;
     }
-    if (follower) {
-      const p = plot(follower.x, follower.y);
-      actors2.push({ z: p.y, draw: () => paintCast(c, follower.id, p.x, p.y, follower.facing, 150, follower.frame) });
+    if (map === "cave") {
+      if (tile === 1 || tile === 10) {
+        draw(0, 0, 24, 24, ["#20232e", "#272935", "#252833", "#292c3b"][tone]);
+        draw(2 + tone, 3, 16, 3, "#333646");
+        draw(7, 11, 11, 2, "#343748");
+        if (![1, 10].includes(edges.s) && edges.s !== void 0) {
+          draw(0, 12, 24, 12, "#363b4f");
+          draw(0, 12, 24, 2, "#545a70");
+          draw(0, 22, 24, 2, "#181b29");
+          draw(4 + tone * 4, 16, 2, 5, "#292c3a");
+        }
+      } else {
+        draw(0, 0, 24, 24, ["#585c67", "#555965", "#565965", "#5c5f6b"][tone]);
+        draw(4 + tone * 4, 7, 3, 1, "#747782");
+        draw(12 - tone * 2, 15, 5, 2, "#4c505d");
+        if (tile === 5) {
+          draw(1, 2, 22, 22, "#222637");
+          draw(4, 3, 16, 21, "#3c3b49");
+        }
+      }
+      return;
     }
-    const pp = camera.player;
-    actors2.push({ z: pp.y - camera.y, draw: () => {
-      const t = castleVisualPosition(s, motion, now).t;
-      const frame = motion?.map === "castle" ? heroGaitFrame(motion, t) : 0;
-      paintFieldHero(
-        c,
-        snap(pp.x - camera.x),
-        snap(pp.y - camera.y),
-        motion?.facing ?? s.pos.facing,
-        frame,
-        154,
-        s.equipment.weapon,
-        intro.swordGlow || intro.page === "witness"
-      );
-    } });
-    actors2.sort((a, b) => a.z - b.z);
-    for (const actor of actors2) actor.draw();
-    c.restore();
-    return true;
+    if (tile === 1) {
+      draw(0, 0, 24, 24, ["#214537", "#244c3d", "#25503e", "#294e3e"][tone]);
+      draw(0, 0, 24, 3, "#396349");
+      draw(2 + tone * 3, 8, 12, 3, "#355c44");
+      return;
+    }
+    if ([3, 5, 7, 8].includes(tile)) {
+      draw(0, 0, 24, 24, ["#aa986b", "#ac9b72", "#b19e72", "#b49f72"][tone]);
+      draw(2 + tone * 3, 7, 7, 1, "#c0ae83");
+      draw(10 - tone, 18, 4, 2, "#95825d");
+      if (tile === 5) {
+        draw(3, 7, 18, 15, "#6b513b");
+        draw(5, 8, 14, 13, "#977451");
+      }
+    } else {
+      draw(0, 0, 24, 24, ["#58794d", "#5b804e", "#5d7f4f", "#628653"][tone]);
+      draw(3 + tone * 3, 6, 2, 3, "#7f9a5d");
+      draw(18 - tone * 2, 18, 3, 1, "#456443");
+    }
   }
-  var CASTLE_LIBRARY_SCENE = Object.freeze({
-    width: 1254,
-    height: 1380,
-    tileWidth: 80,
-    tileHeight: 72,
-    originX: 147,
-    originY: 320
-  });
-  function castleLibraryPoint(x, y) {
-    const m = CASTLE_LIBRARY_SCENE;
-    return { x: m.originX + (x + 0.5) * m.tileWidth, y: m.originY + (y + 0.5) * m.tileHeight };
+  function paintChapterHouse(c, b, screen) {
+    const [x, y] = screen(b.x, b.y), w = b.w * 24, h = b.h * 24;
+    const [roof, light] = b.kind === "inn" ? ["#66526a", "#8f708b"] : b.kind === "shop" ? ["#436961", "#6c9380"] : ["#845947", "#ad7556"];
+    const draw = (dx, dy, dw, dh, color2) => block(c, x + dx, y + dy, dw, dh, color2);
+    draw(0, 0, w, h, "#413a34");
+    draw(4, 25, w - 8, h - 29, "#ceb586");
+    for (let dy = 0; dy < 30; dy += 5) {
+      draw(0, dy, w, 5, roof);
+      draw(2, dy + 1, w - 4, 1, light);
+      for (let dx = dy % 2 * 6 + 6; dx < w - 5; dx += 13) draw(dx, dy + 2, 2, 2, light);
+    }
+    draw(1, 28, w - 2, 3, "#413942");
+    for (const dx of [13, w - 24]) {
+      draw(dx, 37, 12, 13, "#5c473d");
+      draw(dx + 2, 39, 8, 9, "#b7a873");
+      draw(dx + 5, 39, 1, 9, "#5c473d");
+    }
+    const d = (b.id === "leaf-shop" ? 2 : 1) * 24 + 6;
+    draw(d, h - 21, 13, 21, "#614737");
+    draw(d + 2, h - 19, 9, 18, "#91704d");
+    draw(d + 8, h - 10, 2, 2, "#e4c781");
+    if (b.kind !== "home") {
+      draw(d - 2, 33, 17, 8, "#624e41");
+      draw(d, 35, 13, 4, "#e0c484");
+      draw(d + 4, 35, 5, 3, b.kind === "inn" ? "#825b70" : "#53724d");
+    }
   }
-  function castleLibraryCamera(canvas, room, motion = null, now = performance.now()) {
-    const m = CASTLE_LIBRARY_SCENE;
-    const t = motion && motion.id === room.id ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
-    const x = motion && motion.id === room.id ? motion.fromX + (room.x - motion.fromX) * t : room.x;
-    const y = motion && motion.id === room.id ? motion.fromY + (room.y - motion.fromY) * t : room.y;
-    const p = castleLibraryPoint(x, y);
-    return {
-      x: sceneOffset(p.x - canvas.width / 2, canvas.width, m.width),
-      y: sceneOffset(p.y - canvas.height * 0.6, canvas.height, m.height),
-      player: p,
-      t
-    };
+  function paintThrone(c, x, y) {
+    block(c, x - 13, y + 1, 50, 21, "#544451");
+    block(c, x - 10, y, 44, 18, "#887078");
+    block(c, x + 3, y - 24, 18, 27, "#c49a58");
+    block(c, x + 6, y - 21, 12, 21, "#82394b");
+    block(c, x + 1, y - 3, 22, 8, "#c49a58");
   }
-  function renderCastleLibrary(canvas, s, room, motion = null, now = performance.now(), pixels = null) {
-    if (!cache.ready) return false;
-    if (room?.id !== "castle-library" || s.pos.map !== "castle") throw Error("Library renderer requires castle library");
-    const c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = false;
-    const z = pixels?.castleScale ?? CASTLE_SCENE_SCALE;
-    const cam = castleLibraryCamera({
-      width: Math.ceil(canvas.width / z),
-      height: Math.ceil(canvas.height / z)
-    }, room, motion, now);
-    c.save();
-    c.scale(z, z);
-    const snap = pixels && z < 1 ? (n) => 2 * Math.round(n / 2) : Math.round;
-    const sx = (x) => snap(x - cam.x), sy = (y) => snap(y - cam.y);
-    c.fillStyle = "#131321";
-    c.fillRect(0, 0, Math.ceil(canvas.width / z), Math.ceil(canvas.height / z));
-    c.drawImage(cache.images.libraryBackground, sx(0), sy(0));
-    const elder = castleLibraryPoint(6, 3);
-    const heroFrame = motion && cam.t < 1 ? heroGaitFrame(motion, cam.t) : 0;
-    const actors2 = [
-      { y: elder.y, draw: () => paintCast(c, "elder", sx(elder.x), sy(elder.y + 42), "down", 138) },
-      { y: cam.player.y, draw: () => paintFieldHero(
-        c,
-        sx(cam.player.x),
-        sy(cam.player.y + 43),
-        room.facing,
-        heroFrame,
-        150,
-        s.equipment.weapon
-      ) }
-    ];
-    actors2.sort((a, b) => a.y - b.y);
-    for (const actor of actors2) actor.draw();
-    c.drawImage(cache.images.libraryForeground, sx(0), sy(0));
-    c.restore();
-    return true;
+  function paintPedestal(c, x, y, hasSword) {
+    block(c, x + 4, y + 13, 17, 10, "#454454");
+    block(c, x + 7, y + 7, 11, 11, "#9f97a0");
+    block(c, x + 4, y + 7, 17, 3, "#c8b6a7");
+    if (hasSword) {
+      block(c, x + 11, y - 10, 2, 18, "#dae8e6");
+      block(c, x + 8, y - 1, 8, 2, "#d4ab59");
+    }
   }
 
   // src/game/interiors.mjs
@@ -15778,7 +15585,7 @@
     onyxGate: "../onyx/gate.png"
   });
   var RETRO_ASSET_VERSION = "20261118-silent-ruins-art-integration-01";
-  var cache2 = /* @__PURE__ */ new Map();
+  var cache = /* @__PURE__ */ new Map();
   var ready2 = false;
   var loading2 = null;
   function retroAssetsReady() {
@@ -15787,26 +15594,26 @@
   function retroAsset(key) {
     if (!Object.hasOwn(IMAGES, key)) throw Error("Unrecognized retro art key: " + key);
     if (!ready2) throw Error("Retro CC0 assets not preloaded: " + key);
-    const img2 = cache2.get(key);
-    if (!img2 || !img2.complete || img2.naturalWidth === 0) throw Error("Retro asset unavailable: " + key);
-    return img2;
+    const img = cache.get(key);
+    if (!img || !img.complete || img.naturalWidth === 0) throw Error("Retro asset unavailable: " + key);
+    return img;
   }
   function preloadRetroAssets() {
     if (loading2) return loading2;
     if (typeof Image === "undefined") throw Error("Retro art preload requires browser Image");
     loading2 = Promise.all(Object.entries(IMAGES).map(([key, filename]) => new Promise((resolve, reject) => {
       const assetPath = filename.startsWith("../") ? "assets/" + filename.slice(3) : "assets/retro/" + filename;
-      const img2 = new Image();
-      img2.onload = () => {
-        if (img2.naturalWidth < 32 || img2.naturalHeight < 32) {
+      const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth < 32 || img.naturalHeight < 32) {
           reject(Error("Corrupt retro PNG: " + assetPath));
           return;
         }
-        cache2.set(key, img2);
+        cache.set(key, img);
         resolve();
       };
-      img2.onerror = () => reject(Error("Could not load retro art: " + assetPath));
-      img2.src = assetPath + "?v=" + RETRO_ASSET_VERSION;
+      img.onerror = () => reject(Error("Could not load retro art: " + assetPath));
+      img.src = assetPath + "?v=" + RETRO_ASSET_VERSION;
     }))).then(() => {
       ready2 = true;
       return true;
@@ -16244,134 +16051,6 @@
       R2(30, 7, 2, 2, "#d6ca78");
     }
   }
-  var characterPalettes = {
-    hero: ["#315f9f", "#4d9dc9", "#c5e0e4", "#243a62", "#e9ba8d", "#604638"],
-    king: ["#a44e61", "#d27a70", "#f6d69b", "#684b5d", "#e4b694", "#8a5d5b"],
-    refugee: ["#ad7564", "#e4bba1", "#f0d69e", "#604c56", "#dfb093", "#7c5b47"],
-    guard: ["#587787", "#9eb3b6", "#f1ce8b", "#344d5f", "#d8ae8e", "#59656b"],
-    elder: ["#678e60", "#a6bd75", "#ecdda7", "#4b6954", "#ddaf8c", "#b2a78a"],
-    helper: ["#a56570", "#d9ad9c", "#f1d59b", "#66535a", "#e4b28e", "#775a50"],
-    inn: ["#9a7658", "#d4b27d", "#eee1b4", "#665344", "#deb38e", "#795c45"],
-    shop: ["#506e79", "#8fb3ae", "#e9d49c", "#36546b", "#e8b897", "#8c6257"],
-    watchman: ["#967a53", "#d2b474", "#f8e0a3", "#5b554a", "#d9ac88", "#675347"],
-    frontSoldier: ["#637f87", "#9fbbc6", "#e5cc9d", "#435369", "#ddb38d", "#6c5552"],
-    riona: ["#755b91", "#a995c2", "#d6d5ea", "#494565", "#e6bea4", "#ded6b7"],
-    lighthouse: ["#ab8e64", "#dbc9a0", "#e6d5ba", "#665f53", "#dbb492", "#8b705b"]
-  };
-  var actorP = (kind) => characterPalettes[kind] || characterPalettes.helper;
-  function paintActor(c, tileX, tileY, kind = "hero", facing = "down", frame = 0, scale = 1) {
-    if (retroAssetsReady()) {
-      const people = ["hero", "king", "guard", "refugee", "elder", "helper", "inn", "shop", "watchman", "frontSoldier", "riona", "lighthouse"];
-      const actorIndex = people.indexOf(kind);
-      if (actorIndex < 0) throw Error("Missing authored actor: " + kind);
-      const col = { down: 0, up: 1, left: 2, right: 3 }[facing];
-      if (col === void 0) throw Error("Bad actor facing: " + facing);
-      const row = frame > 0 ? Math.abs(frame) % 2 + 1 : 0;
-      const width = 36 * scale, height = 42 * scale;
-      const x2 = Math.round(tileX + (TILE - width) / 2);
-      const y2 = Math.round(tileY + TILE - height + 3);
-      B(c, tileX + 3 * scale, tileY + 24 * scale, 18 * scale, 3 * scale, "#15232a75");
-      c.drawImage(
-        retroAsset("actors32"),
-        (col * 3 + row) * 32,
-        actorIndex * 32,
-        32,
-        32,
-        x2,
-        y2,
-        width,
-        height
-      );
-      return { x: x2, y: y2, width, height };
-    }
-    const p = actorP(kind);
-    const x = Math.round(tileX), y = Math.round(tileY) - 10;
-    const R2 = (a, b, w, h, col) => B(c, x + a * scale, y + b * scale, w * scale, h * scale, col);
-    const stride = frame % 3 === 1 ? 2 : frame % 3 === 2 ? -2 : 0;
-    B(c, x + 3 * scale, y + 30 * scale, 18 * scale, 2 * scale, "#17243288");
-    R2(6 + stride, 25, 5, 5, p[3]);
-    R2(13 - stride, 25, 5, 5, p[3]);
-    R2(6 + stride, 28, 5, 3, "#2e2a35");
-    R2(13 - stride, 28, 5, 3, "#2e2a35");
-    R2(4, 14, 16, 13, p[3]);
-    R2(3, 18, 18, 6, p[0]);
-    R2(6, 15, 12, 9, p[0]);
-    R2(7, 16, 10, 3, p[1]);
-    R2(7, 22, 10, 2, p[2]);
-    R2(10, 16, 4, 8, p[1]);
-    R2(2, 17 + stride / 2, 4, 9, p[0]);
-    R2(18, 17 - stride / 2, 4, 9, p[0]);
-    R2(3, 24 + stride / 2, 3, 3, p[4]);
-    R2(18, 24 - stride / 2, 3, 3, p[4]);
-    R2(6, 19, 2, 3, p[3]);
-    R2(16, 19, 2, 3, p[3]);
-    R2(8, 23, 8, 2, p[3]);
-    R2(7, 5, 11, 12, "#7c554f");
-    R2(8, 5, 9, 10, p[4]);
-    R2(10, 7, 7, 7, "#f0c69b");
-    R2(6, 10, 2, 4, p[4]);
-    R2(18, 10, 2, 4, p[4]);
-    R2(10, 16, 6, 2, p[4]);
-    const hair = kind === "hero" ? "#203d70" : kind === "riona" ? "#d9c5e1" : kind === "king" ? "#a19a82" : kind === "guard" || kind === "frontSoldier" ? "#677788" : p[5];
-    const bright = kind === "hero" ? "#4b8fb9" : kind === "riona" ? "#f0ddf3" : kind === "king" ? "#d6c4a6" : kind === "guard" || kind === "frontSoldier" ? "#a8bfc0" : "#c69d75";
-    R2(6, 3, 13, 5, hair);
-    R2(8, 1, 9, 4, bright);
-    R2(5, 6, 4, 6, hair);
-    R2(16, 4, 4, 7, hair);
-    R2(8, 4, 5, 2, bright);
-    R2(15, 6, 2, 3, bright);
-    if (facing === "up") {
-      R2(7, 6, 11, 10, hair);
-      R2(9, 6, 6, 4, bright);
-      R2(8, 14, 9, 3, p[3]);
-    } else if (facing === "left") {
-      R2(7, 9, 2, 2, "#232e46");
-      R2(5, 11, 4, 2, p[4]);
-      R2(8, 12, 2, 1, "#966963");
-      R2(15, 9, 4, 7, hair);
-    } else if (facing === "right") {
-      R2(16, 9, 2, 2, "#232e46");
-      R2(17, 11, 4, 2, p[4]);
-      R2(15, 12, 2, 1, "#966963");
-      R2(5, 9, 4, 7, hair);
-    } else {
-      R2(10, 10, 2, 2, "#2a3246");
-      R2(16, 10, 2, 2, "#2a3246");
-      R2(11, 12, 1, 1, "#fff6d9");
-      R2(16, 12, 1, 1, "#fff6d9");
-      R2(13, 14, 3, 1, "#b4786d");
-    }
-    if (kind === "hero") {
-      R2(11, 19, 3, 3, "#f7e2bd");
-      R2(7, 20, 2, 5, "#d0a65a");
-      R2(19, 17, 2, 8, "#a7b6bb");
-      R2(20, 17, 1, 8, "#e7e5db");
-    }
-    if (kind === "king") {
-      R2(7, 1, 12, 3, "#d7b56c");
-      R2(8, 0, 2, 3, "#ffefb6");
-      R2(14, 0, 2, 3, "#ffefb6");
-      R2(11, 1, 3, 2, "#e45d71");
-      R2(9, 19, 8, 4, "#dcbb7b");
-    }
-    if (kind === "guard" || kind === "frontSoldier") {
-      R2(6, 3, 14, 4, "#9aacbb");
-      R2(9, 0, 6, 4, "#c8dbdf");
-      R2(19, 18, 4, 9, "#7896a2");
-      R2(19, 17, 4, 2, "#c9dddb");
-    }
-    if (kind === "riona") {
-      R2(5, 9, 3, 13, hair);
-      R2(18, 9, 3, 13, hair);
-      R2(7, 24, 10, 3, "#ded4ae");
-      R2(9, 2, 6, 2, "#c8ad6e");
-    }
-    if (kind === "elder") {
-      R2(10, 13, 6, 3, "#e0e3c5");
-      R2(10, 16, 5, 2, "#cfd4ad");
-    }
-    return { x, y, width: 24 * scale, height: 32 * scale };
-  }
   var F = (c, x, y, w, h, co) => B(c, x, y, w, h, co);
   function paintBuilding(c, b, tileToPixel, mapId) {
     const p = theme(mapId);
@@ -16617,9 +16296,9 @@
         "star-ruins": ["ruinsStarFragment", 32, 38]
       }[obj.id];
       if (spec) {
-        const [asset, maxW, maxH] = spec, img2 = retroAsset(asset);
-        const scale = Math.min(maxW / img2.naturalWidth, maxH / img2.naturalHeight);
-        const w = img2.naturalWidth * scale, h = img2.naturalHeight * scale;
+        const [asset, maxW, maxH] = spec, img = retroAsset(asset);
+        const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+        const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
         if ((k === "onyxRuneA" || k === "onyxRuneB") && s.flags[k]) {
           const cx = x + TILE / 2, cy = y + TILE - h / 2;
           const glow = c.createRadialGradient(cx, cy, 2, cx, cy, Math.max(w, h) * 0.72);
@@ -16628,7 +16307,7 @@
           c.fillStyle = glow;
           c.fillRect(cx - Math.max(w, h), cy - Math.max(w, h), Math.max(w, h) * 2, Math.max(w, h) * 2);
         }
-        c.drawImage(img2, x + (TILE - w) / 2, y + TILE - h, w, h);
+        c.drawImage(img, x + (TILE - w) / 2, y + TILE - h, w, h);
         return;
       }
     }
@@ -16835,197 +16514,6 @@
       r2(3, 20, 18, 2, "#d1ad75");
     } else throw Error("Unknown room furniture " + kind);
   }
-  var monsterBase = [
-    "#73bfaa",
-    "#aa8262",
-    "#be9666",
-    "#7caf74",
-    "#b09c6b",
-    "#ad785b",
-    "#9d7f68",
-    "#689ba7",
-    "#a47d58",
-    "#cac8b5",
-    "#99a7a8",
-    "#b3b3d1",
-    "#b49a84",
-    "#9bafc4",
-    "#a3a777",
-    "#739e86",
-    "#b77b68",
-    "#9ba991",
-    "#648d78",
-    "#8285ac",
-    "#a46b94",
-    "#b2b5b6",
-    "#a36d8d",
-    "#8188ac",
-    "#a06b89"
-  ];
-  function paintMonster(c, id, cx, foot) {
-    const n = id === "vold" ? 25 : Number(String(id).slice(1));
-    if (!Number.isSafeInteger(n) || n < 1 || n > 25) throw Error("Unrecognized enemy " + id);
-    if (retroAssetsReady() && n === 25) {
-      const size = 158, x2 = Math.round(cx - size / 2), y2 = Math.round(foot - size + 5);
-      const frame = Math.floor(performance.now() / 620) % 2;
-      B(c, x2 + 17, foot - 4, size - 34, 4, "#111827aa");
-      c.drawImage(retroAsset("vold"), frame * 64, 0, 64, 64, x2, y2, size, size);
-      return { width: size, height: size };
-    }
-    if (retroAssetsReady() && n !== 25) {
-      const size = 144, x2 = Math.round(cx - size / 2), y2 = Math.round(foot - size + 4);
-      B(c, x2 + 13, foot - 4, size - 26, 4, "#111827a0");
-      c.drawImage(retroAsset("monsters"), (n - 1) % 6 * 64, Math.floor((n - 1) / 6) * 64, 64, 64, x2, y2, size, size);
-      return { width: size, height: size };
-    }
-    const col = monsterBase[n - 1], sc = n === 25 ? 3 : 2;
-    const x = Math.round(cx - 22 * sc), y = Math.round(foot - 54 * sc);
-    const r2 = (u, v, w, h, color2) => F(c, x + u * sc, y + v * sc, w * sc, h * sc, color2);
-    const dark = n === 25 ? "#33263e" : "#34434b", light = n === 25 ? "#e1a9bc" : "#e8d6a5";
-    F(c, x - 7, foot - 2, 58 * sc, 4, "#18233199");
-    if (n <= 5) {
-      r2(7, 22, 28, 25, dark);
-      r2(10, 18, 23, 25, col);
-      r2(14, 16, 15, 6, light);
-      r2(9, 25, 5, 11, light);
-      r2(11, 34, 5, 4, dark);
-      r2(29, 34, 5, 4, dark);
-      r2(18, 40, 9, 3, "#74595a");
-      if (n === 3 || n === 5) {
-        r2(12, 10, 5, 12, light);
-        r2(29, 9, 4, 16, light);
-      }
-      if (n === 2) {
-        r2(6, 30, 6, 9, light);
-        r2(33, 29, 5, 11, light);
-      }
-    } else if ([8, 9, 14, 18, 19, 20, 24].includes(n)) {
-      r2(4, 23, 34, 19, dark);
-      r2(8, 21, 29, 21, col);
-      r2(21, 12, 16, 20, light);
-      r2(33, 18, 8, 7, col);
-      r2(38, 23, 5, 4, "#7b6260");
-      r2(5, 39, 7, 10, dark);
-      r2(27, 39, 8, 11, dark);
-      r2(0, 17, 11, 9, dark);
-      r2(0, 13, 8, 4, light);
-      if ([18, 19, 20, 24].includes(n)) {
-        r2(3, 4, 8, 22, dark);
-        r2(10, 10, 8, 20, col);
-        r2(21, 8, 9, 18, dark);
-        r2(26, 1, 6, 18, light);
-        r2(16, 2, 6, 15, col);
-      } else if (n === 8) {
-        r2(4, 8, 4, 23, dark);
-        r2(32, 8, 4, 22, dark);
-      }
-    } else if ([10, 11, 12, 13, 22].includes(n)) {
-      r2(9, 16, 25, 29, dark);
-      r2(12, 12, 19, 30, col);
-      r2(15, 8, 14, 16, light);
-      r2(9, 41, 5, 12, dark);
-      r2(29, 39, 5, 13, dark);
-      r2(3, 27, 9, 10, col);
-      r2(32, 26, 8, 11, col);
-      if (n === 10 || n === 13) {
-        for (let i = 0; i < 4; i++) r2(15, 19 + i * 5, 15, 2, "#f2e5c5");
-      }
-      if (n === 22) {
-        r2(33, 2, 3, 45, "#c5b4c7");
-        r2(33, 2, 8, 3, "#eee2ef");
-      }
-    } else {
-      r2(13, 7, 18, 15, dark);
-      r2(14, 10, 16, 12, col);
-      r2(19, 12, 8, 4, light);
-      r2(8, 25, 28, 21, dark);
-      r2(10, 24, 24, 20, col);
-      r2(16, 26, 13, 12, "#827c76");
-      r2(18, 25, 9, 4, light);
-      r2(4, 25, 9, 22, dark);
-      r2(31, 25, 9, 22, dark);
-      r2(12, 43, 8, 11, dark);
-      r2(27, 43, 8, 11, dark);
-      r2(8, 27, 5, 12, col);
-      r2(31, 27, 5, 12, col);
-      if (n >= 21) {
-        r2(10, 2, 7, 14, dark);
-        r2(29, 2, 7, 14, dark);
-      }
-      if (n === 25) {
-        r2(1, 20, 11, 27, "#62415d");
-        r2(33, 19, 10, 28, "#62415d");
-        r2(9, 2, 28, 7, "#40354f");
-      }
-    }
-    const eyes = [14, 29];
-    for (const u of eyes) {
-      r2(u, 22, 5, 4, "#262f44");
-      r2(u + 1, 22, 3, 2, n >= 21 ? "#f7a7ad" : "#f7e4b3");
-      r2(u + 1, 23, 1, 1, "#ffffff");
-    }
-    if (n === 25) {
-      r2(0, 18, 10, 29, "#39283e");
-      r2(1, 21, 7, 24, "#6a3a59");
-      r2(36, 18, 9, 29, "#34263f");
-      r2(38, 20, 5, 27, "#764b68");
-      r2(3, 26, 8, 5, "#985675");
-      r2(35, 26, 6, 5, "#a06081");
-      r2(8, 12, 9, 8, "#3e334a");
-      r2(27, 12, 10, 8, "#3e334a");
-      r2(9, 6, 28, 18, "#30283d");
-      r2(11, 8, 24, 16, "#6c5267");
-      r2(15, 11, 15, 13, "#bf9288");
-      r2(17, 13, 11, 8, "#d2a392");
-      r2(15, 16, 4, 4, "#241b38");
-      r2(27, 16, 4, 4, "#241b38");
-      r2(16, 16, 3, 2, "#ffbba1");
-      r2(28, 16, 3, 2, "#ffbba1");
-      r2(15, 21, 16, 2, "#7b4e5a");
-      r2(18, 22, 9, 2, "#d2a99a");
-      r2(19, 25, 8, 2, "#4d3347");
-      r2(10, 4, 26, 6, "#72526b");
-      r2(10, 3, 26, 2, "#c4a073");
-      r2(13, -6, 5, 13, "#b88977");
-      r2(14, -7, 3, 10, "#f0cb97");
-      r2(30, -7, 5, 14, "#8c5c7a");
-      r2(31, -10, 3, 10, "#e1b28f");
-      r2(21, -11, 5, 17, "#91657b");
-      r2(22, -13, 3, 16, "#eed0a4");
-      r2(13, 3, 20, 3, "#cfb18b");
-      r2(21, 2, 5, 4, "#efc77e");
-      r2(22, 4, 3, 3, "#9d4d70");
-      r2(5, 25, 12, 9, "#4c3651");
-      r2(6, 23, 11, 4, "#d1a57b");
-      r2(31, 24, 11, 8, "#4c3651");
-      r2(31, 23, 10, 4, "#d1a57b");
-      r2(7, 31, 4, 5, "#ad7c6e");
-      r2(35, 30, 4, 5, "#b58777");
-      r2(14, 27, 19, 18, "#303348");
-      r2(16, 29, 15, 14, "#67566d");
-      r2(18, 29, 11, 3, "#c2a078");
-      r2(17, 39, 14, 3, "#ad866e");
-      r2(15, 45, 19, 4, "#433148");
-      r2(16, 44, 17, 2, "#c2a179");
-      r2(19, 33, 10, 2, "#d2b28a");
-      r2(23, 29, 2, 13, "#efd8ac");
-      r2(19, 34, 10, 2, "#ad5275");
-      r2(21, 36, 5, 5, "#e8b28d");
-      r2(22, 35, 3, 7, "#fbdfaa");
-      r2(14, 47, 7, 8, "#2c263f");
-      r2(27, 47, 7, 8, "#2c263f");
-      r2(15, 52, 9, 3, "#6c5362");
-      r2(28, 52, 8, 3, "#6c5362");
-      r2(40, 8, 2, 40, "#b8b4b8");
-      r2(40, 5, 2, 20, "#f2ead9");
-      r2(38, 37, 7, 3, "#cca46f");
-      r2(39, 39, 5, 9, "#614153");
-      r2(41, 3, 1, 3, "#ffffff");
-    }
-    r2(12, 27, 4, 2, light);
-    r2(17, 34, 2, 5, light);
-    return { width: 44 * sc, height: 54 * sc };
-  }
 
   // src/game/room-scene-art.mjs
   var F2 = (c, x, y, w, h, col) => {
@@ -17215,217 +16703,16 @@
     return details;
   }
 
-  // src/game/world-pilot-art.mjs
-  var inWorldPilot = (x, y) => Number.isFinite(x) && Number.isFinite(y) && x >= 8 && x <= 29 && y >= 14 && y <= 30;
-  var hash2 = (x, y, s = 0) => {
-    let v = (Math.imul(x + 37, 73856093) ^ Math.imul(y + 19, 19349663) ^ Math.imul(s + 17, 83492791)) >>> 0;
-    v = Math.imul(v ^ v >>> 13, 1274126177) >>> 0;
-    return (v ^ v >>> 16) >>> 0;
-  };
-  var F3 = (c, x, y, w, h, color2) => {
-    c.fillStyle = color2;
-    c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
-  };
-  var poly = (c, pts, color2) => {
-    c.fillStyle = color2;
-    c.beginPath();
-    c.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
-    c.closePath();
-    c.fill();
-  };
-  function meadow(c, x, y, wx, wy) {
-    const n = hash2(wx, wy, 8);
-    const bases = ["#578b63", "#64976b", "#5a8c60", "#6a9970"];
-    F3(c, x, y, 24, 24, bases[n % 4]);
-    for (let i = 0; i < 3; i++) {
-      const v = hash2(wx, wy, i + 13), sx = v % 16, sy = 4 + (v >>> 5) % 17;
-      poly(c, [[x + sx - 4, y + sy + 2], [x + sx + 5, y + sy - 3], [x + sx + 11, y + sy - 2], [x + sx + 1, y + sy + 5]], i % 2 ? "#57865b" : "#75a677");
-    }
-    for (let i = 0; i < 7; i++) {
-      const v = hash2(wx, wy, i + 55), sx = 2 + v % 19, sy = 2 + (v >>> 7) % 19;
-      const cl = ["#8baf7d", "#356e57", "#91b482", "#c0bc87"][v % 4];
-      F3(c, x + sx, y + sy, 1 + v % 3, 1, cl);
-      if (i % 3 === 0) {
-        F3(c, x + sx + 1, y + sy - 2, 1, 2, "#4a815a");
-        F3(c, x + sx - 1, y + sy + 1, 1, 1, "#7db07c");
-      }
-    }
-    if (n % 17 === 0) {
-      F3(c, x + 9, y + 6, 2, 2, "#e9c995");
-      F3(c, x + 8, y + 7, 1, 1, "#f5e9af");
-    }
-  }
-  function paintPilotGround(c, tile, x, y, wx, wy, m, neighbors) {
-    meadow(c, x, y, wx, wy);
-    if (tile === 4) {
-      const h = hash2(wx, wy, 77);
-      poly(c, [[x + 1, y + 19], [x + 7, y + 15], [x + 19, y + 17], [x + 24, y + 22], [x + 22, y + 24], [x + 2, y + 24]], "#345d4e55");
-    } else if (tile === 1) {
-      const variety = hash2(wx, wy, 81) % 3;
-      const silhouettes = [
-        [[0, 24], [2, 14], [7, 7], [10, 11], [14, 3], [20, 12], [24, 19], [24, 24]],
-        [[0, 24], [0, 17], [5, 13], [8, 9], [13, 9], [17, 6], [21, 12], [24, 16], [24, 24]],
-        [[0, 24], [3, 16], [8, 13], [12, 5], [16, 10], [19, 13], [23, 9], [24, 24]]
-      ];
-      const pts = silhouettes[variety].map(([dx, dy]) => [x + dx, y + dy]);
-      poly(c, pts, "#495e69");
-      poly(c, [[x + 2, y + 22], [x + 10, y + 14], [x + 15, y + 15], [x + 24, y + 20], [x + 24, y + 24], [x + 2, y + 24]], "#354957");
-      if (variety === 0) poly(c, [[x + 3, y + 14], [x + 7, y + 7], [x + 10, y + 11], [x + 14, y + 3], [x + 16, y + 7], [x + 13, y + 11], [x + 10, y + 18]], "#c3c4ae");
-      if (variety === 1) poly(c, [[x + 3, y + 17], [x + 8, y + 9], [x + 13, y + 9], [x + 17, y + 6], [x + 19, y + 11], [x + 12, y + 13]], "#abb5a6");
-      if (variety === 2) poly(c, [[x + 4, y + 17], [x + 12, y + 5], [x + 15, y + 11], [x + 18, y + 14], [x + 10, y + 18]], "#c0c6b5");
-      F3(c, x + 4, y + 21, 11, 2, "#667b7b");
-      F3(c, x + 16, y + 19, 4, 1, "#778785");
-    } else if (tile === 0 || tile === 5) {
-      if (tile === 5) {
-        F3(c, x + 7, y + 13, 12, 7, "#ad997c");
-        F3(c, x + 8, y + 13, 8, 2, "#dac4a0");
-      }
-    } else if (tile === 3 || tile === 6) {
-      const eastRoad = [3, 6].includes(neighbors.w) || [3, 6].includes(neighbors.e);
-      if (eastRoad) {
-        F3(c, x, y + 4, 24, 16, "#a99272");
-        F3(c, x, y + 6, 24, 11, "#c0a785");
-      } else {
-        F3(c, x + 4, y, 16, 24, "#aa9577");
-        F3(c, x + 6, y, 11, 24, "#c8af8c");
-      }
-      for (let i = 0; i < 3; i++) {
-        const h = hash2(wx, wy, i + 21);
-        F3(c, x + 4 + h % 16, y + 3 + (h >>> 8) % 17, 2 + (h >>> 5) % 3, 1, i % 2 ? "#dac39e" : "#907d68");
-      }
-    } else if (tile === 2) {
-      throw Error("Pilot tile sea should be handled by standard river renderer");
-    } else throw Error("Unsupported pilot terrain " + tile);
-  }
-  function paintPilotTree(c, x, y, wx, wy) {
-    const v = hash2(wx, wy, 31) % 3;
-    const D2 = (ox, oy, w, h, color2) => F3(c, x + ox, y + oy, w, h, color2);
-    D2(10, 12, 5, 15, "#554b3b");
-    D2(11, 14, 2, 12, "#b28b5e");
-    const polygons = [
-      // spreading deciduous
-      [
-        [[-10, 8], [-7, -4], [0, -12], [10, -17], [20, -10], [29, -2], [31, 9], [20, 16], [4, 16], [-9, 12]],
-        "#284d45",
-        "#4c8159",
-        "#87b27b"
-      ],
-      // layered triangular pine
-      [
-        [[10, -25], [17, -16], [15, -14], [23, -10], [19, -7], [29, 2], [23, 5], [33, 14], [26, 17], [0, 17], [-5, 14], [3, 5], [-1, 2], [8, -8], [6, -10], [12, -15]],
-        "#244e4d",
-        "#3c785b",
-        "#8caf82"
-      ],
-      // lopsided old oak, asymmetry intentional
-      [
-        [[-13, 12], [-10, -2], [-5, -9], [4, -10], [7, -20], [21, -22], [27, -12], [22, -6], [31, 0], [28, 12], [16, 15], [5, 20], [-11, 16]],
-        "#2d5145",
-        "#568667",
-        "#9eb986"
-      ]
-    ];
-    const [points, base, midtone, highlight] = polygons[v];
-    poly(c, points.map(([a, b]) => [x + a, y + b]), base);
-    if (v === 0) {
-      poly(c, [[x - 8, y + 1], [x - 2, y - 9], [x + 9, y - 12], [x + 11, y - 4], [x + 5, y + 7]], midtone);
-      poly(c, [[x + 11, y - 14], [x + 22, y - 9], [x + 26, y + 2], [x + 17, y + 7], [x + 8, y - 3]], midtone);
-    } else if (v === 1) {
-      poly(c, [[x + 11, y - 18], [x + 16, y - 8], [x + 8, y + 5], [x + 1, y + 11], [x + 12, y + 9]], midtone);
-      poly(c, [[x + 18, y - 10], [x + 24, y + 5], [x + 17, y + 12], [x + 12, y + 5]], midtone);
-    } else {
-      poly(c, [[x + 4, y - 16], [x + 22, y - 20], [x + 22, y - 11], [x + 15, y - 4], [x + 4, y - 4]], midtone);
-      poly(c, [[x - 9, y + 2], [x + 1, y - 8], [x + 13, y + 7], [x + 2, y + 14], [x - 9, y + 11]], midtone);
-    }
-    for (let i = 0; i < 10; i++) {
-      const h = hash2(wx, wy, i + 113), ox = h % 28 - 7, oy = -14 + (h >>> 7) % 23;
-      if ((i + v) % 4 === 0) D2(ox, oy, 5, 2, highlight);
-      else D2(ox, oy, 3, 2, i % 2 ? midtone : "#39654f");
-    }
-    D2(9, 17, 4, 2, "#2b4d45");
-  }
-
-  // src/game/leaf-imagegen-redo.mjs
-  var paths = {
-    npc: "assets/leaf-redo/leaf-npcs-4direction-96x136.png",
-    ground: "assets/leaf-redo/leaf-ground-16x3.png",
-    fullGround: "assets/leaf-ground-v8/leaf-ground-full-672x504.png",
-    inn: "assets/leaf-town4/inn.png",
-    shop: "assets/leaf-town4/shop.png",
-    "west-home": "assets/leaf-town4/west-home.png",
-    "east-home": "assets/leaf-town4/east-home.png"
-  };
-  var expected = {
-    npc: [384, 544],
-    ground: [384, 72],
-    fullGround: [672, 504],
-    inn: [147, 190],
-    shop: [144, 190],
-    "west-home": [141, 180],
-    "east-home": [105, 180]
-  };
-  var images2 = /* @__PURE__ */ new Map();
-  var loaded = null;
-  function preloadLeafRedoArt() {
-    if (loaded) return loaded;
-    const native = Promise.all(Object.entries(paths).map(([key, src]) => new Promise((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => {
-        const [w, h] = expected[key];
-        if (image.naturalWidth !== w || image.naturalHeight !== h) {
-          reject(Error("Invalid Leaf source: " + src));
-          return;
-        }
-        images2.set(key, image);
-        resolve();
-      };
-      image.onerror = () => reject(Error("Missing generated Leaf source: " + src));
-      image.src = src;
-    })));
-    loaded = Promise.all([native, preloadLeafProps()]);
-    return loaded;
-  }
-  var img = (key) => {
-    const image = images2.get(key);
-    if (!image) throw Error("Leaf redo art not preloaded: " + key);
-    return image;
-  };
-  function paintLeafGroundMap(c, map) {
-    if (map.id !== "leaf" || map.width !== 28 || map.height !== 21) throw Error("Unexpected full Leaf ground dimensions");
-    c.save();
-    c.imageSmoothingEnabled = false;
-    c.drawImage(img("fullGround"), 0, 0, 672, 504);
-    c.restore();
-  }
-  function paintLeafBuilding(c, b, at2) {
-    const keys3 = { "leaf-inn": "inn", "leaf-shop": "shop", "leaf-west-home": "west-home", "leaf-east-home": "east-home" };
-    const key = keys3[b.id];
-    if (!key) throw Error("Unknown Leaf building " + b.id);
-    const [x, y] = at2(b.x, b.y);
-    const sizes2 = { "inn": [147, 190], "shop": [144, 190], "west-home": [141, 180], "east-home": [105, 180] };
-    const [w, h] = sizes2[key];
-    const left = x + Math.round((b.w * 24 - w) / 2);
-    const bottom = y + b.h * 24 + 3;
-    c.save();
-    c.imageSmoothingEnabled = false;
-    c.fillStyle = "#16202d55";
-    c.beginPath();
-    c.ellipse(Math.round(left + w / 2), Math.round(bottom - 3), Math.round(w * 0.43), 6, 0, 0, Math.PI * 2);
-    c.fill();
-    c.drawImage(img(key), Math.round(left), Math.round(bottom - h), w, h);
-    c.restore();
-  }
-
   // src/game/sfc-battle-stage.mjs
-  var cache3 = /* @__PURE__ */ new Map();
+  var cache2 = /* @__PURE__ */ new Map();
   var paintedCastle = null;
   var paintedOnyx = null;
   var paintedCave = null;
+  var paintedField = null;
   var paintedRuins = null;
   var castleLoading = null;
   function preloadSfcBattleArt() {
-    if (paintedCastle && paintedOnyx && paintedCave && paintedRuins) return Promise.resolve();
+    if (paintedCastle && paintedOnyx && paintedCave && paintedRuins && paintedField) return Promise.resolve();
     if (castleLoading) return castleLoading;
     const load = (src, label) => new Promise((resolve, reject) => {
       const art = new Image();
@@ -17442,13 +16729,15 @@
     castleLoading = Promise.all([
       paintedCastle ? Promise.resolve(paintedCastle) : load("assets/battle/castle-battle-960x540.png?v=20261111-landscape-sfc-01", "Castle"),
       paintedOnyx ? Promise.resolve(paintedOnyx) : load("assets/battle/onyx-battle-960x540.png?v=20261118-onyx-art-01", "Onyx"),
-      paintedCave ? Promise.resolve(paintedCave) : load("assets/cave/cave_battle_960x540.png?v=20261118-cave-art-01", "Cave"),
-      paintedRuins ? Promise.resolve(paintedRuins) : load("assets/battle/ruins-battle-960x540.png?v=20261118-silent-ruins-art-01", "Ruins")
-    ]).then(([castle2, onyx2, cave2, ruins2]) => {
+      paintedCave ? Promise.resolve(paintedCave) : load("assets/battle/cave-battle-960x540.png", "Cave"),
+      paintedRuins ? Promise.resolve(paintedRuins) : load("assets/battle/ruins-battle-960x540.png?v=20261118-silent-ruins-art-01", "Ruins"),
+      load("assets/battle/field-battle-960x540.png", "Field")
+    ]).then(([castle2, onyx2, cave2, ruins2, field]) => {
       paintedCastle = castle2;
       paintedOnyx = onyx2;
       paintedCave = cave2;
       paintedRuins = ruins2;
+      paintedField = field;
     });
     return castleLoading;
   }
@@ -17456,7 +16745,7 @@
     c.fillStyle = color2;
     c.fillRect(Math.round(x), Math.round(y), Math.ceil(w), Math.ceil(h));
   };
-  var hash3 = (x, y, s = 3) => {
+  var hash2 = (x, y, s = 3) => {
     let n = (Math.imul(x + 41, 73856093) ^ Math.imul(y + 61, 19349663) ^ Math.imul(s + 43, 83492791)) >>> 0;
     n = Math.imul(n ^ n >>> 13, 1274126177) >>> 0;
     return (n ^ n >>> 16) >>> 0;
@@ -17565,7 +16854,7 @@
       if (y < floor2 * 0.65) rect(c, 0, y, W2, 1, t < 0.3 ? p.top : p.sky);
     }
     for (let x = -32; x < W2 + 48; x += 40) {
-      const index = Math.floor(x / 40), h = 29 + hash3(index, 5, 1) % 49;
+      const index = Math.floor(x / 40), h = 29 + hash2(index, 5, 1) % 49;
       c.beginPath();
       c.moveTo(x - 20, floor2);
       c.lineTo(x + 20, floor2 - h);
@@ -17601,7 +16890,7 @@
       c.fill();
     }
     for (let i = 0; i < 8; i++) {
-      const a = hash3(seed, i, 4);
+      const a = hash2(seed, i, 4);
       rect(c, x - 8 + a % 38, y - 8 + (a >>> 5) % 24, 4, 2, i % 3 ? p.far : p.accent);
     }
   }
@@ -17609,7 +16898,7 @@
     const y = Math.round(H2 * 0.63);
     distantMountains(c, W2, H2, p);
     for (let x = -18; x < W2 + 35; x += 31) {
-      const n = hash3(x, 4, 7);
+      const n = hash2(x, 4, 7);
       const size = n % 3 - 1;
       tree2(c, x, y - 34 + n % 9, p, x);
       if (size === 0) {
@@ -17685,11 +16974,11 @@
   function foreground(c, W2, H2, p, layout) {
     const y = layout.groundY;
     rect(c, 0, y, W2, H2 - y, p.ground);
-    const rock2 = hash3(4, 5, W2);
+    const rock2 = hash2(4, 5, W2);
     for (let yy = y; yy < H2; yy += 19) {
       const offset = Math.floor((yy - y) / 19) % 2 * 19;
       for (let xx = -offset; xx < W2; xx += 39) {
-        const v = hash3(xx, yy, rock2 % 19), base = v % 5 === 0 ? p.floor : p.ground;
+        const v = hash2(xx, yy, rock2 % 19), base = v % 5 === 0 ? p.floor : p.ground;
         rect(c, xx + 1, yy + 1, 37, 17, base);
         rect(c, xx + 2, yy + 1, 35, 2, p.light);
         rect(c, xx + 2, yy + 14, 35, 2, p.shade);
@@ -17699,14 +16988,14 @@
     }
     rect(c, 0, y, W2, 3, p.light);
     for (let i = 0; i < 95; i++) {
-      const v = hash3(i, 7, 10), x = v % W2, yy = y + 5 + (v >>> 11) % Math.max(3, H2 - y - 9);
+      const v = hash2(i, 7, 10), x = v % W2, yy = y + 5 + (v >>> 11) % Math.max(3, H2 - y - 9);
       rect(c, x, yy, v % 3 + 1, 1, v % 2 ? p.shade : p.light);
     }
   }
   function paintSfcBattleBackground(c, W2, H2, area = "field") {
     if (!palette[area]) throw Error("Unknown battle area " + area);
     const key = area + ":" + W2 + "x" + H2;
-    let bg = cache3.get(key);
+    let bg = cache2.get(key);
     if (!bg) {
       bg = document.createElement("canvas");
       bg.width = W2;
@@ -17714,8 +17003,8 @@
       const target = bg.getContext("2d", { alpha: false });
       target.imageSmoothingEnabled = false;
       const p = palette[area], layout = battleComposition(W2, H2);
-      if (area === "castle" || area === "onyx" || area === "cave" || area === "ruins") {
-        const plate = area === "castle" ? paintedCastle : area === "onyx" ? paintedOnyx : area === "cave" ? paintedCave : paintedRuins;
+      const plate = { castle: paintedCastle, onyx: paintedOnyx, cave: paintedCave, ruins: paintedRuins, field: paintedField }[area];
+      if (["castle", "onyx", "cave", "ruins", "field"].includes(area)) {
         if (!plate) throw Error("Original " + area + " battle art not preloaded");
         const scale = Math.max(W2 / plate.naturalWidth, H2 / plate.naturalHeight);
         const width = plate.naturalWidth * scale, height = plate.naturalHeight * scale;
@@ -17726,7 +17015,7 @@
         else dungeon(target, W2, H2, p, area);
         foreground(target, W2, H2, p, layout);
       }
-      cache3.set(key, bg);
+      cache2.set(key, bg);
     }
     c.save();
     c.setTransform(1, 0, 0, 1, 0, 0);
@@ -17966,127 +17255,127 @@
   }
 
   // src/game/regional-structures.mjs
-  var F4 = (c, x, y, w, h, k) => {
+  var F3 = (c, x, y, w, h, k) => {
     c.fillStyle = k;
     c.fillRect(Math.round(x), Math.round(y), w, h);
   };
-  var hash4 = (x, y, s = 0) => (Math.imul(x + 17, 11939) ^ Math.imul(y + 71, 81527) ^ Math.imul(s + 19, 32971)) >>> 0;
+  var hash3 = (x, y, s = 0) => (Math.imul(x + 17, 11939) ^ Math.imul(y + 71, 81527) ^ Math.imul(s + 19, 32971)) >>> 0;
   var at = (m, x, y) => m.tiles[y]?.[x];
   function wornCarving(c, x, y, variant) {
-    F4(c, x + 3, y + 3, 18, 19, "#3d616e");
-    F4(c, x + 5, y + 4, 14, 15, "#6c908a");
-    F4(c, x + 7, y + 5, 9, 1, "#bed0b6");
-    F4(c, x + 11, y + 7, 2, 10, "#344e5c");
-    F4(c, x + 8, y + 10, 8, 2, "#3e5a61");
+    F3(c, x + 3, y + 3, 18, 19, "#3d616e");
+    F3(c, x + 5, y + 4, 14, 15, "#6c908a");
+    F3(c, x + 7, y + 5, 9, 1, "#bed0b6");
+    F3(c, x + 11, y + 7, 2, 10, "#344e5c");
+    F3(c, x + 8, y + 10, 8, 2, "#3e5a61");
     if (variant % 3 === 0) {
-      F4(c, x + 3, y + 16, 6, 3, "#415d5e");
-      F4(c, x + 13, y + 5, 4, 5, "#718e80");
+      F3(c, x + 3, y + 16, 6, 3, "#415d5e");
+      F3(c, x + 13, y + 5, 4, 5, "#718e80");
     } else {
-      F4(c, x + 6, y + 12, 3, 5, "#8bac93");
-      F4(c, x + 17, y + 14, 2, 5, "#40565b");
+      F3(c, x + 6, y + 12, 3, 5, "#8bac93");
+      F3(c, x + 17, y + 14, 2, 5, "#40565b");
     }
-    F4(c, x + 4, y + 22, 16, 2, "#253f4f");
+    F3(c, x + 4, y + 22, 16, 2, "#253f4f");
   }
   function mossyColumn(c, x, y, variant) {
-    F4(c, x + 2, y - 8, 20, 31, "#243746");
-    F4(c, x + 3, y - 9, 18, 4, "#b8bd9e");
-    F4(c, x + 5, y - 5, 14, 21, "#738c83");
-    F4(c, x + 7, y - 4, 3, 17, "#b5c5ad");
-    F4(c, x + 4, y + 15, 17, 4, "#465f66");
-    F4(c, x + 2, y + 19, 21, 4, "#9aa99a");
-    F4(c, x + 5, y + 19, 8, 1, "#d5d9b6");
+    F3(c, x + 2, y - 8, 20, 31, "#243746");
+    F3(c, x + 3, y - 9, 18, 4, "#b8bd9e");
+    F3(c, x + 5, y - 5, 14, 21, "#738c83");
+    F3(c, x + 7, y - 4, 3, 17, "#b5c5ad");
+    F3(c, x + 4, y + 15, 17, 4, "#465f66");
+    F3(c, x + 2, y + 19, 21, 4, "#9aa99a");
+    F3(c, x + 5, y + 19, 8, 1, "#d5d9b6");
     if (variant % 2) {
-      F4(c, x + 16, y - 7, 3, 6, "#526957");
-      F4(c, x + 17, y - 2, 2, 5, "#648868");
-      F4(c, x + 15, y + 3, 3, 2, "#8cba83");
+      F3(c, x + 16, y - 7, 3, 6, "#526957");
+      F3(c, x + 17, y - 2, 2, 5, "#648868");
+      F3(c, x + 15, y + 3, 3, 2, "#8cba83");
     } else {
-      F4(c, x + 6, y - 8, 5, 2, "#425d65");
-      F4(c, x + 9, y + 5, 2, 11, "#495f5c");
+      F3(c, x + 6, y - 8, 5, 2, "#425d65");
+      F3(c, x + 9, y + 5, 2, 11, "#495f5c");
     }
   }
   function crystalWall(c, x, y, s, glow) {
     const crystal = glow ? ["#4e4264", "#946b9b", "#c6a4b3", "#ffe1be"] : ["#2d5361", "#5a94a0", "#9bbfbc", "#dcf1d9"];
-    F4(c, x + 4, y + 8, 4, 15, crystal[0]);
-    F4(c, x + 5, y + 4, 5, 17, crystal[1]);
-    F4(c, x + 7, y + 1, 2, 13, crystal[3]);
-    F4(c, x + 12, y + 11, 7, 12, crystal[0]);
-    F4(c, x + 14, y + 7, 5, 15, crystal[2]);
-    F4(c, x + 16, y + 7, 1, 11, crystal[3]);
+    F3(c, x + 4, y + 8, 4, 15, crystal[0]);
+    F3(c, x + 5, y + 4, 5, 17, crystal[1]);
+    F3(c, x + 7, y + 1, 2, 13, crystal[3]);
+    F3(c, x + 12, y + 11, 7, 12, crystal[0]);
+    F3(c, x + 14, y + 7, 5, 15, crystal[2]);
+    F3(c, x + 16, y + 7, 1, 11, crystal[3]);
     if (s % 2 === 0) {
-      F4(c, x + 1, y + 16, 4, 7, crystal[1]);
-      F4(c, x + 3, y + 13, 1, 7, crystal[3]);
+      F3(c, x + 1, y + 16, 4, 7, crystal[1]);
+      F3(c, x + 3, y + 13, 1, 7, crystal[3]);
     }
   }
   function caveLedge(c, x, y, variant) {
-    F4(c, x, y + 14, 24, 10, "#222733");
-    F4(c, x, y + 14, 24, 2, "#81727d");
-    F4(c, x + 1, y + 16, 21, 2, "#685d6b");
+    F3(c, x, y + 14, 24, 10, "#222733");
+    F3(c, x, y + 14, 24, 2, "#81727d");
+    F3(c, x + 1, y + 16, 21, 2, "#685d6b");
     for (let a = 0; a < 3; a++) {
       const xx = 3 + (variant >>> a * 4) % 17, len = 3 + (variant >>> (a + 1) * 3) % 8;
-      F4(c, x + xx, y + 18, 2, len, "#3e3849");
-      F4(c, x + xx + 1, y + 18, 1, Math.max(2, len - 1), "#837482");
+      F3(c, x + xx, y + 18, 2, len, "#3e3849");
+      F3(c, x + xx + 1, y + 18, 1, Math.max(2, len - 1), "#837482");
     }
   }
   function ruinInlay(c, x, y, variant) {
-    F4(c, x + 3, y + 4, 18, 1, "#9cac96");
-    F4(c, x + 7, y + 5, 1, 10, "#527b77");
-    F4(c, x + 8, y + 13, 9, 1, "#8fab95");
-    F4(c, x + 15, y + 12, 1, 7, "#4c7074");
-    F4(c, x + 10, y + 17, 7, 2, "#799891");
-    if (variant % 5 === 0) F4(c, x + 12, y + 8, 3, 3, "#b4c4a2");
+    F3(c, x + 3, y + 4, 18, 1, "#9cac96");
+    F3(c, x + 7, y + 5, 1, 10, "#527b77");
+    F3(c, x + 8, y + 13, 9, 1, "#8fab95");
+    F3(c, x + 15, y + 12, 1, 7, "#4c7074");
+    F3(c, x + 10, y + 17, 7, 2, "#799891");
+    if (variant % 5 === 0) F3(c, x + 12, y + 8, 3, 3, "#b4c4a2");
     if (variant % 7 === 0) {
-      F4(c, x + 9, y + 9, 2, 1, "#d3dfb7");
-      F4(c, x + 13, y + 10, 1, 2, "#b7e1cc");
+      F3(c, x + 9, y + 9, 2, 1, "#d3dfb7");
+      F3(c, x + 13, y + 10, 1, 2, "#b7e1cc");
     }
   }
   function onyxObelisk(c, x, y, variant) {
-    F4(c, x + 4, y - 13, 16, 37, "#1f2033");
-    F4(c, x + 5, y - 13, 14, 5, "#77647d");
-    F4(c, x + 7, y - 18, 10, 6, "#554860");
-    F4(c, x + 10, y - 21, 4, 4, "#9a6b94");
-    F4(c, x + 6, y - 6, 12, 21, "#55475d");
-    F4(c, x + 9, y - 4, 5, 15, "#2b2c47");
-    F4(c, x + 10, y + 1, 3, 8, "#aa799a");
-    F4(c, x + 12, y - 3, 1, 13, "#dd9dae");
-    F4(c, x + 3, y + 13, 18, 5, "#312a43");
-    F4(c, x + 2, y + 19, 20, 4, "#786480");
-    if (variant % 3 === 0) F4(c, x + 5, y + 11, 3, 2, "#a08097");
+    F3(c, x + 4, y - 13, 16, 37, "#1f2033");
+    F3(c, x + 5, y - 13, 14, 5, "#77647d");
+    F3(c, x + 7, y - 18, 10, 6, "#554860");
+    F3(c, x + 10, y - 21, 4, 4, "#9a6b94");
+    F3(c, x + 6, y - 6, 12, 21, "#55475d");
+    F3(c, x + 9, y - 4, 5, 15, "#2b2c47");
+    F3(c, x + 10, y + 1, 3, 8, "#aa799a");
+    F3(c, x + 12, y - 3, 1, 13, "#dd9dae");
+    F3(c, x + 3, y + 13, 18, 5, "#312a43");
+    F3(c, x + 2, y + 19, 20, 4, "#786480");
+    if (variant % 3 === 0) F3(c, x + 5, y + 11, 3, 2, "#a08097");
   }
   function fissure(c, x, y, variant) {
-    F4(c, x + 2, y + 4, 10, 2, "#3b2a48");
-    F4(c, x + 10, y + 6, 3, 6, "#392e4c");
-    F4(c, x + 12, y + 12, 9, 2, "#5b3855");
-    F4(c, x + 16, y + 13, 3, 2, "#a9687b");
-    F4(c, x + 18, y + 14, 2, 1, "#e0a18b");
+    F3(c, x + 2, y + 4, 10, 2, "#3b2a48");
+    F3(c, x + 10, y + 6, 3, 6, "#392e4c");
+    F3(c, x + 12, y + 12, 9, 2, "#5b3855");
+    F3(c, x + 16, y + 13, 3, 2, "#a9687b");
+    F3(c, x + 18, y + 14, 2, 1, "#e0a18b");
     if (variant % 3 === 0) {
-      F4(c, x + 6, y + 3, 3, 1, "#cb7e93");
-      F4(c, x + 13, y + 10, 1, 4, "#d9a4a7");
+      F3(c, x + 6, y + 3, 3, 1, "#cb7e93");
+      F3(c, x + 13, y + 10, 1, 4, "#d9a4a7");
     }
   }
   function tideStones(c, x, y, variant) {
-    F4(c, x + 4, y + 15, 7, 3, "#e2d9c2");
-    F4(c, x + 13, y + 11, 9, 3, "#779caa");
-    F4(c, x + 15, y + 8, 4, 2, "#e4d8bc");
+    F3(c, x + 4, y + 15, 7, 3, "#e2d9c2");
+    F3(c, x + 13, y + 11, 9, 3, "#779caa");
+    F3(c, x + 15, y + 8, 4, 2, "#e4d8bc");
     if (variant % 3 === 0) {
-      F4(c, x + 2, y + 6, 10, 2, "#527d96");
-      F4(c, x + 3, y + 6, 5, 1, "#b6e7dc");
+      F3(c, x + 2, y + 6, 10, 2, "#527d96");
+      F3(c, x + 3, y + 6, 5, 1, "#b6e7dc");
     }
   }
   function wildPlants(c, x, y, variant) {
-    F4(c, x + 4, y + 16, 11, 3, "#3f7850");
-    F4(c, x + 7, y + 12, 2, 8, "#64995f");
-    F4(c, x + 10, y + 10, 2, 8, "#4b8958");
-    F4(c, x + 7, y + 9, 3, 4, variant % 4 === 0 ? "#e9df9c" : "#83b66e");
-    F4(c, x + 11, y + 13, 2, 4, "#a7ca80");
+    F3(c, x + 4, y + 16, 11, 3, "#3f7850");
+    F3(c, x + 7, y + 12, 2, 8, "#64995f");
+    F3(c, x + 10, y + 10, 2, 8, "#4b8958");
+    F3(c, x + 7, y + 9, 3, 4, variant % 4 === 0 ? "#e9df9c" : "#83b66e");
+    F3(c, x + 11, y + 13, 2, 4, "#a7ca80");
     if (variant % 8 === 0) {
-      F4(c, x + 8, y + 8, 2, 2, "#efbb94");
-      F4(c, x + 10, y + 11, 3, 2, "#e8dcac");
+      F3(c, x + 8, y + 8, 2, 2, "#efbb94");
+      F3(c, x + 10, y + 11, 3, 2, "#e8dcac");
     }
   }
   function paintRegionalStructures(c, m, screen) {
     const id = m.id;
     for (let y = 0; y < m.height; y++) for (let x = 0; x < m.width; x++) {
-      const kind = at(m, x, y), v = hash4(x, y, id.length);
+      const kind = at(m, x, y), v = hash3(x, y, id.length);
       const [sx, sy] = screen(x, y);
       if (id === "ruins") {
         if (kind === 10) {
@@ -18094,8 +17383,8 @@
           if (border && (x + 2 * y) % 5 === 0) mossyColumn(c, sx, sy, v);
           else if (v % 12 === 0) wornCarving(c, sx, sy, v);
           if (border && v % 7 === 0) {
-            F4(c, sx + 3, sy + 20, 18, 3, "#4b6a64");
-            F4(c, sx + 7, sy + 18, 6, 2, "#83ac85");
+            F3(c, sx + 3, sy + 20, 18, 3, "#4b6a64");
+            F3(c, sx + 7, sy + 18, 6, 2, "#83ac85");
           }
         } else if (kind === 9 && v % 7 === 1) ruinInlay(c, sx, sy, v);
         continue;
@@ -18106,8 +17395,8 @@
           if (v % 9 === 1) crystalWall(c, sx, sy, v, false);
         }
         if (kind === 9 && v % 23 === 3) {
-          F4(c, sx + 6, sy + 16, 12, 4, "#393b4b");
-          F4(c, sx + 9, sy + 15, 7, 1, "#847586");
+          F3(c, sx + 6, sy + 16, 12, 4, "#393b4b");
+          F3(c, sx + 9, sy + 15, 7, 1, "#847586");
         }
         continue;
       }
@@ -18262,10 +17551,10 @@
   }
   function ruins(c, x, y) {
     if (retroAssetsReady()) {
-      const img2 = retroAsset("ruinsGate");
-      const scale = Math.min(75 / img2.naturalWidth, 68 / img2.naturalHeight);
-      const w = img2.naturalWidth * scale, h = img2.naturalHeight * scale;
-      c.drawImage(img2, x + 11.5 - w / 2, y + 24 - h, w, h);
+      const img = retroAsset("ruinsGate");
+      const scale = Math.min(75 / img.naturalWidth, 68 / img.naturalHeight);
+      const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+      c.drawImage(img, x + 11.5 - w / 2, y + 24 - h, w, h);
       return;
     }
     r(c, x - 23, y + 14, 70, 8, "#344b58");
@@ -18280,10 +17569,10 @@
   }
   function onyx(c, x, y) {
     if (retroAssetsReady()) {
-      const img2 = retroAsset("onyxGate");
-      const scale = Math.min(75 / img2.naturalWidth, 68 / img2.naturalHeight);
-      const w = img2.naturalWidth * scale, h = img2.naturalHeight * scale;
-      c.drawImage(img2, x + 11.5 - w / 2, y + 24 - h, w, h);
+      const img = retroAsset("onyxGate");
+      const scale = Math.min(75 / img.naturalWidth, 68 / img.naturalHeight);
+      const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+      c.drawImage(img, x + 11.5 - w / 2, y + 24 - h, w, h);
       return;
     }
     const black = "#201d32", purple = "#57425b", metal = "#9e7c9c", glow = "#dda0b9";
@@ -18336,6 +17625,137 @@
       default:
         throw Error("No authored world landmark for portal to " + portal.to);
     }
+  }
+
+  // src/game/world-pilot-art.mjs
+  var inWorldPilot = (x, y) => Number.isFinite(x) && Number.isFinite(y) && x >= 8 && x <= 29 && y >= 14 && y <= 30;
+  var hash4 = (x, y, s = 0) => {
+    let v = (Math.imul(x + 37, 73856093) ^ Math.imul(y + 19, 19349663) ^ Math.imul(s + 17, 83492791)) >>> 0;
+    v = Math.imul(v ^ v >>> 13, 1274126177) >>> 0;
+    return (v ^ v >>> 16) >>> 0;
+  };
+  var F4 = (c, x, y, w, h, color2) => {
+    c.fillStyle = color2;
+    c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  };
+  var poly = (c, pts, color2) => {
+    c.fillStyle = color2;
+    c.beginPath();
+    c.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
+    c.closePath();
+    c.fill();
+  };
+  function meadow(c, x, y, wx, wy) {
+    const n = hash4(wx, wy, 8);
+    const bases = ["#578b63", "#64976b", "#5a8c60", "#6a9970"];
+    F4(c, x, y, 24, 24, bases[n % 4]);
+    for (let i = 0; i < 3; i++) {
+      const v = hash4(wx, wy, i + 13), sx = v % 16, sy = 4 + (v >>> 5) % 17;
+      poly(c, [[x + sx - 4, y + sy + 2], [x + sx + 5, y + sy - 3], [x + sx + 11, y + sy - 2], [x + sx + 1, y + sy + 5]], i % 2 ? "#57865b" : "#75a677");
+    }
+    for (let i = 0; i < 7; i++) {
+      const v = hash4(wx, wy, i + 55), sx = 2 + v % 19, sy = 2 + (v >>> 7) % 19;
+      const cl = ["#8baf7d", "#356e57", "#91b482", "#c0bc87"][v % 4];
+      F4(c, x + sx, y + sy, 1 + v % 3, 1, cl);
+      if (i % 3 === 0) {
+        F4(c, x + sx + 1, y + sy - 2, 1, 2, "#4a815a");
+        F4(c, x + sx - 1, y + sy + 1, 1, 1, "#7db07c");
+      }
+    }
+    if (n % 17 === 0) {
+      F4(c, x + 9, y + 6, 2, 2, "#e9c995");
+      F4(c, x + 8, y + 7, 1, 1, "#f5e9af");
+    }
+  }
+  function paintPilotGround(c, tile, x, y, wx, wy, m, neighbors) {
+    meadow(c, x, y, wx, wy);
+    if (tile === 4) {
+      const h = hash4(wx, wy, 77);
+      poly(c, [[x + 1, y + 19], [x + 7, y + 15], [x + 19, y + 17], [x + 24, y + 22], [x + 22, y + 24], [x + 2, y + 24]], "#345d4e55");
+    } else if (tile === 1) {
+      const variety = hash4(wx, wy, 81) % 3;
+      const silhouettes = [
+        [[0, 24], [2, 14], [7, 7], [10, 11], [14, 3], [20, 12], [24, 19], [24, 24]],
+        [[0, 24], [0, 17], [5, 13], [8, 9], [13, 9], [17, 6], [21, 12], [24, 16], [24, 24]],
+        [[0, 24], [3, 16], [8, 13], [12, 5], [16, 10], [19, 13], [23, 9], [24, 24]]
+      ];
+      const pts = silhouettes[variety].map(([dx, dy]) => [x + dx, y + dy]);
+      poly(c, pts, "#495e69");
+      poly(c, [[x + 2, y + 22], [x + 10, y + 14], [x + 15, y + 15], [x + 24, y + 20], [x + 24, y + 24], [x + 2, y + 24]], "#354957");
+      if (variety === 0) poly(c, [[x + 3, y + 14], [x + 7, y + 7], [x + 10, y + 11], [x + 14, y + 3], [x + 16, y + 7], [x + 13, y + 11], [x + 10, y + 18]], "#c3c4ae");
+      if (variety === 1) poly(c, [[x + 3, y + 17], [x + 8, y + 9], [x + 13, y + 9], [x + 17, y + 6], [x + 19, y + 11], [x + 12, y + 13]], "#abb5a6");
+      if (variety === 2) poly(c, [[x + 4, y + 17], [x + 12, y + 5], [x + 15, y + 11], [x + 18, y + 14], [x + 10, y + 18]], "#c0c6b5");
+      F4(c, x + 4, y + 21, 11, 2, "#667b7b");
+      F4(c, x + 16, y + 19, 4, 1, "#778785");
+    } else if (tile === 0 || tile === 5) {
+      if (tile === 5) {
+        F4(c, x + 7, y + 13, 12, 7, "#ad997c");
+        F4(c, x + 8, y + 13, 8, 2, "#dac4a0");
+      }
+    } else if (tile === 3 || tile === 6) {
+      const eastRoad = [3, 6].includes(neighbors.w) || [3, 6].includes(neighbors.e);
+      if (eastRoad) {
+        F4(c, x, y + 4, 24, 16, "#a99272");
+        F4(c, x, y + 6, 24, 11, "#c0a785");
+      } else {
+        F4(c, x + 4, y, 16, 24, "#aa9577");
+        F4(c, x + 6, y, 11, 24, "#c8af8c");
+      }
+      for (let i = 0; i < 3; i++) {
+        const h = hash4(wx, wy, i + 21);
+        F4(c, x + 4 + h % 16, y + 3 + (h >>> 8) % 17, 2 + (h >>> 5) % 3, 1, i % 2 ? "#dac39e" : "#907d68");
+      }
+    } else if (tile === 2) {
+      throw Error("Pilot tile sea should be handled by standard river renderer");
+    } else throw Error("Unsupported pilot terrain " + tile);
+  }
+  function paintPilotTree(c, x, y, wx, wy) {
+    const v = hash4(wx, wy, 31) % 3;
+    const D2 = (ox, oy, w, h, color2) => F4(c, x + ox, y + oy, w, h, color2);
+    D2(10, 12, 5, 15, "#554b3b");
+    D2(11, 14, 2, 12, "#b28b5e");
+    const polygons = [
+      // spreading deciduous
+      [
+        [[-10, 8], [-7, -4], [0, -12], [10, -17], [20, -10], [29, -2], [31, 9], [20, 16], [4, 16], [-9, 12]],
+        "#284d45",
+        "#4c8159",
+        "#87b27b"
+      ],
+      // layered triangular pine
+      [
+        [[10, -25], [17, -16], [15, -14], [23, -10], [19, -7], [29, 2], [23, 5], [33, 14], [26, 17], [0, 17], [-5, 14], [3, 5], [-1, 2], [8, -8], [6, -10], [12, -15]],
+        "#244e4d",
+        "#3c785b",
+        "#8caf82"
+      ],
+      // lopsided old oak, asymmetry intentional
+      [
+        [[-13, 12], [-10, -2], [-5, -9], [4, -10], [7, -20], [21, -22], [27, -12], [22, -6], [31, 0], [28, 12], [16, 15], [5, 20], [-11, 16]],
+        "#2d5145",
+        "#568667",
+        "#9eb986"
+      ]
+    ];
+    const [points, base, midtone, highlight] = polygons[v];
+    poly(c, points.map(([a, b]) => [x + a, y + b]), base);
+    if (v === 0) {
+      poly(c, [[x - 8, y + 1], [x - 2, y - 9], [x + 9, y - 12], [x + 11, y - 4], [x + 5, y + 7]], midtone);
+      poly(c, [[x + 11, y - 14], [x + 22, y - 9], [x + 26, y + 2], [x + 17, y + 7], [x + 8, y - 3]], midtone);
+    } else if (v === 1) {
+      poly(c, [[x + 11, y - 18], [x + 16, y - 8], [x + 8, y + 5], [x + 1, y + 11], [x + 12, y + 9]], midtone);
+      poly(c, [[x + 18, y - 10], [x + 24, y + 5], [x + 17, y + 12], [x + 12, y + 5]], midtone);
+    } else {
+      poly(c, [[x + 4, y - 16], [x + 22, y - 20], [x + 22, y - 11], [x + 15, y - 4], [x + 4, y - 4]], midtone);
+      poly(c, [[x - 9, y + 2], [x + 1, y - 8], [x + 13, y + 7], [x + 2, y + 14], [x - 9, y + 11]], midtone);
+    }
+    for (let i = 0; i < 10; i++) {
+      const h = hash4(wx, wy, i + 113), ox = h % 28 - 7, oy = -14 + (h >>> 7) % 23;
+      if ((i + v) % 4 === 0) D2(ox, oy, 5, 2, highlight);
+      else D2(ox, oy, 3, 2, i % 2 ? midtone : "#39654f");
+    }
+    D2(9, 17, 4, 2, "#2b4d45");
   }
 
   // src/game/world-expansion-art.mjs
@@ -18728,9 +18148,9 @@
   }
 
   // src/game/reboot-view.mjs
-  var clamp3 = (v, a, b) => Math.max(a, Math.min(b, v));
+  var clamp2 = (v, a, b) => Math.max(a, Math.min(b, v));
   var backgrounds = /* @__PURE__ */ new Map();
-  var actors = { hero: "hero", king: "king", guard: "guard", refugee: "refugee" };
+  var chapterMaps = /* @__PURE__ */ new Set(["castle", "leaf", "cave"]);
   var shot = (context, x, y, w, h, color2) => {
     context.fillStyle = color2;
     context.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
@@ -18759,72 +18179,61 @@
       const plate = retroAsset("ruinsEnvironment");
       if (plate.naturalWidth !== m.width * TILE || plate.naturalHeight !== m.height * TILE) throw Error("Ruins plate dimensions mismatch");
       c.drawImage(plate, 0, 0, m.width * TILE, m.height * TILE);
-    } else if (m.id === "cave" && retroAssetsReady()) {
-      const plate = retroAsset("caveEnvironment");
-      if (plate.naturalWidth !== m.width * TILE || plate.naturalHeight !== m.height * TILE) throw Error("Cave plate dimensions mismatch");
-      c.drawImage(plate, 0, 0, m.width * TILE, m.height * TILE);
-    } else if (m.id === "leaf") paintLeafGroundMap(c, m);
-    else if (m.id === "sailun") paintSailunGround(c, m);
+    } else if (m.id === "sailun") paintSailunGround(c, m);
     else for (let y = 0; y < m.height; y++) for (let x = 0; x < m.width; x++) {
-      const kind = kindAt(x, y);
-      if (m.id === "field") paintOverworldTile(c, kind, x * TILE, y * TILE, x, y, m, {
-        n: kindAt(x, y - 1),
-        s: kindAt(x, y + 1),
-        w: kindAt(x - 1, y),
-        e: kindAt(x + 1, y)
-      });
-      else paintTile(c, kind, x * TILE, y * TILE, x, y, m.id, {
-        n: kindAt(x, y - 1),
-        s: kindAt(x, y + 1),
-        w: kindAt(x - 1, y),
-        e: kindAt(x + 1, y)
-      });
+      const kind = kindAt(x, y), edges = { n: kindAt(x, y - 1), s: kindAt(x, y + 1), w: kindAt(x - 1, y), e: kindAt(x + 1, y) };
+      if (m.id === "field") paintOverworldTile(c, kind, x * TILE, y * TILE, x, y, m, edges);
+      else if (chapterMaps.has(m.id)) paintChapterTile(c, m.id, kind, x, y, edges);
+      else paintTile(c, kind, x * TILE, y * TILE, x, y, m.id, edges);
     }
     const at2 = (x, y) => [x * TILE, y * TILE];
-    if (m.id !== "leaf") {
+    if (!chapterMaps.has(m.id)) {
       paintRegionAtmosphere(c, m, at2);
       paintRegionalStructures(c, m, at2);
       paintTownLife(c, m, at2);
+      for (const feature of m.scenery ?? []) paintScenery(c, feature, at2, m.id);
     }
-    if (m.id !== "leaf") for (const feature of m.scenery || []) paintScenery(c, feature, at2, m.id);
-    if (m.id === "cave" && retroAssetsReady()) {
-      const decorations = [
-        ["caveGate", 11, 16, 70, 58],
-        ["caveShelf", 7, 2, 106, 66],
-        ["caveCrystal", 2, 14, 40, 40],
-        ["caveCrystal", 21, 9, 35, 35],
-        ["caveTorch", 5, 5, 16, 48],
-        ["caveTorch", 20, 3, 16, 48]
-      ];
-      for (const [key, tx, ty, w, h] of decorations) {
-        const img2 = retroAsset(key);
-        c.drawImage(img2, Math.round(tx * TILE - w / 2), Math.round((ty + 1) * TILE - h), w, h);
+    if (m.id === "castle") {
+      paintThrone(c, ...at2(7, 2));
+      for (const feature of m.scenery) {
+        if (feature.kind === "throne-canopy" || feature.kind === "column" && m.tiles[feature.y][feature.x] !== 1) continue;
+        paintScenery(c, feature, at2, m.id);
       }
+      for (const x of [1, 13]) paintScenery(c, { x, y: 6, kind: "column" }, at2, m.id);
     }
     backgrounds.set(id, canvas);
     return canvas;
   }
   function retroCamera(s, motion = null, now = performance.now(), W2 = 288, H2 = 340) {
     const m = MAPS[s.pos.map];
-    const t = motion && motion.map === s.pos.map ? clamp3((now - motion.start) / motion.duration, 0, 1) : 1;
+    const t = motion && motion.map === s.pos.map ? clamp2((now - motion.start) / motion.duration, 0, 1) : 1;
     const px = motion && motion.map === s.pos.map ? motion.fromX + (s.pos.x - motion.fromX) * t : s.pos.x;
     const py = motion && motion.map === s.pos.map ? motion.fromY + (s.pos.y - motion.fromY) * t : s.pos.y;
     const cols = W2 / TILE, rows = H2 / TILE;
     const ox = m.width <= cols ? Math.round((W2 - m.width * TILE) / 2) : 0;
     const oy = m.height <= rows ? Math.round((H2 - m.height * TILE) / 2) : 0;
-    const cx = m.width <= cols ? 0 : clamp3(px - cols / 2 + 0.5, 0, m.width - cols);
-    const cy = m.height <= rows ? 0 : clamp3(py - rows / 2 + 0.5, 0, m.height - rows);
+    const cx = m.width <= cols ? 0 : clamp2(px - cols / 2 + 0.5, 0, m.width - cols);
+    const cy = m.height <= rows ? 0 : clamp2(py - rows / 2 + 0.5, 0, m.height - rows);
     return { px, py, t, ox, oy, cx, cy, cols, rows };
   }
-  function addMapActors(s, m, npcFacing = {}) {
+  function addMapActors(s, m, npcFacing = {}, intro = {}) {
     const drawables = [];
     for (const n of m.npcs) {
-      drawables.push({ x: n.x, y: n.y, depth: n.y, draw: (c, screen) => {
-        const [x, y] = screen(n.x, n.y);
-        const id = npcCast(n);
-        if (id) paintCast(c, id, x + TILE / 2, y + TILE, npcFacing[n.kind] || "down", 52);
-        else paintActor(c, x, y, actors[n.kind] || n.kind, "down", 0);
+      if (n.id === "refugee" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
+      const y = n.id === "refugee" && intro.page === "royalReport" ? 6 + (intro.raiderY - 7) : n.y;
+      drawables.push({ x: n.x, y, depth: y, draw: (c, screen) => {
+        const [px, py] = screen(n.x, y);
+        paintCast(c, npcCast(n) ?? "mobman", px + 12, py + 24, npcFacing[n.kind] || "down");
+        if (n.id === "refugee") paintCast(c, "mobwoman", px + 27, py + 28, "left", 24);
       } });
+    }
+    if (m.id === "castle" && intro.page === "royalReport") {
+      for (const [x, y, id] of [[4, 5, "mobman"], [5, 6, "mobwoman"], [10, 5, "mobold"], [11, 6, "mobman"]]) {
+        drawables.push({ x, y, depth: y, draw: (c, screen) => {
+          const [px, py] = screen(x, y);
+          paintCast(c, id, px + 12, py + 24, x < 7 ? "right" : "left");
+        } });
+      }
     }
     if (m.id === "leaf" && s.stage === "S02") {
       drawables.push(
@@ -18833,28 +18242,36 @@
           c.save();
           c.translate(x + 27, y + 2);
           c.rotate(Math.PI / 3);
-          paintCast(c, "elder", 12, 24, "down", 48);
+          paintCast(c, "mobold", 12, 24, "down", 30);
           c.restore();
         } },
         { x: 8, y: 9, depth: 9, draw: (c, screen) => {
           const [x, y] = screen(8, 9);
-          paintCast(c, "townswoman", x + 12, y + 24, "right", 48);
+          paintCast(c, "mobwoman", x + 12, y + 24, "right", 32);
         } }
       );
     }
     for (const obj of m.objects) {
       if (!entityAt(s, m, obj.x, obj.y)) continue;
-      drawables.push({ x: obj.x, y: obj.y, depth: obj.y, draw: (c, screen) => {
-        if (obj.kind === "onyxBoss") {
-          const [x, y] = screen(obj.x, obj.y);
-          paintCast(c, "voldo", x + TILE / 2, y + TILE, "down", 54);
-        } else paintObject(c, obj, screen, s);
+      if (obj.kind === "raider" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
+      const y = obj.kind === "raider" ? intro.raiderY ?? (intro.page === "pickup" ? obj.y - 1 : obj.y) : obj.y;
+      drawables.push({ x: obj.x, y, depth: y, draw: (c, screen) => {
+        const [px, py] = screen(obj.x, y);
+        if (obj.kind === "onyxBoss") paintCast(c, "voldo", px + 12, py + 24, "down");
+        else if (obj.kind === "raider") paintFrontEnemy(c, "m01", px + 12, py + 23, 28);
+        else if (obj.kind === "sword") paintPedestal(c, px, py, !(s.flags.swordGiven || s.owned.includes("stardust")));
+        else paintObject(c, obj, screen, s);
       } });
     }
     return drawables;
   }
-  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, pixels = null, follower = null) {
-    const zoom = pixels?.worldScale ?? 1;
+  function drawWorld(canvas, s, light = 0, motion = null, npcFacing = {}, pixels = null, follower = null, intro = {}) {
+    const map = MAPS[s.pos.map];
+    const zoom = map.id === "castle" ? Math.max(1, Math.min(
+      pixels?.worldScale ?? 2,
+      canvas.width / (map.width * TILE),
+      canvas.height / (map.height * TILE)
+    )) : pixels?.worldScale ?? 1;
     const W2 = Math.ceil(canvas.width / zoom), H2 = Math.ceil(canvas.height / zoom);
     const c = canvas.getContext("2d", { alpha: false });
     c.imageSmoothingEnabled = false;
@@ -18869,11 +18286,11 @@
     c.clip();
     c.drawImage(bg, dx, dy);
     const screen = (x, y) => [Math.round(x * TILE + dx), Math.round(y * TILE + dy)];
-    const drawables = addMapActors(s, m, npcFacing);
+    const drawables = addMapActors(s, m, npcFacing, intro);
     const minY = Math.max(0, Math.floor(v.cy) - 3), maxY = Math.min(m.height, Math.ceil(v.cy + v.rows) + 4);
     const minX = Math.max(0, Math.floor(v.cx) - 4), maxX = Math.min(m.width, Math.ceil(v.cx + v.cols) + 5);
     for (let y = minY; y < maxY; y++) for (let x = minX; x < maxX; x++) {
-      if (m.id === "leaf" || m.tiles[y][x] !== 4) continue;
+      if (m.tiles[y][x] !== 4) continue;
       const tx = x, ty = y;
       drawables.push({
         x: tx,
@@ -18923,7 +18340,7 @@
         y: b.y,
         depth: b.y + b.h - 0.15,
         draw: (ctx, screenFn) => {
-          if (m.id === "leaf") paintLeafBuilding(ctx, b, screenFn);
+          if (m.id === "leaf") paintChapterHouse(ctx, b, screenFn);
           else if (m.id === "sailun") paintSailunBuilding(ctx, b, screenFn);
           else paintBuilding(ctx, b, screenFn, m.id);
         }
@@ -18942,11 +18359,12 @@
     drawables.push({ x: v.px, y: v.py, depth: v.py + 0.12, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(v.px, v.py);
       const f = motion && v.t < 1 ? heroGaitFrame(motion, v.t) : 0;
-      paintFieldHero(ctx, x + TILE / 2, y + TILE, motion?.facing ?? s.pos.facing, f, 54, s.equipment.weapon);
+      if (intro.swordGlow) shot(ctx, x + 8, y + 9, 8, 8, "#fcdf84");
+      paintCast(ctx, "allen", x + TILE / 2, y + TILE, motion?.facing ?? s.pos.facing, 32, f);
     } });
     if (follower) drawables.push({ x: follower.x, y: follower.y, depth: follower.y + 0.11, draw: (ctx, screenFn) => {
       const [x, y] = screenFn(follower.x, follower.y);
-      paintCast(ctx, follower.id, x + TILE / 2, y + TILE, follower.facing, 52, follower.frame);
+      paintCast(ctx, follower.id, x + TILE / 2, y + TILE, follower.facing, 32, follower.frame);
     } });
     drawables.sort((a, b) => a.depth - b.depth);
     for (const actor of drawables) {
@@ -18990,125 +18408,103 @@
     ctx.drawImage(bg, ox, oy);
     const resident2 = { x: 6, y: 3 };
     const moving = motion && motion.id === room.id;
-    const t = moving ? clamp3((performance.now() - motion.start) / motion.duration, 0, 1) : 1;
+    const t = moving ? clamp2((performance.now() - motion.start) / motion.duration, 0, 1) : 1;
     const x = moving ? motion.fromX + (room.x - motion.fromX) * t : room.x;
     const y = moving ? motion.fromY + (room.y - motion.fromY) * t : room.y;
     const drawables = [
       { y: resident2.y, fn: () => paintCast(
         ctx,
         {
-          library: "elder",
-          tailor: "townswoman",
-          home: "elder",
-          inn: "townsman",
-          shop: "townsman",
-          "harbor-inn": "townsman",
-          "harbor-shop": "townsman"
+          library: "mobold",
+          tailor: "mobwoman",
+          home: "mobold",
+          inn: "mobwoman",
+          shop: "mobman",
+          "harbor-inn": "mobman",
+          "harbor-shop": "mobman"
         }[interiorDefinition(room).theme],
         ox + (resident2.x + 0.5) * TILE,
         oy + (resident2.y + 1) * TILE,
         "down",
-        52
+        32
       ) },
-      { y: y + 0.1, fn: () => paintFieldHero(
+      { y: y + 0.1, fn: () => paintCast(
         ctx,
+        "allen",
         ox + x * TILE + TILE / 2,
         oy + y * TILE + TILE,
         room.facing,
-        t < 1 ? heroGaitFrame(motion, t) : 0,
-        54
+        32,
+        t < 1 ? heroGaitFrame(motion, t) : 0
       ) }
     ];
-    if (lucaVisiting) drawables.push({ y: 6, fn: () => paintCast(ctx, "luca", ox + 5.5 * TILE, oy + 7 * TILE, "right", 52) });
+    if (lucaVisiting) drawables.push({ y: 6, fn: () => paintCast(ctx, "luca", ox + 5.5 * TILE, oy + 7 * TILE, "right", 32) });
     drawables.sort((a, b) => a.y - b.y).forEach((a) => a.fn());
     ctx.restore();
   }
-  function drawFight(canvas, s, b, impact = null, area = monsterById(b.id).area, selectedSlot = null) {
+  function paintFrontEnemy(ctx, id, x, feet, size) {
+    const index = id === "vold" ? 0 : Number(id.slice(1)) - 1;
+    const image = retroAsset(id === "vold" ? "vold" : "monsters");
+    ctx.drawImage(
+      image,
+      index % 6 * 64,
+      Math.floor(index / 6) * 64,
+      64,
+      64,
+      Math.round(x - size / 2),
+      Math.round(feet - size),
+      size,
+      size
+    );
+  }
+  function drawFight(canvas, b, impact = null, area = monsterById(b.id).area, selectedSlot = null) {
     const W2 = canvas.width, H2 = canvas.height;
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.imageSmoothingEnabled = false;
     const now = performance.now();
-    const layout = paintSfcBattleBackground(ctx, W2, H2, area);
-    const party = b.guest ? battleFormationSlots(W2, H2, { allies: 2 }).allies : null;
-    const heroX = party?.[0].x ?? layout.heroX;
-    const companion = party?.[1];
+    paintSfcBattleBackground(ctx, W2, H2, area);
     const progress = impact?.reduced ? 0.25 : combatFeedbackProgress(impact, now);
-    const moving = impact && !impact.reduced && impact.phase !== "impact";
-    const attacking = moving && impact.type === "blade" && progress < 0.7;
-    const advance = attacking ? Math.round(16 * Math.sin(Math.PI * progress / 0.7)) : 0;
-    const hurt = impact?.playerDamage > 0 && !impact.reduced && progress < 0.65;
-    const recoil = hurt ? Math.round(13 * (1 - progress / 0.65) * Math.cos(progress * 30)) : 0;
-    const foeRecoil = impact && !impact.reduced && impact.enemyDamage > 0 && progress < 0.55 ? Math.round(5 * Math.sin(progress * 19)) : 0;
-    const solo = b.enemies.length === 1;
-    const slots = solo ? [{ x: layout.enemyX, feet: layout.foot }] : battleFormationSlots(W2, H2, { enemies: b.enemies.length }).enemies;
-    const retreat = moving && impact.type === "escape" ? Math.round(18 * Math.sin(Math.PI * progress)) : 0;
-    const effects = slots.map(({ x, feet }, i) => {
-      const enemy = b.enemies[i];
-      const size = solo ? Math.min(W2 * 0.36, feet - 60, enemy.id === "vold" ? 174 : 144) : Math.min(W2 * 0.15, feet - 56, 85);
-      return { enemyX: x, enemyFoot: feet, enemySize: size };
-    });
+    const { enemies: slots } = battleFormationSlots(W2, H2, { enemies: b.enemies.length });
     for (const enemy of b.enemies) {
-      const { enemyX: x, enemyFoot: feet, enemySize: size } = effects[enemy.slot];
+      const { x, feet } = slots[enemy.slot];
       const active = impact?.enemySlot === enemy.slot;
-      const defeated = active && impact.defeated && progress < 0.85;
-      if (enemy.hp === 0 && !defeated && !solo) continue;
-      if (enemy.hp > 0 || defeated) {
-        const scale = size / (enemy.id === "vold" ? 158 : 144);
-        const enemyAdvance = active && moving && impact.type === "enemy" ? Math.round(16 * Math.sin(Math.PI * progress)) : 0;
-        ctx.save();
-        ctx.translate(x + (active ? foeRecoil : 0) + enemyAdvance, feet);
-        ctx.scale(enemy.id === "m01" ? scale : -scale, scale);
-        if (enemy.hp === 0) ctx.globalAlpha = (progress > 0.25 && progress < 0.4 ? 0.35 : 1) * (1 - progress * 0.8);
-        if (enemy.id === "m01") paintPoyon(ctx, 0, 0, 104);
-        else if (area === "cave" && enemy.id === "m06" && retroAssetsReady()) {
-          ctx.drawImage(retroAsset("caveChief"), -72, -142, 144, 144);
-        } else paintMonster(ctx, enemy.id, 0, 0);
-        ctx.restore();
+      const hit = active && impact.enemyDamage > 0 && progress < 0.65;
+      const size = enemy.id === "vold" ? 158 : 128;
+      if (enemy.hp === 0 && !(active && impact.defeated && progress < 0.85)) continue;
+      ctx.save();
+      if (hit && Math.floor(progress * 18) % 2 === 0) ctx.globalAlpha = 0.45;
+      const shake = hit && !impact.reduced ? Math.round(Math.sin(progress * 55) * 5) : 0;
+      paintFrontEnemy(ctx, enemy.id, x + shake, feet, size);
+      ctx.restore();
+      const barW = 52, barX = Math.round(x - barW / 2);
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#181c29";
+      ctx.strokeText(enemy.name, x, feet + 11);
+      ctx.fillStyle = "#fff3d7";
+      ctx.fillText(enemy.name, x, feet + 11);
+      shot(ctx, barX, feet + 15, barW, 4, "#222636");
+      shot(ctx, barX, feet + 15, Math.round(barW * enemy.hp / enemy.maxHp), 4, "#f6acae");
+      if (selectedSlot === enemy.slot) {
+        ctx.fillStyle = "#ffe099";
+        ctx.fillText("\u25BC", x, Math.max(23, feet - size - 6));
       }
     }
-    ctx.save();
-    if (hurt && impact.ally !== "guest" && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
-    paintSharedHero(ctx, heroX - (impact?.guestActor ? 0 : advance) + (impact?.ally === "guest" ? 0 : recoil) + retreat, layout.foot, "left", 0, layout.heroScale, s.equipment.weapon);
-    ctx.restore();
-    if (b.guest?.hp > 0) {
-      const size = layout.heroScale * 2.8;
-      ctx.save();
-      if (hurt && impact.ally === "guest" && Math.floor(progress * 10) % 2 === 0) ctx.globalAlpha = 0.35;
-      ctx.translate(companion.x - (impact?.guestActor ? advance : 0) + (impact?.ally === "guest" ? recoil : 0) + retreat, companion.feet);
-      ctx.scale(size, size);
-      paintActor(ctx, -TILE / 2, -TILE, b.guest.sprite, "left", 0);
-      ctx.restore();
-    }
-    paintSfcBattleEffects(ctx, W2, H2, impact, now, {
-      ...layout,
-      heroX: impact?.ally === "guest" ? companion.x : heroX,
-      ...effects[impact?.enemySlot] ?? effects[0]
-    });
-    for (const enemy of b.enemies) {
-      const { enemyX: x, enemyFoot: feet, enemySize: size } = effects[enemy.slot];
-      const defeated = impact?.enemySlot === enemy.slot && impact.defeated && progress < 0.85;
-      if (enemy.hp === 0 && !defeated && !solo) continue;
-      const barW = Math.round(Math.min(52, size * 0.55));
-      const barX = Math.round(x - barW / 2), barY = Math.round(feet + 9);
-      shot(ctx, barX, barY, barW, 3, "#222636");
-      shot(ctx, barX, barY, Math.round(barW * enemy.hp / enemy.maxHp), 3, "#f6acae");
-      if (selectedSlot !== enemy.slot) continue;
-      ctx.font = "bold 12px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const labelW = Math.ceil(ctx.measureText(enemy.name).width) + 14;
-      const top = feet - size - 21;
-      shot(ctx, Math.round(x - labelW / 2), top, labelW, 18, "#131d2eec");
-      ctx.fillStyle = "#fff";
-      ctx.fillText(enemy.name, x, top + 9);
-      ctx.fillStyle = "#ffe099";
-      ctx.fillText("\u25BC", x, top + 24);
-    }
+    const target = slots[impact?.enemySlot] ?? slots[0];
+    if (impact?.enemyDamage > 0) paintSfcBattleEffects(
+      ctx,
+      W2,
+      H2,
+      { ...impact, playerDamage: 0, healing: 0, target: "enemy" },
+      now,
+      { enemyX: target.x, enemyFoot: target.feet, enemySize: 128, foot: target.feet }
+    );
     if (b.ward > 0) {
-      ctx.textAlign = "center";
       ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "right";
       ctx.fillStyle = "#d6f3e3";
-      ctx.fillText("\u5B88\u308A\u306E\u5149", heroX, 51);
+      ctx.fillText("\u5B88\u308A\u306E\u5149", W2 - 12, H2 - 12);
     }
     ctx.textAlign = "left";
   }
@@ -19351,7 +18747,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261120-preview-new-game";
+  $("build-id").textContent = "20261120-production-s00-s03";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -19480,7 +18876,6 @@
     const t = walkMotion ? Math.min(1, (performance.now() - walkMotion.start) / walkMotion.duration) : 1;
     return {
       ...guest,
-      sprite: "luca-field",
       ...rest2,
       x: from.x + (rest2.x - from.x) * t,
       y: from.y + (rest2.y - from.y) * t,
@@ -19488,28 +18883,17 @@
     };
   }
   function paintCurrentWorld() {
-    const follower = followerPosition();
-    if (state.pos.map === "castle") {
-      if (!castleArtReady()) throw Error("Approved castle art not loaded");
-      const page = introPage(state);
-      const shot2 = introShot;
-      const view = shot2 ? { ...state, pos: shot2.pos } : state;
-      renderCastleScene($("game"), view, shot2?.motion ?? walkMotion, performance.now(), {
-        page: shot2?.page ?? page,
-        raiderY: shot2?.raiderY,
-        swordGlow: shot2?.swordGlow
-      }, explorationPixels, follower);
-    } else drawWorld($("game"), state, lightSteps, walkMotion, leafNpcFacing, explorationPixels, follower);
+    const shot2 = introShot;
+    const view = shot2 ? { ...state, pos: shot2.pos } : state;
+    const scene = { page: shot2?.page ?? introPage(state), raiderY: shot2?.raiderY, swordGlow: shot2?.swordGlow };
+    drawWorld($("game"), view, lightSteps, shot2?.motion ?? walkMotion, leafNpcFacing, explorationPixels, followerPosition(), scene);
   }
   function paintCurrentRoom() {
-    if (interior?.id === "castle-library") {
-      if (!castleArtReady()) throw Error("Approved castle library art not loaded");
-      renderCastleLibrary($("game"), state, interior, roomMotion, performance.now(), explorationPixels);
-    } else drawRoom($("game"), interior, roomMotion, explorationPixels, LUCA_JOIN.includes(queue[0]));
+    drawRoom($("game"), interior, roomMotion, explorationPixels, LUCA_JOIN.includes(queue[0]));
   }
   function drawBattle() {
     const display = battleDisplay ? { ...battle, enemies: battleDisplay.enemies, ward: battleDisplay.ward, guest: battleDisplay.guest } : battle;
-    drawFight($("game"), state, display, battleFx, battleArea, menuChoices[menuIndex]?.targetSlot);
+    drawFight($("game"), display, battleFx, battleArea, menuChoices[menuIndex]?.targetSlot);
   }
   var displayedLocation = "";
   var locationTimer;
@@ -19573,14 +18957,22 @@
     $("dialogue").classList.toggle("can-advance", canAdvance);
     const status = $("battle-status");
     status.hidden = !battle;
-    status.classList.toggle("is-damaged", Boolean(battleFx?.playerDamage));
+    $("battle-status-name").closest(".battle-member").classList.toggle(
+      "is-damaged",
+      battleFx?.playerDamage > 0 && battleFx.ally !== "guest"
+    );
+    $("battle-guest").classList.toggle("is-damaged", battleFx?.playerDamage > 0 && battleFx.ally === "guest");
     if (battle) {
       const player = battleDisplay?.player ?? state.player;
       const guest = battleDisplay?.guest ?? battle.guest;
       $("battle-guest").hidden = !guest;
       status.classList.toggle("has-guest", Boolean(guest));
       paintBattleStatus("battle", state.name + "  Lv." + player.level, player, maxHp(player.level), maxMp(player.level));
-      if (guest) paintBattleStatus("guest", guest.name + (guest.hp ? "" : " \xB7 \u6226\u95D8\u4E0D\u80FD"), guest, guest.maxHp, guest.maxMp);
+      if (guest) {
+        const portrait = $("guest-portrait"), src = castPortrait(guest.id);
+        if (portrait.getAttribute("src") !== src) portrait.src = src;
+        paintBattleStatus("guest", guest.name + (guest.hp ? "" : " \xB7 \u6226\u95D8\u4E0D\u80FD"), guest, guest.maxHp, guest.maxMp);
+      }
     }
     for (const [index, button] of battleButtons.entries()) button.disabled = Boolean(battleEnding || page && !battle || queue.length > 0 && (Boolean(battle) || index !== 0));
     const milestone = queue.find((line) => /【第一幕クリア】|【第二幕クリア】|【第三幕】|【終幕】/.test(line));
@@ -20316,6 +19708,14 @@
     }
     const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
     const previous = state.pos;
+    if (previous.map === "castle") {
+      const doorway = enterableDoor({ ...previous, facing: dir });
+      if (doorway) {
+        state = { ...state, pos: { ...previous, facing: dir } };
+        enterInterior(doorway);
+        return;
+      }
+    }
     const r2 = move(state, dx, dy);
     if (!["leaf", "sailun"].includes(r2.state.pos.map)) leafNpcFacing = {};
     stopWalkAnimation();
@@ -20345,6 +19745,16 @@
     } else if (r2.kind === "portal" && lightSteps > 0) {
       lightSteps = 0;
     }
+  }
+  function enterInterior(doorway) {
+    stopWalkAnimation();
+    stopRoomAnimation();
+    interior = makeInterior(doorway);
+    audio.cue("run");
+    const arrival = doorway.name + "\u306B\u5165\u3063\u305F\u3002\u5BB6\u5177\u3084\u4F4F\u4EBA\u306B\u8FD1\u3065\u304D\u3001A\u3067\u8A71\u3059\u30FB\u8ABF\u3079\u308B\u3002\u51FA\u53E3\u306F\u4E0B\u306E\u6249\u3002";
+    const recruitment = doorway.id === "leaf-shop" ? recruitLuca(state) : null;
+    if (recruitment) apply({ ...recruitment, messages: [arrival, ...recruitment.messages] });
+    else message([arrival]);
   }
   function confirm() {
     if (!state) return;
@@ -20382,14 +19792,7 @@
     try {
       const doorway = enterableDoor(state.pos);
       if (doorway) {
-        stopWalkAnimation();
-        stopRoomAnimation();
-        interior = makeInterior(doorway);
-        audio.cue("run");
-        const arrival = doorway.name + "\u306B\u5165\u3063\u305F\u3002\u5BB6\u5177\u3084\u4F4F\u4EBA\u306B\u8FD1\u3065\u304D\u3001A\u3067\u8A71\u3059\u30FB\u8ABF\u3079\u308B\u3002\u51FA\u53E3\u306F\u4E0B\u306E\u6249\u3002";
-        const recruitment = doorway.id === "leaf-shop" ? recruitLuca(state) : null;
-        if (recruitment) apply({ ...recruitment, messages: [arrival, ...recruitment.messages] });
-        else message([arrival]);
+        enterInterior(doorway);
         return;
       }
       if (["leaf", "sailun"].includes(state.pos.map)) {
@@ -20830,9 +20233,8 @@
     try {
       const loading3 = [
         preloadRetroAssets(),
-        preloadCastleArt(),
         preloadSfcBattleArt(),
-        preloadLeafRedoArt(),
+        preloadLeafProps(),
         preloadSailunArt(),
         preloadOpeningArt(),
         preloadCastArt()
@@ -20870,5 +20272,5 @@
     layoutStage();
     if (state) paint();
   });
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castleArtReady(), heroSprite: castleArtDebug().lastHeroSprite }), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castArtReady(), heroSprite: heroSprite() }), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();

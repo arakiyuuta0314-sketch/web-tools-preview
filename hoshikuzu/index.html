@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261120-preview-new-game">
+<link rel="stylesheet" href="rpg.css?v=20261120-production-s00-s03">
 </head>
 <body>
 <div id="game-stage">
@@ -47,6 +47,7 @@
   <section class="controls" id="controls" aria-label="ゲームコントローラー">
       <div class="battle-status" id="battle-status" hidden aria-label="戦闘中の味方ステータス">
         <div class="battle-member">
+          <img class="battle-portrait" src="assets/cast/face_allen.png" alt="">
           <strong id="battle-status-name">アレン</strong>
           <div class="battle-resource">
             <span id="battle-status-hp">HP 0</span>
@@ -58,6 +59,7 @@
           </div>
         </div>
         <div class="battle-member" id="battle-guest" hidden>
+          <img class="battle-portrait" id="guest-portrait" alt="">
           <strong id="guest-status-name">ゲスト</strong>
           <div class="battle-resource">
             <span id="guest-status-hp">HP 0</span>
@@ -137,6 +139,6 @@
 </section>
 </div>
 <p id="rotate-notice" hidden>端末を横向きにすると、画面が大きくなります。</p>
-<script defer src="app.js?v=20261120-preview-new-game"></script>
+<script defer src="app.js?v=20261120-production-s00-s03"></script>
 </body>
 </html>

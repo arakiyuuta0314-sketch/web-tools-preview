@@ -444,10 +444,10 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .battle-resource progress::-webkit-progress-bar{background:#344356;border-radius:2px}
 .battle-resource progress::-webkit-progress-value{background:var(--fill);border-radius:2px}
 .battle-resource progress::-moz-progress-bar{background:var(--fill);border-radius:2px}
-.battle-status.is-damaged{animation:battle-damage .31s ease-in-out 2 alternate}
+.battle-member.is-damaged{animation:battle-damage .31s ease-in-out 2 alternate}
 @keyframes battle-damage{50%{background:#842f41}}
 @media (prefers-reduced-motion:reduce){
- .battle-status.is-damaged{animation:none;background:#842f41}
+ .battle-member.is-damaged{animation:none;background:#842f41}
 }
 
 .game-shell{
@@ -666,3 +666,11 @@ body.is-portrait{background:#05080d}
 .action-panel:has(.equipment-section){width:min(360px,70%)}
 .panel-content:has(.equipment-section){gap:3px}
 .panel-content:has(.equipment-section) button{min-height:25px;padding-block:3px}
+
+.battle-member{grid-template-columns:auto minmax(0,1fr)}
+.battle-member > :not(img){grid-column:2}
+.battle-portrait{
+ grid-column:1;grid-row:1/span 3;width:42px;aspect-ratio:320/420;
+ object-fit:contain;object-position:bottom;align-self:center;margin-right:5px
+}
+.in-battle .battle-status.has-guest{padding-right:8px}
