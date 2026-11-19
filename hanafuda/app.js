@@ -10868,6 +10868,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const score = completedYakuSummary(g.round.captured[0], g.round.koiCalls);
     return '<div class="teacher-dim decision-dim" aria-hidden="true"></div><section class="decision-panel table-panel" role="dialog" aria-modal="true" aria-labelledby="decision-title"><h2 id="decision-title">\u52DD\u8CA0\u3059\u308B\uFF1F \u3053\u3044\u3053\u3044\u3059\u308B\uFF1F</h2>' + yakuNames(score.yakus) + '<dl class="decision-scores"><div><dt>\u5F79\u306E\u5408\u8A08</dt><dd>' + score.raw + "\u70B9</dd></div><div><dt>\u52DD\u8CA0\u3067\u78BA\u5B9A</dt><dd>" + score.points + "\u70B9</dd></div></dl>" + (g.tutorial ? '<div class="teacher-speech"><p>' + esc(lesson.description) + "</p></div>" : "") + '<div class="decision-actions"><button class="primary" data-action="stop">\u52DD\u8CA0\u3059\u308B</button><button class="secondary" data-action="koi">\u3053\u3044\u3053\u3044</button></div>' + hintButton + "</section>";
   }
+  function usesStagedCards(g) {
+    return g.matchLesson === 6 || !g.tutorial && !g.matchLesson;
+  }
   function gameView() {
     const g = state.active;
     if (!g) return home();
@@ -10880,7 +10883,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const drawChoice = !playback && r.current === 0 && r.phase === "draw-target";
     const handChoice = !playback && matchingNow.length === 2;
     const choiceCard = drawChoice ? card(r.pendingDraw) : null;
-    const stagedDrawChoice = drawChoice && g.matchLesson === 6;
+    const stagedDrawChoice = drawChoice && usesStagedCards(g);
     const stockFace = stagedDrawChoice ? null : drawChoice ? r.pendingDraw : playback?.stockCard;
     const markedStock = drawChoice || stockFace && playback.drawnCard === stockFace;
     const teachingStock = Boolean(g.tutorial || g.matchLesson);
@@ -11054,8 +11057,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     };
     return { title: "\u672D\u304C\u5834\u306B\u6B8B\u308B", description: month + "\u306E\u5834\u672D\u304C\u306A\u3044\u306E\u3067\u3001" + origin + "\u306F\u5834\u306B\u6B8B\u308B\u3088\u3002" };
   }
-  async function replayMoves(board, round, { teachingStock = false, matchLesson = false } = {}) {
-    const motion = matchLesson ? MATCH_LESSON_MOTION : TURN_MOTION;
+  async function replayMoves(board, round, { teachingStock = false, matchLesson, stageCards }) {
+    const motion = stageCards ? MATCH_LESSON_MOTION : TURN_MOTION;
     const controller = new AbortController();
     const { signal } = controller;
     const playback = {
@@ -11150,11 +11153,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         const { actor, card: id, source, taken } = move;
         const who = actor === 0 ? "\u3042\u306A\u305F" : "\u76F8\u624B";
         const fromStock = source === "stock";
-        const emphasize = fromStock || actor === 1 || matchLesson;
+        const emphasize = fromStock || actor === 1 || stageCards;
         board.current = actor;
         const newDraw = fromStock && playback.stockCard !== id;
         if (newDraw) board.stock.shift();
-        if (newDraw && !matchLesson) {
+        if (newDraw && !stageCards) {
           playback.stockCard = id;
           frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
           const face = find(".stock-face");
@@ -11172,22 +11175,22 @@ Enter "E" to fail with an error.Anything else to cancel.`);
             playback.explainStock = false;
           } else if (!await wait(motion.afterReveal)) return false;
         }
-        if (move.awaitingChoice && !matchLesson) break;
+        if (move.awaitingChoice && !stageCards) break;
         const kind = fromStock ? "stock" : "hand";
         const duration = fromStock ? motion.drawFlight : emphasize ? motion.handFlight : motion.playerHandFlight;
-        const alreadyStaged = matchLesson && fromStock && !newDraw;
+        const alreadyStaged = stageCards && fromStock && !newDraw;
         let origin;
         if (!alreadyStaged) {
           playback.lesson = null;
           frame("source", who + "\u306E\u756A");
           const hand = board.hands[actor];
           const handIndex = hand.indexOf(id);
-          const sourceCard = fromStock ? find(matchLesson ? ".stock-back" : ".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex];
+          const sourceCard = fromStock ? find(stageCards ? ".stock-back" : ".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex];
           origin = bounds(sourceCard);
           if (!fromStock) hand.splice(handIndex, 1);
         }
         playback.stockCard = null;
-        if (matchLesson) {
+        if (stageCards) {
           playback.stagedCard = id;
           if (fromStock) playback.drawnCard = id;
           if (!alreadyStaged) {
@@ -11195,32 +11198,32 @@ Enter "E" to fail with an error.Anything else to cancel.`);
             frame(fromStock ? "stock-reveal" : "hand-play", who + (fromStock ? "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F"));
             const staged = find(".lesson-played-card");
             if (!await landCard(id, origin, staged, duration, emphasize)) return false;
-            if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
+            if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(motion.afterPlay))) return false;
             if (move.awaitingChoice) break;
             origin = bounds(staged);
           }
-          setLesson(matchResolutionLesson(move));
+          if (matchLesson) setLesson(matchResolutionLesson(move));
         }
         let played;
-        if (matchLesson && taken.length) {
+        if (stageCards && taken.length) {
           playback.matches = taken.filter((cardId) => cardId !== id);
           frame(kind + "-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
         } else {
           playback.stagedCard = null;
           board.field.push(id);
-          const caption = matchLesson ? "\u672D\u304C\u5834\u306B\u6B8B\u308B" : who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
-          frame(kind + (matchLesson ? "-stay" : "-play"), caption);
+          const caption = stageCards ? "\u672D\u304C\u5834\u306B\u6B8B\u308B" : who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
+          frame(kind + (stageCards ? "-stay" : "-play"), caption);
           played = fieldCard(id);
           if (!await landCard(id, origin, played, duration, emphasize)) return false;
-          if (!matchLesson && !await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
+          if (!stageCards && !await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
         }
         if (taken.length) {
-          if (!matchLesson) {
+          if (!stageCards) {
             playback.matches = matching(board.field.filter((cardId) => cardId !== id), id);
             frame(kind + "-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
           }
           if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(emphasize ? motion.match : motion.playerHandMatch))) return false;
-          const origins = taken.map((cardId) => bounds(matchLesson && cardId === id ? find(".lesson-played-card") : fieldCard(cardId).querySelector("img")));
+          const origins = taken.map((cardId) => bounds(stageCards && cardId === id ? find(".lesson-played-card") : fieldCard(cardId).querySelector("img")));
           playback.stagedCard = null;
           const side = actor === 0 ? ".player-side" : ".opponent-side";
           const captureStage = kind + "-capture";
@@ -11289,7 +11292,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (before) g.pendingTurnPresentation = true;
     if (g.betting && g.finished) recordIfDone();
     save();
-    if (before && !await replayMoves(before, g.round, { teachingStock: g.tutorial || g.matchLesson, matchLesson: g.matchLesson === 6 })) return;
+    const presentationOptions = { matchLesson: g.matchLesson === 6, stageCards: usesStagedCards(g) };
+    if (before && !await replayMoves(before, g.round, { ...presentationOptions, teachingStock: g.tutorial || g.matchLesson })) return;
     if (g.pendingYakuCelebration) {
       render();
       await showYakuCelebration(g.pendingYakuCelebration);
@@ -11314,7 +11318,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (cpuBefore) g.pendingTurnPresentation = true;
     recordIfDone();
     save();
-    if (cpuBefore && !await replayMoves(cpuBefore, r, { matchLesson: g.matchLesson === 6 })) return;
+    if (cpuBefore && !await replayMoves(cpuBefore, r, presentationOptions)) return;
     delete g.pendingTurnPresentation;
     save();
     render();
