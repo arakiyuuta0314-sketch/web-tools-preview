@@ -428,7 +428,7 @@
   }
   .play-layout.seated-layout .game-board-wrap::before{
     content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-    background:url("images/opponent-arms-fan-watercolor.png") center center/100% 100% no-repeat;
+    background:var(--opponent-board,url("images/opponent-arms-fan-watercolor.png")) center center/100% 100% no-repeat;
   }
   .play-layout.seated-layout .tabletop{
     position:absolute!important;inset:0!important;z-index:2!important;
@@ -1091,4 +1091,13 @@
 .board-opponent > .lesson-played-card {
   top:100%;
   bottom:auto;
+}
+
+@media (orientation:landscape) and (max-height:620px){
+  .play-layout.seated-layout.beginner-match .board-side{
+    grid-template-rows:minmax(0,.75fr) minmax(78px,1.25fr)!important;
+  }
+  .play-layout.seated-layout.beginner-match .board-yaku-cards img{
+    flex:0 1 auto!important;min-width:0!important;
+  }
 }

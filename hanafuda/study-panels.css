@@ -138,19 +138,6 @@
   object-fit:contain;
 }
 .open-book .hana.is-inspected {outline:2px solid #ba762d;outline-offset:2px}
-.open-book .book-index {
-  position:relative;
-  overflow:auto;
-  padding:7px 12px;
-  border-left:1px solid #ad8050;
-  border-radius:2px 5px 4px 0;
-  box-shadow:inset 9px 0 16px -14px #6a4221,inset 0 -3px #b68e5c;
-}
-.book-index dl {margin:0}
-.book-index dl > div {padding:3px 5px;border-bottom:1px solid #9b714740}
-.book-index dl > div.is-inspected {background:#bf863c27}
-.book-index dt {font:15px/1.25 "TutorialYuji",serif}
-.book-index dd {margin:2px 0 0;font-size:12px;line-height:1.35}
 .month-tabs {
   display:grid;
   grid-template-columns:repeat(12,minmax(0,1fr));
@@ -278,65 +265,15 @@
   overflow:visible;
 }
 
-.match-menu {
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  grid-template-areas:"header header" "modes modes" "lengths lengths" "beginner beginner" "guide guide";
-  align-content:center;
-  align-items:center;
-  gap:clamp(7px,2vh,15px) 22px;
-  min-height:0;
-  height:100%;
-  padding-inline:clamp(0px,2vw,22px);
-}
-.match-menu-betting {
-  grid-template-areas:"header header" "modes modes" "stakes lengths" "stakes beginner" "guide guide";
-}
 .match-menu > .row {grid-area:header}
 .match-menu > .mode-signs {grid-area:modes;gap:12px}
-.match-menu > .betting-options {grid-area:stakes}
-.match-menu > .match-lengths {grid-area:lengths}
-.match-menu > .match-beginner {grid-area:beginner}
-.match-menu > .inline-teacher {grid-area:guide}
-.match-menu h2 {margin:0 0 4px;font-size:17px;color:#ffe6bb}
-.match-menu h2 small {font:.72em var(--study-body)}
-/* The home signs have painted labels. Reuse the lesson plaque material for live labels. */
-.tutorial-aligned .match-menu .mode-signs button {
-  min-height:58px;
-  border:2px solid #bb925a;
-  border-radius:5px;
-  background:repeating-linear-gradient(177deg,#b8854b25 0 1px,transparent 2px 5px),
-    linear-gradient(#87603b,#56351f);
-  box-shadow:inset 0 0 0 3px #2b170d80,0 4px 0 #2e190f,0 6px 7px #0009;
-  color:#ffe6bb;
-  font:clamp(18px,3vw,25px)/1 "TutorialYuji",serif;
-  text-shadow:0 2px 2px #32180c;
-}
-.tutorial-aligned .match-menu .mode-signs button.active {
-  background:repeating-linear-gradient(177deg,#9a622222 0 1px,transparent 2px 5px),
-    linear-gradient(#eacb92,#bc884c);
-  border-color:#e6ba72;
-  box-shadow:inset 0 0 0 3px #76482265,0 4px 0 #583321,0 6px 7px #0009;
-  color:#4a2717;
-  text-shadow:0 1px #f6dba2;
-}
-.length-signs,.rate-signs {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:6px;
-}
-.tutorial-aligned .length-signs button {
-  min-height:40px;
-  font-size:17px;
-}
-.tutorial-aligned .betting-options {
+.match-menu h2 {color:#ffe6bb}
+.tutorial-aligned .betting-wallet {
   padding:0;
-  gap:7px;
-  color:inherit;
-  border:0;
   background:none;
+  border:0;
+  color:inherit;
 }
-.tutorial-aligned .betting-wallet {justify-content:start}
 .tutorial-aligned .betting-wallet strong {margin-inline-end:auto;font:22px/1 "TutorialYuji",serif}
 .tutorial-aligned .betting-wallet strong small {font-size:12px}
 .coin-medallion {
@@ -357,20 +294,6 @@
   background:#4c301c;
   border:1px solid #eac471;
 }
-.tutorial-aligned .rate-signs button {
-  padding:4px 2px;
-  min-height:40px;
-  border-radius:50%;
-  font-size:clamp(11px,1.8vw,15px);
-}
-.tutorial-aligned .match-beginner {gap:5px}
-.match-beginner h2 {margin:0 5px 0 0}
-.tutorial-aligned .match-menu :is(.match-beginner,.betting-wallet) button {
-  min-height:31px;
-  padding:3px 10px;
-  font-size:14px;
-}
-
 @media (orientation:landscape) and (max-height:620px) {
   .tutorial-aligned .quiz-screen {
     grid-template-rows:42px minmax(0,1fr) auto;
@@ -382,17 +305,197 @@
 }
 @media (max-width:550px) and (orientation:portrait) {
   .month-tabs {grid-template-columns:repeat(6,minmax(0,1fr))}
-  .open-book {grid-template-columns:1fr;grid-template-rows:1fr 1fr}
   .yaku-scroll {grid-template-columns:minmax(0,1fr)}
-  .match-menu {gap:8px}
-  .match-menu-betting {
-    grid-template-areas:"header header" "modes modes" "stakes stakes" "lengths lengths" "beginner beginner" "guide guide";
-  }
+
 }
 
 @media (orientation:landscape) and (max-height:360px) {
   .tutorial-aligned .scene-body {padding-block:7px}
   .tutorial-aligned .reference-page {gap:3px}
   .tutorial-aligned .reference-page .kicker {display:none}
-  .match-menu {gap:6px 15px}
 }
+
+/* Match choices use the same wooden shape for every action. */
+.tutorial-aligned .feedback-match {
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  grid-template-areas:"header header" "modes companion" "controls companion" "guide guide";
+  align-content:stretch;
+  align-items:stretch;
+  gap:7px 16px;
+  min-height:0;
+  height:100%;
+  padding-inline:0;
+}
+.feedback-match .match-controls {
+  grid-area:controls;
+  display:grid;
+  align-content:space-evenly;
+  gap:4px;
+  min-height:0;
+}
+.feedback-match .match-choices > div {
+  display:flex;
+  gap:5px;
+}
+.feedback-match .match-choices h2 {font-size:15px;margin:0 0 2px}
+.feedback-match .match-choices button {flex:1;padding:2px 4px;min-width:0}
+.tutorial-aligned .feedback-match button:not(.quiet,.match-portrait) {
+  min-height:30px;
+  border:1px solid #a87846;
+  border-radius:4px;
+  background:repeating-linear-gradient(176deg,#77431622 0 1px,transparent 2px 5px),
+    linear-gradient(#dfb579,#ad7644);
+  box-shadow:inset 0 0 0 2px #ffe3a553,0 2px 0 #4c2b1c;
+  color:#321d12;
+  font-family:"TutorialYuji",serif;
+  text-shadow:none;
+}
+.tutorial-aligned .feedback-match .mode-signs button {
+  min-height:40px;
+  font-size:clamp(18px,3vw,25px);
+}
+.feedback-match .match-companion {
+  grid-area:companion;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  gap:5px;
+}
+.feedback-match .match-heading .kicker {margin:0;font-size:13px}
+.feedback-match > .inline-teacher {grid-area:guide}
+.opponent-stage {position:relative;width:100%;flex:1;min-height:0}
+.tutorial-aligned .feedback-match .match-portrait {
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:0;
+  background:none;
+  border:0;
+  box-shadow:none;
+}
+.match-portrait .match-character {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+}
+.tutorial-aligned .teacher-bubble.opponent-line {
+  position:absolute;
+  inset:auto 5% 8px;
+  display:block;
+  width:90%;
+  padding:8px 12px;
+  pointer-events:none;
+}
+.tutorial-aligned .teacher-bubble.opponent-line[hidden] {display:none}
+.tutorial-aligned .teacher-bubble.opponent-line .teacher-speech p {font-size:clamp(13px,2vw,17px)}
+.feedback-match .betting-wallet {width:100%;flex-shrink:0}
+.feedback-match .betting-wallet button {font-size:13px;padding-inline:8px}
+.feedback-match .teacher-bubble {flex-shrink:0}
+.feedback-match .teacher-icon-frame {width:28px;height:28px}
+.feedback-match .teacher-bubble .teacher-speech p {font-size:12px}
+
+.open-book {grid-template-columns:minmax(0,1fr)}
+.open-book .reference-cards {
+  justify-content:space-evenly;
+  background:linear-gradient(90deg,#0000 49%,#81573230 50%,#0000 51%),var(--study-paper);
+}
+.open-book .reference-cards .catalogitem {flex:0 1 19%;max-width:160px}
+.open-book .reference-cards .hana {min-height:0;max-height:100%;overflow:hidden}
+.scene-yaku.tutorial-aligned .yaku-scroll {grid-template-columns:minmax(0,1fr)}
+.scene-yaku.tutorial-aligned .reference-yaku {height:clamp(70px,30dvh,155px)}
+.scene-yaku.tutorial-aligned .reference-yaku .hana {
+  flex:0 1 auto;
+  width:auto;
+  min-width:0;
+  height:100%;
+  aspect-ratio:512/839;
+  padding:0;
+  overflow:hidden;
+}
+.scene-yaku.tutorial-aligned .reference-yaku .hana img {width:100%;max-width:100%}
+.scene-columns.tutorial-aligned .story-text {align-content:start}
+.scene-columns.tutorial-aligned .story-text p {margin-block:0 .75em}
+.story-text rt {font-size:.53em}
+
+.card-zoom {
+  width:min(90vw,520px);
+  height:min(90dvh,440px);
+  padding:12px;
+  border:1px solid #bd9155;
+  border-radius:10px;
+  background:#18243b url("images/japanese-wooden-table-indigo-mat.jpg") center/cover;
+  color:#fff5df;
+}
+.card-zoom[open] {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);
+  grid-template-rows:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+}
+.card-zoom img {grid-row:1/-1;width:100%;height:100%;object-fit:contain}
+.card-zoom .teacher-bubble {position:relative;inset:auto;transform:none;width:100%;color:#573c2b}
+.card-zoom form {margin:0;text-align:right}
+.card-zoom::backdrop {background:#090b14b5}
+.quiz-screen {position:relative}
+.quiz-screen .quiz-back {position:absolute;right:4px;top:3px;min-height:30px;padding:3px 9px}
+.quiz-screen .quiz-head {padding-inline-end:52px}
+.quiz-result {width:100%;text-align:center;margin:auto}
+.quiz-result p {font-size:23px;color:#fff0d0}
+.quiz-result .primary {width:auto}
+.scene-settings .feedback-settings {display:flex;flex-direction:column;gap:12px}
+.feedback-settings p {margin:0;padding:10px;color:inherit}
+.study-back {justify-self:start}
+
+@media (orientation:landscape) and (max-height:620px) {
+  .scene-quiz .quiz-screen .quiz-back {top:4px;left:calc(45% - 58px);right:auto}
+}
+@media (orientation:portrait) and (max-width:550px) {
+  .tutorial-aligned .feedback-match {
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"header" "modes" "controls" "companion" "guide";
+    grid-template-rows:auto auto auto minmax(0,1fr) auto;
+  }
+}
+
+.feedback-match .match-choices {
+  display:grid;
+  grid-template-columns:clamp(85px,16vw,118px) minmax(0,1fr);
+  align-items:center;
+  gap:5px;
+}
+.feedback-match .match-choices h2 {margin:0}
+.study-hub {position:relative}
+.study-hub .study-back {position:absolute;inset-block-start:5px;inset-inline-end:7px;min-height:30px;padding:3px 9px}
+
+.tutorial-aligned .feedback-match .match-choices button {
+  font-size:clamp(11px,1.8vw,15px);
+  white-space:nowrap;
+}
+.tutorial-aligned .match-menu.feedback-match button[aria-pressed="true"] {
+  border-color:#ffdda0;
+  box-shadow:inset 0 0 0 2px #ffdf945e,0 0 0 1px #c48542,0 2px 0 #4c2b1c;
+  background:repeating-linear-gradient(176deg,#85481822 0 1px,transparent 2px 5px),
+    linear-gradient(#9c6236,#653821);
+  color:#fff0ce;
+}
+.tutorial-aligned .feedback-match .betting-wallet {display:flex;justify-content:start;gap:5px}
+.feedback-match .betting-wallet strong {white-space:nowrap}
+.scene-cards.tutorial-aligned .card-book .reference-note {padding-block:4px}
+.scene-cards.tutorial-aligned .card-book .reference-note small {display:none}
+.scene-cards.tutorial-aligned .card-book .reference-note h3 {font-size:14px}
+.scene-cards.tutorial-aligned .card-book .reference-note .teacher-icon-frame {width:30px;height:30px}
+@media (orientation:landscape) and (max-height:620px) {
+  .scene-cards.tutorial-aligned .scene-body {padding-block:7px}
+  .tutorial-aligned .card-book {gap:4px}
+}
+.feedback-match .betting-rates .match-choices {grid-template-columns:76px minmax(0,1fr)}
+.tutorial-aligned .feedback-match .betting-rates .chip {font-size:clamp(10px,1.7vw,14px);line-height:1.1}
+.feedback-match .betting-rates .chip small {display:block;font-size:10px}
