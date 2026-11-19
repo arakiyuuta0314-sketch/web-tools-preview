@@ -20573,7 +20573,8 @@
     }
     const start = performance.now();
     const frame = (now) => {
-      const step = Math.floor((now - start) / duration);
+      const elapsed = Math.max(0, now - start);
+      const step = Math.floor(elapsed / duration);
       if (step >= path.length) {
         introFrame = 0;
         introShot = null;
@@ -20585,7 +20586,7 @@
         page,
         pos: path[step],
         motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step },
-        raiderY: ["refugee", "royalReport"].includes(page) ? 8 - Math.min(1, (now - start) / duration) : void 0
+        raiderY: ["refugee", "royalReport"].includes(page) ? 8 - Math.min(1, elapsed / duration) : void 0
       };
       paintCurrentWorld();
       introFrame = requestAnimationFrame(frame);
