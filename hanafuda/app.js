@@ -10868,9 +10868,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const score = completedYakuSummary(g.round.captured[0], g.round.koiCalls);
     return '<div class="teacher-dim decision-dim" aria-hidden="true"></div><section class="decision-panel table-panel" role="dialog" aria-modal="true" aria-labelledby="decision-title"><h2 id="decision-title">\u52DD\u8CA0\u3059\u308B\uFF1F \u3053\u3044\u3053\u3044\u3059\u308B\uFF1F</h2>' + yakuNames(score.yakus) + '<dl class="decision-scores"><div><dt>\u5F79\u306E\u5408\u8A08</dt><dd>' + score.raw + "\u70B9</dd></div><div><dt>\u52DD\u8CA0\u3067\u78BA\u5B9A</dt><dd>" + score.points + "\u70B9</dd></div></dl>" + (g.tutorial ? '<div class="teacher-speech"><p>' + esc(lesson.description) + "</p></div>" : "") + '<div class="decision-actions"><button class="primary" data-action="stop">\u52DD\u8CA0\u3059\u308B</button><button class="secondary" data-action="koi">\u3053\u3044\u3053\u3044</button></div>' + hintButton + "</section>";
   }
-  function usesStagedCards(g) {
-    return g.matchLesson === 6 || !g.tutorial && !g.matchLesson;
-  }
   function gameView() {
     const g = state.active;
     if (!g) return home();
@@ -10883,9 +10880,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const drawChoice = !playback && r.current === 0 && r.phase === "draw-target";
     const handChoice = !playback && matchingNow.length === 2;
     const choiceCard = drawChoice ? card(r.pendingDraw) : null;
-    const stagedDrawChoice = drawChoice && usesStagedCards(g);
-    const stockFace = stagedDrawChoice ? null : drawChoice ? r.pendingDraw : playback?.stockCard;
-    const markedStock = drawChoice || stockFace && playback.drawnCard === stockFace;
+    const stockFace = playback?.stockCard;
+    const markedStock = stockFace && playback.drawnCard === stockFace;
     const teachingStock = Boolean(g.tutorial || g.matchLesson);
     const stockExplanation = teachingStock && (drawChoice || playback?.explainStock) ? STOCK_FRAME_EXPLANATION : "";
     const choiceText = drawChoice ? "\u5C71\u672D\u304B\u3089\u5F15\u3044\u305F" + choiceCard.month + "\u6708\u30FB" + choiceCard.subject + "\u3068\u5408\u3046\u672D\u304C2\u679A\u3042\u308B\u3088\u3002\u53D6\u308A\u305F\u3044\u65B9\u3092\u30BF\u30C3\u30D7\u3057\u3066\u306D\u3002" : handChoice ? "\u5408\u3046\u672D\u304C2\u679A\u3042\u308B\u3088\u3002\u53D6\u308A\u305F\u3044\u65B9\u3092\u30BF\u30C3\u30D7\u3057\u3066\u306D\u3002" : "";
@@ -10904,8 +10900,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const roundLabel = g.matchLesson === 6 ? "\u5BFE\u5C40\u30EC\u30C3\u30B9\u30F3" : g.matchLesson === 7 ? "3\u304B\u6708\u52DD\u8CA0" : tutor ? "\u7DF4\u7FD2" : g.length + "\u304B\u6708\u5BFE\u5C40";
     const recentDraw = g.matchLesson && [...r.log].reverse().find((event) => event.actor === 0 && event.source === "stock");
     const fieldCaption = playback?.caption || (recentDraw ? "\u5C71\u672D\u304B\u3089 " + card(recentDraw.card).name + "\uFF08" + (recentDraw.taken.length ? "\u53D6\u3063\u305F" : "\u5834\u306B\u51FA\u305F") + "\uFF09" : "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3088\u3046");
-    const stagedCard = stagedDrawChoice ? r.pendingDraw : playback?.stagedCard;
-    const stagedImage = stagedCard ? '<img class="lesson-played-card' + (stagedDrawChoice || playback.drawnCard === stagedCard ? " drawn-card" : "") + '" src="' + photo(stagedCard) + '" alt="' + esc(card(stagedCard).name) + '">' : "";
+    const stagedCard = drawChoice ? r.pendingDraw : playback?.stagedCard;
+    const stagedImage = stagedCard ? '<img class="lesson-played-card' + (drawChoice || playback.drawnCard === stagedCard ? " drawn-card" : "") + '" src="' + photo(stagedCard) + '" alt="' + esc(card(stagedCard).name) + '">' : "";
     const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + "</div>" + (r.current === 1 ? stagedImage : "") + '</section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText || deciding || isEnd ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section>" + (r.current === 0 ? stagedImage : "") + '</div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
     const hintButton = g.matchLesson === 7 && !isEnd && !playback ? '<button class="coach-detail" data-action="match-hint">\u5148\u751F\u306B\u805E\u304F</button>' : "";
     const playAction = playback || deciding ? "" : (lesson.action || "") + hintButton;
@@ -11021,24 +11017,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   var TURN_MOTION = Object.freeze({
     scale: 1.5,
-    handFlight: 360,
-    drawFlight: 340,
-    captureFlight: 360,
-    reveal: 210,
-    afterReveal: 290,
+    handFlight: 640,
+    drawFlight: 600,
+    captureFlight: 550,
+    reveal: 260,
+    afterReveal: 420,
     afterPlay: 170,
     match: 260,
-    afterCapture: 130,
-    playerHandFlight: 280,
-    playerHandPause: 190,
-    playerHandMatch: 360,
-    playerHandCapturePause: 160
-  });
-  var MATCH_LESSON_MOTION = Object.freeze({
-    ...TURN_MOTION,
-    handFlight: 600,
-    drawFlight: 550,
-    captureFlight: 550
+    afterCapture: 130
   });
   var MATCH_LESSON_HOLD = 1800;
   var MATCH_LESSON_YAKU_HOLD = 3200;
@@ -11057,8 +11043,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     };
     return { title: "\u672D\u304C\u5834\u306B\u6B8B\u308B", description: month + "\u306E\u5834\u672D\u304C\u306A\u3044\u306E\u3067\u3001" + origin + "\u306F\u5834\u306B\u6B8B\u308B\u3088\u3002" };
   }
-  async function replayMoves(board, round, { teachingStock = false, matchLesson, stageCards }) {
-    const motion = stageCards ? MATCH_LESSON_MOTION : TURN_MOTION;
+  async function replayMoves(board, round, { teachingStock = false, matchLesson }) {
+    const motion = TURN_MOTION;
     const controller = new AbortController();
     const { signal } = controller;
     const playback = {
@@ -11066,7 +11052,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       controller,
       matches: [],
       caption: "",
-      stockCard: board.pendingDraw,
+      stockCard: null,
+      stagedCard: board.pendingDraw,
       drawnCard: board.pendingDraw,
       incoming: []
     };
@@ -11113,7 +11100,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       readingTime = null;
       return done;
     };
-    function fly(id, from, to, duration, emphasize) {
+    function fly(id, from, to, duration) {
       const image = document.createElement("img");
       image.src = photo(id);
       image.className = "turn-flying-card" + (playback.drawnCard === id ? " drawn-card" : "");
@@ -11125,18 +11112,19 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       const [fromX, fromY] = [from.x + width / 2, from.y + height / 2];
       const [toX, toY] = [to.x + to.width / 2, to.y + to.height / 2];
       const pose = (progress, scaleX, scaleY = scaleX) => "translate(" + (fromX + (toX - fromX) * progress - width / 2) + "px," + (fromY + (toY - fromY) * progress - height / 2) + "px) scale(" + scaleX + "," + scaleY + ")";
-      const frames = [{ transform: pose(0, 1), offset: 0 }];
-      if (emphasize) {
-        const scale = motion.scale * Math.max(1, to.height / height);
-        frames.push({ transform: pose(0.18, scale), offset: 0.18 }, { transform: pose(0.82, scale), offset: 0.82 });
-      }
-      frames.push({ transform: pose(1, to.width / width, to.height / height), offset: 1 });
+      const scale = motion.scale * Math.max(1, to.height / height);
+      const frames = [
+        { transform: pose(0, 1), offset: 0 },
+        { transform: pose(0.18, scale), offset: 0.18 },
+        { transform: pose(0.82, scale), offset: 0.82 },
+        { transform: pose(1, to.width / width, to.height / height), offset: 1 }
+      ];
       return image.animate(frames, { duration, easing: "cubic-bezier(.22,.61,.36,1)", fill: "both" });
     }
-    async function landCard(id, origin, destination, duration, emphasize) {
+    async function landCard(id, origin, destination, duration) {
       if (reducedMotion) return true;
       const image = destination.querySelector("img") ?? destination;
-      const flight = fly(id, origin, bounds(image), duration, emphasize);
+      const flight = fly(id, origin, bounds(image), duration);
       destination.style.visibility = "hidden";
       if (!await finish([flight])) return false;
       destination.style.visibility = "";
@@ -11153,77 +11141,67 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         const { actor, card: id, source, taken } = move;
         const who = actor === 0 ? "\u3042\u306A\u305F" : "\u76F8\u624B";
         const fromStock = source === "stock";
-        const emphasize = fromStock || actor === 1 || stageCards;
         board.current = actor;
-        const newDraw = fromStock && playback.stockCard !== id;
-        if (newDraw) board.stock.shift();
-        if (newDraw && !stageCards) {
+        const alreadyStaged = fromStock && playback.stagedCard === id;
+        if (fromStock && !alreadyStaged) {
+          playback.lesson = null;
+          board.stock.shift();
           playback.stockCard = id;
-          frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
+          setLesson({ title: who + "\u304C\u5C71\u672D\u3092\u5F15\u304F", description: card(id).name + "\u30921\u679A\u5F15\u3044\u305F\u3088\u3002" });
+          const caption = who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F";
+          frame("stock-flip", caption);
           const face = find(".stock-face");
           if (!reducedMotion && !await finish([face.animate(
-            [{ transform: "rotateY(90deg)" }, { transform: "rotateY(0)" }],
-            { duration: motion.reveal }
+            [{ transform: "rotateY(90deg)" }, { transform: "rotateY(0deg)" }],
+            { duration: motion.reveal, fill: "both" }
           )])) return false;
           playback.drawnCard = id;
           face.classList.add("drawn-card");
-          const explain = teachingStock && actor === 0 && !board.log.some((event) => event.actor === 0 && event.source === "stock");
-          if (explain) {
+          if (!await wait(motion.afterReveal)) return false;
+          if (teachingStock && actor === 0 && !board.log.some((event) => event.actor === 0 && event.source === "stock")) {
             playback.explainStock = true;
-            frame("stock-reveal", who + "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F");
+            frame("stock-explanation", caption);
             if (!await finish([overlay.animate([{}, {}], { duration: 1200 })])) return false;
             playback.explainStock = false;
-          } else if (!await wait(motion.afterReveal)) return false;
-        }
-        if (move.awaitingChoice && !stageCards) break;
-        const kind = fromStock ? "stock" : "hand";
-        const duration = fromStock ? motion.drawFlight : emphasize ? motion.handFlight : motion.playerHandFlight;
-        const alreadyStaged = stageCards && fromStock && !newDraw;
-        let origin;
-        if (!alreadyStaged) {
-          playback.lesson = null;
-          frame("source", who + "\u306E\u756A");
-          const hand = board.hands[actor];
-          const handIndex = hand.indexOf(id);
-          const sourceCard = fromStock ? find(stageCards ? ".stock-back" : ".stock-face") : actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex];
-          origin = bounds(sourceCard);
-          if (!fromStock) hand.splice(handIndex, 1);
-        }
-        playback.stockCard = null;
-        if (stageCards) {
-          playback.stagedCard = id;
-          if (fromStock) playback.drawnCard = id;
-          if (!alreadyStaged) {
-            setLesson(fromStock ? { title: who + "\u304C\u5C71\u672D\u3092\u5F15\u304F", description: card(id).name + "\u30921\u679A\u5F15\u3044\u305F\u3088\u3002" } : { title: who + "\u304C\u624B\u672D\u3092\u51FA\u3059", description: card(id).name + "\u30921\u679A\u51FA\u3057\u305F\u3088\u3002" });
-            frame(fromStock ? "stock-reveal" : "hand-play", who + (fromStock ? "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F"));
-            const staged = find(".lesson-played-card");
-            if (!await landCard(id, origin, staged, duration, emphasize)) return false;
-            if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(motion.afterPlay))) return false;
-            if (move.awaitingChoice) break;
-            origin = bounds(staged);
           }
-          if (matchLesson) setLesson(matchResolutionLesson(move));
         }
+        const kind = fromStock ? "stock" : "hand";
+        const duration = fromStock ? motion.drawFlight : motion.handFlight;
+        if (!alreadyStaged) {
+          let sourceCard = find(".stock-face");
+          if (!fromStock) {
+            playback.lesson = null;
+            frame("source", who + "\u306E\u756A");
+            const hand = board.hands[actor];
+            const handIndex = hand.indexOf(id);
+            sourceCard = actor === 0 ? find('.handcards [data-id="' + id + '"] img') : find(".opponent-backs").children[handIndex];
+            hand.splice(handIndex, 1);
+            setLesson({ title: who + "\u304C\u624B\u672D\u3092\u51FA\u3059", description: card(id).name + "\u30921\u679A\u51FA\u3057\u305F\u3088\u3002" });
+          }
+          const origin = bounds(sourceCard);
+          playback.stockCard = null;
+          playback.stagedCard = id;
+          frame(fromStock ? "stock-reveal" : "hand-play", who + (fromStock ? "\u304C\u5C71\u672D\u3092\u3081\u304F\u3063\u305F" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F"));
+          if (!await landCard(id, origin, find(".lesson-played-card"), duration)) return false;
+          if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(motion.afterPlay))) return false;
+          if (move.awaitingChoice) break;
+        }
+        if (matchLesson) setLesson(matchResolutionLesson(move));
         let played;
-        if (stageCards && taken.length) {
+        if (taken.length) {
           playback.matches = taken.filter((cardId) => cardId !== id);
           frame(kind + "-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
         } else {
+          const origin = bounds(find(".lesson-played-card"));
           playback.stagedCard = null;
           board.field.push(id);
-          const caption = stageCards ? "\u672D\u304C\u5834\u306B\u6B8B\u308B" : who + (fromStock ? "\u306E\u5C71\u672D\u304B\u3089\u51FA\u305F\u672D" : "\u304C\u624B\u672D\u3092\u51FA\u3057\u305F");
-          frame(kind + (stageCards ? "-stay" : "-play"), caption);
+          frame(kind + "-stay", "\u672D\u304C\u5834\u306B\u6B8B\u308B");
           played = fieldCard(id);
-          if (!await landCard(id, origin, played, duration, emphasize)) return false;
-          if (!stageCards && !await wait(emphasize ? motion.afterPlay : motion.playerHandPause)) return false;
+          if (!await landCard(id, origin, played, duration)) return false;
         }
         if (taken.length) {
-          if (!stageCards) {
-            playback.matches = matching(board.field.filter((cardId) => cardId !== id), id);
-            frame(kind + "-match", "\u540C\u3058\u6708\u306E\u672D\u304C\u5408\u3063\u305F");
-          }
-          if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(emphasize ? motion.match : motion.playerHandMatch))) return false;
-          const origins = taken.map((cardId) => bounds(stageCards && cardId === id ? find(".lesson-played-card") : fieldCard(cardId).querySelector("img")));
+          if (!await (matchLesson ? holdLesson(MATCH_LESSON_HOLD) : wait(motion.match))) return false;
+          const origins = taken.map((cardId) => bounds(cardId === id ? find(".lesson-played-card") : fieldCard(cardId).querySelector("img")));
           playback.stagedCard = null;
           const side = actor === 0 ? ".player-side" : ".opponent-side";
           const captureStage = kind + "-capture";
@@ -11237,8 +11215,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
             const flights = taken.map((cardId, index) => {
               const destination = bounds(find(side + ' .board-taken-card[data-id="' + cardId + '"] img'));
               const to = destination.bottom <= panel.bottom ? destination : { x: panel.x + panel.width / 2 - 10, y: panel.y, width: 20, height: 32 };
-              const duration2 = emphasize ? motion.captureFlight : motion.playerHandFlight;
-              return fly(cardId, origins[index], to, duration2, emphasize);
+              return fly(cardId, origins[index], to, motion.captureFlight);
             });
             if (!await finish(flights)) return false;
             overlay.replaceChildren();
@@ -11247,7 +11224,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           playback.drawnCard = null;
           board.captured[actor].push(...taken);
           frame(captureStage + "-arrival", captureCaption);
-          if (!await wait(emphasize ? motion.afterCapture : motion.playerHandCapturePause)) return false;
+          if (!await wait(motion.afterCapture)) return false;
         } else if (matchLesson) {
           if (!await holdLesson(MATCH_LESSON_HOLD)) return false;
           playback.drawnCard = null;
@@ -11292,8 +11269,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (before) g.pendingTurnPresentation = true;
     if (g.betting && g.finished) recordIfDone();
     save();
-    const presentationOptions = { matchLesson: g.matchLesson === 6, stageCards: usesStagedCards(g) };
-    if (before && !await replayMoves(before, g.round, { ...presentationOptions, teachingStock: g.tutorial || g.matchLesson })) return;
+    const presentationOptions = { matchLesson: g.matchLesson === 6 };
+    if (before && !await replayMoves(before, g.round, { ...presentationOptions, teachingStock: g.tutorial || g.matchLesson === 7 })) return;
     if (g.pendingYakuCelebration) {
       render();
       await showYakuCelebration(g.pendingYakuCelebration);
