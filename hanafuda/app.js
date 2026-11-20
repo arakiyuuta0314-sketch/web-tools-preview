@@ -10557,14 +10557,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     seen: [],
     quiz: { correct: 0, total: 0 },
     stats: { wins: 0, losses: 0, draws: 0 },
-    settings: { beginner: true, narration: "full", difficulty: 2 },
+    settings: { beginner: true, narration: "full", difficulty: 2, sound: true },
     tutorialCompleted: false,
     active: null
   });
   function validate(v) {
     const wallet = v?.wallet;
     if (wallet !== void 0 && (!wallet || !Number.isSafeInteger(wallet.coins) || wallet.coins < 0 || !(wallet.lastFreeRefill === null || /^\d{4}-\d{2}-\d{2}$/.test(wallet.lastFreeRefill)))) throw new Error("\u30B3\u30A4\u30F3\u306E\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002");
-    if (!v || v.version !== 1 || !Number.isInteger(v.travelUnlocked) || v.travelUnlocked < 1 || v.travelUnlocked > 12 || !Number.isInteger(v.travelCleared) || v.travelCleared < 0 || v.travelCleared > 12 || !Array.isArray(v.seen) || !v.quiz || !v.stats || !v.settings || !["full", "brief", "none"].includes(v.settings.narration) || typeof v.settings.beginner !== "boolean" || v.tutorialCompleted !== void 0 && typeof v.tutorialCompleted !== "boolean" || !v.active && v.active !== null) throw new Error("\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002\u4E0A\u66F8\u304D\u305B\u305A\u306B\u505C\u6B62\u3057\u307E\u3057\u305F\u3002");
+    if (!v || v.version !== 1 || !Number.isInteger(v.travelUnlocked) || v.travelUnlocked < 1 || v.travelUnlocked > 12 || !Number.isInteger(v.travelCleared) || v.travelCleared < 0 || v.travelCleared > 12 || !Array.isArray(v.seen) || !v.quiz || !v.stats || !v.settings || !["full", "brief", "none"].includes(v.settings.narration) || typeof v.settings.beginner !== "boolean" || v.settings.sound !== void 0 && typeof v.settings.sound !== "boolean" || v.tutorialCompleted !== void 0 && typeof v.tutorialCompleted !== "boolean" || !v.active && v.active !== null) throw new Error("\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002\u4E0A\u66F8\u304D\u305B\u305A\u306B\u505C\u6B62\u3057\u307E\u3057\u305F\u3002");
   }
   var store2 = createJsonStore({ store: window.localStorage, key: KEY, createInitial: initial, validate });
   var serviceWorkerUpdatePending = false;
@@ -10603,6 +10603,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var turnPresentation = null;
   var matchMode = "free";
   var bettingRate = 10;
+  var matchLength = 3;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
@@ -10659,20 +10660,34 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return '<section class="taken-group" aria-label="' + esc(type) + "\u672D " + subset.length + '\u679A"><header><strong>' + esc(type) + "\u672D</strong><span>" + subset.length + "\u679A" + (type === "\u5149" ? "" : " / " + threshold + "\u679A\u3067\u5F79") + '</span></header><div class="taken-group-cards">' + (subset.length ? subset.map((id) => '<button class="taken-card" type="button" data-action="inspect" data-id="' + esc(id) + '" aria-label="' + esc(card(id).name) + '"><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("") : '<span class="taken-not-yet">\u307E\u3060\u306A\u3057</span>') + "</div></section>";
     }).join("") + "</div>" + (ids.includes(CUP) ? '<p class="taken-cup-note">\u203B \u83CA\u306E\u76C3\u306F\u30BF\u30CD\u672D\u3067\u3059\u304C\u3001\u30AB\u30B9\u306E\u5F79\u306B\u3082\u6570\u3048\u307E\u3059\u3002</p>' : "");
   }
-  function shell(content, right = "") {
-    const gaming = screen === "game";
-    const tutorialAligned = ["cards", "yaku", "quiz", "columns", "free"].includes(screen);
-    return '<div class="shell scene-' + screen + (tutorialAligned ? " tutorial-aligned" : "") + '"><main class="page"><header class="topbar"><button type="button" class="brand brand-home" data-action="home" aria-label="Home"><span class="seal">\u82B1</span><span class="brand-name">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044</span></button><div class="row">' + (gaming ? state.active?.tutorial && !state.active.tutorialIntroDone ? '<button class="quiet" data-action="tutorial-menu">\u623B\u308B</button>' : '<button class="quiet" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button>' : right || '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB">\u2726<span>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span></button><button data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA">\u25A3<span>\u56F3\u9451</span></button></nav>') + "</main></div>";
+  function backButton(action, label = "\u623B\u308B", extra = "") {
+    return '<button type="button" class="back-control ' + extra + '" data-action="' + action + '">' + label + "</button>";
   }
-  function headline(title, back = "home", subtitle = "") {
-    return '<div class="row"><div><div class="kicker">' + esc(subtitle || "\u82B1\u672D\u3092\u697D\u3057\u3082\u3046") + '</div><h1 class="chapter-title">' + esc(title) + '</h1></div><button class="quiet" data-action="' + back + '">\u623B\u308B</button></div>';
+  function shell(content) {
+    const gaming = screen === "game";
+    const intro = gaming && state.active?.tutorial && !state.active.tutorialIntroDone;
+    const destination = {
+      free: "home",
+      learn: "home",
+      cards: "learn",
+      yaku: "learn",
+      columns: "learn",
+      quiz: "learn",
+      settings: "settings-back",
+      credits: "settings",
+      tutorial: "tutorial-back"
+    }[screen];
+    return '<div class="shell scene-' + screen + (["cards", "yaku", "quiz", "columns", "free"].includes(screen) ? " tutorial-aligned" : "") + '"><main class="page"><header class="topbar"><button type="button" class="brand brand-home" data-action="home" aria-label="Home"><span class="seal">\u82B1</span><span class="brand-name">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044</span></button><div class="row">' + (gaming ? backButton(intro ? "tutorial-menu" : "home", intro ? "\u623B\u308B" : "\u4E2D\u65AD\u30FB\u4FDD\u5B58") : (screen === "settings" || screen === "credits" ? "" : '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + (destination ? backButton(destination) : "")) + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB">\u2726<span>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span></button><button data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA">\u25A3<span>\u56F3\u9451</span></button></nav>') + "</main></div>";
+  }
+  function headline(title, subtitle) {
+    return '<div class="row"><div><div class="kicker">' + esc(subtitle) + '</div><h1 class="chapter-title">' + esc(title) + "</h1></div></div>";
   }
   function home() {
     const canResume = state.active !== null && (!state.active.finished || state.active.pendingYakuCelebration || state.active.pendingTurnPresentation) && state.active.mode !== "travel";
     return shell('<div class="hub home-redesign"><div class="engawa-heading engawa-title-art" role="img" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></div>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
   }
   function learn() {
-    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><button class="quiet study-back" data-action="home">\u623B\u308B</button><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
+    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
   }
   function inlineTeacher(description, { className = "", title = "", note = "", action = "", status = false } = {}) {
     return '<aside class="teacher-bubble inline-teacher ' + className + '" aria-label="\u5148\u751F\u306E\u6848\u5185">' + teacherAvatar() + '<div class="teacher-speech"' + (status ? ' role="status"' : "") + ">" + (note ? "<small>" + esc(note) + "</small>" : "") + (title ? "<h3>" + esc(title) + "</h3>" : "") + "<p>" + esc(description) + "</p></div>" + action + "</aside>";
@@ -10687,25 +10702,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return OPPONENTS[(matchMode === "betting" ? BETTING_DIFFICULTY.get(bettingRate) : freeDifficulty) - 1];
   }
   var lastOpponentLines = /* @__PURE__ */ new Map();
-  function toggleOpponentLine(button) {
-    const bubble = $("opponent-line");
-    if (bubble.hidden) {
-      const { id, lines } = matchOpponent();
-      const choices = lines.filter((line2) => line2 !== lastOpponentLines.get(id));
-      const line = choices[Math.floor(Math.random() * choices.length)];
-      lastOpponentLines.set(id, line);
-      bubble.hidden = false;
-      bubble.querySelector("p").textContent = line;
-    } else {
-      bubble.hidden = true;
-      bubble.querySelector("p").textContent = "";
-    }
-    button.setAttribute("aria-expanded", String(!bubble.hidden));
+  function nextOpponentLine(opponent) {
+    const choices = opponent.lines.filter((line2) => line2 !== lastOpponentLines.get(opponent.id));
+    const line = choices[Math.floor(Math.random() * choices.length)];
+    lastOpponentLines.set(opponent.id, line);
+    return line;
   }
   function free() {
     const betting = matchMode === "betting";
     const opponent = matchOpponent();
-    return shell('<div class="match-menu feedback-match"><div class="row match-heading"><h1 class="kicker">\u5BFE\u5C40\u306E\u652F\u5EA6</h1><button class="quiet" data-action="home">\u623B\u308B</button></div><div class="match-mode mode-signs" role="group" aria-label="\u5BFE\u5C40\u30E2\u30FC\u30C9">' + optionChip("match-mode", "free", "\u30D5\u30EA\u30FC\u5BFE\u5C40", !betting) + optionChip("match-mode", "betting", "\u52DD\u8CA0\u5BFE\u5C40", betting) + '</div><div class="match-controls">' + (betting ? '<div class="betting-rates">' + matchChoices("\u30EC\u30FC\u30C8\uFF081\u70B9\u3042\u305F\u308A\uFF09", "betting-rate", [...BETTING_RATES].map(([rate, label]) => [rate, esc(label) + "<small>\uFF08" + rate + "\uFF09</small>"]), bettingRate) + "</div>" : "") + '<div class="match-choices" role="group" aria-label="\u5BFE\u5C40\u306E\u9577\u3055"><h2>\u5BFE\u5C40\u306E\u9577\u3055</h2><div>' + [3, 6, 12].map((k) => '<button data-action="start-free" data-length="' + k + '" aria-label="' + k + '\u304B\u6708\u5BFE\u5C40\u3092\u59CB\u3081\u308B">' + k + "\u304B\u6708</button>").join("") + "</div></div>" + matchChoices("\u521D\u5FC3\u8005\u30E2\u30FC\u30C9", "beginner", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.beginner) + (betting ? "" : matchChoices("\u76F8\u624B\u306E\u5F37\u3055", "difficulty", OPPONENTS.map((character, index) => [index + 1, character.label]), freeDifficulty)) + matchChoices("\u5148\u751F\u306E\u89E3\u8AAC", "narration", [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]], state.settings.narration) + '</div><div class="match-companion">' + (betting ? '<div class="betting-options betting-wallet"><span class="coin-medallion" aria-hidden="true"></span><strong aria-label="\u6240\u6301\u30B3\u30A4\u30F3 ' + n(state.wallet.coins) + '">' + n(state.wallet.coins) + ' <small>\u30B3\u30A4\u30F3</small></strong><button data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button></div>' : "") + '<div class="opponent-stage"><button type="button" class="match-portrait" data-action="opponent-line" aria-label="\u76F8\u624B\uFF08' + opponent.label + '\uFF09\u306E\u30BB\u30EA\u30D5" aria-controls="opponent-line" aria-expanded="false"><img class="match-character" src="' + opponent.figure + '" alt=""></button><aside id="opponent-line" class="teacher-bubble inline-teacher opponent-line" role="status" hidden><div class="teacher-speech"><p></p></div></aside></div></div>' + inlineTeacher(betting ? "\u5BFE\u5C40\u7D42\u4E86\u6642\u306B\u5408\u8A08\u70B9\u306E\u5DEE\u3092\u7CBE\u7B97\u3057\u307E\u3059\u3002" : "\u5F37\u3055\u3092\u9078\u3093\u3067\u3001\u3053\u3044\u3053\u3044\u3092\u697D\u3057\u3082\u3046\u3002") + "</div>");
+    const line = lastOpponentLines.get(opponent.id) || nextOpponentLine(opponent);
+    return shell('<div class="match-menu feedback-match" aria-label="\u5BFE\u5C40\u306E\u652F\u5EA6"><div class="match-mode mode-signs" role="group" aria-label="\u5BFE\u5C40\u30E2\u30FC\u30C9">' + optionChip("match-mode", "free", "\u30D5\u30EA\u30FC\u5BFE\u5C40", !betting) + optionChip("match-mode", "betting", "\u52DD\u8CA0\u5BFE\u5C40", betting) + '</div><div class="match-controls">' + matchChoices("\u5BFE\u5C40\u306E\u9577\u3055", "match-length", [[3, "3\u304B\u6708"], [6, "6\u304B\u6708"], [12, "12\u304B\u6708"]], matchLength) + (betting ? '<div class="betting-rates">' + matchChoices("\u30EC\u30FC\u30C8\uFF081\u70B9\u3042\u305F\u308A\uFF09", "betting-rate", [...BETTING_RATES].map(([rate, label]) => [rate, esc(label) + " " + rate]), bettingRate) + "</div>" : matchChoices("\u76F8\u624B\u306E\u5F37\u3055", "difficulty", OPPONENTS.map((character, index) => [index + 1, character.label]), freeDifficulty)) + matchChoices("\u521D\u5FC3\u8005\u30E2\u30FC\u30C9", "beginner", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.beginner) + matchChoices("\u5148\u751F\u306E\u89E3\u8AAC", "narration", [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]], state.settings.narration) + '<button class="match-start" data-action="start-free">\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button></div><div class="match-companion"><div class="match-wallet-slot">' + (betting ? '<div class="betting-options betting-wallet"><span class="coin-medallion" aria-hidden="true"></span><strong aria-label="\u6240\u6301\u30B3\u30A4\u30F3 ' + n(state.wallet.coins) + '">' + n(state.wallet.coins) + ' <small>\u30B3\u30A4\u30F3</small></strong><button data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button></div>' : "") + '</div><div class="opponent-stage"><button type="button" class="match-portrait" data-action="opponent-line" aria-label="\u76F8\u624B\uFF08' + opponent.label + '\uFF09\u306E\u30BB\u30EA\u30D5" aria-controls="opponent-line"><img class="match-character" src="' + opponent.figure + '" alt=""></button><button type="button" class="teacher-bubble inline-teacher opponent-line" data-action="opponent-line" aria-label="\u76F8\u624B\u306E\u30BB\u30EA\u30D5\u3092\u5207\u308A\u66FF\u3048\u308B"><span class="teacher-speech" role="status" id="opponent-line">' + esc(line) + "</span></button></div></div>" + inlineTeacher(betting ? "\u5BFE\u5C40\u7D42\u4E86\u6642\u306B\u5408\u8A08\u70B9\u306E\u5DEE\u3092\u7CBE\u7B97\u3057\u307E\u3059\u3002" : "\u5F37\u3055\u3092\u9078\u3093\u3067\u3001\u3053\u3044\u3053\u3044\u3092\u697D\u3057\u3082\u3046\u3002") + "</div>");
   }
   function openCoinRefill(invoker) {
     const dialog = document.createElement("dialog");
@@ -10721,17 +10728,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function showCoinChoices(dialog) {
     const freeAvailable = canRefillForFree(state.wallet);
-    dialog.innerHTML = '<h2 id="coin-refill-title">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</h2><p>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + " \u30B3\u30A4\u30F3</strong></p>" + (state.wallet.coins < MIN_COINS ? "<p>\u52DD\u8CA0\u5BFE\u5C40\u3092\u59CB\u3081\u308B\u306B\u306F100\u30B3\u30A4\u30F3\u4EE5\u4E0A\u5FC5\u8981\u3067\u3059\u3002</p>" : "") + '<button class="primary" data-action="coin-free-claim" ' + (freeAvailable ? "" : "disabled") + ">\u7121\u6599\u3067\u3082\u3089\u3046\uFF081\u65E51\u56DE\uFF09 \uFF0B" + n(FREE_COINS) + " \u30B3\u30A4\u30F3</button>" + (!freeAvailable ? "<small>\u672C\u65E5\u306E\u7121\u6599\u5206\u306F\u53D7\u3051\u53D6\u308A\u6E08\u307F\u3067\u3059</small>" : "") + '<button class="secondary" data-action="coin-ad">\u5E83\u544A\u3067\u3082\u3089\u3046 \uFF0B' + n(AD_COINS) + ' \u30B3\u30A4\u30F3</button><button class="quiet" data-action="coin-close">\u9589\u3058\u308B</button>';
+    dialog.innerHTML = '<h2 id="coin-refill-title">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</h2><p>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + " \u30B3\u30A4\u30F3</strong></p>" + (state.wallet.coins < MIN_COINS ? "<p>\u52DD\u8CA0\u5BFE\u5C40\u3092\u59CB\u3081\u308B\u306B\u306F100\u30B3\u30A4\u30F3\u4EE5\u4E0A\u5FC5\u8981\u3067\u3059\u3002</p>" : "") + '<button class="primary" data-action="coin-free-claim" ' + (freeAvailable ? "" : "disabled") + ">\u7121\u6599\u3067\u3082\u3089\u3046\uFF081\u65E51\u56DE\uFF09 \uFF0B" + n(FREE_COINS) + " \u30B3\u30A4\u30F3</button>" + (!freeAvailable ? "<small>\u672C\u65E5\u306E\u7121\u6599\u5206\u306F\u53D7\u3051\u53D6\u308A\u6E08\u307F\u3067\u3059</small>" : "") + '<button class="secondary" data-action="coin-ad">\u5E83\u544A\u3067\u3082\u3089\u3046 \uFF0B' + n(AD_COINS) + ' \u30B3\u30A4\u30F3</button><button class="back-control" data-action="coin-close">\u623B\u308B</button>';
   }
   function showRefillAdPreview(dialog) {
-    dialog.innerHTML = '<h2 id="coin-refill-title">\u5E83\u544A\u3067\u3082\u3089\u3046</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u306F\u3053\u3053\u306B\u5E83\u544A\u304C\u8868\u793A\u3055\u308C\u307E\u3059\u3002\u5B8C\u4E86\u3092\u62BC\u3059\u3068' + n(AD_COINS) + '\u30B3\u30A4\u30F3\u53D7\u3051\u53D6\u308C\u307E\u3059\u3002</p><button class="primary" data-action="coin-ad-claim">\u5B8C\u4E86</button><button class="quiet" data-action="coin-ad-back">\u623B\u308B</button>';
+    dialog.innerHTML = '<h2 id="coin-refill-title">\u5E83\u544A\u3067\u3082\u3089\u3046</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u306F\u3053\u3053\u306B\u5E83\u544A\u304C\u8868\u793A\u3055\u308C\u307E\u3059\u3002\u5B8C\u4E86\u3092\u62BC\u3059\u3068' + n(AD_COINS) + '\u30B3\u30A4\u30F3\u53D7\u3051\u53D6\u308C\u307E\u3059\u3002</p><button class="primary" data-action="coin-ad-claim">\u5B8C\u4E86</button><button class="back-control" data-action="coin-ad-back">\u623B\u308B</button>';
     dialog.querySelector('[data-action="coin-ad-claim"]').focus();
   }
   function openCardZoom(id, invoker) {
     const c = card(id), dialog = document.createElement("dialog");
     dialog.className = "card-zoom";
     dialog.setAttribute("aria-label", c.name);
-    dialog.innerHTML = '<img src="' + photo(id) + '" alt="' + esc(c.name) + '">' + inlineTeacher(letterForCard(id), { title: c.name }) + '<form method="dialog"><button class="quiet">\u623B\u308B</button></form>';
+    dialog.innerHTML = '<img src="' + photo(id) + '" alt="' + esc(c.name) + '">' + inlineTeacher(letterForCard(id), { title: c.name }) + '<form method="dialog"><button class="back-control">\u623B\u308B</button></form>';
     dialog.addEventListener("close", () => {
       dialog.remove();
       invoker?.focus();
@@ -10748,7 +10755,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function cardCollection() {
     const m = MONTHS[studyMonth - 1], cards = DECK.filter((c) => c.month === studyMonth);
     const detail = selectedCard && card(selectedCard).month === studyMonth ? card(selectedCard) : null;
-    return shell('<div class="reference-page card-book">' + headline("\u672D\u3092\u304A\u307C\u3048\u308B", "learn", "48\u679A\u3092\u6708\u3054\u3068\u306B") + monthNavigation(m.flower) + '<div class="open-book"><div class="reference-cards">' + cards.map((c) => '<div class="catalogitem">' + tile(c.id, { className: detail?.id === c.id ? "is-inspected" : "" }) + "</div>").join("") + "</div></div>" + monthTabs() + inlineTeacher(detail ? letterForCard(detail.id) : "\u540C\u3058\u6708\u306E\u672D\u306F\u3001\u7D75\u67C4\u304C\u9055\u3063\u3066\u3082\u4E00\u7DD2\u306B\u53D6\u308C\u307E\u3059\u3002", {
+    return shell('<div class="reference-page card-book">' + headline("\u672D\u3092\u304A\u307C\u3048\u308B", "48\u679A\u3092\u6708\u3054\u3068\u306B") + monthNavigation(m.flower) + '<div class="open-book"><div class="reference-cards">' + cards.map((c) => '<div class="catalogitem">' + tile(c.id, { className: detail?.id === c.id ? "is-inspected" : "" }) + "</div>").join("") + "</div></div>" + monthTabs() + inlineTeacher(detail ? letterForCard(detail.id) : "\u540C\u3058\u6708\u306E\u672D\u306F\u3001\u7D75\u67C4\u304C\u9055\u3063\u3066\u3082\u4E00\u7DD2\u306B\u53D6\u308C\u307E\u3059\u3002", {
       className: "reference-note",
       title: detail ? detail.name : m.flower + "\u306E4\u679A",
       note: detail ? "" : "\u672D\u3092\u30BF\u30C3\u30D7\u3059\u308B\u3068\u89E3\u8AAC\u304C\u8868\u793A\u3055\u308C\u307E\u3059",
@@ -10768,14 +10775,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function yakuGuide() {
     const y = YAKU_TABLE[selectedYakuIndex];
-    return shell('<div class="reference-page yaku-collection">' + headline("\u5F79\u3092\u304A\u307C\u3048\u308B", "learn", "\u3053\u3044\u3053\u3044\u306E\u5F79\u56F3\u9451") + '<nav class="reference-top" aria-label="\u5F79\u306E\u79FB\u52D5"><button data-action="yaku-prev">\u2039 \u524D\u306E\u5F79</button><strong>' + esc(y.name) + " \xB7 " + y.base + '\u70B9</strong><button data-action="yaku-next">\u6B21\u306E\u5F79 \u203A</button></nav><div class="yaku-scroll" tabindex="0" aria-label="\u5F79\u4E00\u89A7">' + YAKU_TABLE.map(yakuScrollEntry).join("") + '</div><div class="reference-page-count">' + (selectedYakuIndex + 1) + " / " + YAKU_TABLE.length + "\u5F79</div></div>");
+    return shell('<div class="reference-page yaku-collection">' + headline("\u5F79\u3092\u304A\u307C\u3048\u308B", "\u3053\u3044\u3053\u3044\u306E\u5F79\u56F3\u9451") + '<nav class="reference-top" aria-label="\u5F79\u306E\u79FB\u52D5"><button data-action="yaku-prev">\u2039 \u524D\u306E\u5F79</button><strong>' + esc(y.name) + " \xB7 " + y.base + '\u70B9</strong><button data-action="yaku-next">\u6B21\u306E\u5F79 \u203A</button></nav><div class="yaku-scroll" tabindex="0" aria-label="\u5F79\u4E00\u89A7">' + YAKU_TABLE.map(yakuScrollEntry).join("") + '</div><div class="reference-page-count">' + (selectedYakuIndex + 1) + " / " + YAKU_TABLE.length + "\u5F79</div></div>");
   }
   function storyParagraph(text) {
     return "<p>" + esc(text).replace(/\{([^|{}]+)\|([^{}]+)\}/g, "<ruby>$1<rt>$2</rt></ruby>") + "</p>";
   }
   function columns() {
     const ch = CHAPTERS[studyMonth - 1];
-    return shell('<div class="reference-page story-page">' + headline("\u82B1\u306E\u3082\u306E\u304C\u305F\u308A", "learn", "\u5341\u4E8C\u304B\u6708\u306E\u82B1\u3060\u3088\u308A") + monthNavigation(ch.flower) + '<article class="story-scroll"><div class="season-art"><img src="' + photo(ch.month + "-1") + '" alt="' + esc(ch.flower) + '"></div><div class="reference-note story-text" tabindex="0"><h2>' + esc(ch.place) + "</h2>" + ch.story.map(storyParagraph).join("") + '</div></article><div class="reference-page-count">' + ch.month + " / 12\u304B\u6708</div></div>");
+    return shell('<div class="reference-page story-page">' + headline("\u82B1\u306E\u3082\u306E\u304C\u305F\u308A", "\u5341\u4E8C\u304B\u6708\u306E\u82B1\u3060\u3088\u308A") + monthNavigation(ch.flower) + '<article class="story-scroll"><div class="season-art"><img src="' + photo(ch.month + "-1") + '" alt="' + esc(ch.flower) + '"></div><div class="reference-note story-text" tabindex="0"><h2>' + esc(ch.place) + "</h2>" + ch.story.map(storyParagraph).join("") + '</div></article><div class="reference-page-count">' + ch.month + " / 12\u304B\u6708</div></div>");
   }
   function newQuiz() {
     const { months, yakus, answered } = quizSession;
@@ -10796,7 +10803,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     newQuiz();
   }
   function quizView() {
-    if (!quiz) return shell('<div class="quiz-result">' + headline("\u30AF\u30A4\u30BA\u306E\u7D50\u679C", "learn", "\u82B1\u672D\u30AF\u30A4\u30BA") + "<p>" + quizSession.answered + "\u554F\u4E2D " + quizSession.correct + '\u554F\u6B63\u89E3</p><button class="primary" data-action="quiz-restart">\u3082\u3046\u4E00\u5EA6</button></div>');
+    if (!quiz) return shell('<div class="quiz-result">' + headline("\u30AF\u30A4\u30BA\u306E\u7D50\u679C", "\u82B1\u672D\u30AF\u30A4\u30BA") + "<p>" + quizSession.answered + "\u554F\u4E2D " + quizSession.correct + '\u554F\u6B63\u89E3</p><button class="primary" data-action="quiz-restart">\u3082\u3046\u4E00\u5EA6</button></div>');
     const showMonth = quiz.kind === "month", c = showMonth ? card(quiz.cardId) : null;
     const y = showMonth ? null : YAKU_TABLE.find((v) => v.id === quiz.yakuId);
     const heading = showMonth ? "\u3053\u306E\u672D\u306F\u3001\u4F55\u6708\u306E\u672D\uFF1F" : "\u300C" + y.name + "\u300D\u3092\u5B8C\u6210\u3055\u305B\u308B\u672D\u306F\u3069\u308C\uFF1F";
@@ -10805,14 +10812,26 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const choices = showMonth ? quiz.options.map((m) => '<button class="quiz-option ' + (answered ? m === c.month ? "correct" : m === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-month="' + m + '" ' + (answered ? "disabled" : "") + ">" + m + "\u6708 " + MONTHS[m - 1].flower + "</button>").join("") : quiz.options.map((id) => '<button class="quiz-option ' + (answered ? id === quiz.answer ? "correct" : id === quiz.answered ? "wrong" : "" : "") + '" data-action="answer" data-id="' + id + '" ' + (answered ? "disabled" : "") + '><img src="' + photo(id) + '" alt="' + esc(card(id).name) + '"></button>').join("");
     const correct = quiz.answered === (showMonth ? c.month : quiz.answer);
     const explanation = showMonth ? c.detail : "\u6B63\u89E3\u306F " + card(quiz.answer).name + "\u3002" + y.name + "\u304C\u5B8C\u6210\u3057\u307E\u3059\u3002";
-    return shell('<div class="quiz-screen"><div class="quiz-head"><small>\u82B1\u672D\u30AF\u30A4\u30BA ' + (quizSession.answered + (answered ? 0 : 1)) + '\u554F\u76EE</small><h1 class="quiz-title">' + heading + '</h1></div><button class="quiet quiz-back" data-action="learn">\u623B\u308B</button><div class="quiz-art">' + display + '</div><div class="quiz-options">' + choices + "</div>" + inlineTeacher(answered ? (correct ? "\u6B63\u89E3\uFF01" : "\u60DC\u3057\u3044\uFF01") + " " + explanation : "\u672D\u306E\u300C\u6708\u30FB\u82B1\u30FB\u7D75\u67C4\u300D\u306B\u6CE8\u76EE\u3057\u3066\u7B54\u3048\u3066\u307F\u3088\u3046\u3002", {
+    return shell('<div class="quiz-screen"><div class="quiz-head"><small>\u82B1\u672D\u30AF\u30A4\u30BA ' + (quizSession.answered + (answered ? 0 : 1)) + '\u554F\u76EE</small><h1 class="quiz-title">' + heading + '</h1></div><div class="quiz-art">' + display + '</div><div class="quiz-options">' + choices + "</div>" + inlineTeacher(answered ? (correct ? "\u6B63\u89E3\uFF01" : "\u60DC\u3057\u3044\uFF01") + " " + explanation : "\u672D\u306E\u300C\u6708\u30FB\u82B1\u30FB\u7D75\u67C4\u300D\u306B\u6CE8\u76EE\u3057\u3066\u7B54\u3048\u3066\u307F\u3088\u3046\u3002", {
       className: "quiz-feedback",
       status: true,
       action: answered ? '<button class="primary" data-action="next-quiz">' + (quizSession.months.length || quizSession.yakus.length ? "\u6B21\u306E\u554F\u984C\u3078 \u203A" : "\u7D50\u679C\u3092\u898B\u308B") + "</button>" : ""
     }) + '<div class="quiz-counter">\u3044\u307E\u307E\u3067 ' + state.quiz.correct + "\u554F\u6B63\u89E3 / " + state.quiz.total + "\u554F</div></div>");
   }
+  function showAdRemoval(invoker) {
+    const dialog = document.createElement("dialog");
+    dialog.className = "coin-refill-dialog";
+    dialog.setAttribute("aria-labelledby", "ad-removal-title");
+    dialog.innerHTML = '<h2 id="ad-removal-title">\u5E83\u544A\u306E\u975E\u8868\u793A</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A\u3067\u3059\u3002Web\u7248\u3067\u306F\u8CFC\u5165\u3067\u304D\u307E\u305B\u3093\u3002</p><form method="dialog"><button class="back-control">\u623B\u308B</button></form>';
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      invoker.focus();
+    }, { once: true });
+    document.body.append(dialog);
+    dialog.showModal();
+  }
   function settingsView() {
-    return shell('<div class="settings-screen feedback-settings">' + headline("\u8A2D\u5B9A", "settings-back", "\u30B7\u30B9\u30C6\u30E0") + "<p>" + esc(adsStatus) + '</p><button class="settings-credits" data-action="credits">\u30AF\u30EC\u30B8\u30C3\u30C8\u30FB\u30E9\u30A4\u30BB\u30F3\u30B9 \u203A</button></div>');
+    return shell('<div class="settings-screen feedback-settings">' + headline("\u8A2D\u5B9A", "\u30B7\u30B9\u30C6\u30E0") + '<div class="settings-sound">' + matchChoices("\u30B5\u30A6\u30F3\u30C9", "sound", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.sound ?? true) + '<small>\u73FE\u5728\u306E\u7248\u306B\u306F\u52B9\u679C\u97F3\u304C\u3042\u308A\u307E\u305B\u3093\u3002</small></div><div class="settings-ads"><button class="settings-credits" data-action="ad-removal">\u5E83\u544A\u306E\u975E\u8868\u793A \u203A</button><small>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A</small></div><p>' + esc(adsStatus) + '</p><button class="settings-credits" data-action="credits">\u30AF\u30EC\u30B8\u30C3\u30C8\u30FB\u30E9\u30A4\u30BB\u30F3\u30B9 \u203A</button></div>');
   }
   var TUTORIAL_STEPS = [
     "\u82B1\u672D\u3068\u306F\uFF1F",
@@ -10837,7 +10856,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     ];
     const steps = entries.map(({ label, action, step, completed }) => '<li><button type="button" class="tutorial-step-plaque" data-action="' + action + '"' + (step ? ' data-value="' + step + '"' : "") + (completed ? ' aria-describedby="tutorial-step-complete"' : "") + ">" + label + "</button></li>").join("");
     const figure = "assets/teacher-figure.png" ? ' style="--teacher-figure:url(./assets/teacher-figure.png)"' : "";
-    return shell('<section class="tutorial-step-menu"><div class="tutorial-step-picker"><header class="tutorial-step-heading"><h1>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</h1><button type="button" class="quiet" data-action="tutorial-back">\u623B\u308B</button></header><ol>' + steps + '</ol><span id="tutorial-step-complete" hidden>\u5B8C\u4E86</span></div><div class="tutorial-teacher-figure" aria-hidden="true"' + figure + "></div></section>");
+    return shell('<section class="tutorial-step-menu"><div class="tutorial-step-picker"><header class="tutorial-step-heading"><h1>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</h1></header><ol>' + steps + '</ol><span id="tutorial-step-complete" hidden>\u5B8C\u4E86</span></div><div class="tutorial-teacher-figure" aria-hidden="true"' + figure + "></div></section>");
   }
   function recordPracticeStep(step) {
     state.completedPracticeSteps ??= [];
@@ -10888,7 +10907,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (teach && (r.phase === "game-end" || r.phase === "round-end")) {
       const practiceResult = g.tutorialStep === 6 && r.result.winner === 0;
       const settled = practiceResult ? evaluate(r.captured[0]).yakus.map((yaku) => yaku.name).join("\u30FB") + " " + r.result.raw + "\u70B9\u3002\u5F97\u70B9" + r.result.points + "\u70B9\u304C\u78BA\u5B9A\u3057\u305F\u3088\u3002" : "";
-      return { step: "\u7DF4\u7FD2\u304A\u308F\u308A", title: g.tutorialStep === 6 ? "\u7DF4\u7FD2\u5B8C\u4E86\uFF01" : r.result.winner === 0 ? "\u306F\u3058\u3081\u3066\u306E\u4E00\u5C40\u3001\u3067\u304D\u305F\u306D\uFF01" : "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: settled || "\u82B1\u672D\u3092\u5408\u308F\u305B\u3066\u3001\u5F79\u3092\u4F5C\u3063\u3066\u3001\u6700\u5F8C\u306B\u81EA\u5206\u3067\u9078\u3079\u305F\u306D\u3002\u3053\u308C\u3067\u57FA\u672C\u306E\u904A\u3073\u65B9\u306F\u3070\u3063\u3061\u308A\u3002\u6B21\u306F\u81EA\u7531\u306B\u5BFE\u5C40\u3057\u3066\u307F\u3088\u3046\u3002", action: (g.tutorialSingleStep ? "" : '<button class="primary" data-action="tutorial-free">\u30D5\u30EA\u30FC\u5BFE\u5C40\u3078 \u203A</button>') + '<button class="secondary" data-action="tutorial-menu">\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078</button>', visual: "complete" };
+      return { step: "\u7DF4\u7FD2\u304A\u308F\u308A", title: g.tutorialStep === 6 ? "\u7DF4\u7FD2\u5B8C\u4E86\uFF01" : r.result.winner === 0 ? "\u306F\u3058\u3081\u3066\u306E\u4E00\u5C40\u3001\u3067\u304D\u305F\u306D\uFF01" : "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: settled || "\u82B1\u672D\u3092\u5408\u308F\u305B\u3066\u3001\u5F79\u3092\u4F5C\u3063\u3066\u3001\u6700\u5F8C\u306B\u81EA\u5206\u3067\u9078\u3079\u305F\u306D\u3002\u3053\u308C\u3067\u57FA\u672C\u306E\u904A\u3073\u65B9\u306F\u3070\u3063\u3061\u308A\u3002\u6B21\u306F\u81EA\u7531\u306B\u5BFE\u5C40\u3057\u3066\u307F\u3088\u3046\u3002", action: (g.tutorialSingleStep ? "" : '<button class="primary" data-action="tutorial-free">\u30D5\u30EA\u30FC\u5BFE\u5C40\u3078 \u203A</button>') + backButton("tutorial-menu", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078"), visual: "complete" };
     }
     if (teach && r.phase === "hand" && r.current === 0) {
       if (g.tutorialHint) return { step: "\u672D\u3092\u9078\u3076", title: "\u3086\u3063\u304F\u308A\u63A2\u3057\u3066\u307F\u3088\u3046", description: g.tutorialHint, action: "" };
@@ -10936,7 +10955,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const yakus = winner === null ? [] : reason === "te-shi" ? [{ name: "\u624B\u56DB", points }] : reason === "kuttsuki" ? [{ name: "\u304F\u3063\u3064\u304D", points }] : evaluate(g.round.captured[winner]).yakus;
     const won = (finale ? matchWinner : winner) === 0;
     const coins = finale ? g.betting?.settlement : null;
-    const action = g.finished ? g.matchLesson ? '<button class="primary" data-action="finish-match-lesson">\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078</button>' : '<button class="primary" data-action="home">\u30DB\u30FC\u30E0\u3078\u623B\u308B</button>' : '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>';
+    const action = g.finished ? g.matchLesson ? backButton("finish-match-lesson", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078") : backButton("home", "\u30DB\u30FC\u30E0\u3078\u623B\u308B") : '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>';
     return '<div class="teacher-dim" aria-hidden="true"></div><section class="result table-panel' + (finale ? " match-finale" : "") + (coins ? " betting-finale" : "") + (won ? " result-win" : "") + '" role="dialog" aria-modal="true" aria-labelledby="result-title"><span class="result-label">' + (finale ? "\u5BFE\u5C40\u7D50\u679C" : "\u7B2C" + (g.index + 1) + "\u5C40\u306E\u7D50\u679C") + '</span><h2 id="result-title">' + resultTitle(finale ? matchWinner : winner) + "</h2>" + (finale ? '<p class="match-totals" aria-label="\u5BFE\u5C40\u306E\u5408\u8A08\u70B9"><span>\u3042\u306A\u305F <b>' + mine + "\u70B9</b></span> \uFF0F <span>\u76F8\u624B <b>" + opponent + "\u70B9</b></span></p>" : "") + '<div class="round-settlement"><p>' + (finale ? "\u6700\u7D42\u5C40 \xB7 " + resultTitle(winner) + "\u3000" : "") + "\u5F97\u70B9 <strong>" + points + "\u70B9</strong>" + (multiplier > 1 ? ' <span class="result-multiplier">\uFF08' + raw + "\u70B9 \xD7 " + multiplier + "\u500D\uFF09</span>" : "") + "</p>" + (yakus.length ? yakuNames(yakus) : "") + "</div>" + (coins ? '<div class="coin-result"><div><span>\u30B3\u30A4\u30F3\u306E\u5897\u6E1B</span><strong>' + (coins.change > 0 ? "+" : coins.change < 0 ? "\u2212" : "") + n(Math.abs(coins.change)) + " \u30B3\u30A4\u30F3</strong></div><div><span>\u7CBE\u7B97\u5F8C\u306E\u6240\u6301\u30B3\u30A4\u30F3</span><strong>" + n(coins.balance) + " \u30B3\u30A4\u30F3</strong></div></div>" : "") + '<div class="result-action">' + (coins && state.wallet.coins < MIN_COINS ? '<button class="secondary" data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button>' : "") + action + "</div>" + (won ? celebrationPetals() : "") + "</section>";
   }
   function gameDialogView(g) {
@@ -10951,7 +10970,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       title = mine ? "\u81EA\u5206\u306E\u53D6\u308A\u672D" : "\u76F8\u624B\u306E\u53D6\u308A\u672D";
       body = takenDetails(ids);
     }
-    return '<div class="game-dialog" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="dialog-sheet' + (["mine", "opp"].includes(gameDialog) ? " capture-dialog" : "") + '"><div class="dialog-top"><strong>' + title + '</strong><button class="quiet" data-action="close-dialog">' + (gameDialogReturn ? "\u2039 \u4E00\u89A7\u306B\u623B\u308B" : "\u9589\u3058\u308B \xD7") + "</button></div>" + body + "</div></div>";
+    return '<div class="game-dialog" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="dialog-sheet' + (["mine", "opp"].includes(gameDialog) ? " capture-dialog" : "") + '"><div class="dialog-top"><strong>' + title + "</strong>" + backButton("close-dialog", gameDialogReturn ? "\u4E00\u89A7\u306B\u623B\u308B" : "\u623B\u308B") + "</div>" + body + "</div></div>";
   }
   var INTRO_LESSONS = [
     { title: "\u82B1\u672D\u3068\u306F\uFF1F", description: "\u82B1\u672D\u306F\u3001\u5B63\u7BC0\u306E\u82B1\u3084\u98A8\u7269\u3092\u63CF\u3044\u305F\u65E5\u672C\u306E\u672D\u3060\u3088\u30021\u6708\u304B\u308912\u6708\u307E\u3067\u3001\u5404\u67084\u679A\u305A\u3064\u3067\u5168\u90E8\u306748\u679A\u3002" },
@@ -11055,7 +11074,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const fieldCaption = playback?.caption || (recentDraw ? "\u5C71\u672D\u304B\u3089 " + card(recentDraw.card).name + "\uFF08" + (recentDraw.taken.length ? "\u53D6\u3063\u305F" : "\u5834\u306B\u51FA\u305F") + "\uFF09" : "\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u3088\u3046");
     const stagedCard = drawChoice ? r.pendingDraw : playback?.stagedCard;
     const stagedImage = stagedCard ? '<img class="lesson-played-card' + (drawChoice || playback.drawnCard === stagedCard ? " drawn-card" : "") + '" src="' + photo(stagedCard) + '" alt="' + esc(card(stagedCard).name) + '">' : "";
-    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + "</div>" + (r.current === 1 ? stagedImage : "") + '</section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText || deciding || isEnd ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section>" + (r.current === 0 ? stagedImage : "") + '</div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + '</small></span><button type="button" class="edge-save-button" data-action="home">\u4E2D\u65AD\u30FB\u4FDD\u5B58</button></div></div>';
+    const board = '<div class="tabletop seated-table"><aside class="board-side opponent-side" aria-label="\u76F8\u624B\u306E\u53D6\u308A\u672D\u3068\u5F79">' + rivalTaken + rivalYaku + '</aside><div class="tabletop-main"><section class="board-opponent region-opponent" aria-label="' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D\uFF08\u88CF\u5411\u304D\uFF09"><div class="opponent-label"><strong>' + (tutor ? "\u5148\u751F" : "\u76F8\u624B") + '\u306E\u624B\u672D</strong><span>\u4F0F\u305B\u672D</span></div><div class="opponent-backs" aria-label="\u76F8\u624B\u306E\u624B\u672D ' + r.hands[1].length + '\u679A">' + opponentBacks + "</div>" + (r.current === 1 ? stagedImage : "") + '</section><section class="board-zone board-field region-field" aria-label="\u5171\u6709\u306E\u5834\u672D"><div class="board-zone-caption"><strong>\u307F\u3093\u306A\u306E\u5834\u672D <small>' + fieldCount + "\u679A</small></strong><span>" + esc(choiceText ? "" : fieldCaption) + '</span></div><div class="landscape-fieldline"><div class="field-stock"><span class="stock-back" aria-hidden="true">' + (stockFace ? '<img class="stock-face' + (markedStock ? " drawn-card" : "") + '" src="' + photo(stockFace) + '" alt="' + esc(card(stockFace).name) + '">' : "") + "</span>" + (tutor ? "" : "<small>\u5C71\u672D " + r.stock.length + "\u679A</small>") + '</div><div class="fieldcards ' + (fieldCount > 8 ? "dense" : "") + '">' + field + '</div></div></section><section class="board-zone board-hand region-hand" aria-label="\u3042\u306A\u305F\u306E\u624B\u672D"><div class="board-zone-caption"><strong>\u3042\u306A\u305F\u306E\u624B\u672D</strong><span>' + (playback || choiceText || deciding || isEnd ? "" : r.current === 0 ? "\u3053\u3053\u304B\u30891\u679A\u9078\u307C\u3046" : "\u76F8\u624B\u306E\u756A\u3067\u3059") + '</span></div><div class="handcards">' + hand + "</div></section>" + (r.current === 0 ? stagedImage : "") + '</div><aside class="board-side player-side" aria-label="\u3042\u306A\u305F\u306E\u53D6\u308A\u672D\u3068\u5F79">' + playerTaken + playerYaku + '</aside><div class="table-edge-controls"><span class="round-score-plaque"><strong>' + roundLabel + " \xB7 \u7B2C" + (g.index + 1) + "\u5C40</strong><small>" + g.scores[0] + " \u5BFE " + g.scores[1] + "</small></span>" + backButton("home", "\u4E2D\u65AD\u30FB\u4FDD\u5B58", "edge-save-button") + "</div></div>";
     const hintButton = g.matchLesson === 7 && !isEnd && !playback ? '<button class="coach-detail" data-action="match-hint">\u5148\u751F\u306B\u805E\u304F</button>' : "";
     const playAction = playback || deciding ? "" : (lesson.action || "") + hintButton;
     const matchNotice = g.lessonNotices?.[0];
@@ -11096,16 +11115,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return shell('<div class="play-layout seated-layout' + (g.beginner && !tutor && !g.matchLesson ? " beginner-match" : "") + (tutor ? " is-tutorial tutorial-engawa" : "") + (playback?.lesson ? " match-lesson-scene" : "") + '">' + legacyHeader + '<div class="game-board-wrap"' + opponentArt + (guideOpen ? " inert" : "") + ">" + board + "</div>" + choiceNotice + guidePanel + gameDialogView(g) + "</div>");
   }
   function credits() {
-    return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "settings", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p><p class="lead">\u30DB\u30FC\u30E0\u770B\u677F\u306E\u66F8\u4F53\uFF1AYuji Syuku\uFF08Kinuta Font Factory\uFF0FThe Yuji Project Authors\uFF09\u3002SIL Open Font License 1.1\u3002\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F docs/licenses/YujiSyuku-OFL.txt \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002</p></div>');
+    return shell(headline("\u672D\u7D75\u306B\u3064\u3044\u3066", "CREDITS") + '<div class="panel"><h3>\u82B1\u672D48\u679A\u306E\u7D75\u67C4</h3><p class="story">Louie Mantia Jr. \u539F\u4F5C\u3001dotty-dev \u306B\u3088\u308B\u5F69\u8272\u7248\u3002CC BY-SA 4.0\uFF08\u8868\u793A\u30FB\u7D99\u627F\uFF09\u3002\u672D\u306E\u7D75\u306F\u6539\u5909\u305B\u305A\u306B\u540C\u68B1\u3057\u3066\u3044\u307E\u3059\u3002</p><p class="lead"><a href="https://github.com/dotty-dev/Hanafuda-Louie-Recolor" target="_blank" rel="noopener">\u753B\u50CF\u306E\u51FA\u5178</a><br><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0 \u30E9\u30A4\u30BB\u30F3\u30B9</a></p><p class="lead">\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F\u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u306E docs/licenses \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002\u672C\u30A2\u30D7\u30EA\u306E\u6587\u7AE0\u3068UI\u306F\u72EC\u81EA\u5236\u4F5C\u3067\u3059\u3002</p><p class="lead">\u30DB\u30FC\u30E0\u770B\u677F\u306E\u66F8\u4F53\uFF1AYuji Syuku\uFF08Kinuta Font Factory\uFF0FThe Yuji Project Authors\uFF09\u3002SIL Open Font License 1.1\u3002\u30E9\u30A4\u30BB\u30F3\u30B9\u5168\u6587\u306F docs/licenses/YujiSyuku-OFL.txt \u306B\u53CE\u9332\u3057\u3066\u3044\u307E\u3059\u3002</p></div>');
   }
   function replacementConfirmView() {
-    return '<div class="replace-game-backdrop"><section class="replace-game-dialog" role="alertdialog" aria-modal="true" aria-labelledby="replace-game-title" aria-describedby="replace-game-description"><span class="replace-game-kicker">NEW GAME</span><h2 id="replace-game-title">\u65B0\u3057\u3044\u5BFE\u5C40\u3092\u59CB\u3081\u307E\u3059\u304B\uFF1F</h2><p id="replace-game-description">\u4ECA\u306E\u5BFE\u5C40\u306E\u9014\u4E2D\u72B6\u614B\u306F\u7F6E\u304D\u63DB\u308F\u308A\u307E\u3059\u3002\u7D9A\u304D\u304B\u3089\u518D\u958B\u3059\u308B\u3053\u3068\u306F\u3067\u304D\u306A\u304F\u306A\u308A\u307E\u3059\u304C\u3001\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u306E\u8A18\u9332\u3084\u8A2D\u5B9A\u306F\u305D\u306E\u307E\u307E\u6B8B\u308A\u307E\u3059\u3002</p><div class="replace-game-actions"><button type="button" class="replace-game-cancel" data-action="cancel-replace-game">\u4ECA\u306E\u5BFE\u5C40\u306B\u623B\u308B</button><button type="button" class="replace-game-confirm" data-action="confirm-replace-game">\u65B0\u3057\u304F\u59CB\u3081\u308B</button></div></section></div>';
+    return '<div class="replace-game-backdrop"><section class="replace-game-dialog" role="alertdialog" aria-modal="true" aria-labelledby="replace-game-title" aria-describedby="replace-game-description"><span class="replace-game-kicker">NEW GAME</span><h2 id="replace-game-title">\u65B0\u3057\u3044\u5BFE\u5C40\u3092\u59CB\u3081\u307E\u3059\u304B\uFF1F</h2><p id="replace-game-description">\u4ECA\u306E\u5BFE\u5C40\u306E\u9014\u4E2D\u72B6\u614B\u306F\u7F6E\u304D\u63DB\u308F\u308A\u307E\u3059\u3002\u7D9A\u304D\u304B\u3089\u518D\u958B\u3059\u308B\u3053\u3068\u306F\u3067\u304D\u306A\u304F\u306A\u308A\u307E\u3059\u304C\u3001\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u306E\u8A18\u9332\u3084\u8A2D\u5B9A\u306F\u305D\u306E\u307E\u307E\u6B8B\u308A\u307E\u3059\u3002</p><div class="replace-game-actions">' + (screen === "free" ? backButton("close-replace-game", "\u8A2D\u5B9A\u306B\u623B\u308B") : "") + '<button type="button" class="replace-game-cancel" data-action="cancel-replace-game">\u4ECA\u306E\u5BFE\u5C40\u306B\u623B\u308B</button><button type="button" class="replace-game-confirm" data-action="confirm-replace-game">\u65B0\u3057\u304F\u59CB\u3081\u308B</button></div></section></div>';
   }
   function requestStartConfirmation(retry) {
     if (!state.active || state.active.finished && !state.active.pendingYakuCelebration && !state.active.pendingTurnPresentation) return false;
     pendingStart = retry;
     render();
-    $("app").querySelector('[data-action="cancel-replace-game"]')?.focus();
+    $("app").querySelector(screen === "free" ? '[data-action="close-replace-game"]' : '[data-action="cancel-replace-game"]')?.focus();
     return true;
   }
   var teacherDismissed = false;
@@ -11128,6 +11147,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       game: gameView,
       credits
     }[screen]() + (pendingStart ? replacementConfirmView() : "");
+    if (pendingStart) $("app").querySelector(".shell").inert = true;
     if (screen === "yaku") {
       const scroll = $("app").querySelector(".yaku-scroll");
       scroll.scrollTop = scroll.querySelector('[aria-current="true"]').offsetTop;
@@ -11593,7 +11613,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return;
     }
     if (action === "opponent-line") {
-      toggleOpponentLine(button);
+      $("opponent-line").textContent = nextOpponentLine(matchOpponent());
+      return;
+    }
+    if (action === "ad-removal") {
+      showAdRemoval(button);
       return;
     }
     if (action === "coin-refill") {
@@ -11602,6 +11626,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     if (action === "dismiss-toast") {
       hideToast();
+      return;
+    }
+    if (action === "close-replace-game") {
+      pendingStart = null;
+      render();
+      $("app").querySelector('[data-action="start-free"]')?.focus();
       return;
     }
     if (action === "cancel-replace-game") {
@@ -11691,6 +11721,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else if (action === "free") {
       screen = "free";
       matchMode = "free";
+      matchLength = 3;
     } else if (action === "cards") {
       studyMonth = 1;
       selectedCard = null;
@@ -11818,6 +11849,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           return;
         }
       }
+    } else if (action === "match-length") {
+      matchLength = Number(val);
     } else if (action === "betting-rate") {
       bettingRate = Number(val);
     } else if (action === "start-free") {
@@ -11826,7 +11859,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         openCoinRefill(button);
         return;
       }
-      start("free", Number(button.dataset.length), 1, false, false, rate);
+      start("free", matchLength, 1, false, false, rate);
       return;
     } else if (action === "zoom-yaku-card") {
       openCardZoom(id, button);
@@ -11900,6 +11933,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return;
     } else if (action === "beginner") {
       state.settings.beginner = val === "true";
+      save();
+    } else if (action === "sound") {
+      state.settings.sound = val === "true";
       save();
     } else if (action === "narration") {
       state.settings.narration = val;
