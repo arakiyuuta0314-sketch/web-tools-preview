@@ -44,6 +44,9 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{
 }
 html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(16px,2.4vw,23px)}
 html[data-hanafuda-preview="stage5"] .scene-home .home-resume{left:7%;top:85%;width:17%;height:12%;z-index:9;font-family:"EngawaYuji",serif}
+html.native-ad-visible[data-hanafuda-preview="stage5"] .scene-home .home-resume{
+ top:auto;bottom:14px;height:auto;min-height:36px;
+}
 @media (max-height:340px) and (orientation:landscape){
  html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading{top:0;height:39%}
  html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{top:40%;height:37%}
@@ -83,6 +86,13 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading.engawa-title-ar
  border:0;padding:0;border-radius:0;box-shadow:none;
  background:url("assets/home-signs/title.png") center top/contain no-repeat;
  pointer-events:auto;cursor:pointer;transform-origin:50% 0;
+ filter:drop-shadow(2px 6px 3px #100b09c7);
+}
+@media (orientation:landscape) {
+ html[data-hanafuda-preview="stage5"] .scene-home .engawa-title-art::after{
+  content:"";position:absolute;inset:0;pointer-events:none;background:inherit;
+  filter:brightness(.20);mask-image:linear-gradient(transparent 85%,#000 88%);
+ }
 }
 html[data-hanafuda-preview="stage5"] .scene-home .engawa-title-art:focus-visible{
  outline:2px solid #fff0aa;outline-offset:2px;
@@ -100,9 +110,12 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{inset:0;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::before{inset:-6% -3% 0;}
 
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {
-  font-size:clamp(23px,4.2vw,42px);
-  transform:translateX(-4%);
+  font-size:clamp(18px,4.6vw,46px);
+  transform:translateX(-10%);
 }
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(17px,2.65vw,26px)}
+html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary .engawa-label{transform:translateX(-6%)}
+html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(17px,2.55vw,25px)}
 
 html[data-hanafuda-preview="stage5"] .scene-home{
  position:fixed;
@@ -158,4 +171,9 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-object img.engawa-match-l
  width:2em;
  height:1.1em;
  filter:drop-shadow(0 1px 1px #23150f55);
+}
+
+@media (prefers-reduced-motion:no-preference) {
+ .entrance-arrival{animation:entrance-arrival 160ms ease-out}
+ @keyframes entrance-arrival{from{opacity:.78}to{opacity:1}}
 }

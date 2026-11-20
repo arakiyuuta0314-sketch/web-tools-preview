@@ -566,10 +566,13 @@
 @media (orientation:landscape) and (max-height:620px) {
   .scene-learn .study-hub {
     grid-template-columns:36% minmax(0,1fr);
-    grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-rows:auto minmax(0,1fr);
     gap:8px 12px;
   }
   .scene-learn .study-main {padding:8px 10px}
+  .scene-learn .study-main strong {font-size:clamp(20px,3vw,28px)}
+  .scene-learn .study-actions {grid-row:1/3}
+  .scene-learn .study-actions button strong {font-size:clamp(16px,2.1vw,23px)}
   .scene-learn .study-actions button {padding-inline:10px 53px}
   .scene-learn .study-actions button img {width:42px;right:7px}
 }
@@ -589,14 +592,23 @@
 
 /* Fit the controls to the stage remaining above a native banner. */
 @media (orientation:landscape) and (max-height:620px) {
+  .native-ad-visible .scene-learn .study-hub {
+    grid-template-rows:auto minmax(min-content,1fr);
+    gap:5px 12px;
+    padding-block:5px;
+  }
+  .native-ad-visible .study-heading {padding-block:2px}
+  .native-ad-visible .scene-learn .study-main {padding-block:5px}
+  .native-ad-visible .scene-settings .feedback-settings {gap:4px;padding-block:3px}
+  .native-ad-visible .feedback-settings :is(.settings-sound,.settings-ads) {padding-block:4px}
   .native-ad-visible .scene-free.tutorial-aligned .scene-body {padding-block:4px}
   .native-ad-visible .scene-free .feedback-match {
     grid-template-areas:"controls companion" "controls guide";
     gap:4px 12px;
   }
   .native-ad-visible .feedback-match .match-controls {
-    grid-template-rows:43px repeat(4,minmax(29px,1fr)) 32px;
-    gap:2px;
+    grid-template-rows:48px repeat(4,minmax(29px,1fr)) 32px;
+    gap:1px;
   }
   .native-ad-visible .feedback-match .match-controls > .match-choices {
     display:grid;
@@ -604,6 +616,7 @@
     align-items:center;
   }
   .native-ad-visible .feedback-match .match-controls > .match-choices h2 {font-size:13px;margin:0}
+  .native-ad-visible .feedback-match .betting-rates h2 {line-height:1.1}
   .native-ad-visible .tutorial-step-menu {padding-block:5px}
   .native-ad-visible .tutorial-step-picker {gap:4px;padding-block:4px}
   .native-ad-visible .tutorial-step-menu ol {gap:2px}
