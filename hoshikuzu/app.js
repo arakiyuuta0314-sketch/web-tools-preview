@@ -15213,29 +15213,70 @@
     const tone = (x * 29 + y * 13) % 4;
     if (map === "castle") {
       if (tile === 1) {
-        draw(0, 0, 24, 24, "#192232");
+        draw(0, 0, 24, 24, "#181723");
+        if (y <= 1 && x >= 2 && x <= 12) {
+          draw(0, 0, 24, 24, "#403448");
+          draw(0, 0, 24, 2, "#756174");
+          for (let row = 0; row < 4; row++) {
+            const yy = row * 6;
+            draw(0, yy + 4, 24, 1, "#261f30");
+            draw((row % 2 ? 15 : 5) + tone, yy + 1, 1, 3, "#58495e");
+          }
+          if (y === 1) {
+            draw(0, 20, 24, 1, "#a98966");
+            draw(0, 21, 24, 3, "#2d2536");
+          }
+        }
         if (edges.s !== 1 && edges.s !== void 0) {
-          draw(0, 9, 24, 15, "#454e62");
-          draw(0, 8, 24, 3, "#87909d");
-          draw(0, 17, 24, 1, "#252d3c");
-          draw(tone * 4, 11, 1, 6, "#252d3c");
-          draw(0, 22, 24, 2, "#242b3a");
+          draw(0, 4, 24, 20, "#463b50");
+          draw(0, 3, 24, 3, "#796477");
+          for (let row = 0; row < 3; row++) {
+            const yy = 7 + row * 5;
+            draw(0, yy, 24, 1, "#8b7380");
+            draw((row % 2 ? 15 : 5) + tone, yy + 1, 1, 4, "#2a2636");
+          }
+          draw(0, 21, 24, 1, "#a38668");
+          draw(0, 22, 24, 2, "#302839");
         }
         return;
       }
-      draw(0, 0, 24, 24, ["#777680", "#777780", "#7f7e88", "#81808a"][tone]);
-      draw(0, 23, 24, 1, "#505362");
-      draw(23, 0, 1, 24, "#505362");
-      draw(1, 1, 19, 1, "#92929c");
+      draw(0, 0, 24, 24, ["#6d6068", "#756971", "#7d6c72", "#786b73"][tone]);
+      draw(0, 23, 24, 1, "#433b49");
+      draw(23, 0, 1, 24, "#4c424e");
+      draw(1, 1, 19, 1, "#97818a");
+      for (let i = 0; i < 7; i++) {
+        const dx = (x * 11 + y * 3 + i * 7) % 21 + 1, dy = (x * 3 + y * 17 + i * 5) % 20 + 2;
+        draw(dx, dy, 1 + i % 2, 1, i % 2 ? "#907d80" : "#60545e");
+      }
+      if (tile === 7 && [6, 9].includes(y) && x >= 2 && x <= 12) {
+        draw(0, 10, 24, 4, "#4e4356");
+        draw(0, 10, 24, 1, "#b48d65");
+        draw(0, 13, 24, 1, "#987051");
+        if ([3, 11].includes(x)) {
+          draw(5, 5, 14, 14, "#654d59");
+          draw(6, 6, 12, 12, "#9c765e");
+          paintCastleStar(c, px + 12, py + 12);
+        }
+      }
       if (tile === 8) {
-        draw(0, 0, 24, 24, "#783147");
+        draw(0, 0, 24, 24, "#71263c");
+        for (let i = 0; i < 6; i++) draw((x * 5 + y * 9 + i * 7) % 22, (i * 5 + y * 7) % 24, 2, 1, "#85324b");
         for (const [side, cell2] of [[0, edges.w], [22, edges.e]]) {
           if (cell2 !== 8) {
-            draw(side, 0, 2, 24, "#d6ac62");
-            draw(side + (side ? -3 : 3), 0, 1, 24, "#a55553");
+            draw(side, 0, 2, 24, "#d8ab59");
+            const inner = side ? 18 : 4;
+            draw(inner, 0, 1, 24, "#b2734c");
+            for (let dy = 3; dy < 24; dy += 8) {
+              draw(inner - 1, dy, 3, 3, "#d7a15d");
+              draw(inner, dy - 1, 1, 5, "#e4ba72");
+            }
           }
         }
-        draw(11, 11, 3, 2, "#a95f60");
+        if (x === 7 && y % 2 === 0) paintCastleStar(c, px + 12, py + 12);
+      }
+      if (y === 2 && x >= 5 && x <= 9) {
+        draw(0, 20, 24, 1, tile === 8 ? "#b87456" : "#b2927d");
+        draw(0, 21, 24, 2, "#51404a");
       }
       if (tile === 5) {
         draw(3, 1, 18, 22, "#2c2533");
@@ -15312,12 +15353,63 @@
       draw(d + 4, 35, 5, 3, b.kind === "inn" ? "#825b70" : "#53724d");
     }
   }
+  function paintCastleStar(c, x, y) {
+    block(c, x - 5, y, 11, 1, "#dca95c");
+    block(c, x, y - 5, 1, 11, "#e6bd74");
+    block(c, x - 2, y - 2, 5, 5, "#a56843");
+    block(c, x - 1, y - 1, 3, 3, "#f0cd86");
+  }
+  function paintCastleFixture(c, x, y, kind) {
+    const draw = (dx, dy, w, h, color2) => block(c, x + dx, y + dy, w, h, color2);
+    if (kind === "banner") {
+      draw(4, 0, 16, 20, "#282233");
+      draw(6, 2, 12, 17, x < 170 ? "#71354c" : "#354161");
+      draw(4, 0, 16, 2, "#c8a16d");
+      draw(6, 3, 1, 16, "#ae8051");
+      draw(17, 3, 1, 16, "#ae8051");
+      draw(8, 19, 8, 2, "#c0985b");
+      draw(10, 21, 4, 2, "#a6794e");
+      paintCastleStar(c, x + 12, y + 11);
+    } else if (kind === "window") {
+      draw(4, -3, 16, 21, "#2c2537");
+      draw(6, -2, 12, 19, "#92795d");
+      draw(7, 0, 10, 16, "#334467");
+      draw(9, 0, 2, 15, "#667398");
+      draw(13, 1, 2, 14, "#4e648b");
+      draw(11, 0, 1, 16, "#b29a75");
+      draw(7, 7, 10, 1, "#9d8367");
+      draw(5, 16, 14, 2, "#b3997b");
+    } else if (kind === "column") {
+      draw(4, -14, 16, 39, "#302832");
+      draw(6, -12, 12, 34, "#876e70");
+      draw(7, -11, 3, 31, "#bb9c8b");
+      draw(10, -10, 3, 29, "#aa8b81");
+      draw(4, -13, 16, 3, "#bb9258");
+      draw(5, -15, 14, 2, "#e1bb78");
+      draw(3, 18, 18, 4, "#d0aa72");
+      draw(2, 22, 20, 2, "#705761");
+    } else {
+      draw(10, 5, 4, 13, "#62475a");
+      draw(8, 12, 8, 3, "#ad764c");
+      draw(10, 7, 4, 5, "#eab367");
+      draw(11, 4, 2, 6, "#ffe3a4");
+      draw(8, 16, 8, 2, "#d1a05b");
+      draw(11, 18, 2, 3, "#a07248");
+    }
+  }
   function paintThrone(c, x, y) {
-    block(c, x - 13, y + 1, 50, 21, "#544451");
-    block(c, x - 10, y, 44, 18, "#887078");
-    block(c, x + 3, y - 24, 18, 27, "#c49a58");
-    block(c, x + 6, y - 21, 12, 21, "#82394b");
-    block(c, x + 1, y - 3, 22, 8, "#c49a58");
+    block(c, x - 24, y - 23, 72, 22, "#403347");
+    for (let i = 0; i < 7; i++) block(c, x - 22 + i * 10, y - 21, 8, 1, "#826b77");
+    block(c, x + 1, y - 22, 22, 19, "#896448");
+    block(c, x + 3, y - 20, 18, 16, "#38435e");
+    paintCastleStar(c, x + 12, y - 13);
+    block(c, x - 12, y + 2, 48, 19, "#483847");
+    block(c, x - 9, y + 2, 42, 16, "#907680");
+    block(c, x - 7, y + 15, 38, 1, "#c4a48f");
+    block(c, x + 2, y - 9, 20, 13, "#c49a58");
+    block(c, x + 5, y - 8, 14, 10, "#82394b");
+    for (let i = 0; i < 3; i++) block(c, x + 7 + i * 4, y - 6 + i % 2 * 2, 2, 2, "#b05964");
+    block(c, x + 1, y + 1, 22, 5, "#b78e56");
   }
   function paintPedestal(c, x, y, hasSword) {
     block(c, x + 4, y + 13, 17, 10, "#454454");
@@ -16521,7 +16613,7 @@
     c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
   };
   var ROOM_THEMES = {
-    library: { stone: "#5d6978", stoneHi: "#b0b9b5", stoneDeep: "#364253", floor: "#b3a58f", floorHi: "#d8ceb1", seam: "#8b806d", mat: "#465b79", matHi: "#718ca0", trim: "#e4c38f", plaster: "#899aa2" },
+    library: { stone: "#53485b", stoneHi: "#a8959a", stoneDeep: "#363043", floor: "#867074", floorHi: "#a68d8c", seam: "#5e4d58", mat: "#414d71", matHi: "#667ba1", trim: "#d4ac6c", plaster: "#716275" },
     tailor: { stone: "#71564d", stoneHi: "#d4b19c", stoneDeep: "#533d3c", floor: "#b28b65", floorHi: "#d9b588", seam: "#8b674a", mat: "#6c735c", matHi: "#a8b28a", trim: "#e6c79d", plaster: "#d5bba1" },
     home: { stone: "#735e4d", stoneHi: "#d8bb91", stoneDeep: "#4b3d38", floor: "#bca079", floorHi: "#e2cba1", seam: "#8e735b", mat: "#a47457", matHi: "#d5a57e", trim: "#e1c999", plaster: "#d6bd94" },
     inn: { stone: "#6f6756", stoneHi: "#dfcca2", stoneDeep: "#4d483e", floor: "#c5a27c", floorHi: "#e7cf9f", seam: "#977659", mat: "#69817f", matHi: "#a9cac0", trim: "#ebcf9e", plaster: "#d1b48b" },
@@ -16590,6 +16682,29 @@
         F2(c, x * TILE + 7, 2, 12, 17, "#526c78");
         F2(c, x * TILE + 12, 4, 2, 13, p.trim);
         F2(c, x * TILE + 9, 9, 8, 2, "#d6bf93");
+      }
+      for (const x of [2, 9]) {
+        F2(c, x * TILE + 4, 7, 16, 27, "#392d3e");
+        F2(c, x * TILE + 5, 8, 14, 24, "#8c684d");
+        for (let row = 0; row < 3; row++) {
+          F2(c, x * TILE + 7, 10 + row * 7, 10, 5, "#513b40");
+          for (let book = 0; book < 4; book++) F2(
+            c,
+            x * TILE + 7 + book * 3,
+            11 + row * 7,
+            2,
+            4,
+            ["#9e6a5c", "#af8a52", "#637685", "#895f72"][(book + row) % 4]
+          );
+        }
+      }
+      for (const x of [4, 7]) {
+        for (const y of [5, 6, 7]) {
+          const X = x * TILE + (x === 4 ? 13 : 10), Y = y * TILE + 8;
+          F2(c, X - 4, Y, 9, 1, "#b99062");
+          F2(c, X, Y - 4, 1, 9, "#b99062");
+          F2(c, X - 1, Y - 1, 3, 3, "#dcc18b");
+        }
       }
       F2(c, 2 * TILE + 7, 2 * TILE + 9, 13, 3, "#ddc895");
     } else if (theme2 === "tailor") {
@@ -18197,9 +18312,14 @@
       paintThrone(c, ...at2(7, 2));
       for (const feature of m.scenery) {
         if (feature.kind === "throne-canopy" || feature.kind === "column" && m.tiles[feature.y][feature.x] !== 1) continue;
-        paintScenery(c, feature, at2, m.id);
+        if (["banner", "column"].includes(feature.kind)) paintCastleFixture(c, ...at2(feature.x, feature.y), feature.kind);
+        else paintScenery(c, feature, at2, m.id);
       }
-      for (const x of [1, 13]) paintScenery(c, { x, y: 6, kind: "column" }, at2, m.id);
+      for (const x of [1, 13]) paintCastleFixture(c, ...at2(x, 6), "column");
+      for (const x of [2, 12]) paintCastleFixture(c, ...at2(x, 1), "window");
+      for (const x of [4, 10]) paintCastleFixture(c, ...at2(x, 1), "column");
+      for (const x of [5, 9]) paintCastleFixture(c, ...at2(x, 1), "sconce");
+      for (const x of [2, 12]) paintCastleFixture(c, ...at2(x, 5), "sconce");
     }
     backgrounds.set(id, canvas);
     return canvas;
@@ -18397,10 +18517,20 @@
   function drawRoom(canvas, room, motion = null, pixels = null, lucaVisiting = false) {
     const bg = roomBackground(room);
     const fit = Math.min(pixels?.worldScale ?? 1, canvas.width / bg.width, canvas.height / bg.height);
-    const scale = pixels ? fit >= 1 ? Math.floor(fit) : 1 / Math.ceil(1 / fit) : fit;
+    const library = room.id === "castle-library";
+    const scale = library ? Math.min(canvas.width / bg.width, canvas.height / bg.height) : pixels ? fit >= 1 ? Math.floor(fit) : 1 / Math.ceil(1 / fit) : fit;
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.imageSmoothingEnabled = false;
-    shot(ctx, 0, 0, canvas.width, canvas.height, "#0b101c");
+    shot(ctx, 0, 0, canvas.width, canvas.height, library ? "#221d2b" : "#0b101c");
+    if (library) {
+      const seam = 24 * scale;
+      for (let y2 = 0; y2 < canvas.height; y2 += seam) {
+        shot(ctx, 0, y2, canvas.width, 1, "#352d3b");
+        for (let x2 = Math.round(y2 / seam) % 2 * seam / 2; x2 < canvas.width; x2 += seam) {
+          shot(ctx, x2, y2, 1, seam, "#1c1925");
+        }
+      }
+    }
     ctx.save();
     ctx.scale(scale, scale);
     const ox = pixels ? Math.floor((canvas.width - bg.width * scale) / 2) / scale : Math.round((canvas.width / scale - bg.width) / 2);
@@ -18747,7 +18877,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261120-production-s00-s03";
+  $("build-id").textContent = "20261120-iphone-castle";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -18817,19 +18947,48 @@
     state = next;
     paint();
   }
-  var portraitViewport = matchMedia("(orientation:portrait)");
+  var visibleViewport = window.visualViewport;
+  var portraitStage = false;
+  var layoutFrame = 0;
+  var settleLayout = 0;
   function layoutStage() {
-    const portrait = portraitViewport.matches;
-    document.body.classList.toggle("is-portrait", portrait);
-    $("rotate-notice").hidden = !portrait;
-    if (portrait) document.body.style.setProperty("--stage-scale", Math.min(window.innerWidth / 844, window.innerHeight / 390));
+    const { width, height, offsetLeft = 0, offsetTop = 0 } = visibleViewport ?? {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+    if (width <= 0 || height <= 0) return;
+    portraitStage = height > width;
+    document.body.classList.toggle("is-portrait", portraitStage);
+    $("rotate-notice").hidden = !portraitStage;
+    const style = document.body.style;
+    style.setProperty("--view-width", width + "px");
+    style.setProperty("--view-height", height + "px");
+    style.setProperty("--view-left", offsetLeft + "px");
+    style.setProperty("--view-top", offsetTop + "px");
+    style.setProperty("--stage-scale", Math.min(width / 844, height / 390));
+  }
+  function refreshStage() {
+    layoutStage();
+    if (state) paint();
+  }
+  function scheduleStageLayout() {
+    if (layoutFrame) return;
+    layoutFrame = requestAnimationFrame(() => {
+      layoutFrame = 0;
+      refreshStage();
+    });
+  }
+  function settleStageLayout() {
+    scheduleStageLayout();
+    clearTimeout(settleLayout);
+    settleLayout = setTimeout(scheduleStageLayout, 250);
   }
   layoutStage();
   var explorationPixels = null;
   function sizeGameCanvas(exploring) {
     const canvas = $("game");
     explorationPixels = null;
-    if (exploring && !portraitViewport.matches) {
+    if (exploring && !portraitStage) {
       const rect4 = $("screen-shell").getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const left = Math.ceil(rect4.left * dpr), top = Math.ceil(rect4.top * dpr);
@@ -20268,9 +20427,14 @@
     }
   }
   prepareTitle();
-  window.addEventListener("resize", () => {
-    layoutStage();
-    if (state) paint();
+  for (const event of ["resize", "orientationchange", "pageshow"]) {
+    window.addEventListener(event, settleStageLayout);
+  }
+  visibleViewport?.addEventListener("resize", settleStageLayout);
+  visibleViewport?.addEventListener("scroll", scheduleStageLayout);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) settleStageLayout();
   });
+  settleStageLayout();
   window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castArtReady(), heroSprite: heroSprite() }), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();
