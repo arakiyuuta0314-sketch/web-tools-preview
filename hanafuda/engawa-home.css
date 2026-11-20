@@ -110,11 +110,9 @@ html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{inset:0;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::before{inset:-6% -3% 0;}
 
 html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {
-  font-size:clamp(18px,4.6vw,46px);
-  transform:translateX(-10%);
+  font-size:clamp(18px,4.1vw,42px);
 }
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(17px,2.65vw,26px)}
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary .engawa-label{transform:translateX(-6%)}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(16px,2.5vw,24px)}
 html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(17px,2.55vw,25px)}
 
 html[data-hanafuda-preview="stage5"] .scene-home{
