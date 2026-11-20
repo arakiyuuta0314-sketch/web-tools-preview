@@ -700,11 +700,12 @@
       "bannerId": "ca-app-pub-3940256099942544/2934735716",
       "interstitialId": "ca-app-pub-3940256099942544/4411468910",
       "minCompletedActions": 10,
-      "cooldownMs": 6e5
+      "cooldownMs": 6e5,
+      "rewardedId": "ca-app-pub-3940256099942544/1712485313"
     },
     "purchase": {
-      "enabled": false,
-      "removeAdsProductId": ""
+      "enabled": true,
+      "removeAdsProductId": "com.yuta.hanafudakoikoi.remove_ads"
     }
   };
 
@@ -737,6 +738,10 @@
       invariant(app && banner && interstitial, "three valid AdMob IDs required");
       invariant(app[1] === banner[1] && app[1] === interstitial[1], "AdMob publisher IDs do not match");
       invariant(ads2.bannerId !== ads2.interstitialId, "AdMob ad units must be distinct");
+      if (Object.hasOwn(ads2, "rewardedId")) {
+        invariant(adUnitPattern.exec(ads2.rewardedId)?.[1] === app[1], "rewarded ad unit must match the AdMob publisher");
+        invariant(![ads2.bannerId, ads2.interstitialId, ads2.appOpenId].includes(ads2.rewardedId), "rewarded ad unit must be distinct");
+      }
       if (ads2.mode === "test") invariant(app[1] === "3940256099942544", "test mode must use Google demo IDs");
       if (ads2.mode === "production") invariant(app[1] !== "3940256099942544", "Google demo IDs forbidden in production");
     }
@@ -872,11 +877,18 @@
       minCompletedActions: ads2.minCompletedActions,
       cooldownMs: ads2.cooldownMs
     });
-    let owned = false, adsReady = false, prepared = false, presenting = false, purchaseReady = false, started = false;
+    let owned = false, bannerVisible = false, adsReady = false, prepared = false, presenting = false, purchaseReady = false, started = false;
     const report = (category, value) => onStatus(category, value);
     const hideAds = async () => {
       prepared = false;
-      if (native) await ports2.ads.hideBanner();
+      try {
+        if (bannerVisible) await ports2.ads.hideBanner();
+      } catch (err) {
+        report("ads", "\u30D0\u30CA\u30FC\u975E\u8868\u793A\u5931\u6557: " + err.message);
+        return;
+      }
+      bannerVisible = false;
+      report("banner", false);
       report("ads", "\u975E\u8868\u793A");
     };
     const unlock = async () => {
@@ -909,7 +921,7 @@
       prepared = true;
     }
     async function initAds() {
-      if (!native || ads2.mode === "disabled" || owned) {
+      if (!native || ads2.mode === "disabled" || owned && !ads2.rewardedId) {
         report("ads", owned ? "\u8CFC\u5165\u6E08\u307F\u30FB\u5E83\u544A\u306A\u3057" : native ? "\u5E83\u544A\u6A5F\u80FD\u30AA\u30D5" : "\u30D6\u30E9\u30A6\u30B6\u30D7\u30EC\u30D3\u30E5\u30FC\u30FB\u5E83\u544A\u306A\u3057");
         return;
       }
@@ -931,7 +943,9 @@
       if (owned) return hideAds();
       try {
         await ports2.ads.showBanner({ adId: ads2.bannerId, adSize: "BANNER", position: "BOTTOM_CENTER", margin: 0, isTesting: ads2.mode === "test" });
+        bannerVisible = true;
         if (owned) return hideAds();
+        report("banner", true);
         report("ads", "\u30D0\u30CA\u30FC\u8868\u793A\u4E2D");
       } catch (err) {
         report("ads", "\u30D0\u30CA\u30FC\u8868\u793A\u5931\u6557: " + err.message);
@@ -992,6 +1006,16 @@
               report("ads", "\u5168\u753B\u9762\u5E83\u544A\u518D\u6E96\u5099\u5931\u6557: " + err.message);
             }
           }
+        }
+      },
+      async showRewarded() {
+        if (!native || !adsReady || !ads2.rewardedId) throw new Error("\u30EA\u30EF\u30FC\u30C9\u5E83\u544A\u306F\u73FE\u5728\u5229\u7528\u3067\u304D\u307E\u305B\u3093");
+        if (presenting) return false;
+        presenting = true;
+        try {
+          return await ports2.ads.showRewarded({ adId: ads2.rewardedId, isTesting: ads2.mode === "test" });
+        } finally {
+          presenting = false;
         }
       },
       async privacyOptions() {
@@ -9598,6 +9622,28 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var Iaptic = CdvPurchase.Iaptic;
 
   // src/services/native-ports.mjs
+  async function showRewarded(config) {
+    await AdMob.prepareRewardVideoAd(config);
+    const listeners = [];
+    let earned = false, resolve, reject;
+    const finished = new Promise((ok, failed) => {
+      resolve = ok;
+      reject = failed;
+    });
+    try {
+      listeners.push(await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+        earned = true;
+      }));
+      listeners.push(await AdMob.addListener(RewardAdPluginEvents.Dismissed, () => resolve(earned)));
+      listeners.push(await AdMob.addListener(RewardAdPluginEvents.FailedToShow, (error) => reject(new Error(error.message))));
+      void AdMob.showRewardVideoAd().then(() => {
+        earned = true;
+      }, reject);
+      return await finished;
+    } finally {
+      await Promise.allSettled(listeners.map((listener) => listener.remove()));
+    }
+  }
   function createNativePorts() {
     const native = Capacitor.getPlatform() === "ios";
     return {
@@ -9609,6 +9655,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         showBanner: (config) => AdMob.showBanner(config),
         hideBanner: () => AdMob.hideBanner(),
         prepareInterstitial: (config) => AdMob.prepareInterstitial(config),
+        showRewarded,
         showInterstitial: () => AdMob.showInterstitial(),
         showPrivacyOptionsForm: () => AdMob.showPrivacyOptionsForm(),
         async requestTrackingIfNeeded() {
@@ -10606,10 +10653,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var matchLength = 3;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
+  var purchaseStatus = "App Store\u3092\u78BA\u8A8D\u4E2D";
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
-    if (k === "ads") {
-      adsStatus = v;
-      layout.setBannerVisible(v === "\u30D0\u30CA\u30FC\u8868\u793A\u4E2D");
+    if (k === "ads") adsStatus = v;
+    if (k === "banner") layout.setBannerVisible(v);
+    if (k === "purchase") {
+      purchaseStatus = v;
+      const dialog = document.querySelector(".ad-removal-dialog");
+      if (dialog) {
+        dialog.querySelector('[role="status"]').textContent = v;
+        if (ads.status().owned) dialog.querySelector('[data-action="buy-remove-ads"]').disabled = true;
+      }
     }
   } });
   function save() {
@@ -10843,9 +10897,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function showAdRemoval(invoker) {
     const dialog = document.createElement("dialog");
-    dialog.className = "coin-refill-dialog";
+    dialog.className = "coin-refill-dialog ad-removal-dialog";
     dialog.setAttribute("aria-labelledby", "ad-removal-title");
-    dialog.innerHTML = '<h2 id="ad-removal-title">\u5E83\u544A\u306E\u975E\u8868\u793A</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A\u3067\u3059\u3002Web\u7248\u3067\u306F\u8CFC\u5165\u3067\u304D\u307E\u305B\u3093\u3002</p><form method="dialog"><button class="back-control">\u623B\u308B</button></form>';
+    dialog.innerHTML = '<h2 id="ad-removal-title">\u5E83\u544A\u306E\u975E\u8868\u793A</h2>' + (ports.native ? '<p>\u30D0\u30CA\u30FC\u3068\u5168\u753B\u9762\u5E83\u544A\u3092\u975E\u8868\u793A\u306B\u3057\u307E\u3059\u3002</p><p role="status">' + esc(purchaseStatus) + '</p><button class="primary" data-action="buy-remove-ads" ' + (ads.status().owned ? "disabled" : "") + '>\u8CFC\u5165\u3059\u308B</button><button class="secondary" data-action="restore-remove-ads">\u8CFC\u5165\u3092\u5FA9\u5143</button>' : "<p>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A\u3067\u3059\u3002Web\u7248\u3067\u306F\u8CFC\u5165\u3067\u304D\u307E\u305B\u3093\u3002</p>") + '<form method="dialog"><button class="back-control">\u623B\u308B</button></form>';
     dialog.addEventListener("close", () => {
       dialog.remove();
       invoker.focus();
@@ -10854,7 +10908,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     dialog.showModal();
   }
   function settingsView() {
-    return shell('<div class="settings-screen feedback-settings">' + headline("\u8A2D\u5B9A", "\u30B7\u30B9\u30C6\u30E0") + '<div class="settings-sound">' + matchChoices("\u30B5\u30A6\u30F3\u30C9", "sound", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.sound ?? true) + '<small>\u73FE\u5728\u306E\u7248\u306B\u306F\u52B9\u679C\u97F3\u304C\u3042\u308A\u307E\u305B\u3093\u3002</small></div><div class="settings-ads"><button class="settings-credits" data-action="ad-removal">\u5E83\u544A\u306E\u975E\u8868\u793A \u203A</button><small>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A</small></div><p>' + esc(adsStatus) + '</p><button class="settings-credits" data-action="credits">\u30AF\u30EC\u30B8\u30C3\u30C8\u30FB\u30E9\u30A4\u30BB\u30F3\u30B9 \u203A</button></div>');
+    return shell('<div class="settings-screen feedback-settings">' + headline("\u8A2D\u5B9A", "\u30B7\u30B9\u30C6\u30E0") + '<div class="settings-sound">' + matchChoices("\u30B5\u30A6\u30F3\u30C9", "sound", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.sound ?? true) + '<small>\u73FE\u5728\u306E\u7248\u306B\u306F\u52B9\u679C\u97F3\u304C\u3042\u308A\u307E\u305B\u3093\u3002</small></div><div class="settings-ads"><button class="settings-credits" data-action="ad-removal">\u5E83\u544A\u306E\u975E\u8868\u793A \u203A</button>' + (ports.native ? "" : "<small>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A</small>") + "</div><p>" + esc(adsStatus) + '</p><button class="settings-credits" data-action="credits">\u30AF\u30EC\u30B8\u30C3\u30C8\u30FB\u30E9\u30A4\u30BB\u30F3\u30B9 \u203A</button></div>');
   }
   var TUTORIAL_STEPS = [
     "\u82B1\u672D\u3068\u306F\uFF1F",
@@ -11608,6 +11662,28 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   async function clickAction(button, event) {
     const action = button.dataset.action, id = button.dataset.id, m = Number(button.dataset.month || 0), val = button.dataset.value;
+    const purchaseDialog = button.closest?.(".ad-removal-dialog");
+    if (purchaseDialog) {
+      if (!ports.native || !purchaseDialog.open) return;
+      const buy = purchaseDialog.querySelector('[data-action="buy-remove-ads"]');
+      const restore = purchaseDialog.querySelector('[data-action="restore-remove-ads"]');
+      if (![buy, restore].includes(button)) return;
+      buy.disabled = restore.disabled = true;
+      const status = purchaseDialog.querySelector('[role="status"]');
+      try {
+        if (button === buy) await ads.buyRemoveAds();
+        else {
+          await ads.restore();
+          if (!ads.status().owned) status.textContent = "\u5FA9\u5143\u3067\u304D\u308B\u8CFC\u5165\u306F\u3042\u308A\u307E\u305B\u3093\u3002";
+        }
+      } catch (err) {
+        status.textContent = err.message;
+      } finally {
+        buy.disabled = ads.status().owned;
+        restore.disabled = false;
+      }
+      return;
+    }
     const refillDialog = button.closest?.(".coin-refill-dialog");
     if (refillDialog) {
       if (!refillDialog.open) return;
@@ -11621,14 +11697,30 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         return;
       }
       if (action === "coin-ad") {
-        showRefillAdPreview(refillDialog);
+        if (!ports.native) {
+          showRefillAdPreview(refillDialog);
+          return;
+        }
+        button.disabled = true;
+        try {
+          if (await ads.showRewarded()) {
+            state.wallet.coins += AD_COINS;
+            save();
+            refillDialog.close();
+            render();
+          }
+        } catch (err) {
+          toast("\u5E83\u544A\u3092\u8868\u793A\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002" + err.message);
+        } finally {
+          button.disabled = false;
+        }
         return;
       }
       const today = localDay();
       if (action === "coin-free-claim") {
         if (!canRefillForFree(state.wallet, today)) return;
         state.wallet.lastFreeRefill = today;
-      } else if (action !== "coin-ad-claim") return;
+      } else if (ports.native || action !== "coin-ad-claim") return;
       state.wallet.coins += action === "coin-free-claim" ? FREE_COINS : AD_COINS;
       save();
       refillDialog.close();
