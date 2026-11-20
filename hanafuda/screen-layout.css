@@ -75,7 +75,7 @@ html,body,#app{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavi
 .study-main>b{color:#9c4731;font-size:11px}
 .study-main strong{font-size:21px;color:#254034;font-family:"Yu Mincho",serif}
 .study-main small{font-size:12px;color:#7c6046}
-.study-main span{color:#a0442e;font-weight:850;font-size:12px;align-self:flex-end}
+.study-main > span{color:#a0442e;font-weight:850;font-size:12px;align-self:flex-end}
 .study-actions{flex:2.45;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px}
 .study-actions button{min-height:0;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:8px;
  padding:15px 10px;border:1px solid #ccb68c;border-radius:10px;background:#fff9eb;color:#36513e}
