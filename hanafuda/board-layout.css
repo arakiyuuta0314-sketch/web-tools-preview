@@ -685,12 +685,10 @@
   }
   .play-layout.seated-layout .round-score-plaque strong{font:700 8px/1.1 "Yu Mincho",serif!important}
   .play-layout.seated-layout .round-score-plaque small{font:8px/1.1 sans-serif!important;color:#f4d18f!important}
-  .play-layout.seated-layout .edge-save-button{
-    flex:0 0 auto!important;min-height:18px!important;height:18px!important;
-    padding:1px 5px!important;border:1px solid #b89565!important;border-radius:3px!important;
-    background:linear-gradient(#e7d2ad,#c2a074)!important;color:#4b3525!important;
-    font:700 8px/14px sans-serif!important;white-space:nowrap!important;
+  .play-layout.seated-layout .table-edge-controls{
+    top:0!important;padding-block:0!important;
   }
+  .play-layout.seated-layout .edge-save-button{flex:0 0 auto!important}
   .play-layout.seated-layout .teacher-seat-guide{
     position:absolute!important;top:5px!important;left:132px!important;z-index:6!important;
     display:grid!important;grid-template-columns:minmax(0,1fr) 118px!important;

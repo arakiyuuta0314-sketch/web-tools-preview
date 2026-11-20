@@ -318,12 +318,12 @@
 /* Match choices use the same wooden shape for every action. */
 .tutorial-aligned .feedback-match {
   display:grid;
-  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
-  grid-template-rows:auto auto minmax(0,1fr) auto;
-  grid-template-areas:"header header" "modes companion" "controls companion" "guide guide";
+  grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:"modes companion" "controls companion" "guide guide";
   align-content:stretch;
   align-items:stretch;
-  gap:7px 16px;
+  gap:6px 14px;
   min-height:0;
   height:100%;
   padding-inline:0;
@@ -331,7 +331,7 @@
 .feedback-match .match-controls {
   grid-area:controls;
   display:grid;
-  align-content:space-evenly;
+  grid-template-rows:repeat(4,minmax(31px,1fr)) 35px;
   gap:4px;
   min-height:0;
 }
@@ -341,7 +341,7 @@
 }
 .feedback-match .match-choices h2 {font-size:15px;margin:0 0 2px}
 .feedback-match .match-choices button {flex:1;padding:2px 4px;min-width:0}
-.tutorial-aligned .feedback-match button:not(.quiet,.match-portrait) {
+.tutorial-aligned .feedback-match button:not(.quiet,.match-portrait,.opponent-line) {
   min-height:30px;
   border:1px solid #a87846;
   border-radius:4px;
@@ -353,8 +353,8 @@
   text-shadow:none;
 }
 .tutorial-aligned .feedback-match .mode-signs button {
-  min-height:40px;
-  font-size:clamp(18px,3vw,25px);
+  min-height:38px;
+  font-size:clamp(17px,2.7vw,23px);
 }
 .feedback-match .match-companion {
   grid-area:companion;
@@ -365,7 +365,8 @@
   justify-content:flex-end;
   gap:5px;
 }
-.feedback-match .match-heading .kicker {margin:0;font-size:13px}
+.match-wallet-slot {width:100%;flex:0 0 34px}
+.match-controls .match-start {font-size:17px}
 .feedback-match > .inline-teacher {grid-area:guide}
 .opponent-stage {position:relative;width:100%;flex:1;min-height:0}
 .tutorial-aligned .feedback-match .match-portrait {
@@ -383,18 +384,25 @@
   width:100%;
   height:100%;
   object-fit:contain;
-  object-position:center bottom;
+  object-position:right bottom;
 }
 .tutorial-aligned .teacher-bubble.opponent-line {
   position:absolute;
-  inset:auto 5% 8px;
+  inset:auto auto 16% 0;
   display:block;
-  width:90%;
-  padding:8px 12px;
-  pointer-events:none;
+  width:52%;
+  padding:7px 8px;
+  text-align:left;
+  pointer-events:auto;
 }
-.tutorial-aligned .teacher-bubble.opponent-line[hidden] {display:none}
-.tutorial-aligned .teacher-bubble.opponent-line .teacher-speech p {font-size:clamp(13px,2vw,17px)}
+.tutorial-aligned .opponent-line::before {
+  inset-inline-start:auto;
+  inset-inline-end:-6px;
+  border-width:1px 1px 0 0;
+}
+.tutorial-aligned .opponent-line .teacher-speech {font:13px/1.45 var(--study-body);color:#573c2b}
+.tutorial-aligned .feedback-match .match-portrait {width:48%;margin-inline-start:auto}
+.feedback-match .match-portrait:focus-visible {outline-offset:-3px}
 .feedback-match .betting-wallet {width:100%;flex-shrink:0}
 .feedback-match .betting-wallet button {font-size:13px;padding-inline:8px}
 .feedback-match .teacher-bubble {flex-shrink:0}
@@ -445,35 +453,27 @@
 .card-zoom form {margin:0;text-align:right}
 .card-zoom::backdrop {background:#090b14b5}
 .quiz-screen {position:relative}
-.quiz-screen .quiz-back {position:absolute;right:4px;top:3px;min-height:30px;padding:3px 9px}
-.quiz-screen .quiz-head {padding-inline-end:52px}
 .quiz-result {width:100%;text-align:center;margin:auto}
 .quiz-result p {font-size:23px;color:#fff0d0}
 .quiz-result .primary {width:auto}
 .scene-settings .feedback-settings {display:flex;flex-direction:column;gap:12px}
 .feedback-settings p {margin:0;padding:10px;color:inherit}
-.study-back {justify-self:start}
 
-@media (orientation:landscape) and (max-height:620px) {
-  .scene-quiz .quiz-screen .quiz-back {top:4px;left:calc(45% - 58px);right:auto}
-}
 @media (orientation:portrait) and (max-width:550px) {
   .tutorial-aligned .feedback-match {
     grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"header" "modes" "controls" "companion" "guide";
-    grid-template-rows:auto auto auto minmax(0,1fr) auto;
+    grid-template-areas:"modes" "controls" "companion" "guide";
+    grid-template-rows:auto auto minmax(0,1fr) auto;
   }
 }
 
 .feedback-match .match-choices {
   display:grid;
-  grid-template-columns:clamp(85px,16vw,118px) minmax(0,1fr);
+  grid-template-columns:clamp(100px,18vw,134px) minmax(0,1fr);
   align-items:center;
   gap:5px;
 }
 .feedback-match .match-choices h2 {margin:0}
-.study-hub {position:relative}
-.study-hub .study-back {position:absolute;inset-block-start:5px;inset-inline-end:7px;min-height:30px;padding:3px 9px}
 
 .tutorial-aligned .feedback-match .match-choices button {
   font-size:clamp(11px,1.8vw,15px);
@@ -486,8 +486,8 @@
     linear-gradient(#9c6236,#653821);
   color:#fff0ce;
 }
-.tutorial-aligned .feedback-match .betting-wallet {display:flex;justify-content:start;gap:5px}
-.feedback-match .betting-wallet strong {white-space:nowrap}
+.tutorial-aligned .feedback-match .betting-wallet {display:flex;justify-content:flex-end;gap:7px}
+.feedback-match .betting-wallet strong {white-space:nowrap;margin-inline-end:0;text-align:right}
 .scene-cards.tutorial-aligned .card-book .reference-note {padding-block:4px}
 .scene-cards.tutorial-aligned .card-book .reference-note small {display:none}
 .scene-cards.tutorial-aligned .card-book .reference-note h3 {font-size:14px}
@@ -496,6 +496,71 @@
   .scene-cards.tutorial-aligned .scene-body {padding-block:7px}
   .tutorial-aligned .card-book {gap:4px}
 }
-.feedback-match .betting-rates .match-choices {grid-template-columns:76px minmax(0,1fr)}
-.tutorial-aligned .feedback-match .betting-rates .chip {font-size:clamp(10px,1.7vw,14px);line-height:1.1}
-.feedback-match .betting-rates .chip small {display:block;font-size:10px}
+.feedback-match .betting-rates .match-choices {grid-template-columns:clamp(100px,18vw,134px) minmax(0,1fr)}
+.tutorial-aligned .feedback-match .betting-rates .chip {font-size:clamp(10px,1.55vw,13px);line-height:1.1;padding-inline:2px}
+.feedback-match .betting-rates h2 {white-space:nowrap;font-size:13px}
+
+
+/* Back belongs to the navigation edge, outside the content. */
+.back-control {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:66px;
+  min-height:44px;
+  padding:4px 10px;
+  border:1px solid #b79159;
+  border-radius:6px;
+  background:linear-gradient(#745036,#452c21);
+  color:#fff0ce;
+  font:14px/1.2 "TutorialYuji",serif;
+  white-space:nowrap;
+}
+.back-control:focus-visible {outline:2px solid #f4c574;outline-offset:2px}
+.topbar .row {gap:7px}
+.scene-settings .feedback-settings {gap:6px}
+.feedback-settings > p {padding:4px 0}
+.settings-sound,.settings-ads {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:4px 12px;
+}
+.settings-sound .match-choices {display:flex;align-items:center;gap:9px}
+.settings-sound h2 {font-size:15px;margin:0}
+.settings-sound button {min-height:36px}
+.settings-ads .settings-credits {width:auto}
+@media (orientation:landscape) and (max-height:620px) {
+  .shell:not(.scene-home,.scene-game) .page,
+  .scene-game:has(.tutorial-welcome) .page {grid-template-rows:47px minmax(0,1fr)}
+  .shell:not(.scene-home,.scene-game) .topbar,
+  .scene-game:has(.tutorial-welcome) .topbar {height:47px;padding-block:0 2px}
+  .scene-free.tutorial-aligned .scene-body {padding-block:8px}
+  .tutorial-step-menu button.tutorial-step-plaque {min-height:34px}
+  .tutorial-step-menu ol {gap:4px}
+}
+
+.feedback-settings .chapter-title {color:#fff0ce;font-family:"TutorialYuji",serif}
+.feedback-settings .kicker {color:#edcf9d}
+.settings-sound,.settings-ads {
+  width:min(100%,520px);
+  padding:7px 10px;
+  border:1px solid #a4814e;
+  border-radius:6px;
+  background:#2d241cbf;
+  color:#fff0ce;
+}
+.feedback-settings small {font-size:12px;color:#e8d3ad}
+.feedback-settings .settings-credits {
+  width:auto;
+  min-height:36px;
+  padding:5px 10px;
+  border:1px solid #a4814e;
+  border-radius:5px;
+  background:linear-gradient(#795436,#4d3324);
+  color:#fff0ce;
+  text-align:left;
+  text-decoration:none;
+}
+.feedback-settings > .settings-credits {align-self:start}
+.coin-refill-dialog .back-control {width:auto;margin-inline-start:auto}
