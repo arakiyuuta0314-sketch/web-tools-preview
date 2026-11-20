@@ -1,7 +1,27 @@
 /* Safe-area and bottom native banner rules, independent of app theme. */
 html.app-viewport{--app-banner-height:50px;--app-bottom-clearance:20px}
 html.app-viewport .page{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));padding-bottom:calc(var(--app-bottom-clearance) + 20px + env(safe-area-inset-bottom))}
-html.app-viewport.native-ad-visible .page{padding-bottom:calc(var(--app-bottom-clearance) + var(--app-banner-height) + env(safe-area-inset-bottom))}
+/* AdMob places the banner over the WKWebView, aligned to the native bottom safe area. */
+html.app-viewport.native-ad-visible{
+  --app-banner-inset:calc(var(--app-banner-height) + env(safe-area-inset-bottom));
+  --app-content-height:calc(100vh - var(--app-banner-inset));
+}
+@supports (height:100dvh){
+ html.app-viewport.native-ad-visible{
+  --app-content-height:calc(100dvh - var(--app-banner-inset));
+ }
+}
+html.app-viewport.native-ad-visible #app{height:var(--app-content-height);overflow:hidden}
+html.app-viewport.native-ad-visible .shell{height:100%;min-height:0}
+html.app-viewport.native-ad-visible[data-hanafuda-preview="stage5"] .scene-home{height:min(var(--app-content-height),var(--home-height,var(--app-content-height)))}
+html.app-viewport.native-ad-visible .scene-game .page{height:100%!important}
+html.app-viewport.native-ad-visible .replace-game-backdrop{bottom:var(--app-banner-inset)}
+html.app-viewport.native-ad-visible dialog[open]{
+  margin-block:auto;
+  inset-block-end:var(--app-banner-inset);
+  max-height:calc(var(--app-content-height) - 16px);
+  overflow:auto;
+}
 html.app-viewport .overlay .sheet{max-height:calc(100dvh - env(safe-area-inset-top) - 8px);overscroll-behavior:contain}
 html.app-viewport.native-ad-visible .overlay .sheet{bottom:calc(var(--app-banner-height) + env(safe-area-inset-bottom));max-height:calc(100dvh - var(--app-banner-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 8px);padding-bottom:24px}
 html.app-viewport.native-ad-visible .toast{bottom:calc(18px + var(--app-banner-height) + env(safe-area-inset-bottom))}

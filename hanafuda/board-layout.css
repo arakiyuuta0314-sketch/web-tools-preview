@@ -1099,11 +1099,3 @@
     flex:0 1 auto!important;min-width:0!important;
   }
 }
-
-/* The iOS banner sits over the web view, so keep the board and home controls above it. */
-@media (orientation:landscape) and (max-height:620px){
-  html.app-viewport.native-ad-visible .scene-game .page,
-  html.app-viewport.native-ad-visible[data-hanafuda-preview="stage5"] .scene-home .page{
-    padding-bottom:calc(var(--app-banner-height) + env(safe-area-inset-bottom))!important;
-  }
-}
