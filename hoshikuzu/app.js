@@ -154,7 +154,7 @@
     { plate: valley, effect: "omen", text: PROLOGUE_TEXT[4] },
     { plate: village, effect: "smoke", subject: "assets/leaf-redo/leaf-building-west-home.png", text: PROLOGUE_TEXT[5] },
     { plate: throne, effect: "danger", text: PROLOGUE_TEXT[6] },
-    { plate: throne, effect: "hero", subject: "assets/castle/castle-hero-up-0.png", text: PROLOGUE_TEXT[7] }
+    { plate: throne, effect: "hero", subject: "assets/chips/allen-opening-up.png", text: PROLOGUE_TEXT[7] }
   ];
   var preloadOpeningArt = () => Promise.all([...new Set(OPENING_SCENES.flatMap(
     ({ plate, subject }) => subject ? [plate, subject] : [plate]
@@ -18347,7 +18347,7 @@
         if (n.id === "refugee") paintCast(c, "mobwoman", px + 27, py + 28, "left", 24);
       } });
     }
-    if (m.id === "castle" && intro.page === "royalReport") {
+    if (m.id === "castle" && intro.page) {
       for (const [x, y, id] of [[4, 5, "mobman"], [5, 6, "mobwoman"], [10, 5, "mobold"], [11, 6, "mobman"]]) {
         drawables.push({ x, y, depth: y, draw: (c, screen) => {
           const [px, py] = screen(x, y);
@@ -18594,12 +18594,13 @@
     const now = performance.now();
     paintSfcBattleBackground(ctx, W2, H2, area);
     const progress = impact?.reduced ? 0.25 : combatFeedbackProgress(impact, now);
+    const enemySize = (id) => id === "vold" ? 158 : b.tag === "tutorial" || b.tag === "random" ? 96 : 128;
     const { enemies: slots } = battleFormationSlots(W2, H2, { enemies: b.enemies.length });
     for (const enemy of b.enemies) {
       const { x, feet } = slots[enemy.slot];
       const active = impact?.enemySlot === enemy.slot;
       const hit = active && impact.enemyDamage > 0 && progress < 0.65;
-      const size = enemy.id === "vold" ? 158 : 128;
+      const size = enemySize(enemy.id);
       if (enemy.hp === 0 && !(active && impact.defeated && progress < 0.85)) continue;
       ctx.save();
       if (hit && Math.floor(progress * 18) % 2 === 0) ctx.globalAlpha = 0.45;
@@ -18628,7 +18629,7 @@
       H2,
       { ...impact, playerDamage: 0, healing: 0, target: "enemy" },
       now,
-      { enemyX: target.x, enemyFoot: target.feet, enemySize: 128, foot: target.feet }
+      { enemyX: target.x, enemyFoot: target.feet, enemySize: enemySize(b.enemies[impact.enemySlot ?? 0]?.id ?? b.id), foot: target.feet }
     );
     if (b.ward > 0) {
       ctx.font = "bold 11px sans-serif";
@@ -18877,7 +18878,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261120-iphone-castle";
+  $("build-id").textContent = "20261120-intro-touch";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -19045,7 +19046,8 @@
     const shot2 = introShot;
     const view = shot2 ? { ...state, pos: shot2.pos } : state;
     const scene = { page: shot2?.page ?? introPage(state), raiderY: shot2?.raiderY, swordGlow: shot2?.swordGlow };
-    drawWorld($("game"), view, lightSteps, shot2?.motion ?? walkMotion, leafNpcFacing, explorationPixels, followerPosition(), scene);
+    const facingView = !shot2 && scene.page === "refugee" ? { ...view, pos: { ...view.pos, facing: "right" } } : view;
+    drawWorld($("game"), facingView, lightSteps, shot2?.motion ?? walkMotion, leafNpcFacing, explorationPixels, followerPosition(), scene);
   }
   function paintCurrentRoom() {
     drawRoom($("game"), interior, roomMotion, explorationPixels, LUCA_JOIN.includes(queue[0]));
@@ -19422,8 +19424,13 @@
     const map = state.pos.map;
     battleArea = ["castle", "cave", "ruins", "onyx"].includes(map) ? map : monsterById(battle.id).area;
     const foes = battle.enemies.map((enemy) => enemy.name).join("\u3001");
+    if (tag === "tutorial") {
+      battleChoices();
+      notice(INTRO_TEXT.fight());
+      return;
+    }
     closePanel();
-    message([...lines, tag === "tutorial" ? INTRO_TEXT.fight() : foes + "\u304C\u73FE\u308C\u305F\uFF01"]);
+    message([...lines, foes + "\u304C\u73FE\u308C\u305F\uFF01"]);
   }
   function chooseBattleTarget(action, back = battleChoices, submit = queueHeroAction) {
     if (!battle || queue.length || battleEnding) return;
@@ -20126,11 +20133,13 @@
         onArrival();
         return;
       }
-      const prev = path[step - 1] ?? from;
+      const prev = path[step - 1] ?? from, next = path[step];
+      const dx = next.x - prev.x, dy = next.y - prev.y;
+      const facing = dx < 0 ? "left" : dx > 0 ? "right" : dy < 0 ? "up" : dy > 0 ? "down" : next.facing;
       introShot = {
         page,
-        pos: path[step],
-        motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step },
+        pos: next,
+        motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step, facing },
         raiderY: ["refugee", "royalReport"].includes(page) ? 8 - Math.min(1, elapsed / duration) : void 0
       };
       paintCurrentWorld();
@@ -20183,7 +20192,7 @@
       const page = introPage(state);
       switch (page) {
         case "royalReport":
-          playIntroWalk("refugee", [introEntrance]);
+          playIntroWalk("refugee", [{ ...introEntrance, facing: "right" }]);
           return;
         case "refugee":
           playIntroWalk("pickup", [introPosition(7, 5, "up")]);
