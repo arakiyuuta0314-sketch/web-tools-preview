@@ -517,7 +517,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  display:block;flex:0 0 52px;width:52px;height:68px;object-fit:contain;object-position:bottom;border:1px solid var(--window-border);border-radius:3px
 }
 .in-battle{
- --battle-window-height:clamp(104px,28%,148px);
+ --battle-window-height:clamp(138px,34%,172px);
 }
 .in-battle .world-zone{bottom:var(--battle-window-height)}
 .in-battle .screen-shell{background:#0b111b}
@@ -530,7 +530,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
 .in-battle .completion{pointer-events:none}
 .in-battle .controls{
  top:auto;height:var(--battle-window-height);
- display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+ display:grid;grid-template-columns:minmax(0,12fr) minmax(0,13fr);
  grid-template-rows:minmax(0,1fr);align-items:stretch;gap:5px;
  padding:3px var(--edge-right) var(--edge-bottom) var(--edge-left)
 }
@@ -569,13 +569,14 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #e7cb
  position:sticky;top:0;z-index:1;background:#25365a;
  padding:2px 0;margin-bottom:3px
 }
-.in-battle .panel-content{gap:4px}
+.in-battle .panel-content{gap:5px}
+.in-battle .panel-content p{margin:4px 3px 5px;overflow-wrap:anywhere}
 .in-battle .panel-content button{min-height:32px;padding:3px;color:#fff}
 .in-battle .panel-content button:is(.is-selected,:focus-visible){
  border-color:#a6b4d1;background:#44567c
 }
 @container game-stage (max-width:480px){
- .in-battle{--battle-window-height:clamp(124px,28%,180px)}
+ .in-battle{--battle-window-height:clamp(138px,34%,180px)}
  .battle-status{align-content:start;gap:4px}
 }
 
