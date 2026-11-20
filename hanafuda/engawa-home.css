@@ -175,3 +175,8 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-object img.engawa-match-l
  .entrance-arrival{animation:entrance-arrival 160ms ease-out}
  @keyframes entrance-arrival{from{opacity:.78}to{opacity:1}}
 }
+
+/* Align the lettering with the centers of the painted faces. */
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {translate:0 -5px}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label,
+html[data-hanafuda-preview="stage5"] .scene-home .home-settings .engawa-label {translate:0 -2px}

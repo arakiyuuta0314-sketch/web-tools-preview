@@ -1099,3 +1099,45 @@
     flex:0 1 auto!important;min-width:0!important;
   }
 }
+
+.koi-declaration {
+  position:fixed;z-index:110;inset-inline-start:50%;
+  inset-block-start:39%;inset-block-start:calc(var(--app-content-height,100dvh) * .39);
+  translate:-50% -50%;pointer-events:none;
+  display:grid;justify-items:center;gap:2px;
+  min-width:min(210px,85vw);padding:9px 22px;border:2px solid #e5ba72;border-radius:7px;
+  background:linear-gradient(160deg,#8f4833,#48281d);color:#fff0cb;
+  box-shadow:0 6px 16px #160c07a6,inset 0 0 0 2px #d9996259;
+}
+.koi-declaration strong {font:clamp(32px,6vw,51px)/1.15 "TutorialYuji",serif}
+.koi-declaration :is(span,small) {font-size:12px}
+.koi-declaration.koi-player {
+  inset-block-start:63%;inset-block-start:calc(var(--app-content-height,100dvh) * .63);
+}
+.koi-declaration.koi-opponent {background:linear-gradient(160deg,#30465f,#1b263d)}
+@media (prefers-reduced-motion:no-preference) {
+  .koi-declaration {animation:koi-plaque-flip 370ms ease-out both}
+  @keyframes koi-plaque-flip {
+    from {opacity:0;transform:perspective(480px) rotateY(-67deg) rotate(-4deg)}
+    75% {opacity:1;transform:perspective(480px) rotateY(7deg) rotate(1deg)}
+    to {opacity:1;transform:none}
+  }
+}
+@media (orientation:landscape) and (max-height:620px) {
+  .native-ad-visible .scene-game .page {padding-bottom:0!important}
+  .native-ad-visible .play-layout.seated-layout {--banner-rail:min(166px,calc(21% + 6px))}
+  .native-ad-visible .play-layout.seated-layout .tabletop {
+    grid-template-columns:var(--banner-rail) minmax(0,1fr) var(--banner-rail)!important;
+  }
+  .native-ad-visible .play-layout.seated-layout .board-side {padding:48px 3px 56px!important}
+  .native-ad-visible .play-layout.seated-layout .board-play-controls {width:calc(var(--banner-rail) - 10px)}
+  .native-ad-visible .play-layout.seated-layout .landscape-fieldline {
+    grid-template-columns:34px minmax(0,1fr)!important;
+  }
+  .native-ad-visible .play-layout.seated-layout .fieldcards {padding-inline:0!important}
+  .native-ad-visible .play-layout.seated-layout .board-hand {padding-inline:0!important}
+  .native-ad-visible .play-layout.seated-layout .handcards {gap:2px!important}
+}
+@media (orientation:landscape) and (max-width:700px) {
+  .native-ad-visible .play-layout.seated-layout {--banner-rail:min(142px,calc(21% + 6px))}
+}

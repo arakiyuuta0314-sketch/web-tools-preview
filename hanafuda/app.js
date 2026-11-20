@@ -10785,14 +10785,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       credits: "settings",
       tutorial: "tutorial-back"
     }[screen];
-    return '<div class="shell scene-' + screen + (["cards", "yaku", "quiz", "columns", "free"].includes(screen) ? " tutorial-aligned" : "") + '"><main class="page"><header class="topbar"><button type="button" class="brand brand-home" data-action="home" aria-label="Home"><span class="seal">\u82B1</span><span class="brand-name">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044</span></button><div class="row">' + (gaming ? backButton(intro ? "tutorial-menu" : "home", intro ? "\u623B\u308B" : "\u4E2D\u65AD\u30FB\u4FDD\u5B58") : (screen === "settings" || screen === "credits" ? "" : '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + (destination ? backButton(destination) : "")) + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB">\u2726<span>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span></button><button data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA">\u25A3<span>\u56F3\u9451</span></button></nav>') + "</main></div>";
+    return '<div class="shell scene-' + screen + (["cards", "yaku", "quiz", "columns", "free"].includes(screen) ? " tutorial-aligned" : "") + '"><main class="page"><header class="topbar"><button type="button" class="brand brand-home" data-action="home" aria-label="Home"><span class="seal">\u82B1</span><span class="brand-name">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044</span></button><div class="row">' + (gaming ? backButton(intro ? "tutorial-menu" : "home", intro ? "\u623B\u308B" : "\u4E2D\u65AD\u30FB\u4FDD\u5B58") : (screen === "settings" || screen === "credits" ? "" : '<button class="quiet" data-action="settings">\u8A2D\u5B9A</button>') + (destination ? backButton(destination) : "")) + '</div></header><section class="scene-body">' + content + "</section>" + (gaming ? "" : '<nav class="scene-nav" aria-label="\u753B\u9762\u306E\u79FB\u52D5"><button data-action="home" aria-label="\u30DB\u30FC\u30E0">\u2302<span>\u30DB\u30FC\u30E0</span></button><button data-action="start-tutorial" aria-label="\u304A\u3051\u3044\u3053">\u2726<span>\u304A\u3051\u3044\u3053</span></button><button data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA">\u25A3<span>\u56F3\u9451</span></button></nav>') + "</main></div>";
   }
   function headline(title, subtitle) {
     return '<div class="row"><div><div class="kicker">' + esc(subtitle) + '</div><h1 class="chapter-title">' + esc(title) + "</h1></div></div>";
   }
   function home() {
     const canResume = canResumeGame(savedMatch()) || canResumeGame(state.active);
-    return shell('<div class="hub home-redesign"><button type="button" class="engawa-heading engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial"><span class="engawa-main">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
+    return shell('<div class="hub home-redesign"><button type="button" class="engawa-heading engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial"><span class="engawa-main">\u304A\u3051\u3044\u3053</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
   }
   function phrases(parts) {
     return parts.map((part) => '<span class="phrase">' + esc(part) + "</span>").join("");
@@ -10810,7 +10810,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     ], { duration: 1300, easing: "ease-in-out" });
   }
   function learn() {
-    return shell('<div class="study-hub"><div class="study-heading"><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1></div><button class="study-main" data-action="start-tutorial"><strong>' + phrases(["\u3053\u3044\u3053\u3044\u306E", "\u57FA\u672C\u3092\u5B66\u3076"]) + "</strong><small>" + phrases(["\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001", "\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067"]) + '</small></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092", "1\u304B\u6708\u305A\u3064"]) + '</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u305D\u308D\u3048\u308B\u672D\u3068", "\u70B9\u6570\u3092\u898B\u308B"]) + '</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>' + phrases(["12\u304B\u6708\u306E", "\u82B1\u3068\u7531\u6765"]) + '</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div></div>');
+    return shell('<div class="study-hub"><div class="study-heading"><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1></div><button class="study-main" data-action="start-tutorial"><strong>' + phrases(["\u3053\u3044\u3053\u3044\u306E", "\u57FA\u672C\u3092\u5B66\u3076"]) + "</strong><small>" + phrases(["\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001", "\u5148\u751F\u3068\u306E\u304A\u3051\u3044\u3053\u307E\u3067"]) + '</small></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092", "1\u304B\u6708\u305A\u3064"]) + '</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u305D\u308D\u3048\u308B\u672D\u3068", "\u70B9\u6570\u3092\u898B\u308B"]) + '</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>' + phrases(["12\u304B\u6708\u306E", "\u82B1\u3068\u7531\u6765"]) + '</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div></div>');
   }
   function inlineTeacher(description, { className = "", title = "", note = "", action = "", status = false } = {}) {
     return '<aside class="teacher-bubble inline-teacher ' + className + '" aria-label="\u5148\u751F\u306E\u6848\u5185">' + teacherAvatar() + '<div class="teacher-speech"' + (status ? ' role="status"' : "") + ">" + (note ? "<small>" + esc(note) + "</small>" : "") + (title ? "<h3>" + esc(title) + "</h3>" : "") + "<p>" + (Array.isArray(description) ? phrases(description) : esc(description)) + "</p></div>" + action + "</aside>";
@@ -10987,7 +10987,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     ];
     const steps = entries.map(({ label, action, step, completed }) => '<li><button type="button" class="tutorial-step-plaque" data-action="' + action + '"' + (step ? ' data-value="' + step + '"' : "") + (completed ? ' aria-describedby="tutorial-step-complete"' : "") + ">" + label + "</button></li>").join("");
     const figure = "assets/teacher-figure.png" ? ' style="--teacher-figure:url(./assets/teacher-figure.png)"' : "";
-    return shell('<section class="tutorial-step-menu"><div class="tutorial-step-picker"><header class="tutorial-step-heading"><h1>\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</h1></header><ol>' + steps + '</ol><span id="tutorial-step-complete" hidden>\u5B8C\u4E86</span></div><div class="tutorial-teacher-figure" aria-hidden="true"' + figure + "></div></section>");
+    return shell('<section class="tutorial-step-menu"><div class="tutorial-step-picker"><header class="tutorial-step-heading"><h1>\u304A\u3051\u3044\u3053</h1></header><ol>' + steps + '</ol><span id="tutorial-step-complete" hidden>\u5B8C\u4E86</span></div><div class="tutorial-teacher-figure" aria-hidden="true"' + figure + "></div></section>");
   }
   function recordPracticeStep(step) {
     state.completedPracticeSteps ??= [];
@@ -11279,6 +11279,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       game: gameView,
       credits
     }[screen]() + (pendingStart ? replacementConfirmView() : "");
+    if (screen !== "game") $("koi-declaration")?.remove();
     if (pendingStart) $("app").querySelector(".shell").inert = true;
     if (screen === "yaku") {
       const scroll = $("app").querySelector(".yaku-scroll");
@@ -11562,6 +11563,16 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       if (turnPresentation === playback) turnPresentation = null;
     }
   }
+  function showKoiDeclaration(actor) {
+    $("koi-declaration")?.remove();
+    const banner = document.createElement("div");
+    banner.id = "koi-declaration";
+    banner.className = "koi-declaration koi-" + (actor === 0 ? "player" : "opponent");
+    banner.setAttribute("role", "status");
+    banner.innerHTML = "<span>" + (actor === 0 ? "\u3042\u306A\u305F\u306E\u5BA3\u8A00" : "\u76F8\u624B\u306E\u5BA3\u8A00") + "</span><strong>\u3053\u3044\u3053\u3044\uFF01</strong>" + (actor === 1 ? "<small>\u3053\u306E\u5C40\u306F\u7D9A\u304D\u307E\u3059</small>" : "");
+    document.body.append(banner);
+    setTimeout(() => banner.remove(), 1500);
+  }
   async function advanceAfterMove(logStart = null, turnLogStart = logStart, before = null) {
     const g = state.active;
     if (g.tutorial && logStart !== null && !g.tutorialLearning) {
@@ -11610,6 +11621,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     delete g.pendingTurnPresentation;
     save();
     render();
+    if (cpuBefore && r.koiCalls[1] > cpuBefore.koiCalls[1]) showKoiDeclaration(1);
     if (cpuBefore && g.pendingYakuCelebration) {
       await showYakuCelebration(g.pendingYakuCelebration);
       delete g.pendingYakuCelebration;
@@ -12076,6 +12088,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else if (action === "stop" || action === "koi") {
       if (state.active.tutorial && action === "koi") state.active.tutorialLabelStage = 1;
       decide(state.active, action);
+      if (action === "koi") showKoiDeclaration(0);
       await advanceAfterMove();
       return;
     } else if (action === "next-round") {
