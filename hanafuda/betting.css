@@ -41,6 +41,11 @@
 .coin-result strong {display:block;font-size:clamp(18px,5vw,27px);color:#ffe2a7}
 .play-layout .result.betting-finale {gap:4px;padding-block:8px;overflow:auto;justify-content:safe center}
 .betting-finale .result-action {display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+.native-ad-visible .betting-finale .result-action {max-width:none}
+.native-ad-visible .betting-finale .result-action button {width:auto;flex:1 1 auto}
+.native-ad-visible .play-layout .result.betting-finale h2 {font-size:26px}
+.native-ad-visible .play-layout .result.betting-finale p {line-height:1.35}
+.native-ad-visible .betting-finale .match-totals {padding-block:3px}
 .coin-refill-dialog {
   box-sizing:border-box;
   width:min(350px,calc(100% - 28px));

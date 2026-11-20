@@ -10792,7 +10792,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function home() {
     const canResume = canResumeGame(savedMatch()) || canResumeGame(state.active);
-    return shell('<div class="hub home-redesign"><button type="button" class="engawa-heading engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
+    return shell('<div class="hub home-redesign"><button type="button" class="engawa-heading engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial"><span class="engawa-main">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
   }
   function phrases(parts) {
     return parts.map((part) => '<span class="phrase">' + esc(part) + "</span>").join("");
@@ -10810,7 +10810,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     ], { duration: 1300, easing: "ease-in-out" });
   }
   function learn() {
-    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>' + phrases(["\u597D\u304D\u306A\u5165\u53E3\u304B\u3089", "\u59CB\u3081\u3088\u3046\u3002", "\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082", "\u3044\u3064\u3067\u3082", "\u3067\u304D\u308B\u3088\u3002"]) + '</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>' + phrases(["\u3053\u3044\u3053\u3044\u306E", "\u57FA\u672C\u3092\u5B66\u3076"]) + "</strong><small>" + phrases(["\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001", "\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067"]) + '</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092", "1\u304B\u6708\u305A\u3064"]) + '</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u305D\u308D\u3048\u308B\u672D\u3068", "\u70B9\u6570\u3092\u898B\u308B"]) + '</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>' + phrases(["\u899A\u3048\u305F\u3053\u3068\u3092", "\u8A66\u3057\u3066\u307F\u308B"]) + '</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>' + phrases(["12\u304B\u6708\u306E", "\u82B1\u3068\u7531\u6765"]) + '</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
+    return shell('<div class="study-hub"><div class="study-heading"><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1></div><button class="study-main" data-action="start-tutorial"><strong>' + phrases(["\u3053\u3044\u3053\u3044\u306E", "\u57FA\u672C\u3092\u5B66\u3076"]) + "</strong><small>" + phrases(["\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001", "\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067"]) + '</small></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092", "1\u304B\u6708\u305A\u3064"]) + '</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u305D\u308D\u3048\u308B\u672D\u3068", "\u70B9\u6570\u3092\u898B\u308B"]) + '</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>' + phrases(["12\u304B\u6708\u306E", "\u82B1\u3068\u7531\u6765"]) + '</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div></div>');
   }
   function inlineTeacher(description, { className = "", title = "", note = "", action = "", status = false } = {}) {
     return '<aside class="teacher-bubble inline-teacher ' + className + '" aria-label="\u5148\u751F\u306E\u6848\u5185">' + teacherAvatar() + '<div class="teacher-speech"' + (status ? ' role="status"' : "") + ">" + (note ? "<small>" + esc(note) + "</small>" : "") + (title ? "<h3>" + esc(title) + "</h3>" : "") + "<p>" + (Array.isArray(description) ? phrases(description) : esc(description)) + "</p></div>" + action + "</aside>";
@@ -12107,11 +12107,31 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     render();
   }
+  var enteringHomePlaque = false;
   document.addEventListener("click", (event) => {
     const control = event.target.closest("[data-action],[data-teacher-tap]");
-    if (!control || control.disabled) return;
+    if (!control || control.disabled || enteringHomePlaque) return;
     const button = control.dataset.action ? control : { dataset: { action: control.dataset.teacherTap } };
-    void clickAction(button, event).catch((err) => {
+    const activate = async () => {
+      const animatePlaque = document.documentElement.dataset.hanafudaPreview === "stage5" && control.matches(".scene-home .engawa-board") && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!animatePlaque) return clickAction(button, event);
+      enteringHomePlaque = true;
+      try {
+        await control.animate([
+          { rotate: "0deg" },
+          { rotate: "2deg", offset: 0.33 },
+          { rotate: "-1deg", offset: 0.72 },
+          { rotate: "0deg" }
+        ], { duration: 420, easing: "ease-in-out" }).finished.catch(() => {
+        });
+        if (!control.isConnected) return;
+        await clickAction(button, event);
+        $("app").querySelector(".shell:not(.scene-home) .scene-body")?.classList.add("entrance-arrival");
+      } finally {
+        enteringHomePlaque = false;
+      }
+    };
+    void activate().catch((err) => {
       console.error("[hanafuda]", err);
       toast("\u30A8\u30E9\u30FC: " + err.message);
     });
