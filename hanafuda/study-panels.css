@@ -586,3 +586,37 @@
 .feedback-match .betting-rates .chip {flex-grow:1.05}
 .feedback-match .betting-rates .chip:first-child {flex-grow:.7}
 .feedback-match .betting-rates .chip:last-child {flex-grow:1.2}
+
+/* Fit the controls to the stage remaining above a native banner. */
+@media (orientation:landscape) and (max-height:620px) {
+  .native-ad-visible .scene-free.tutorial-aligned .scene-body {padding-block:4px}
+  .native-ad-visible .scene-free .feedback-match {
+    grid-template-areas:"controls companion" "controls guide";
+    gap:4px 12px;
+  }
+  .native-ad-visible .feedback-match .match-controls {
+    grid-template-rows:43px repeat(4,minmax(29px,1fr)) 32px;
+    gap:2px;
+  }
+  .native-ad-visible .feedback-match .match-controls > .match-choices {
+    display:grid;
+    grid-template-columns:6em minmax(0,1fr);
+    align-items:center;
+  }
+  .native-ad-visible .feedback-match .match-controls > .match-choices h2 {font-size:13px;margin:0}
+  .native-ad-visible .tutorial-step-menu {padding-block:5px}
+  .native-ad-visible .tutorial-step-picker {gap:4px;padding-block:4px}
+  .native-ad-visible .tutorial-step-menu ol {gap:2px}
+  .native-ad-visible .tutorial-step-menu button.tutorial-step-plaque {min-height:25px;padding-block:2px}
+}
+.native-app .scene-credits .scene-body {gap:4px;padding-block:4px}
+.native-app .scene-credits .scene-body>.row {flex-basis:38px}
+.native-app .scene-credits .panel {
+  justify-content:flex-start;
+  gap:5px;
+  padding:8px 12px;
+  overflow:auto;
+}
+.native-app .scene-credits .panel>* {flex-shrink:0;margin:0}
+.native-app .scene-credits .panel :is(.story,.lead) {line-height:1.35}
+.native-app .scene-credits .panel h3 {line-height:1.25}

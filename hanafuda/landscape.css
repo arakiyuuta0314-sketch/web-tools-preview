@@ -312,8 +312,7 @@
   .hub-learn strong{font-size:14px}
 }
 
-/* Give the cards the space previously reserved for an absent native banner.
-   Preserve the banner reservation only when the native SDK reports it visible. */
+/* Keep the page clear of landscape safe areas. The native banner sets the stage height. */
 @media (orientation:landscape) and (max-height:620px){
   html.app-viewport .page{
     padding-top:5px;
@@ -322,7 +321,7 @@
     padding-right:max(9px,env(safe-area-inset-right));
   }
   html.app-viewport.native-ad-visible .page{
-    padding-bottom:calc(var(--app-banner-height) + env(safe-area-inset-bottom) + 2px);
+    padding-bottom:5px;
   }
   .play-layout .tabletop{
     grid-template-rows:32px minmax(0,1fr) 22px minmax(0,.96fr);

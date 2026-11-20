@@ -802,11 +802,12 @@
   }
 
   // src/lib/layout.mjs
-  function createDeviceLayout({ root, bannerHeightPx = 50 }) {
+  function createDeviceLayout({ root, bannerHeightPx = 50, native = false }) {
     if (!root?.classList || !root?.style) throw new TypeError("Layout: root HTML element required");
     if (!Number.isSafeInteger(bannerHeightPx) || bannerHeightPx < 0 || bannerHeightPx > 200)
       throw new RangeError("Layout: banner height must be 0\u2013200 px");
     root.classList.add("app-viewport");
+    if (native) root.classList.add("native-app");
     root.style.setProperty("--app-banner-height", bannerHeightPx + "px");
     root.classList.add("native-ad-hidden");
     root.classList.remove("native-ad-visible");
@@ -870,6 +871,7 @@
     const native = Boolean(ports2.native);
     const ads2 = config.ads;
     const purchase = config.purchase;
+    let bannerRequested = false;
     const tracker = createFrequencyTracker({
       store: localStorage2,
       key: config.storageNamespace + ".adFrequency.v1",
@@ -878,17 +880,21 @@
       cooldownMs: ads2.cooldownMs
     });
     let owned = false, bannerVisible = false, adsReady = false, prepared = false, presenting = false, purchaseReady = false, started = false;
-    const report = (category, value) => onStatus(category, value);
+    let consentWarning = "";
+    const report = (category, value) => onStatus(
+      category,
+      category === "ads" && consentWarning ? value + "\uFF08" + consentWarning + "\uFF09" : value
+    );
     const hideAds = async () => {
       prepared = false;
       try {
-        if (bannerVisible) await ports2.ads.hideBanner();
+        if (bannerRequested) await ports2.ads.hideBanner();
       } catch (err) {
         report("ads", "\u30D0\u30CA\u30FC\u975E\u8868\u793A\u5931\u6557: " + err.message);
         return;
       }
       bannerVisible = false;
-      report("banner", false);
+      report("banner", 0);
       report("ads", "\u975E\u8868\u793A");
     };
     const unlock = async () => {
@@ -926,9 +932,16 @@
         return;
       }
       report("ads", "\u540C\u610F\u72B6\u614B\u3092\u78BA\u8A8D\u4E2D");
-      let consent = await ports2.ads.requestConsentInfo();
-      if (consent.status === "REQUIRED" && consent.isConsentFormAvailable) consent = await ports2.ads.showConsentForm();
-      if (!consent.canRequestAds) {
+      let canRequestAds;
+      try {
+        let consent = await ports2.ads.requestConsentInfo();
+        if (consent.status === "REQUIRED" && consent.isConsentFormAvailable) consent = await ports2.ads.showConsentForm();
+        canRequestAds = consent.canRequestAds;
+      } catch (err) {
+        consentWarning = "\u5E83\u544A\u306E\u540C\u610F\u78BA\u8A8D\u306B\u5931\u6557: " + err.message;
+        report("ads", "\u5E83\u544A\u306E\u521D\u671F\u5316\u3092\u7D9A\u884C\u4E2D");
+      }
+      if (canRequestAds === false) {
         report("ads", "\u5E83\u544A\u30EA\u30AF\u30A8\u30B9\u30C8\u4E0D\u53EF\u30FB\u540C\u610F\u8A2D\u5B9A\u3092\u78BA\u8A8D");
         return;
       }
@@ -942,11 +955,17 @@
       }
       if (owned) return hideAds();
       try {
-        await ports2.ads.showBanner({ adId: ads2.bannerId, adSize: "BANNER", position: "BOTTOM_CENTER", margin: 0, isTesting: ads2.mode === "test" });
-        bannerVisible = true;
+        bannerRequested = true;
+        await ports2.ads.showBanner({ adId: ads2.bannerId, adSize: "BANNER", position: "BOTTOM_CENTER", margin: 0, isTesting: ads2.mode === "test" }, (height) => {
+          if (height > 0 && owned) {
+            void hideAds();
+            return;
+          }
+          report("banner", height);
+          if (height > 0 && !bannerVisible) report("ads", "\u30D0\u30CA\u30FC\u8868\u793A\u4E2D");
+          bannerVisible = height > 0;
+        });
         if (owned) return hideAds();
-        report("banner", true);
-        report("ads", "\u30D0\u30CA\u30FC\u8868\u793A\u4E2D");
       } catch (err) {
         report("ads", "\u30D0\u30CA\u30FC\u8868\u793A\u5931\u6557: " + err.message);
       }
@@ -9652,7 +9671,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         requestConsentInfo: () => AdMob.requestConsentInfo(),
         showConsentForm: () => AdMob.showConsentForm(),
         initialize: (config) => AdMob.initialize(config),
-        showBanner: (config) => AdMob.showBanner(config),
+        async showBanner(config, onHeight) {
+          let measuredHeight = 0;
+          await AdMob.addListener(BannerAdPluginEvents.SizeChanged, ({ height }) => {
+            measuredHeight = height;
+            onHeight(height);
+          });
+          await AdMob.addListener(BannerAdPluginEvents.Loaded, () => {
+            onHeight(measuredHeight || 50);
+          });
+          await AdMob.showBanner(config);
+        },
         hideBanner: () => AdMob.hideBanner(),
         prepareInterstitial: (config) => AdMob.prepareInterstitial(config),
         showRewarded,
@@ -10651,12 +10680,15 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var turnPresentation = null;
   var bettingRate = 0;
   var matchLength = 3;
-  var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
+  var layout = createDeviceLayout({ root: document.documentElement, native: ports.native });
   var purchaseStatus = "App Store\u3092\u78BA\u8A8D\u4E2D";
   var ads = createMonetization({ config: app_config_default, localStorage: window.localStorage, ports, onStatus: (k, v) => {
     if (k === "ads") adsStatus = v;
-    if (k === "banner") layout.setBannerVisible(v);
+    if (k === "banner") {
+      layout.setBannerHeight(Math.ceil(v));
+      layout.setBannerVisible(v > 0);
+    }
     if (k === "purchase") {
       purchaseStatus = v;
       const dialog = document.querySelector(".ad-removal-dialog");
@@ -10666,6 +10698,28 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       }
     }
   } });
+  function isPractice(game) {
+    return Boolean(game?.tutorial || game?.matchLesson);
+  }
+  function savedMatch() {
+    return state.savedMatch ?? (isPractice(state.active) ? null : state.active);
+  }
+  function canResumeGame(game) {
+    return Boolean(game && (!game.finished || game.pendingYakuCelebration || game.pendingTurnPresentation) && game.mode !== "travel");
+  }
+  function setPracticeGame(game) {
+    if (state.active && !isPractice(state.active)) state.savedMatch = state.active;
+    state.active = game;
+  }
+  function restoreSavedMatch() {
+    state.active = state.savedMatch ?? null;
+    delete state.savedMatch;
+  }
+  function finishPractice() {
+    restoreSavedMatch();
+    screen = "tutorial";
+    save();
+  }
   function save() {
     store2.write(state);
   }
@@ -10737,7 +10791,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return '<div class="row"><div><div class="kicker">' + esc(subtitle) + '</div><h1 class="chapter-title">' + esc(title) + "</h1></div></div>";
   }
   function home() {
-    const canResume = state.active !== null && (!state.active.finished || state.active.pendingYakuCelebration || state.active.pendingTurnPresentation) && state.active.mode !== "travel";
+    const canResume = canResumeGame(savedMatch()) || canResumeGame(state.active);
     return shell('<div class="hub home-redesign"><button type="button" class="engawa-heading engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
   }
   function phrases(parts) {
@@ -11198,7 +11252,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return '<div class="replace-game-backdrop"><section class="replace-game-dialog" role="alertdialog" aria-modal="true" aria-labelledby="replace-game-title" aria-describedby="replace-game-description"><span class="replace-game-kicker">NEW GAME</span><h2 id="replace-game-title">\u65B0\u3057\u3044\u5BFE\u5C40\u3092\u59CB\u3081\u307E\u3059\u304B\uFF1F</h2><p id="replace-game-description">\u4ECA\u306E\u5BFE\u5C40\u306E\u9014\u4E2D\u72B6\u614B\u306F\u7F6E\u304D\u63DB\u308F\u308A\u307E\u3059\u3002\u7D9A\u304D\u304B\u3089\u518D\u958B\u3059\u308B\u3053\u3068\u306F\u3067\u304D\u306A\u304F\u306A\u308A\u307E\u3059\u304C\u3001\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u306E\u8A18\u9332\u3084\u8A2D\u5B9A\u306F\u305D\u306E\u307E\u307E\u6B8B\u308A\u307E\u3059\u3002</p><div class="replace-game-actions">' + (screen === "free" ? backButton("close-replace-game", "\u8A2D\u5B9A\u306B\u623B\u308B") : "") + '<button type="button" class="replace-game-cancel" data-action="cancel-replace-game">\u4ECA\u306E\u5BFE\u5C40\u306B\u623B\u308B</button><button type="button" class="replace-game-confirm" data-action="confirm-replace-game">\u65B0\u3057\u304F\u59CB\u3081\u308B</button></div></section></div>';
   }
   function requestStartConfirmation(retry) {
-    if (!state.active || state.active.finished && !state.active.pendingYakuCelebration && !state.active.pendingTurnPresentation) return false;
+    const game = savedMatch();
+    if (!game || game.finished && !game.pendingYakuCelebration && !game.pendingTurnPresentation) return false;
     pendingStart = retry;
     render();
     $("app").querySelector(screen === "free" ? '[data-action="close-replace-game"]' : '[data-action="cancel-replace-game"]')?.focus();
@@ -11566,24 +11621,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       await ads.recordCommittedAction();
     }
   }
-  function start(mode, len, month, tutorial = false, confirmed = false, rate = null) {
-    if (!confirmed && requestStartConfirmation(() => start(mode, len, month, tutorial, true, rate))) return;
-    state.active = createGame({
-      mode,
-      length: len,
-      month,
-      beginner: tutorial || state.settings.beginner,
-      difficulty: tutorial ? 1 : freeDifficulty
-    });
-    if (!tutorial) state.active.difficulty = rate === null ? freeDifficulty : BETTING_DIFFICULTY.get(rate);
+  function startFreeMatch({ length, beginner, difficulty, rate = null }, confirmed = false) {
+    if (!confirmed && requestStartConfirmation(() => startFreeMatch({ length, beginner, difficulty, rate }, true))) return;
+    state.active = createGame({ mode: "free", length, month: 1, beginner, difficulty });
+    state.active.difficulty = difficulty;
+    delete state.savedMatch;
     if (rate !== null) state.active.betting = { rate };
-    if (tutorial) {
-      state.active.tutorial = true;
-      state.active.tutorialIntroDone = false;
-      state.active.tutorialIntroStep = 0;
-      state.active.tutorialIntroVersion = TUTORIAL_INTRO_VERSION;
-      state.active.tutorialRoleStep = 0;
-    }
     selectedHand = null;
     gameDialog = null;
     gameDialogReturn = null;
@@ -11592,9 +11635,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     save();
     render();
   }
-  function startMatchLesson(step, confirmed = false) {
-    if (!confirmed && requestStartConfirmation(() => startMatchLesson(step, true))) return;
-    state.active = createMatchLesson(step, { difficulty: state.settings.difficulty });
+  function startMatchLesson(step) {
+    setPracticeGame(createMatchLesson(step, { difficulty: state.settings.difficulty }));
     selectedHand = null;
     gameDialog = null;
     gameDialogReturn = null;
@@ -11603,10 +11645,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     save();
     render();
   }
-  function startTeaching(step, confirmed = false) {
-    if (!confirmed && requestStartConfirmation(() => startTeaching(step, true))) return;
+  function startTeaching(step) {
     if (step === 0 || step === 3) {
-      state.active = createTeachingGame();
+      setPracticeGame(createTeachingGame());
       Object.assign(state.active, { tutorialStep: step, tutorialIntroVersion: TUTORIAL_INTRO_VERSION, tutorialSingleStep: true });
       if (step === 3) {
         state.active.tutorialIntroStep = TUTORIAL_QUIZ_PHASE;
@@ -11621,7 +11662,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else showPracticeStep(step, true);
   }
   function showPracticeStep(step, standalone) {
-    state.active = createPracticeGame(step, standalone);
+    setPracticeGame(createPracticeGame(step, standalone));
     selectedHand = null;
     gameDialog = null;
     gameDialogReturn = null;
@@ -11631,22 +11672,9 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function advanceTutorial(step) {
     if (state.active.tutorialSingleStep) {
-      state.active = null;
-      screen = "tutorial";
-      save();
+      finishPractice();
       render();
     } else showPracticeStep(step, false);
-  }
-  function startBeginnerFree(confirmed = false) {
-    if (!confirmed && requestStartConfirmation(() => startBeginnerFree(true))) return;
-    state.active = createGame({ mode: "free", length: 3, month: 1, beginner: true, difficulty: 1 });
-    selectedHand = null;
-    gameDialog = null;
-    gameDialogReturn = null;
-    screen = "game";
-    recordIfDone();
-    save();
-    render();
   }
   function hideToast() {
     clearTimeout(toast.timer);
@@ -11830,6 +11858,10 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       gameDialog = null;
       gameDialogReturn = null;
     } else if (action === "resume") {
+      if (canResumeGame(state.savedMatch)) {
+        restoreSavedMatch();
+        save();
+      }
       screen = "game";
       if (state.active?.pendingTurnPresentation || state.active?.pendingYakuCelebration || state.active?.round.current === 1 && !state.active.finished && !state.active.tutorialLearning) {
         await advanceAfterMove();
@@ -11882,9 +11914,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     } else if (action === "tutorial-back") {
       screen = tutorialReturn;
     } else if (action === "finish-match-lesson") {
-      state.active = null;
-      screen = "tutorial";
-      save();
+      finishPractice();
     } else if (action === "match-lesson") {
       startMatchLesson(Number(val));
       return;
@@ -11895,7 +11925,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       startTeaching(Number(val));
       return;
     } else if (action === "tutorial-free") {
-      startBeginnerFree();
+      startFreeMatch({ length: 3, beginner: true, difficulty: 1 });
       return;
     } else if (action === "tutorial-month-answer") {
       const g = state.active;
@@ -11924,10 +11954,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       if (!g?.tutorial || g.tutorialIntroDone || !INTRO_LESSONS[g.tutorialIntroStep]) throw Error("Tutorial is not at the introduction");
       if (g.tutorialIntroStep === INTRO_LESSONS.length - 1) {
         state.tutorialIntroCompleted = true;
-        state.active = null;
-        screen = "tutorial";
-      } else g.tutorialIntroStep++;
-      save();
+        finishPractice();
+      } else {
+        g.tutorialIntroStep++;
+        save();
+      }
     } else if (action === "tutorial-finish-practice") {
       const g = state.active;
       decide(g, "stop");
@@ -11974,7 +12005,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         openCoinRefill(button);
         return;
       }
-      start("free", matchLength, 1, false, false, rate);
+      startFreeMatch({
+        length: matchLength,
+        beginner: state.settings.beginner,
+        difficulty: rate === null ? freeDifficulty : BETTING_DIFFICULTY.get(rate),
+        rate
+      });
       return;
     } else if (action === "zoom-yaku-card") {
       openCardZoom(id, button);
