@@ -10124,31 +10124,32 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   // src/game/opponents.mjs
   var OPPONENTS = [
     { id: "easy", label: "\u3084\u3055\u3057\u3044", lines: [
-      "\u3048\u3078\u3078\u3001\u308F\u305F\u3057\u3082\u307E\u3060\u4FEE\u884C\u4E2D\u306A\u3093\u3067\u3059\u3002",
-      "\u307E\u3001\u8CA0\u3051\u307E\u305B\u3093\u304B\u3089\u306D\u2026\u2026\u305F\u3076\u3093\u3002",
-      "\u3053\u306E\u672D\u306E\u7D75\u3001\u304D\u308C\u3044\u3067\u597D\u304D\u306A\u3093\u3067\u3059\u3002",
-      "\u3069\u3001\u3069\u3046\u3057\u3088\u3046\u3002\u3048\u3044\u3063\u3001\u601D\u3044\u5207\u3063\u3066\uFF01",
-      "\u82B1\u672D\u3063\u3066\u3001\u5B63\u7BC0\u3092\u96C6\u3081\u308B\u307F\u305F\u3044\u3067\u697D\u3057\u3044\u3067\u3059\u3088\u306D\u3002",
-      "\u3082\u3046\u4E00\u5C40\u3001\u4ED8\u304D\u5408\u3063\u3066\u304F\u3060\u3055\u3044\u306D\u3002"
+      "\u3048\u3078\u3078\u3001|\u308F\u305F\u3057\u3082\u307E\u3060|\u4FEE\u884C\u4E2D\u306A\u3093\u3067\u3059\u3002",
+      "\u307E\u3001\u8CA0\u3051\u307E\u305B\u3093|\u304B\u3089\u306D\u2026\u2026\u305F\u3076\u3093\u3002",
+      "\u3053\u306E\u672D\u306E\u7D75\u3001|\u304D\u308C\u3044\u3067|\u597D\u304D\u306A\u3093\u3067\u3059\u3002",
+      "\u3069\u3001\u3069\u3046\u3057\u3088\u3046\u3002|\u3048\u3044\u3063\u3001|\u601D\u3044\u5207\u3063\u3066\uFF01",
+      "\u82B1\u672D\u3063\u3066\u3001|\u5B63\u7BC0\u3092\u96C6\u3081\u308B|\u307F\u305F\u3044\u3067|\u697D\u3057\u3044\u3067\u3059\u3088\u306D\u3002",
+      "\u3082\u3046\u4E00\u5C40\u3001|\u4ED8\u304D\u5408\u3063\u3066|\u304F\u3060\u3055\u3044\u306D\u3002"
     ] },
     { id: "normal", label: "\u3075\u3064\u3046", lines: [
-      "\u3044\u3089\u3063\u3057\u3083\u3044\u3002\u3086\u3063\u304F\u308A\u3057\u3066\u3044\u3063\u3066\u306D\u3002",
-      "\u672D\u306E\u58F0\u3092\u805E\u304F\u306E\u304C\u3001\u4E0A\u9054\u306E\u30B3\u30C4\u3088\u3002",
-      "\u3042\u3089\u3001\u3044\u3044\u624B\u306D\u3002\u3053\u3061\u3089\u3082\u8CA0\u3051\u306A\u3044\u308F\u3088\u3002",
-      "\u3053\u3044\u3053\u3044\u3059\u308B\u304B\u3001\u52DD\u8CA0\u3059\u308B\u304B\u3002\u305D\u3053\u304C\u60A9\u307F\u3069\u3053\u308D\u306D\u3002",
-      "\u9577\u304F\u7D9A\u3051\u308B\u79D8\u8A23\u306F\u3001\u697D\u3057\u3080\u3053\u3068\u3088\u3002",
-      "\u3055\u3042\u3001\u6B21\u306E\u5C40\u3092\u59CB\u3081\u307E\u3057\u3087\u3046\u304B\u3002"
+      "\u3044\u3089\u3063\u3057\u3083\u3044\u3002|\u3086\u3063\u304F\u308A|\u3057\u3066\u3044\u3063\u3066\u306D\u3002",
+      "\u672D\u306E\u58F0\u3092|\u805E\u304F\u306E\u304C\u3001|\u4E0A\u9054\u306E\u30B3\u30C4\u3088\u3002",
+      "\u3042\u3089\u3001\u3044\u3044\u624B\u306D\u3002|\u3053\u3061\u3089\u3082|\u8CA0\u3051\u306A\u3044\u308F\u3088\u3002",
+      "\u3053\u3044\u3053\u3044\u3059\u308B\u304B\u3001|\u52DD\u8CA0\u3059\u308B\u304B\u3002|\u305D\u3053\u304C|\u60A9\u307F\u3069\u3053\u308D\u306D\u3002",
+      "\u9577\u304F\u7D9A\u3051\u308B|\u79D8\u8A23\u306F\u3001|\u697D\u3057\u3080\u3053\u3068\u3088\u3002",
+      "\u3055\u3042\u3001|\u6B21\u306E\u5C40\u3092|\u59CB\u3081\u307E\u3057\u3087\u3046\u304B\u3002"
     ] },
     { id: "hard", label: "\u3064\u3088\u3044", lines: [
-      "\u624B\u52A0\u6E1B\u306F\u3057\u307E\u305B\u3093\u3088\u3002",
-      "\u305D\u306E\u4E00\u624B\u3001\u8AAD\u3081\u3066\u3044\u307E\u3057\u305F\u3002",
-      "\u82B1\u306F\u54B2\u304F\u3068\u304D\u3092\u5F85\u3064\u3082\u306E\u3002\u308F\u305F\u3057\u3082\u5F85\u3061\u307E\u3059\u3002",
-      "\u3042\u3089\u3001\u9762\u767D\u304F\u306A\u3063\u3066\u304D\u307E\u3057\u305F\u306D\u3002",
-      "\u52DD\u8CA0\u306F\u6700\u5F8C\u307E\u3067\u5206\u304B\u308A\u307E\u305B\u3093\u3002\u3060\u304B\u3089\u697D\u3057\u3044\u306E\u3067\u3059\u3002",
-      "\u6B21\u306F\u3001\u3082\u3046\u5C11\u3057\u672C\u6C17\u3092\u51FA\u3057\u307E\u3057\u3087\u3046\u304B\u3002"
+      "\u624B\u52A0\u6E1B\u306F|\u3057\u307E\u305B\u3093\u3088\u3002",
+      "\u305D\u306E\u4E00\u624B\u3001|\u8AAD\u3081\u3066\u3044\u307E\u3057\u305F\u3002",
+      "\u82B1\u306F\u54B2\u304F\u3068\u304D\u3092|\u5F85\u3064\u3082\u306E\u3002|\u308F\u305F\u3057\u3082|\u5F85\u3061\u307E\u3059\u3002",
+      "\u3042\u3089\u3001|\u9762\u767D\u304F|\u306A\u3063\u3066\u304D\u307E\u3057\u305F\u306D\u3002",
+      "\u52DD\u8CA0\u306F|\u6700\u5F8C\u307E\u3067|\u5206\u304B\u308A\u307E\u305B\u3093\u3002|\u3060\u304B\u3089|\u697D\u3057\u3044\u306E\u3067\u3059\u3002",
+      "\u6B21\u306F\u3001|\u3082\u3046\u5C11\u3057|\u672C\u6C17\u3092|\u51FA\u3057\u307E\u3057\u3087\u3046\u304B\u3002"
     ] }
   ].map((opponent) => ({
     ...opponent,
+    lines: opponent.lines.map((line) => line.split("|")),
     figure: "assets/opponent-" + opponent.id + "-figure.webp",
     board: "images/opponent-" + opponent.id + "-board.webp"
   }));
@@ -10601,8 +10602,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var gameDialogReturn = null;
   var pendingStart = null;
   var turnPresentation = null;
-  var matchMode = "free";
-  var bettingRate = 10;
+  var bettingRate = 0;
   var matchLength = 3;
   var layout = createDeviceLayout({ root: document.documentElement });
   var ports = createNativePorts();
@@ -10684,22 +10684,37 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function home() {
     const canResume = state.active !== null && (!state.active.finished || state.active.pendingYakuCelebration || state.active.pendingTurnPresentation) && state.active.mode !== "travel";
-    return shell('<div class="hub home-redesign"><div class="engawa-heading engawa-title-art" role="img" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></div>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
+    return shell('<div class="hub home-redesign"><button type="button" class="engawa-heading engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume">\u7D9A\u304D\u304B\u3089\u518D\u958B</button>' : "") + '<button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial" aria-label="\u82B1\u672D\u3092\u306F\u3058\u3081\u308B\u3002\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u30011\u679A\u306E\u672D\u304B\u3089\u5148\u751F\u3068\u4E00\u7DD2\u306B"><span class="engawa-main">\u82B1\u672D\u3092\u306F\u3058\u3081\u308B</span><span class="engawa-overline">\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB</span><span class="engawa-caption">1\u679A\u306E\u672D\u304B\u3089\u3001\u5148\u751F\u3068\u4E00\u7DD2\u306B</span></button><button class="home-object engawa-board engawa-small home-dictionary" type="button" data-action="learn" aria-label="\u56F3\u9451\u30FB\u30AF\u30A4\u30BA\u3002\u672D\u3068\u5F79\u3092\u899A\u3048\u308B"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span><span class="engawa-caption">\u672D\u3068\u5F79\u3092\u899A\u3048\u308B</span></button><button class="home-object engawa-board engawa-small home-free" type="button" data-action="free" aria-label="\u5BFE\u5C40\u3002\u899A\u3048\u305F\u3089\u5B9F\u8DF5"><span class="engawa-label"><img class="engawa-match-label" src="assets/engawa-home/match-label.png" alt="\u5BFE\u5C40"></span><span class="engawa-caption">\u899A\u3048\u305F\u3089\u5B9F\u8DF5</span></button><button class="home-object engawa-board home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span class="engawa-label">\u2699 \u8A2D\u5B9A</span></button></div>');
+  }
+  function phrases(parts) {
+    return parts.map((part) => '<span class="phrase">' + esc(part) + "</span>").join("");
+  }
+  function swingTitle(button) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const tilt = getComputedStyle(button).transform;
+    button.getAnimations().forEach((animation) => animation.cancel());
+    button.animate([
+      { transform: tilt },
+      { transform: "rotate(3deg)", offset: 0.24 },
+      { transform: "rotate(-2deg)", offset: 0.57 },
+      { transform: "rotate(.8deg)", offset: 0.8 },
+      { transform: "rotate(0deg)" }
+    ], { duration: 1300, easing: "ease-in-out" });
   }
   function learn() {
-    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>\u597D\u304D\u306A\u5165\u53E3\u304B\u3089\u59CB\u3081\u3088\u3046\u3002\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082\u3044\u3064\u3067\u3082\u3067\u304D\u308B\u3088\u3002</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>\u3053\u3044\u3053\u3044\u306E\u57FA\u672C\u3092\u5B66\u3076</strong><small>\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u30921\u304B\u6708\u305A\u3064</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>\u305D\u308D\u3048\u308B\u672D\u3068\u70B9\u6570\u3092\u898B\u308B</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>\u899A\u3048\u305F\u3053\u3068\u3092\u8A66\u3057\u3066\u307F\u308B</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>12\u304B\u6708\u306E\u82B1\u3068\u7531\u6765</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
+    return shell('<div class="study-hub"><div class="study-heading"><span class="kicker">\u82B1\u672D\u306E\u52C9\u5F37\u90E8\u5C4B</span><h1>\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</h1><p>' + phrases(["\u597D\u304D\u306A\u5165\u53E3\u304B\u3089", "\u59CB\u3081\u3088\u3046\u3002", "\u5BFE\u5C40\u306E\u7DF4\u7FD2\u3082", "\u3044\u3064\u3067\u3082", "\u3067\u304D\u308B\u3088\u3002"]) + '</p></div><button class="study-main" data-action="start-tutorial"><b>\u307E\u305A\u306F\u3053\u308C\uFF01</b><strong>' + phrases(["\u3053\u3044\u3053\u3044\u306E", "\u57FA\u672C\u3092\u5B66\u3076"]) + "</strong><small>" + phrases(["\u904A\u3073\u306E\u76EE\u7684\u304B\u3089\u3001", "\u5148\u751F\u3068\u306E\u7DF4\u7FD2\u307E\u3067"]) + '</small><span>\u306F\u3058\u3081\u308B \u203A</span></button><div class="study-actions"><button data-action="cards"><strong>\u2740 \u672D\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u6708\u30FB\u82B1\u30FB\u7A2E\u985E\u3092", "1\u304B\u6708\u305A\u3064"]) + '</span><img src="' + photo("1-1") + '" alt="" aria-hidden="true"></button><button data-action="yaku"><strong>\u273F \u5F79\u3092\u304A\u307C\u3048\u308B</strong><span>' + phrases(["\u305D\u308D\u3048\u308B\u672D\u3068", "\u70B9\u6570\u3092\u898B\u308B"]) + '</span><img src="' + photo("8-1") + '" alt="" aria-hidden="true"></button><button data-action="quiz"><strong>\u25C7 \u30AF\u30A4\u30BA\u3067\u305F\u3081\u3059</strong><span>' + phrases(["\u899A\u3048\u305F\u3053\u3068\u3092", "\u8A66\u3057\u3066\u307F\u308B"]) + '</span><img src="' + photo("9-1") + '" alt="" aria-hidden="true"></button><button data-action="columns"><strong>\u263E \u82B1\u306E\u3082\u306E\u304C\u305F\u308A</strong><span>' + phrases(["12\u304B\u6708\u306E", "\u82B1\u3068\u7531\u6765"]) + '</span><img src="' + photo("11-1") + '" alt="" aria-hidden="true"></button></div><p class="study-foot">\u899A\u3048\u3066\u304B\u3089\u904A\u3076\u5FC5\u8981\u306F\u3042\u308A\u307E\u305B\u3093\u3002<br>\u5BFE\u5C40\u4E2D\u3082\u5148\u751F\u304C\u8AAC\u660E\u3057\u307E\u3059\u3002</p></div>');
   }
   function inlineTeacher(description, { className = "", title = "", note = "", action = "", status = false } = {}) {
-    return '<aside class="teacher-bubble inline-teacher ' + className + '" aria-label="\u5148\u751F\u306E\u6848\u5185">' + teacherAvatar() + '<div class="teacher-speech"' + (status ? ' role="status"' : "") + ">" + (note ? "<small>" + esc(note) + "</small>" : "") + (title ? "<h3>" + esc(title) + "</h3>" : "") + "<p>" + esc(description) + "</p></div>" + action + "</aside>";
+    return '<aside class="teacher-bubble inline-teacher ' + className + '" aria-label="\u5148\u751F\u306E\u6848\u5185">' + teacherAvatar() + '<div class="teacher-speech"' + (status ? ' role="status"' : "") + ">" + (note ? "<small>" + esc(note) + "</small>" : "") + (title ? "<h3>" + esc(title) + "</h3>" : "") + "<p>" + (Array.isArray(description) ? phrases(description) : esc(description)) + "</p></div>" + action + "</aside>";
   }
-  function optionChip(action, value, label, selected) {
-    return '<button type="button" class="chip' + (selected ? " active" : "") + '" data-action="' + action + '" data-value="' + value + '" aria-pressed="' + selected + '">' + label + "</button>";
+  function optionChip(action, value, label, selected, disabled = false) {
+    return '<button type="button" class="chip' + (selected ? " active" : "") + '" data-action="' + action + '" data-value="' + value + '" aria-pressed="' + selected + '"' + (disabled ? " disabled" : "") + ">" + label + "</button>";
   }
-  function matchChoices(label, action, options, selected) {
-    return '<div class="match-choices" role="group" aria-label="' + label + '"><h2>' + label + "</h2><div>" + options.map(([value, text]) => optionChip(action, value, text, value === selected)).join("") + "</div></div>";
+  function matchChoices(label, action, options, selected, locked = false) {
+    return '<div class="match-choices" role="group" aria-label="' + label + (locked ? "\uFF08\u30EC\u30FC\u30C8\u9023\u52D5\uFF09" : "") + '"><h2>' + label + (locked ? " <small>\u9023\u52D5</small>" : "") + "</h2><div>" + options.map(([value, text]) => optionChip(action, value, text, value === selected, locked)).join("") + "</div></div>";
   }
   function matchOpponent() {
-    return OPPONENTS[(matchMode === "betting" ? BETTING_DIFFICULTY.get(bettingRate) : freeDifficulty) - 1];
+    return OPPONENTS[(BETTING_DIFFICULTY.get(bettingRate) ?? freeDifficulty) - 1];
   }
   var lastOpponentLines = /* @__PURE__ */ new Map();
   function nextOpponentLine(opponent) {
@@ -10709,12 +10724,20 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return line;
   }
   function free() {
-    const betting = matchMode === "betting";
+    const betting = bettingRate !== 0;
+    const { coins } = state.wallet ?? createWallet();
     const opponent = matchOpponent();
     const line = lastOpponentLines.get(opponent.id) || nextOpponentLine(opponent);
-    return shell('<div class="match-menu feedback-match" aria-label="\u5BFE\u5C40\u306E\u652F\u5EA6"><div class="match-mode mode-signs" role="group" aria-label="\u5BFE\u5C40\u30E2\u30FC\u30C9">' + optionChip("match-mode", "free", "\u30D5\u30EA\u30FC\u5BFE\u5C40", !betting) + optionChip("match-mode", "betting", "\u52DD\u8CA0\u5BFE\u5C40", betting) + '</div><div class="match-controls">' + matchChoices("\u5BFE\u5C40\u306E\u9577\u3055", "match-length", [[3, "3\u304B\u6708"], [6, "6\u304B\u6708"], [12, "12\u304B\u6708"]], matchLength) + (betting ? '<div class="betting-rates">' + matchChoices("\u30EC\u30FC\u30C8\uFF081\u70B9\u3042\u305F\u308A\uFF09", "betting-rate", [...BETTING_RATES].map(([rate, label]) => [rate, esc(label) + " " + rate]), bettingRate) + "</div>" : matchChoices("\u76F8\u624B\u306E\u5F37\u3055", "difficulty", OPPONENTS.map((character, index) => [index + 1, character.label]), freeDifficulty)) + matchChoices("\u521D\u5FC3\u8005\u30E2\u30FC\u30C9", "beginner", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.beginner) + matchChoices("\u5148\u751F\u306E\u89E3\u8AAC", "narration", [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]], state.settings.narration) + '<button class="match-start" data-action="start-free">\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button></div><div class="match-companion"><div class="match-wallet-slot">' + (betting ? '<div class="betting-options betting-wallet"><span class="coin-medallion" aria-hidden="true"></span><strong aria-label="\u6240\u6301\u30B3\u30A4\u30F3 ' + n(state.wallet.coins) + '">' + n(state.wallet.coins) + ' <small>\u30B3\u30A4\u30F3</small></strong><button data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button></div>' : "") + '</div><div class="opponent-stage"><button type="button" class="match-portrait" data-action="opponent-line" aria-label="\u76F8\u624B\uFF08' + opponent.label + '\uFF09\u306E\u30BB\u30EA\u30D5" aria-controls="opponent-line"><img class="match-character" src="' + opponent.figure + '" alt=""></button><button type="button" class="teacher-bubble inline-teacher opponent-line" data-action="opponent-line" aria-label="\u76F8\u624B\u306E\u30BB\u30EA\u30D5\u3092\u5207\u308A\u66FF\u3048\u308B"><span class="teacher-speech" role="status" id="opponent-line">' + esc(line) + "</span></button></div></div>" + inlineTeacher(betting ? "\u5BFE\u5C40\u7D42\u4E86\u6642\u306B\u5408\u8A08\u70B9\u306E\u5DEE\u3092\u7CBE\u7B97\u3057\u307E\u3059\u3002" : "\u5F37\u3055\u3092\u9078\u3093\u3067\u3001\u3053\u3044\u3053\u3044\u3092\u697D\u3057\u3082\u3046\u3002") + "</div>");
+    return shell('<div class="match-menu feedback-match" aria-label="\u5BFE\u5C40\u306E\u652F\u5EA6"><div class="match-controls"><div class="betting-rates">' + matchChoices("\u30EC\u30FC\u30C8\uFF081\u70B9\u3042\u305F\u308A\uFF09", "betting-rate", [[0, "\u8CED\u3051\u306A\u3057"], ...[...BETTING_RATES].map(([rate, label]) => [rate, label + "\uFF08" + rate + "\uFF09"])], bettingRate) + "</div>" + matchChoices(
+      "\u76F8\u624B\u306E\u5F37\u3055",
+      "difficulty",
+      OPPONENTS.map((character, index) => [index + 1, character.label]),
+      OPPONENTS.indexOf(opponent) + 1,
+      betting
+    ) + matchChoices("\u5BFE\u5C40\u306E\u9577\u3055", "match-length", [[3, "3\u304B\u6708"], [6, "6\u304B\u6708"], [12, "12\u304B\u6708"]], matchLength) + matchChoices("\u521D\u5FC3\u8005\u30E2\u30FC\u30C9", "beginner", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.beginner) + matchChoices("\u5148\u751F\u306E\u89E3\u8AAC", "narration", [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]], state.settings.narration) + '<button class="match-start" data-action="start-free">\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button></div><div class="match-companion"><div class="match-wallet-slot"><div class="betting-options betting-wallet"><span class="coin-medallion" aria-hidden="true"></span><strong aria-label="\u6240\u6301\u30B3\u30A4\u30F3 ' + n(coins) + '">' + n(coins) + ' <small>\u30B3\u30A4\u30F3</small></strong><button data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button></div></div><div class="opponent-stage"><button type="button" class="match-portrait" data-action="opponent-line" aria-label="\u76F8\u624B\uFF08' + opponent.label + '\uFF09\u306E\u30BB\u30EA\u30D5" aria-controls="opponent-line"><img class="match-character" src="' + opponent.figure + '" alt=""></button><button type="button" class="teacher-bubble inline-teacher opponent-line" data-action="opponent-line" aria-label="\u76F8\u624B\u306E\u30BB\u30EA\u30D5\u3092\u5207\u308A\u66FF\u3048\u308B"><span class="teacher-speech" role="status" id="opponent-line">' + phrases(line) + "</span></button></div></div>" + inlineTeacher(betting ? ["\u5BFE\u5C40\u7D42\u4E86\u6642\u306B", "\u30EC\u30FC\u30C8\u306B\u5FDC\u3058\u3066", "\u5408\u8A08\u70B9\u306E\u5DEE\u3092", "\u7CBE\u7B97\u3057\u307E\u3059\u3002"] : ["\u5F37\u3055\u3092\u9078\u3093\u3067\u3001", "\u3053\u3044\u3053\u3044\u3092", "\u697D\u3057\u3082\u3046\u3002"]) + "</div>");
   }
   function openCoinRefill(invoker) {
+    state.wallet ??= createWallet();
     const dialog = document.createElement("dialog");
     dialog.className = "coin-refill-dialog";
     dialog.setAttribute("aria-labelledby", "coin-refill-title");
@@ -10728,7 +10751,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function showCoinChoices(dialog) {
     const freeAvailable = canRefillForFree(state.wallet);
-    dialog.innerHTML = '<h2 id="coin-refill-title">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</h2><p>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + " \u30B3\u30A4\u30F3</strong></p>" + (state.wallet.coins < MIN_COINS ? "<p>\u52DD\u8CA0\u5BFE\u5C40\u3092\u59CB\u3081\u308B\u306B\u306F100\u30B3\u30A4\u30F3\u4EE5\u4E0A\u5FC5\u8981\u3067\u3059\u3002</p>" : "") + '<button class="primary" data-action="coin-free-claim" ' + (freeAvailable ? "" : "disabled") + ">\u7121\u6599\u3067\u3082\u3089\u3046\uFF081\u65E51\u56DE\uFF09 \uFF0B" + n(FREE_COINS) + " \u30B3\u30A4\u30F3</button>" + (!freeAvailable ? "<small>\u672C\u65E5\u306E\u7121\u6599\u5206\u306F\u53D7\u3051\u53D6\u308A\u6E08\u307F\u3067\u3059</small>" : "") + '<button class="secondary" data-action="coin-ad">\u5E83\u544A\u3067\u3082\u3089\u3046 \uFF0B' + n(AD_COINS) + ' \u30B3\u30A4\u30F3</button><button class="back-control" data-action="coin-close">\u623B\u308B</button>';
+    dialog.innerHTML = '<h2 id="coin-refill-title">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</h2><p>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + " \u30B3\u30A4\u30F3</strong></p>" + (state.wallet.coins < MIN_COINS ? "<p>\u30EC\u30FC\u30C8\u3092\u4F7F\u3046\u5BFE\u5C40\u306B\u306F100\u30B3\u30A4\u30F3\u4EE5\u4E0A\u5FC5\u8981\u3067\u3059\u3002\u8CED\u3051\u306A\u3057\u306A\u3089\u3001\u30B3\u30A4\u30F3\u306A\u3057\u3067\u904A\u3079\u307E\u3059\u3002</p>" : "") + '<button class="primary" data-action="coin-free-claim" ' + (freeAvailable ? "" : "disabled") + ">\u7121\u6599\u3067\u3082\u3089\u3046\uFF081\u65E51\u56DE\uFF09 \uFF0B" + n(FREE_COINS) + " \u30B3\u30A4\u30F3</button>" + (!freeAvailable ? "<small>\u672C\u65E5\u306E\u7121\u6599\u5206\u306F\u53D7\u3051\u53D6\u308A\u6E08\u307F\u3067\u3059</small>" : "") + '<button class="secondary" data-action="coin-ad">\u5E83\u544A\u3067\u3082\u3089\u3046 \uFF0B' + n(AD_COINS) + ' \u30B3\u30A4\u30F3</button><button class="back-control" data-action="coin-close">\u623B\u308B</button>';
   }
   function showRefillAdPreview(dialog) {
     dialog.innerHTML = '<h2 id="coin-refill-title">\u5E83\u544A\u3067\u3082\u3089\u3046</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u306F\u3053\u3053\u306B\u5E83\u544A\u304C\u8868\u793A\u3055\u308C\u307E\u3059\u3002\u5B8C\u4E86\u3092\u62BC\u3059\u3068' + n(AD_COINS) + '\u30B3\u30A4\u30F3\u53D7\u3051\u53D6\u308C\u307E\u3059\u3002</p><button class="primary" data-action="coin-ad-claim">\u5B8C\u4E86</button><button class="back-control" data-action="coin-ad-back">\u623B\u308B</button>';
@@ -10907,7 +10930,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (teach && (r.phase === "game-end" || r.phase === "round-end")) {
       const practiceResult = g.tutorialStep === 6 && r.result.winner === 0;
       const settled = practiceResult ? evaluate(r.captured[0]).yakus.map((yaku) => yaku.name).join("\u30FB") + " " + r.result.raw + "\u70B9\u3002\u5F97\u70B9" + r.result.points + "\u70B9\u304C\u78BA\u5B9A\u3057\u305F\u3088\u3002" : "";
-      return { step: "\u7DF4\u7FD2\u304A\u308F\u308A", title: g.tutorialStep === 6 ? "\u7DF4\u7FD2\u5B8C\u4E86\uFF01" : r.result.winner === 0 ? "\u306F\u3058\u3081\u3066\u306E\u4E00\u5C40\u3001\u3067\u304D\u305F\u306D\uFF01" : "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: settled || "\u82B1\u672D\u3092\u5408\u308F\u305B\u3066\u3001\u5F79\u3092\u4F5C\u3063\u3066\u3001\u6700\u5F8C\u306B\u81EA\u5206\u3067\u9078\u3079\u305F\u306D\u3002\u3053\u308C\u3067\u57FA\u672C\u306E\u904A\u3073\u65B9\u306F\u3070\u3063\u3061\u308A\u3002\u6B21\u306F\u81EA\u7531\u306B\u5BFE\u5C40\u3057\u3066\u307F\u3088\u3046\u3002", action: (g.tutorialSingleStep ? "" : '<button class="primary" data-action="tutorial-free">\u30D5\u30EA\u30FC\u5BFE\u5C40\u3078 \u203A</button>') + backButton("tutorial-menu", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078"), visual: "complete" };
+      return { step: "\u7DF4\u7FD2\u304A\u308F\u308A", title: g.tutorialStep === 6 ? "\u7DF4\u7FD2\u5B8C\u4E86\uFF01" : r.result.winner === 0 ? "\u306F\u3058\u3081\u3066\u306E\u4E00\u5C40\u3001\u3067\u304D\u305F\u306D\uFF01" : "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: settled || "\u82B1\u672D\u3092\u5408\u308F\u305B\u3066\u3001\u5F79\u3092\u4F5C\u3063\u3066\u3001\u6700\u5F8C\u306B\u81EA\u5206\u3067\u9078\u3079\u305F\u306D\u3002\u3053\u308C\u3067\u57FA\u672C\u306E\u904A\u3073\u65B9\u306F\u3070\u3063\u3061\u308A\u3002\u6B21\u306F\u8CED\u3051\u306A\u3057\u3067\u5BFE\u5C40\u3057\u3066\u307F\u3088\u3046\u3002", action: (g.tutorialSingleStep ? "" : '<button class="primary" data-action="tutorial-free">\u8CED\u3051\u306A\u3057\u3078 \u203A</button>') + backButton("tutorial-menu", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078"), visual: "complete" };
     }
     if (teach && r.phase === "hand" && r.current === 0) {
       if (g.tutorialHint) return { step: "\u672D\u3092\u9078\u3076", title: "\u3086\u3063\u304F\u308A\u63A2\u3057\u3066\u307F\u3088\u3046", description: g.tutorialHint, action: "" };
@@ -11612,8 +11635,12 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       render();
       return;
     }
+    if (action === "swing-title") {
+      swingTitle(button);
+      return;
+    }
     if (action === "opponent-line") {
-      $("opponent-line").textContent = nextOpponentLine(matchOpponent());
+      $("opponent-line").innerHTML = phrases(nextOpponentLine(matchOpponent()));
       return;
     }
     if (action === "ad-removal") {
@@ -11720,7 +11747,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       screen = "learn";
     } else if (action === "free") {
       screen = "free";
-      matchMode = "free";
+      bettingRate = 0;
       matchLength = 3;
     } else if (action === "cards") {
       studyMonth = 1;
@@ -11836,25 +11863,21 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       if (!g?.tutorial || g.tutorialIntroStep !== TUTORIAL_QUIZ_PHASE || tutorialMonthQuestion(g)) throw Error("3\u554F\u306E\u30AF\u30A4\u30BA\u3092\u7D42\u3048\u3066\u304F\u3060\u3055\u3044");
       showPracticeStep(3, g.tutorialSingleStep);
       return;
-    } else if (action === "match-mode") {
-      matchMode = val;
-      if (matchMode === "betting") {
-        if (!state.wallet) {
-          state.wallet = createWallet();
-          save();
-        }
-        if (state.wallet.coins < MIN_COINS) {
-          render();
-          openCoinRefill($("app").querySelector('[data-action="coin-refill"]'));
-          return;
-        }
-      }
     } else if (action === "match-length") {
       matchLength = Number(val);
     } else if (action === "betting-rate") {
       bettingRate = Number(val);
+      if (bettingRate && !state.wallet) {
+        state.wallet = createWallet();
+        save();
+      }
+      if (bettingRate && state.wallet.coins < MIN_COINS) {
+        render();
+        openCoinRefill($("app").querySelector('[data-action="coin-refill"]'));
+        return;
+      }
     } else if (action === "start-free") {
-      const rate = matchMode === "betting" ? bettingRate : null;
+      const rate = bettingRate || null;
       if (rate !== null && state.wallet.coins < MIN_COINS) {
         openCoinRefill(button);
         return;

@@ -266,7 +266,6 @@
 }
 
 .match-menu > .row {grid-area:header}
-.match-menu > .mode-signs {grid-area:modes;gap:12px}
 .match-menu h2 {color:#ffe6bb}
 .tutorial-aligned .betting-wallet {
   padding:0;
@@ -319,8 +318,8 @@
 .tutorial-aligned .feedback-match {
   display:grid;
   grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
-  grid-template-rows:auto minmax(0,1fr) auto;
-  grid-template-areas:"modes companion" "controls companion" "guide guide";
+  grid-template-rows:minmax(0,1fr) auto;
+  grid-template-areas:"controls companion" "guide guide";
   align-content:stretch;
   align-items:stretch;
   gap:6px 14px;
@@ -331,7 +330,7 @@
 .feedback-match .match-controls {
   grid-area:controls;
   display:grid;
-  grid-template-rows:repeat(4,minmax(31px,1fr)) 35px;
+  grid-template-rows:50px repeat(4,minmax(31px,1fr)) 35px;
   gap:4px;
   min-height:0;
 }
@@ -351,10 +350,6 @@
   color:#321d12;
   font-family:"TutorialYuji",serif;
   text-shadow:none;
-}
-.tutorial-aligned .feedback-match .mode-signs button {
-  min-height:38px;
-  font-size:clamp(17px,2.7vw,23px);
 }
 .feedback-match .match-companion {
   grid-area:companion;
@@ -400,7 +395,7 @@
   inset-inline-end:-6px;
   border-width:1px 1px 0 0;
 }
-.tutorial-aligned .opponent-line .teacher-speech {font:13px/1.45 var(--study-body);color:#573c2b}
+.tutorial-aligned .opponent-line .teacher-speech {display:block;font:13px/1.45 var(--study-body);color:#573c2b}
 .tutorial-aligned .feedback-match .match-portrait {width:48%;margin-inline-start:auto}
 .feedback-match .match-portrait:focus-visible {outline-offset:-3px}
 .feedback-match .betting-wallet {width:100%;flex-shrink:0}
@@ -462,8 +457,8 @@
 @media (orientation:portrait) and (max-width:550px) {
   .tutorial-aligned .feedback-match {
     grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"modes" "controls" "companion" "guide";
-    grid-template-rows:auto auto minmax(0,1fr) auto;
+    grid-template-areas:"controls" "companion" "guide";
+    grid-template-rows:auto minmax(0,1fr) auto;
   }
 }
 
@@ -496,8 +491,8 @@
   .scene-cards.tutorial-aligned .scene-body {padding-block:7px}
   .tutorial-aligned .card-book {gap:4px}
 }
-.feedback-match .betting-rates .match-choices {grid-template-columns:clamp(100px,18vw,134px) minmax(0,1fr)}
-.tutorial-aligned .feedback-match .betting-rates .chip {font-size:clamp(10px,1.55vw,13px);line-height:1.1;padding-inline:2px}
+.feedback-match .betting-rates .match-choices {grid-template-columns:minmax(0,1fr);gap:2px}
+.tutorial-aligned .feedback-match .betting-rates .chip {font-size:clamp(10px,1.7vw,14px);line-height:1.1;padding-inline:2px}
 .feedback-match .betting-rates h2 {white-space:nowrap;font-size:13px}
 
 
@@ -564,3 +559,30 @@
 }
 .feedback-settings > .settings-credits {align-self:start}
 .coin-refill-dialog .back-control {width:auto;margin-inline-start:auto}
+
+/* Japanese copy can wrap between authored phrases, leaving each phrase intact. */
+.phrase {display:inline-block;white-space:nowrap}
+.teacher-speech p {line-break:strict;word-break:auto-phrase}
+@media (orientation:landscape) and (max-height:620px) {
+  .scene-learn .study-hub {
+    grid-template-columns:36% minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr) auto;
+    gap:8px 12px;
+  }
+  .scene-learn .study-main {padding:8px 10px}
+  .scene-learn .study-actions button {padding-inline:10px 53px}
+  .scene-learn .study-actions button img {width:42px;right:7px}
+}
+
+.feedback-match .match-choices h2 small {font:11px var(--study-body);color:#edcf9d}
+.feedback-match .match-choices button:disabled {opacity:.46;cursor:default}
+.feedback-match .match-choices button:disabled[aria-pressed="true"] {opacity:1}
+@media (orientation:landscape) and (max-height:360px) {
+  .feedback-match .match-controls {
+    grid-template-rows:47px repeat(4,minmax(30px,1fr)) 34px;
+    gap:3px;
+  }
+}
+.feedback-match .betting-rates .chip {flex-grow:1.05}
+.feedback-match .betting-rates .chip:first-child {flex-grow:.7}
+.feedback-match .betting-rates .chip:last-child {flex-grow:1.2}
