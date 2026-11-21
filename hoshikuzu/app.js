@@ -180,7 +180,7 @@
       "\u30ED\u30A4\u300C\u304A\u524D\u304C\u5012\u308C\u3066\u904B\u3070\u308C\u3066\u304D\u305F\u6642\u3001\u6B63\u76F4\u3001\u809D\u304C\u51B7\u3048\u305F\u3002\u2026\u2026\u7ACB\u3066\u308B\u306A\u3089\u3001\u3082\u3046\u4E00\u5EA6\u983C\u3080\u300D"
     ],
     witness: () => [
-      "\u30EA\u30BF\u300C\u52A9\u304B\u3063\u305F\u2026\u2026\uFF01 \u305D\u306E\u5263\u3001\u3044\u307E\u661F\u5C51\u307F\u305F\u3044\u306B\u5149\u308A\u307E\u3057\u305F\u306D\u300D",
+      "\u30EA\u30BF\u300C\u52A9\u304B\u3063\u305F\u2026\u2026\uFF01 \u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\u2026\u2026\uFF01 \u3082\u3046\u3001\u3060\u3081\u304B\u3068\u601D\u3044\u307E\u3057\u305F\u2026\u2026\u300D",
       "\u30EA\u30BF\u300C\u3042\u306E\u5B50\u3092\u3001\u5B88\u3063\u3066\u304F\u308C\u3066\u2026\u2026\u3042\u308A\u304C\u3068\u3046\u300D"
     ],
     audience1: (name) => "\u30A2\u30EB\u30C9\u738B\u300C" + name + "\u3001\u907F\u96E3\u3057\u3066\u304D\u305F\u4EBA\u3005\u3092\u5B88\u3063\u3066\u304F\u308C\u305F\u305D\u3046\u3060\u306A\u3002\u793C\u3092\u8A00\u3046\u300D",
@@ -18393,7 +18393,7 @@
       if (!entityAt(s, m, obj.x, obj.y)) continue;
       const raider = obj.kind === "raider";
       if (raider && intro.page === "royalReport" && !intro.entry?.raider) continue;
-      const { x, y } = raider ? intro.entry?.raider ?? { x: obj.x, y: intro.raiderY ?? (intro.page === "pickup" ? obj.y - 1 : obj.y) } : obj;
+      const { x, y } = raider ? intro.entry?.raider ?? { x: obj.x, y: intro.raiderY ?? (intro.page === "pickup" && s.pos.x !== obj.x ? obj.y - 1 : obj.y) } : obj;
       drawables.push({ x, y, depth: y, draw: (c, screen) => {
         const [px, py] = screen(x, y);
         if (obj.kind === "onyxBoss") paintCast(c, "voldo", px + 12, py + 24, "down");
@@ -18897,7 +18897,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261120-battle-log-door";
+  $("build-id").textContent = "20261121-round-playback";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -18925,6 +18925,7 @@
   var introShot = null;
   var introFrame = 0;
   var introPause = 0;
+  var battleLogTimer = 0;
   var battleFx = null;
   var battleFrame = 0;
   var battleEnding = null;
@@ -19134,7 +19135,14 @@
     $("context-hint").textContent = interior ? roomPrompt : door ? "A  " + door.name + "\u3078\u5165\u308B" : gate ? "A  \u9244\u306E\u9580\u3092\u8ABF\u3079\u308B" : visible ? "A  " + (MAPS[state.pos.map].npcs.some((n) => n === visible) ? "\u306F\u306A\u3059\uFF1A" : "\u3057\u3089\u3079\u308B\uFF1A") + visible.name : "";
     const canAdvance = queue.length > 0 && !battleFrame;
     $("rpg").classList.toggle("battle-log-pending", Boolean(battle && queue.length));
-    $("message-arrow").textContent = battle ? "\u30BF\u30C3\u30D7\u3067\u9032\u3080 \u25BC" : "\u25BC";
+    $("message-arrow").textContent = battle ? "\u30BF\u30C3\u30D7\u3067\u65E9\u9001\u308A \u25BC" : "\u25BC";
+    if (battle && canAdvance && !battleLogTimer) {
+      const readingTime = Math.max(1150, Math.min(2600, queue[0].length * 45));
+      battleLogTimer = setTimeout(() => {
+        battleLogTimer = 0;
+        advanceMessage();
+      }, readingTime);
+    }
     $("message-arrow").hidden = !canAdvance;
     $("dialogue").setAttribute("aria-busy", String(Boolean(battleFrame)));
     $("dialogue").classList.toggle("can-advance", canAdvance);
@@ -19178,7 +19186,12 @@
       bar.dataset.remaining = remaining;
     }
   }
+  function clearBattleLogTimer() {
+    clearTimeout(battleLogTimer);
+    battleLogTimer = 0;
+  }
   function message(lines) {
+    clearBattleLogTimer();
     queue = lines.filter(Boolean).map(String);
     hint = "";
     paint();
@@ -19187,6 +19200,7 @@
   function advanceMessage() {
     if (!queue.length) return false;
     if (battleFrame) return true;
+    clearBattleLogTimer();
     queue.shift();
     if (battleDisplay) {
       stopBattleFx();
@@ -19342,6 +19356,7 @@
     else if (result.message) notice(result.message);
   }
   function stopBattleFx() {
+    clearBattleLogTimer();
     if (battleFrame) cancelAnimationFrame(battleFrame);
     battleFrame = 0;
     battleFx = null;
@@ -20140,6 +20155,7 @@
   var introPosition = (x, y, facing) => ({ map: "castle", x, y, facing });
   var introEntrance = introPosition(7, 6, "up");
   var introDefense = introPosition(8, 7, "right");
+  var introShieldFamily = introPosition(9, 7, "down");
   var introThrone = introPosition(7, 3, "up");
   function showIntroPage() {
     const page = introPage(state);
@@ -20180,7 +20196,7 @@
         pos: next,
         motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step, facing },
         entry: entering ? castleEntry(elapsed) : void 0,
-        raiderY: page === "refugee" ? 8 - Math.min(1, elapsed / duration) : void 0
+        raiderY: page === "refugee" ? 8 : page === "pickup" && from.x === introShieldFamily.x ? 8 - Math.min(1, Math.max(0, elapsed - duration) / duration) : void 0
       };
       paintCurrentWorld();
       introFrame = requestAnimationFrame(frame);
@@ -20194,7 +20210,16 @@
   }
   function playSwordPickup() {
     const pedestal = introPosition(7, 3, "left");
-    const approach = state.pos.x === pedestal.x && state.pos.y === pedestal.y ? [] : [introPosition(7, 4, "up"), pedestal];
+    const approach = state.pos.x === pedestal.x && state.pos.y === pedestal.y ? [] : [
+      ...state.pos.x === introShieldFamily.x ? [
+        introDefense,
+        introPosition(7, 7, "left"),
+        introEntrance,
+        introPosition(7, 5, "up")
+      ] : [],
+      introPosition(7, 4, "up"),
+      pedestal
+    ];
     animateIntroWalk(state.pos, approach, { page: "pickup" }, () => {
       introShot = { pos: pedestal, swordGlow: true };
       try {
@@ -20235,7 +20260,7 @@
           playIntroWalk("refugee", [{ ...introEntrance, facing: "right" }]);
           return;
         case "refugee":
-          playIntroWalk("pickup", [introPosition(7, 5, "up")]);
+          playIntroWalk("pickup", [introPosition(8, 6, "right"), introDefense, introShieldFamily]);
           return;
         case "pickup":
           playSwordPickup();
@@ -20363,6 +20388,9 @@
     if (page && !state.flags.introPage) {
       const pos = page === "refugee" ? introEntrance : introDefense;
       storeAndSet({ ...state, pos, flags: { ...state.flags, introPage: page } }, true);
+    }
+    if (page === "pickup" && state.pos.x === 7 && state.pos.y === 5) {
+      storeAndSet({ ...state, pos: introShieldFamily }, true);
     }
     if (page) showIntroPage();
     else message(["\u5192\u967A\u306E\u8A18\u9332\u3092\u8AAD\u307F\u8FBC\u3093\u3060\u3002"]);
