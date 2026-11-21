@@ -193,6 +193,20 @@
     "\u610F\u8B58\u304C\u9060\u306E\u3044\u3066\u3044\u304F\u2026\u2026\u3002",
     "\u5B88\u5099\u5175\u306E\u624B\u5F53\u3066\u3067\u610F\u8B58\u304C\u623B\u3063\u305F\u3002\u6240\u6301\u91D1\u304C\u534A\u5206\u306B\u306A\u3063\u305F\u3002"
   ];
+  var ENTRY_DELAY_MS = 430;
+  var CASTLE_ENTRY_MS = 1430;
+  function entryPosition(elapsed, duration, endY) {
+    const progress = Math.min(1, elapsed / duration);
+    if (progress < 0.36) return { x: 7, y: 11 - 2 * progress / 0.36, facing: "up" };
+    if (progress < 0.62) return { x: 7 + 2 * (progress - 0.36) / 0.26, y: 9, facing: "right" };
+    return { x: 9, y: 9 - (9 - endY) * (progress - 0.62) / 0.38, facing: "up" };
+  }
+  function castleEntry(elapsed) {
+    return {
+      family: entryPosition(elapsed, 1200, 6),
+      raider: elapsed < ENTRY_DELAY_MS ? null : entryPosition(elapsed - ENTRY_DELAY_MS, CASTLE_ENTRY_MS - ENTRY_DELAY_MS, 8)
+    };
+  }
 
   // src/generated/app-config.mjs
   var app_config_default = {
@@ -18339,12 +18353,16 @@
   function addMapActors(s, m, npcFacing = {}, intro = {}) {
     const drawables = [];
     for (const n of m.npcs) {
-      if (n.id === "refugee" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
-      const y = n.id === "refugee" && intro.page === "royalReport" ? 6 + (intro.raiderY - 7) : n.y;
-      drawables.push({ x: n.x, y, depth: y, draw: (c, screen) => {
-        const [px, py] = screen(n.x, y);
-        paintCast(c, npcCast(n) ?? "mobman", px + 12, py + 24, npcFacing[n.kind] || "down");
-        if (n.id === "refugee") paintCast(c, "mobwoman", px + 27, py + 28, "left", 24);
+      const family = n.id === "refugee";
+      if (family && intro.page === "royalReport" && !intro.entry) continue;
+      const { x, y, facing } = family && intro.entry?.family ? intro.entry.family : { ...n, facing: npcFacing[n.kind] || "down" };
+      drawables.push({ x, y, depth: y, draw: (c, screen) => {
+        const [px, py] = screen(x, y);
+        paintCast(c, npcCast(n) ?? "mobman", px + 12, py + 24, facing);
+        if (family) {
+          const offset = intro.entry ? Math.min(1, 11 - y) : 1;
+          paintCast(c, "mobwoman", px + 12 + 15 * offset, py + 28, intro.entry ? facing : "left", 24);
+        }
       } });
     }
     if (m.id === "castle" && intro.page) {
@@ -18373,10 +18391,11 @@
     }
     for (const obj of m.objects) {
       if (!entityAt(s, m, obj.x, obj.y)) continue;
-      if (obj.kind === "raider" && intro.page === "royalReport" && intro.raiderY === void 0) continue;
-      const y = obj.kind === "raider" ? intro.raiderY ?? (intro.page === "pickup" ? obj.y - 1 : obj.y) : obj.y;
-      drawables.push({ x: obj.x, y, depth: y, draw: (c, screen) => {
-        const [px, py] = screen(obj.x, y);
+      const raider = obj.kind === "raider";
+      if (raider && intro.page === "royalReport" && !intro.entry?.raider) continue;
+      const { x, y } = raider ? intro.entry?.raider ?? { x: obj.x, y: intro.raiderY ?? (intro.page === "pickup" ? obj.y - 1 : obj.y) } : obj;
+      drawables.push({ x, y, depth: y, draw: (c, screen) => {
+        const [px, py] = screen(x, y);
         if (obj.kind === "onyxBoss") paintCast(c, "voldo", px + 12, py + 24, "down");
         else if (obj.kind === "raider") paintFrontEnemy(c, "m01", px + 12, py + 23, 28);
         else if (obj.kind === "sword") paintPedestal(c, px, py, !(s.flags.swordGiven || s.owned.includes("stardust")));
@@ -18878,7 +18897,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261120-intro-touch";
+  $("build-id").textContent = "20261120-battle-log-door";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -18910,6 +18929,7 @@
   var battleFrame = 0;
   var battleEnding = null;
   var battleArea = "";
+  var queuedBattleAdvance = false;
   var battleDisplay = null;
   var battleMessages = [];
   var battlePhases = [];
@@ -19045,7 +19065,7 @@
   function paintCurrentWorld() {
     const shot2 = introShot;
     const view = shot2 ? { ...state, pos: shot2.pos } : state;
-    const scene = { page: shot2?.page ?? introPage(state), raiderY: shot2?.raiderY, swordGlow: shot2?.swordGlow };
+    const scene = { page: shot2?.page ?? introPage(state), entry: shot2?.entry, raiderY: shot2?.raiderY, swordGlow: shot2?.swordGlow };
     const facingView = !shot2 && scene.page === "refugee" ? { ...view, pos: { ...view.pos, facing: "right" } } : view;
     drawWorld($("game"), facingView, lightSteps, shot2?.motion ?? walkMotion, leafNpcFacing, explorationPixels, followerPosition(), scene);
   }
@@ -19113,6 +19133,8 @@
     $("context-hint").hidden = Boolean(page || battle || queue.length || panelMode || !roomPrompt && !door && !visible && !gate);
     $("context-hint").textContent = interior ? roomPrompt : door ? "A  " + door.name + "\u3078\u5165\u308B" : gate ? "A  \u9244\u306E\u9580\u3092\u8ABF\u3079\u308B" : visible ? "A  " + (MAPS[state.pos.map].npcs.some((n) => n === visible) ? "\u306F\u306A\u3059\uFF1A" : "\u3057\u3089\u3079\u308B\uFF1A") + visible.name : "";
     const canAdvance = queue.length > 0 && !battleFrame;
+    $("rpg").classList.toggle("battle-log-pending", Boolean(battle && queue.length));
+    $("message-arrow").textContent = battle ? "\u30BF\u30C3\u30D7\u3067\u9032\u3080 \u25BC" : "\u25BC";
     $("message-arrow").hidden = !canAdvance;
     $("dialogue").setAttribute("aria-busy", String(Boolean(battleFrame)));
     $("dialogue").classList.toggle("can-advance", canAdvance);
@@ -19324,6 +19346,7 @@
     battleFrame = 0;
     battleFx = null;
     battlePhases = [];
+    queuedBattleAdvance = false;
   }
   function nextBattlePhase() {
     const phase = battlePhases.shift();
@@ -19339,8 +19362,10 @@
   }
   function animateBattleFx() {
     if (combatFeedbackProgress(battleFx, performance.now()) >= 1 || reducedBattleMotion.matches) {
+      const advance = queuedBattleAdvance;
       nextBattlePhase();
-      paint();
+      if (!battleFrame && advance) advanceMessage();
+      else paint();
       return;
     }
     drawBattle();
@@ -20082,6 +20107,18 @@
     else if (battle) battleChoices();
     else closePanel();
   });
+  var battleLogPress = null;
+  document.addEventListener("pointerdown", () => {
+    battleLogPress = battle && queue.length ? { queue, length: queue.length } : null;
+  }, true);
+  document.addEventListener("click", (event) => {
+    if (!battle || !queue.length) return;
+    if (event.detail && (battleLogPress?.queue !== queue || battleLogPress.length !== queue.length)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (battleFrame) queuedBattleAdvance = true;
+    else advanceMessage();
+  }, true);
   $("dialogue").addEventListener("click", advanceMessage);
   document.addEventListener("keydown", (ev) => {
     if ($("rpg").hidden || ev.target.tagName === "INPUT") return;
@@ -20123,11 +20160,13 @@
       onArrival();
       return;
     }
+    const entering = page === "royalReport";
+    const total = entering ? Math.max(path.length * duration, CASTLE_ENTRY_MS) : path.length * duration;
     const start = performance.now();
     const frame = (now) => {
       const elapsed = Math.max(0, now - start);
-      const step = Math.floor(elapsed / duration);
-      if (step >= path.length) {
+      const step = Math.min(path.length - 1, Math.floor(elapsed / duration));
+      if (elapsed >= total) {
         introFrame = 0;
         introShot = null;
         onArrival();
@@ -20140,7 +20179,8 @@
         page,
         pos: next,
         motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step, facing },
-        raiderY: ["refugee", "royalReport"].includes(page) ? 8 - Math.min(1, elapsed / duration) : void 0
+        entry: entering ? castleEntry(elapsed) : void 0,
+        raiderY: page === "refugee" ? 8 - Math.min(1, elapsed / duration) : void 0
       };
       paintCurrentWorld();
       introFrame = requestAnimationFrame(frame);
@@ -20445,5 +20485,5 @@
     if (!document.hidden) settleStageLayout();
   });
   settleStageLayout();
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castArtReady(), heroSprite: heroSprite() }), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castArtReady(), heroSprite: heroSprite() }), castleEntry: () => introShot?.entry ?? null, follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();
