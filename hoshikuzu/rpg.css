@@ -676,3 +676,8 @@ body.is-portrait{background:#05080d}
  object-fit:contain;object-position:bottom;align-self:center;margin-right:5px
 }
 .in-battle .battle-status.has-guest{padding-right:8px}
+
+
+.battle-log-pending .controls *{pointer-events:none}
+.in-battle #message-arrow{font-size:10px;white-space:nowrap;animation:none}
+body:has(.battle-log-pending){cursor:pointer}
