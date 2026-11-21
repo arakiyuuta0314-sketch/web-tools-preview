@@ -1,182 +1,224 @@
-/* Engawa home: independent painterly artwork, real Yuji Syuku text, semantic buttons. */
-@font-face{font-family:"EngawaYuji";src:url("assets/engawa-home/YujiSyuku-Regular.ttf") format("truetype");font-display:swap}
-html[data-hanafuda-preview="stage5"] .scene-home .hub.home-redesign{
- background:#10283e url("assets/engawa-home/garden-engawa.jpg") center center/100% 100% no-repeat!important;
- font-family:"EngawaYuji","Yu Mincho",serif;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading{
- position:absolute;left:13%;top:3%;width:44%;height:37%;z-index:2;pointer-events:none;text-align:center;
- color:#f8e6b9;text-shadow:0 2px 2px #172434,0 3px 10px #101d30,1px 0 #b2844b;
- display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.06;
-}
-.engawa-heading .engawa-kicker{font:normal clamp(15px,2.9vw,29px)/1.25 "EngawaYuji",serif;white-space:nowrap;letter-spacing:.05em}
-.engawa-heading .engawa-name{font:normal clamp(43px,9vw,93px)/1.04 "EngawaYuji",serif;white-space:nowrap;color:#ffdfa0;letter-spacing:.05em}
-html[data-hanafuda-preview="stage5"] .scene-home .home-object.engawa-board{
- position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;
- margin:0;padding:0;border:0;min-width:0;min-height:0;width:auto;height:auto;background:transparent;
- box-shadow:none;outline-offset:1px;z-index:4;cursor:pointer;touch-action:manipulation;
- transform:none;filter:drop-shadow(2px 6px 3px #100b09c7);
- transition:transform 110ms ease,filter 110ms ease;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{
- content:"";position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:100% 100%;
- z-index:0;pointer-events:none;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board:active{animation:none!important;transform:translateY(2px)!important;filter:drop-shadow(0 2px 2px #241b1455) brightness(.96)!important}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board:focus-visible{outline:3px solid #fff0aa;outline-offset:1px;border-radius:15px}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board span{position:relative;z-index:1;display:block;text-align:center;white-space:nowrap;letter-spacing:.01em;line-height:1.1;color:#482719;text-shadow:0 1px 1px #23150f55;font-family:"EngawaYuji",serif;font-weight:normal}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board .engawa-caption{color:#613b27}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
- left:26%;top:43%;width:49%;height:35%;z-index:6;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main{font-size:clamp(25px,4.55vw,45px);margin-top:0}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(9px,1.6vw,16px);margin-top:3px}
-html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board,
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{
- top:77%;height:21%;width:25%;z-index:7;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{left:25%}
-html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board{left:51%}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(16px,2.5vw,24px)}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-caption{font-size:clamp(9px,1.3vw,13px)}
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{
- left:81%;top:81%;width:16%;height:16%;z-index:8;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(16px,2.4vw,23px)}
-html[data-hanafuda-preview="stage5"] .scene-home .home-resume{left:7%;top:85%;width:17%;height:12%;z-index:9;font-family:"EngawaYuji",serif}
-html.native-ad-visible[data-hanafuda-preview="stage5"] .scene-home .home-resume{
- top:auto;bottom:14px;height:auto;min-height:36px;
-}
-@media (max-height:340px) and (orientation:landscape){
- html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading{top:0;height:39%}
- html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{top:40%;height:37%}
-}
-@media (prefers-reduced-motion:reduce){html[data-hanafuda-preview="stage5"] .scene-home .engawa-board{transition:none}}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-overline{font-size:clamp(10px,1.6vw,16px);margin-top:2px;color:#5f3927}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-caption{font-size:clamp(11px,1.65vw,16px);margin-top:0}
-
-
-
-html[data-hanafuda-preview="stage5"] .scene-home .home-object.engawa-board{
- isolation:isolate;transform-origin:50% 94%;
- transform:perspective(850px) rotateX(7deg);
-}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{z-index:1}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board span{z-index:2}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
- top:48%;height:32%;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board,
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{top:78.5%;height:20%}
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{top:82%;height:16%}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board:active{
- transform:perspective(850px) rotateX(7deg) translateY(2px)!important;
- filter:drop-shadow(1px 3px 2px #20110a77) brightness(.97)!important;
-}
-@media (max-height:340px) and (orientation:landscape){
- html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{top:45%;height:34%}
+/* The title screen is composed in percentages of the visible stage (1688 × 780 in the mock). */
+@font-face {
+  font-family: EngawaYuji;
+  src: url("assets/engawa-home/YujiSyuku-Regular.ttf") format("truetype");
+  font-display: swap;
 }
 
-
-html:not([data-hanafuda-preview="stage5"]) .engawa-title-art {display:none}
-
-/* Keep the night garden stationary so the hanging sign can move independently. */
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-heading.engawa-title-art{
- left:7%;top:0;width:46%;height:39%;
- border:0;padding:0;border-radius:0;box-shadow:none;
- background:url("assets/home-signs/title.png") center top/contain no-repeat;
- pointer-events:auto;cursor:pointer;transform-origin:50% 0;
- filter:drop-shadow(2px 6px 3px #100b09c7);
+html[data-hanafuda-preview="stage5"] .scene-home {
+  position: fixed;
+  inset: auto;
+  top: var(--home-top, 0px);
+  left: var(--home-left, 0px);
+  width: min(100%, var(--home-width, 100%));
+  height: min(100dvh, var(--home-height, 100dvh));
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
 }
-@media (orientation:landscape) {
- html[data-hanafuda-preview="stage5"] .scene-home .engawa-title-art::after{
-  content:"";position:absolute;inset:0;pointer-events:none;background:inherit;
-  filter:brightness(.20);mask-image:linear-gradient(transparent 85%,#000 88%);
- }
+html[data-hanafuda-preview="stage5"] .scene-home .page {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-title-art:focus-visible{
- outline:2px solid #fff0aa;outline-offset:2px;
+html[data-hanafuda-preview="stage5"] .scene-home .hub.home-redesign {
+  background: linear-gradient(transparent 49%, #170b095c 100%),
+    #10283e url("assets/title-screen-20261121/bg-engawa-cards.png") center / 100% 100% no-repeat;
+  container-type: size;
 }
-
-/* Lay out the interactive plaques across the veranda. */
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{left:25.5%;top:42%;width:48%;height:34%;}
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board{left:21.5%;top:74.5%;width:27.5%;height:23.5%;}
-html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board{left:49.5%;top:74.5%;width:27.5%;height:23.5%;}
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{left:83.5%;top:80.5%;width:15.5%;height:19.5%;}
-
-/* Expand the painted plaques slightly so they fully cover the prototype's baked-in labels and frames. */
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{inset:0;}
-
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::before{inset:-6% -3% 0;}
-
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {
-  font-size:clamp(18px,4.1vw,42px);
+.scene-home .engawa-title {
+  position: absolute;
+  left: -2.8%;
+  top: 1.15%;
+  width: 57%;
+  height: 68%;
+  transform-origin: 50% 0;
+  transform: rotate(-3deg);
+  animation: title-entrance .68s ease-out;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label{font-size:clamp(16px,2.5vw,24px)}
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board .engawa-label{font-size:clamp(17px,2.55vw,25px)}
-
-html[data-hanafuda-preview="stage5"] .scene-home{
- position:fixed;
- inset:auto;
- top:var(--home-top,0px);
- left:var(--home-left,0px);
- width:min(100%,var(--home-width,100%));
- height:min(100dvh,var(--home-height,100dvh));
- min-height:0;
- padding:0;
- overflow:hidden;
+.scene-home .engawa-heading {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  transform-origin: 50% 0;
+  animation: title-sway 6s ease-in-out infinite;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .page{
- width:100%;
- height:100%;
- max-width:none;
- margin:0;
+.scene-home .engawa-title-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: url("assets/title-screen-20261121/title-board.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  transform-origin: 50% 0;
+  cursor: pointer;
 }
-
-/* Darken the cast shadow painted into the bottom of each plaque. */
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::after{
- content:"";
- position:absolute;
- pointer-events:none;
- inset:0;
- height:auto;
- z-index:1;
- border-radius:0;
- background:var(--plaque) center/100% 100% no-repeat;
- filter:brightness(.20);
- transform:none;
- mask-image:linear-gradient(transparent 90%,#000 96%);
+.scene-home .engawa-title-lettering {
+  position: absolute;
+  inset: 28% 0 0 3%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2cqh;
+  white-space: nowrap;
+  color: #3c2415;
+  text-shadow: 0 .24cqh #f0c98d;
+  font: normal min(4.6cqw, 10cqh)/1.1 EngawaYuji, "Yu Mincho", serif;
+  letter-spacing: .07em;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-board::before{
- background-image:var(--plaque);
+.scene-home .engawa-kicker {
+  position: relative;
+  top: 3cqh;
 }
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board{
- --plaque:url("assets/engawa-home/plaque-primary.png");
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial.engawa-board::after{
- inset:-6% -3% 0;
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary.engawa-board,
-html[data-hanafuda-preview="stage5"] .scene-home .home-free.engawa-board{
- --plaque:url("assets/engawa-home/plaque-secondary.png");
-}
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings.engawa-board{
- --plaque:url("assets/engawa-home/plaque-settings.png");
+.scene-home .engawa-name {
+  position: relative;
+  top: -1cqh;
+  font-size: min(9.7cqw, 21cqh);
+  letter-spacing: .08em;
+  -webkit-text-stroke: .04em #3c2415;
 }
 
-html[data-hanafuda-preview="stage5"] .scene-home .home-object img.engawa-match-label{
- display:block;
- width:2em;
- height:1.1em;
- filter:drop-shadow(0 1px 1px #23150f55);
+html[data-hanafuda-preview="stage5"] .scene-home .home-object,
+html[data-hanafuda-preview="stage5"] .scene-home .home-resume {
+  --resting-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: var(--resting-shadow);
+  transform: none;
+  transform-origin: center;
+  touch-action: manipulation;
+  color: #3c2415;
+  font: normal min(3.65cqw, 7.9cqh)/1 EngawaYuji, "Yu Mincho", serif;
+  text-shadow: 0 .18cqh #f0c98d;
+  white-space: nowrap;
+  transition: transform .12s ease;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-object:active,
+html[data-hanafuda-preview="stage5"] .scene-home .home-resume:active {
+  animation: none;
+  transform: scale(.97);
+  box-shadow: none;
+  filter: none;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .engawa-board {
+  left: 60.7%;
+  width: 26.1%;
+  height: 13.85%;
+  border-radius: 2cqh;
+  /* Skip the transparent space above the painted face in the supplied PNG. */
+  background: url("assets/title-screen-20261121/wood-tag.png") center bottom / 100% 120% no-repeat;
+  --resting-shadow: 0 .75cqh 1.1cqh #160c0870;
+  animation: title-tag-entrance .38s ease-out backwards;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-free {
+  top: 34.5%;
+  animation-delay: .13s;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial {
+  top: 52.2%;
+  animation-delay: .23s;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary {
+  top: 69.9%;
+  font-size: min(2.4cqw, 5.2cqh);
+  animation-delay: .33s;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-resume {
+  left: 24.2%;
+  top: 74.2%;
+  width: 22.7%;
+  height: 7.45%;
+  min-height: 28px;
+  border: max(1px, .36cqh) solid #aa9878;
+  border-radius: 1.35cqh;
+  background: #f0ebda;
+  --resting-shadow: 0 .45cqh .9cqh #160c0870;
+  font-size: min(2cqw, 4.3cqh);
+  text-shadow: none;
+  animation: title-paper-entrance .38s .4s ease-out backwards;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .home-settings {
+  left: auto;
+  top: max(1.6%, env(safe-area-inset-top));
+  right: max(2.1%, env(safe-area-inset-right));
+  width: max(44px, 4.8%);
+  height: max(44px, 10.4%);
+  color: #f8e8ae;
+  font: normal min(5.5cqw, 11.9cqh)/1 "Segoe UI Symbol", sans-serif;
+  text-shadow: 0 2px 4px #32201d;
+}
+html[data-hanafuda-preview="stage5"] .scene-home .hub button:focus-visible {
+  outline: 2px solid #fff0aa;
+  outline-offset: 1px;
 }
 
-@media (prefers-reduced-motion:no-preference) {
- .entrance-arrival{animation:entrance-arrival 160ms ease-out}
- @keyframes entrance-arrival{from{opacity:.78}to{opacity:1}}
+.scene-home .engawa-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+html:not([data-hanafuda-preview="stage5"]) .scene-home :is(.engawa-title, .engawa-atmosphere) {
+  display: none;
+}
+.engawa-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 48% -7% 6% 87%;
+  background: radial-gradient(ellipse, #ffd17f52, transparent 68%);
+  opacity: .52;
+  animation: title-lantern 5s ease-in-out infinite alternate;
+}
+.engawa-atmosphere i {
+  position: absolute;
+  top: 0;
+  left: var(--leaf-x);
+  width: min(1cqw, 2cqh);
+  height: min(.55cqw, 1.2cqh);
+  border-radius: 75% 25% 65% 35%;
+  background: #e6a1ae;
+  opacity: 0;
+  animation: title-leaf var(--leaf-duration) var(--leaf-delay) linear infinite;
+}
+.engawa-atmosphere i:nth-child(1) { --leaf-x: 18%; --leaf-duration: 17s; --leaf-delay: -5s; }
+.engawa-atmosphere i:nth-child(2) { --leaf-x: 83%; --leaf-duration: 20s; --leaf-delay: -13s; }
+.engawa-atmosphere i:nth-child(3) { --leaf-x: 92%; --leaf-duration: 22s; --leaf-delay: -2s; }
+.engawa-atmosphere i:nth-child(4) { --leaf-x: 46%; --leaf-duration: 19s; --leaf-delay: -14s; }
+.engawa-atmosphere i:nth-child(odd) {
+  background: #b8562e;
+  clip-path: polygon(0 45%, 30% 40%, 20% 8%, 48% 25%, 62% 0, 71% 30%, 100% 22%, 82% 64%, 57% 90%, 44% 68%, 22% 100%, 34% 65%);
 }
 
-/* Align the lettering with the centers of the painted faces. */
-html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial .engawa-main {translate:0 -5px}
-html[data-hanafuda-preview="stage5"] .scene-home .engawa-small .engawa-label,
-html[data-hanafuda-preview="stage5"] .scene-home .home-settings .engawa-label {translate:0 -2px}
+@keyframes title-entrance { from { opacity: 0; transform: translateY(-3cqh) rotate(-3deg); } }
+@keyframes title-sway {
+  0%, 100% { transform: rotate(-.5deg); }
+  50% { transform: rotate(.5deg); }
+}
+@keyframes title-tag-entrance { from { opacity: 0; transform: translateY(-2cqh); } }
+@keyframes title-paper-entrance { from { opacity: 0; } }
+@keyframes title-leaf {
+  0% { opacity: 0; transform: translate(0, -2cqh) rotate(0deg); }
+  12% { opacity: .65; }
+  48% { transform: translate(-4cqw, 48cqh) rotate(175deg); }
+  83% { opacity: .55; }
+  100% { opacity: 0; transform: translate(2cqw, 100cqh) rotate(350deg); }
+}
+@keyframes title-lantern { from { opacity: .35; } to { opacity: .66; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-hanafuda-preview="stage5"] .scene-home .hub button,
+  .scene-home .engawa-title,
+  .scene-home .engawa-heading,
+  .engawa-atmosphere i,
+  .engawa-atmosphere::after { animation: none; transition: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .entrance-arrival { animation: entrance-arrival 160ms ease-out; }
+  @keyframes entrance-arrival { from { opacity: .78; } to { opacity: 1; } }
+}
