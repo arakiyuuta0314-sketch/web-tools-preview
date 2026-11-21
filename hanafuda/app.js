@@ -700,8 +700,7 @@
       "bannerId": "ca-app-pub-3940256099942544/2934735716",
       "interstitialId": "ca-app-pub-3940256099942544/4411468910",
       "minCompletedActions": 10,
-      "cooldownMs": 6e5,
-      "rewardedId": "ca-app-pub-3940256099942544/1712485313"
+      "cooldownMs": 6e5
     },
     "purchase": {
       "enabled": true,
@@ -738,10 +737,6 @@
       invariant(app && banner && interstitial, "three valid AdMob IDs required");
       invariant(app[1] === banner[1] && app[1] === interstitial[1], "AdMob publisher IDs do not match");
       invariant(ads2.bannerId !== ads2.interstitialId, "AdMob ad units must be distinct");
-      if (Object.hasOwn(ads2, "rewardedId")) {
-        invariant(adUnitPattern.exec(ads2.rewardedId)?.[1] === app[1], "rewarded ad unit must match the AdMob publisher");
-        invariant(![ads2.bannerId, ads2.interstitialId, ads2.appOpenId].includes(ads2.rewardedId), "rewarded ad unit must be distinct");
-      }
       if (ads2.mode === "test") invariant(app[1] === "3940256099942544", "test mode must use Google demo IDs");
       if (ads2.mode === "production") invariant(app[1] !== "3940256099942544", "Google demo IDs forbidden in production");
     }
@@ -927,7 +922,7 @@
       prepared = true;
     }
     async function initAds() {
-      if (!native || ads2.mode === "disabled" || owned && !ads2.rewardedId) {
+      if (!native || ads2.mode === "disabled" || owned) {
         report("ads", owned ? "\u8CFC\u5165\u6E08\u307F\u30FB\u5E83\u544A\u306A\u3057" : native ? "\u5E83\u544A\u6A5F\u80FD\u30AA\u30D5" : "\u30D6\u30E9\u30A6\u30B6\u30D7\u30EC\u30D3\u30E5\u30FC\u30FB\u5E83\u544A\u306A\u3057");
         return;
       }
@@ -1025,16 +1020,6 @@
               report("ads", "\u5168\u753B\u9762\u5E83\u544A\u518D\u6E96\u5099\u5931\u6557: " + err.message);
             }
           }
-        }
-      },
-      async showRewarded() {
-        if (!native || !adsReady || !ads2.rewardedId) throw new Error("\u30EA\u30EF\u30FC\u30C9\u5E83\u544A\u306F\u73FE\u5728\u5229\u7528\u3067\u304D\u307E\u305B\u3093");
-        if (presenting) return false;
-        presenting = true;
-        try {
-          return await ports2.ads.showRewarded({ adId: ads2.rewardedId, isTesting: ads2.mode === "test" });
-        } finally {
-          presenting = false;
         }
       },
       async privacyOptions() {
@@ -8062,9 +8047,9 @@
     (function(Utils) {
       const HEX2STR = "0123456789abcdef".split("");
       function toHexString(r) {
-        for (var n2 = "", e = 0; e < 4; e++)
-          n2 += HEX2STR[r >> 8 * e + 4 & 15] + HEX2STR[r >> 8 * e & 15];
-        return n2;
+        for (var n = "", e = 0; e < 4; e++)
+          n += HEX2STR[r >> 8 * e + 4 & 15] + HEX2STR[r >> 8 * e & 15];
+        return n;
       }
       function hexStringFromArray(array) {
         const out = [];
@@ -8072,29 +8057,29 @@
           out.push(toHexString(array[i]));
         return out.join("");
       }
-      function add32(r, n2) {
-        return r + n2 & 4294967295;
+      function add32(r, n) {
+        return r + n & 4294967295;
       }
-      function complexShift(r, n2, e, t, o, u, shiftFunction) {
+      function complexShift(r, n, e, t, o, u, shiftFunction) {
         function shiftAdd32(op0, op1, v1) {
           return add32(op0 << op1 | op0 >>> 32 - op1, v1);
         }
         function add32x4(i0, i1, j0, j1) {
           return add32(add32(i1, i0), add32(j0, j1));
         }
-        return shiftAdd32(add32x4(r, n2, t, u), o, e);
+        return shiftAdd32(add32x4(r, n, t, u), o, e);
       }
-      var step1Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(e & t | ~e & o, n2, e, u, f, a);
+      var step1Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(e & t | ~e & o, n, e, u, f, a);
       };
-      var step2Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(e & o | t & ~o, n2, e, u, f, a);
+      var step2Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(e & o | t & ~o, n, e, u, f, a);
       };
-      var step3Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(e ^ t ^ o, n2, e, u, f, a);
+      var step3Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(e ^ t ^ o, n, e, u, f, a);
       };
-      var step4Function = function(shiftFunction, n2, e, t, o, u, f, a) {
-        return complexShift(t ^ (e | ~o), n2, e, u, f, a);
+      var step4Function = function(shiftFunction, n, e, t, o, u, f, a) {
+        return complexShift(t ^ (e | ~o), n, e, u, f, a);
       };
       function hashStep(inOutVec4, strAsInts, shiftFunction) {
         if (!shiftFunction)
@@ -8207,9 +8192,9 @@
           return "";
         let shiftFunction;
         if ("5d41402abc4b2a76b9719d911017c592" !== hexStringFromArray(computeMD5("hello")))
-          shiftFunction = function(r, n2) {
-            const e = (65535 & r) + (65535 & n2);
-            return (r >> 16) + (n2 >> 16) + (e >> 16) << 16 | 65535 & e;
+          shiftFunction = function(r, n) {
+            const e = (65535 & r) + (65535 & n);
+            return (r >> 16) + (n >> 16) + (e >> 16) << 16 | 65535 & e;
           };
         return hexStringFromArray(computeMD5(str, shiftFunction));
       }
@@ -8796,7 +8781,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           }
           const RENEWS_EVERY_MS = 2 * 6e4;
           const receipt = new CdvPurchase2.Receipt(platform, this.context.apiDecorators);
-          const makeTransaction = (n2) => {
+          const makeTransaction = (n) => {
             var _a, _b;
             const tr = new CdvPurchase2.Transaction(platform, receipt, this.context.apiDecorators);
             tr.products = [{
@@ -8804,21 +8789,21 @@ Enter "E" to fail with an error.Anything else to cancel.`);
               offerId: Test.testProducts.PAID_SUBSCRIPTION_ACTIVE.extra.offerId
             }];
             tr.state = CdvPurchase2.TransactionState.APPROVED;
-            tr.transactionId = transactionId(n2);
-            tr.isAcknowledged = n2 == 1;
+            tr.transactionId = transactionId(n);
+            tr.isAcknowledged = n == 1;
             tr.renewalIntent = CdvPurchase2.RenewalIntent.RENEW;
             const firstPurchase = +(((_b = (_a = receipt === null || receipt === void 0 ? void 0 : receipt.transactions) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.purchaseDate) || /* @__PURE__ */ new Date());
             tr.purchaseDate = new Date(firstPurchase);
-            tr.lastRenewalDate = new Date(firstPurchase + RENEWS_EVERY_MS * (n2 - 1));
-            tr.expirationDate = new Date(firstPurchase + RENEWS_EVERY_MS * n2);
+            tr.lastRenewalDate = new Date(firstPurchase + RENEWS_EVERY_MS * (n - 1));
+            tr.expirationDate = new Date(firstPurchase + RENEWS_EVERY_MS * n);
             updateVerifiedPurchases(tr);
             return tr;
           };
           receipt.transactions.push(makeTransaction(1));
           this.receipts.push(receipt);
           this.context.listener.receiptsUpdated(CdvPurchase2.Platform.TEST, [receipt]);
-          function transactionId(n2) {
-            return "test-active-subscription-transaction-" + n2;
+          function transactionId(n) {
+            return "test-active-subscription-transaction-" + n;
           }
           let transactionNumber = 1;
           setInterval(() => {
@@ -9389,8 +9374,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         if (!iso)
           return "";
         const l = iso.length;
-        const n2 = iso.slice(1, l - 1);
-        if (n2 === "1") {
+        const n = iso.slice(1, l - 1);
+        if (n === "1") {
           if (options === null || options === void 0 ? void 0 : options.omitOne) {
             return { "D": "day", "W": "week", "M": "month", "Y": "year" }[iso[l - 1]] || iso[l - 1];
           } else {
@@ -9398,7 +9383,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
           }
         } else {
           const u = { "D": "days", "W": "weeks", "M": "months", "Y": "years" }[iso[l - 1]] || iso[l - 1];
-          return `${n2} ${u}`;
+          return `${n} ${u}`;
         }
       }
       Utils.formatDurationEN = formatDurationEN;
@@ -9641,28 +9626,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var Iaptic = CdvPurchase.Iaptic;
 
   // src/services/native-ports.mjs
-  async function showRewarded(config) {
-    await AdMob.prepareRewardVideoAd(config);
-    const listeners = [];
-    let earned = false, resolve, reject;
-    const finished = new Promise((ok, failed) => {
-      resolve = ok;
-      reject = failed;
-    });
-    try {
-      listeners.push(await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-        earned = true;
-      }));
-      listeners.push(await AdMob.addListener(RewardAdPluginEvents.Dismissed, () => resolve(earned)));
-      listeners.push(await AdMob.addListener(RewardAdPluginEvents.FailedToShow, (error) => reject(new Error(error.message))));
-      void AdMob.showRewardVideoAd().then(() => {
-        earned = true;
-      }, reject);
-      return await finished;
-    } finally {
-      await Promise.allSettled(listeners.map((listener) => listener.remove()));
-    }
-  }
   function createNativePorts() {
     const native = Capacitor.getPlatform() === "ios";
     return {
@@ -9684,7 +9647,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         },
         hideBanner: () => AdMob.hideBanner(),
         prepareInterstitial: (config) => AdMob.prepareInterstitial(config),
-        showRewarded,
         showInterstitial: () => AdMob.showInterstitial(),
         showPrivacyOptionsForm: () => AdMob.showPrivacyOptionsForm(),
         async requestTrackingIfNeeded() {
@@ -10295,28 +10257,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   ];
   var CHAPTERS = MONTHS.map((month, index) => ({ ...month, story: stories[index] }));
 
-  // src/game/betting.mjs
-  var BETTING_RATES = /* @__PURE__ */ new Map([[10, "\u5C0F\u52DD\u8CA0"], [50, "\u4E2D\u52DD\u8CA0"], [100, "\u5927\u52DD\u8CA0"]]);
-  var MIN_COINS = 100;
-  var FREE_COINS = 300;
-  var AD_COINS = 500;
-  var BETTING_DIFFICULTY = /* @__PURE__ */ new Map([[10, 1], [50, 2], [100, 3]]);
-  function createWallet() {
-    return { coins: 3e3, lastFreeRefill: null };
-  }
-  function localDay(now = /* @__PURE__ */ new Date()) {
-    const twoDigits = (value) => String(value).padStart(2, "0");
-    return now.getFullYear() + "-" + twoDigits(now.getMonth() + 1) + "-" + twoDigits(now.getDate());
-  }
-  function canRefillForFree(wallet, today = localDay()) {
-    return wallet.lastFreeRefill === null || wallet.lastFreeRefill < today;
-  }
-  function settleBettingMatch(wallet, game) {
-    if (!game?.finished || !game.betting || game.betting.settlement) return;
-    const difference = (game.scores[0] - game.scores[1]) * game.betting.rate;
-    const change = Math.max(-wallet.coins, difference) || 0;
-    wallet.coins += change;
-    game.betting.settlement = { change, balance: wallet.coins };
+  // src/game/saved-match-compat.mjs
+  function removeLegacyWagerFields(state2) {
+    let changed = Object.hasOwn(state2, "wallet");
+    delete state2.wallet;
+    for (const game of [state2.active, state2.savedMatch]) {
+      if (game && typeof game === "object" && Object.hasOwn(game, "betting")) {
+        delete game.betting;
+        changed = true;
+      }
+    }
+    return changed;
   }
 
   // src/game/progress.mjs
@@ -10376,7 +10327,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
         if (hint.length) summary.push("\u76F8\u624B\u306E\u516C\u958B\u53D6\u308A\u672D\u3092\u898B\u308B\u3068\u3001" + hint[0].name + "\u304C\u8FD1\u3044\u304B\u3082\u3057\u308C\u307E\u305B\u3093\u3002");
       }
     } else summary.push("\u540C\u3058\u6708\u306E\u672D\u3092\u5408\u308F\u305B\u308B\u3068\u3001\u53D6\u308A\u672D\u306B\u306A\u308A\u307E\u3059\u3002\u307E\u305A\u624B\u672D\u3092\u9078\u3073\u307E\u3057\u3087\u3046\u3002");
-    const blocked = probableYaku(r.captured[0]).filter((y) => !nearMine.some((n2) => n2.id === y.id));
+    const blocked = probableYaku(r.captured[0]).filter((y) => !nearMine.some((n) => n.id === y.id));
     for (const y of blocked.slice(0, 2)) {
       const rule = YAKU_BY_ID[y.id];
       if (rule.group === "set" && typeof y.needed === "string" && r.captured[1].includes(y.needed)) {
@@ -10639,8 +10590,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     active: null
   });
   function validate(v) {
-    const wallet = v?.wallet;
-    if (wallet !== void 0 && (!wallet || !Number.isSafeInteger(wallet.coins) || wallet.coins < 0 || !(wallet.lastFreeRefill === null || /^\d{4}-\d{2}-\d{2}$/.test(wallet.lastFreeRefill)))) throw new Error("\u30B3\u30A4\u30F3\u306E\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002");
     if (!v || v.version !== 1 || !Number.isInteger(v.travelUnlocked) || v.travelUnlocked < 1 || v.travelUnlocked > 12 || !Number.isInteger(v.travelCleared) || v.travelCleared < 0 || v.travelCleared > 12 || !Array.isArray(v.seen) || !v.quiz || !v.stats || !v.settings || !["full", "brief", "none"].includes(v.settings.narration) || typeof v.settings.beginner !== "boolean" || v.settings.sound !== void 0 && typeof v.settings.sound !== "boolean" || v.tutorialCompleted !== void 0 && typeof v.tutorialCompleted !== "boolean" || !v.active && v.active !== null) throw new Error("\u4FDD\u5B58\u30C7\u30FC\u30BF\u304C\u4E0D\u6B63\u3067\u3059\u3002\u4E0A\u66F8\u304D\u305B\u305A\u306B\u505C\u6B62\u3057\u307E\u3057\u305F\u3002");
   }
   var store2 = createJsonStore({ store: window.localStorage, key: KEY, createInitial: initial, validate });
@@ -10650,6 +10599,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var screen = "home";
   var selectedHand = null;
   var selectedCard = null;
+  if (removeLegacyWagerFields(state)) store2.write(state);
   var TUTORIAL_INTRO_VERSION = 10;
   var TUTORIAL_QUIZ_PHASE = 5;
   if (state.tutorialIntroCompleted === void 0 && (state.tutorialQuizCompleted ?? (state.tutorialCompleted || state.active?.tutorialIntroVersion !== TUTORIAL_INTRO_VERSION && (state.active?.tutorialMonthAnswers?.length ?? 0) >= 2))) {
@@ -10678,7 +10628,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   var gameDialogReturn = null;
   var pendingStart = null;
   var turnPresentation = null;
-  var bettingRate = 0;
   var matchLength = 3;
   var ports = createNativePorts();
   var layout = createDeviceLayout({ root: document.documentElement, native: ports.native });
@@ -10725,9 +10674,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function esc(v) {
     return String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  }
-  function n(v) {
-    return Number(v).toLocaleString("ja-JP");
   }
   function photo(id) {
     return card(id).asset;
@@ -10815,14 +10761,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   function inlineTeacher(description, { className = "", title = "", note = "", action = "", status = false } = {}) {
     return '<aside class="teacher-bubble inline-teacher ' + className + '" aria-label="\u5148\u751F\u306E\u6848\u5185">' + teacherAvatar() + '<div class="teacher-speech"' + (status ? ' role="status"' : "") + ">" + (note ? "<small>" + esc(note) + "</small>" : "") + (title ? "<h3>" + esc(title) + "</h3>" : "") + "<p>" + (Array.isArray(description) ? phrases(description) : esc(description)) + "</p></div>" + action + "</aside>";
   }
-  function optionChip(action, value, label, selected, disabled = false) {
-    return '<button type="button" class="chip' + (selected ? " active" : "") + '" data-action="' + action + '" data-value="' + value + '" aria-pressed="' + selected + '"' + (disabled ? " disabled" : "") + ">" + label + "</button>";
+  function optionChip(action, value, label, selected) {
+    return '<button type="button" class="chip' + (selected ? " active" : "") + '" data-action="' + action + '" data-value="' + value + '" aria-pressed="' + selected + '">' + label + "</button>";
   }
-  function matchChoices(label, action, options, selected, locked = false) {
-    return '<div class="match-choices" role="group" aria-label="' + label + (locked ? "\uFF08\u30EC\u30FC\u30C8\u9023\u52D5\uFF09" : "") + '"><h2>' + label + (locked ? " <small>\u9023\u52D5</small>" : "") + "</h2><div>" + options.map(([value, text]) => optionChip(action, value, text, value === selected, locked)).join("") + "</div></div>";
+  function matchChoices(label, action, options, selected) {
+    return '<div class="match-choices" role="group" aria-label="' + label + '"><h2>' + label + "</h2><div>" + options.map(([value, text]) => optionChip(action, value, text, value === selected)).join("") + "</div></div>";
   }
   function matchOpponent() {
-    return OPPONENTS[(BETTING_DIFFICULTY.get(bettingRate) ?? freeDifficulty) - 1];
+    return OPPONENTS[freeDifficulty - 1];
   }
   var lastOpponentLines = /* @__PURE__ */ new Map();
   function nextOpponentLine(opponent) {
@@ -10832,38 +10778,14 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     return line;
   }
   function free() {
-    const betting = bettingRate !== 0;
-    const { coins } = state.wallet ?? createWallet();
     const opponent = matchOpponent();
     const line = lastOpponentLines.get(opponent.id) || nextOpponentLine(opponent);
-    return shell('<div class="match-menu feedback-match" aria-label="\u5BFE\u5C40\u306E\u652F\u5EA6"><div class="match-controls"><div class="betting-rates">' + matchChoices("\u30EC\u30FC\u30C8\uFF081\u70B9\u3042\u305F\u308A\uFF09", "betting-rate", [[0, "\u8CED\u3051\u306A\u3057"], ...[...BETTING_RATES].map(([rate, label]) => [rate, label + "\uFF08" + rate + "\uFF09"])], bettingRate) + "</div>" + matchChoices(
+    return shell('<div class="match-menu feedback-match" aria-label="\u5BFE\u5C40\u306E\u652F\u5EA6"><div class="match-controls">' + matchChoices(
       "\u76F8\u624B\u306E\u5F37\u3055",
       "difficulty",
       OPPONENTS.map((character, index) => [index + 1, character.label]),
-      OPPONENTS.indexOf(opponent) + 1,
-      betting
-    ) + matchChoices("\u5BFE\u5C40\u306E\u9577\u3055", "match-length", [[3, "3\u304B\u6708"], [6, "6\u304B\u6708"], [12, "12\u304B\u6708"]], matchLength) + matchChoices("\u521D\u5FC3\u8005\u30E2\u30FC\u30C9", "beginner", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.beginner) + matchChoices("\u5148\u751F\u306E\u89E3\u8AAC", "narration", [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]], state.settings.narration) + '<button class="match-start" data-action="start-free">\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button></div><div class="match-companion"><div class="match-wallet-slot"><div class="betting-options betting-wallet"><span class="coin-medallion" aria-hidden="true"></span><strong aria-label="\u6240\u6301\u30B3\u30A4\u30F3 ' + n(coins) + '">' + n(coins) + ' <small>\u30B3\u30A4\u30F3</small></strong><button data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button></div></div><div class="opponent-stage"><button type="button" class="match-portrait" data-action="opponent-line" aria-label="\u76F8\u624B\uFF08' + opponent.label + '\uFF09\u306E\u30BB\u30EA\u30D5" aria-controls="opponent-line"><img class="match-character" src="' + opponent.figure + '" alt=""></button><button type="button" class="teacher-bubble inline-teacher opponent-line" data-action="opponent-line" aria-label="\u76F8\u624B\u306E\u30BB\u30EA\u30D5\u3092\u5207\u308A\u66FF\u3048\u308B"><span class="teacher-speech" role="status" id="opponent-line">' + phrases(line) + "</span></button></div></div>" + inlineTeacher(betting ? ["\u5BFE\u5C40\u7D42\u4E86\u6642\u306B", "\u30EC\u30FC\u30C8\u306B\u5FDC\u3058\u3066", "\u5408\u8A08\u70B9\u306E\u5DEE\u3092", "\u7CBE\u7B97\u3057\u307E\u3059\u3002"] : ["\u5F37\u3055\u3092\u9078\u3093\u3067\u3001", "\u3053\u3044\u3053\u3044\u3092", "\u697D\u3057\u3082\u3046\u3002"]) + "</div>");
-  }
-  function openCoinRefill(invoker) {
-    state.wallet ??= createWallet();
-    const dialog = document.createElement("dialog");
-    dialog.className = "coin-refill-dialog";
-    dialog.setAttribute("aria-labelledby", "coin-refill-title");
-    showCoinChoices(dialog);
-    document.body.append(dialog);
-    dialog.addEventListener("close", () => {
-      dialog.remove();
-      (invoker.isConnected ? invoker : $("app").querySelector('[data-action="coin-refill"]'))?.focus();
-    }, { once: true });
-    dialog.showModal();
-  }
-  function showCoinChoices(dialog) {
-    const freeAvailable = canRefillForFree(state.wallet);
-    dialog.innerHTML = '<h2 id="coin-refill-title">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</h2><p>\u6240\u6301\u30B3\u30A4\u30F3 <strong>' + n(state.wallet.coins) + " \u30B3\u30A4\u30F3</strong></p>" + (state.wallet.coins < MIN_COINS ? "<p>\u30EC\u30FC\u30C8\u3092\u4F7F\u3046\u5BFE\u5C40\u306B\u306F100\u30B3\u30A4\u30F3\u4EE5\u4E0A\u5FC5\u8981\u3067\u3059\u3002\u8CED\u3051\u306A\u3057\u306A\u3089\u3001\u30B3\u30A4\u30F3\u306A\u3057\u3067\u904A\u3079\u307E\u3059\u3002</p>" : "") + '<button class="primary" data-action="coin-free-claim" ' + (freeAvailable ? "" : "disabled") + ">\u7121\u6599\u3067\u3082\u3089\u3046\uFF081\u65E51\u56DE\uFF09 \uFF0B" + n(FREE_COINS) + " \u30B3\u30A4\u30F3</button>" + (!freeAvailable ? "<small>\u672C\u65E5\u306E\u7121\u6599\u5206\u306F\u53D7\u3051\u53D6\u308A\u6E08\u307F\u3067\u3059</small>" : "") + '<button class="secondary" data-action="coin-ad">\u5E83\u544A\u3067\u3082\u3089\u3046 \uFF0B' + n(AD_COINS) + ' \u30B3\u30A4\u30F3</button><button class="back-control" data-action="coin-close">\u623B\u308B</button>';
-  }
-  function showRefillAdPreview(dialog) {
-    dialog.innerHTML = '<h2 id="coin-refill-title">\u5E83\u544A\u3067\u3082\u3089\u3046</h2><p>\u30A2\u30D7\u30EA\u7248\u3067\u306F\u3053\u3053\u306B\u5E83\u544A\u304C\u8868\u793A\u3055\u308C\u307E\u3059\u3002\u5B8C\u4E86\u3092\u62BC\u3059\u3068' + n(AD_COINS) + '\u30B3\u30A4\u30F3\u53D7\u3051\u53D6\u308C\u307E\u3059\u3002</p><button class="primary" data-action="coin-ad-claim">\u5B8C\u4E86</button><button class="back-control" data-action="coin-ad-back">\u623B\u308B</button>';
-    dialog.querySelector('[data-action="coin-ad-claim"]').focus();
+      freeDifficulty
+    ) + matchChoices("\u5BFE\u5C40\u306E\u9577\u3055", "match-length", [[3, "3\u304B\u6708"], [6, "6\u304B\u6708"], [12, "12\u304B\u6708"]], matchLength) + matchChoices("\u521D\u5FC3\u8005\u30E2\u30FC\u30C9", "beginner", [[true, "\u30AA\u30F3"], [false, "\u30AA\u30D5"]], state.settings.beginner) + matchChoices("\u5148\u751F\u306E\u89E3\u8AAC", "narration", [["full", "\u304F\u308F\u3057\u304F"], ["brief", "\u77ED\u304F"], ["none", "\u306A\u3057"]], state.settings.narration) + '<button class="match-start" data-action="start-free">\u5BFE\u5C40\u3092\u59CB\u3081\u308B</button></div><div class="match-companion"><div class="opponent-stage"><button type="button" class="match-portrait" data-action="opponent-line" aria-label="\u76F8\u624B\uFF08' + opponent.label + '\uFF09\u306E\u30BB\u30EA\u30D5" aria-controls="opponent-line"><img class="match-character" src="' + opponent.figure + '" alt=""></button><button type="button" class="teacher-bubble inline-teacher opponent-line" data-action="opponent-line" aria-label="\u76F8\u624B\u306E\u30BB\u30EA\u30D5\u3092\u5207\u308A\u66FF\u3048\u308B"><span class="teacher-speech" role="status" id="opponent-line">' + phrases(line) + "</span></button></div></div>" + inlineTeacher(["\u5F37\u3055\u3092\u9078\u3093\u3067\u3001", "\u3053\u3044\u3053\u3044\u3092", "\u697D\u3057\u3082\u3046\u3002"]) + "</div>");
   }
   function openCardZoom(id, invoker) {
     const c = card(id), dialog = document.createElement("dialog");
@@ -10951,7 +10873,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function showAdRemoval(invoker) {
     const dialog = document.createElement("dialog");
-    dialog.className = "coin-refill-dialog ad-removal-dialog";
+    dialog.className = "ad-removal-dialog";
     dialog.setAttribute("aria-labelledby", "ad-removal-title");
     dialog.innerHTML = '<h2 id="ad-removal-title">\u5E83\u544A\u306E\u975E\u8868\u793A</h2>' + (ports.native ? '<p>\u30D0\u30CA\u30FC\u3068\u5168\u753B\u9762\u5E83\u544A\u3092\u975E\u8868\u793A\u306B\u3057\u307E\u3059\u3002</p><p role="status">' + esc(purchaseStatus) + '</p><button class="primary" data-action="buy-remove-ads" ' + (ads.status().owned ? "disabled" : "") + '>\u8CFC\u5165\u3059\u308B</button><button class="secondary" data-action="restore-remove-ads">\u8CFC\u5165\u3092\u5FA9\u5143</button>' : "<p>\u30A2\u30D7\u30EA\u7248\u3067\u63D0\u4F9B\u4E88\u5B9A\u3067\u3059\u3002Web\u7248\u3067\u306F\u8CFC\u5165\u3067\u304D\u307E\u305B\u3093\u3002</p>") + '<form method="dialog"><button class="back-control">\u623B\u308B</button></form>';
     dialog.addEventListener("close", () => {
@@ -11038,7 +10960,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (teach && (r.phase === "game-end" || r.phase === "round-end")) {
       const practiceResult = g.tutorialStep === 6 && r.result.winner === 0;
       const settled = practiceResult ? evaluate(r.captured[0]).yakus.map((yaku) => yaku.name).join("\u30FB") + " " + r.result.raw + "\u70B9\u3002\u5F97\u70B9" + r.result.points + "\u70B9\u304C\u78BA\u5B9A\u3057\u305F\u3088\u3002" : "";
-      return { step: "\u7DF4\u7FD2\u304A\u308F\u308A", title: g.tutorialStep === 6 ? "\u7DF4\u7FD2\u5B8C\u4E86\uFF01" : r.result.winner === 0 ? "\u306F\u3058\u3081\u3066\u306E\u4E00\u5C40\u3001\u3067\u304D\u305F\u306D\uFF01" : "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: settled || "\u82B1\u672D\u3092\u5408\u308F\u305B\u3066\u3001\u5F79\u3092\u4F5C\u3063\u3066\u3001\u6700\u5F8C\u306B\u81EA\u5206\u3067\u9078\u3079\u305F\u306D\u3002\u3053\u308C\u3067\u57FA\u672C\u306E\u904A\u3073\u65B9\u306F\u3070\u3063\u3061\u308A\u3002\u6B21\u306F\u8CED\u3051\u306A\u3057\u3067\u5BFE\u5C40\u3057\u3066\u307F\u3088\u3046\u3002", action: (g.tutorialSingleStep ? "" : '<button class="primary" data-action="tutorial-free">\u8CED\u3051\u306A\u3057\u3078 \u203A</button>') + backButton("tutorial-menu", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078"), visual: "complete" };
+      return { step: "\u7DF4\u7FD2\u304A\u308F\u308A", title: g.tutorialStep === 6 ? "\u7DF4\u7FD2\u5B8C\u4E86\uFF01" : r.result.winner === 0 ? "\u306F\u3058\u3081\u3066\u306E\u4E00\u5C40\u3001\u3067\u304D\u305F\u306D\uFF01" : "\u4E00\u5C40\u304A\u3064\u304B\u308C\u3055\u307E\uFF01", description: settled || "\u82B1\u672D\u3092\u5408\u308F\u305B\u3066\u3001\u5F79\u3092\u4F5C\u3063\u3066\u3001\u6700\u5F8C\u306B\u81EA\u5206\u3067\u9078\u3079\u305F\u306D\u3002\u3053\u308C\u3067\u57FA\u672C\u306E\u904A\u3073\u65B9\u306F\u3070\u3063\u3061\u308A\u3002\u6B21\u306F\u5BFE\u5C40\u3057\u3066\u307F\u3088\u3046\u3002", action: (g.tutorialSingleStep ? "" : '<button class="primary" data-action="tutorial-free">\u5BFE\u5C40\u3078 \u203A</button>') + backButton("tutorial-menu", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078"), visual: "complete" };
     }
     if (teach && r.phase === "hand" && r.current === 0) {
       if (g.tutorialHint) return { step: "\u672D\u3092\u9078\u3076", title: "\u3086\u3063\u304F\u308A\u63A2\u3057\u3066\u307F\u3088\u3046", description: g.tutorialHint, action: "" };
@@ -11056,7 +10978,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (teach && r.phase === "draw-target" && r.current === 0) return { step: "\u5C71\u672D\u306E\u672D\u3092\u5408\u308F\u305B\u308B", title: "\u5C71\u672D\u304B\u3089\u3082\u540C\u3058\u6708\u3092\u63A2\u305D\u3046", description: card(r.pendingDraw).month + "\u6708\u306E\u672D\u304C\u51FA\u305F\u306D\u3002\u540C\u3058\u6708\u306E\u5834\u672D\u3092\u30BF\u30C3\u30D7\u3057\u3066\u5408\u308F\u305B\u3088\u3046\u3002", action: "" };
     if (teach && r.phase === "hand" && r.current === 1) return { step: "\u76F8\u624B\u306E\u756A", title: "\u76F8\u624B\u3082\u4E00\u679A\u305A\u3064\u904A\u3076\u3088", description: "\u76F8\u624B\u306E\u624B\u672D\u306F\u88CF\u5411\u304D\u3002\u3069\u306E\u672D\u3092\u6301\u3063\u3066\u3044\u308B\u304B\u306F\u5206\u304B\u3089\u306A\u3044\u3093\u3060\u3002", action: "" };
     if (r.phase === "hand" && r.current === 0) {
-      if (!selected) return { step: "\u3042\u306A\u305F\u306E\u756A", title: "\u624B\u672D\u30921\u679A\u30BF\u30C3\u30D7", description: guide.brief, action: g.matchLesson || g.betting ? "" : '<button class="coach-detail" data-action="show-guide">\u5148\u751F\u306B\u805E\u304F \u203A</button>' };
+      if (!selected) return { step: "\u3042\u306A\u305F\u306E\u756A", title: "\u624B\u672D\u30921\u679A\u30BF\u30C3\u30D7", description: guide.brief, action: g.matchLesson ? "" : '<button class="coach-detail" data-action="show-guide">\u5148\u751F\u306B\u805E\u304F \u203A</button>' };
       const c = card(selected), matches = matching(r.field, selected);
       return { step: "\u672D\u3092\u5408\u308F\u305B\u308B", title: matches.length ? "\u540C\u3058\u6708\u306E\u672D\u3092\u30BF\u30C3\u30D7" : "\u5834\u306B\u51FA\u3059", description: c.month + "\u6708 " + c.flower + "\u300C" + c.subject + "\u300D\u3092\u9078\u3093\u3060\u3088\u3002", action: matches.length ? "" : '<button class="primary" data-action="play-selected">\u5834\u306B\u51FA\u3059</button>' };
     }
@@ -11085,9 +11007,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     const matchWinner = mine === opponent ? null : Number(mine < opponent);
     const yakus = winner === null ? [] : reason === "te-shi" ? [{ name: "\u624B\u56DB", points }] : reason === "kuttsuki" ? [{ name: "\u304F\u3063\u3064\u304D", points }] : evaluate(g.round.captured[winner]).yakus;
     const won = (finale ? matchWinner : winner) === 0;
-    const coins = finale ? g.betting?.settlement : null;
     const action = g.finished ? g.matchLesson ? backButton("finish-match-lesson", "\u30B9\u30C6\u30C3\u30D7\u4E00\u89A7\u3078") : backButton("home", "\u30DB\u30FC\u30E0\u3078\u623B\u308B") : '<button class="primary" data-action="next-round">\u6B21\u306E\u5C40\u3078</button>';
-    return '<div class="teacher-dim" aria-hidden="true"></div><section class="result table-panel' + (finale ? " match-finale" : "") + (coins ? " betting-finale" : "") + (won ? " result-win" : "") + '" role="dialog" aria-modal="true" aria-labelledby="result-title"><span class="result-label">' + (finale ? "\u5BFE\u5C40\u7D50\u679C" : "\u7B2C" + (g.index + 1) + "\u5C40\u306E\u7D50\u679C") + '</span><h2 id="result-title">' + resultTitle(finale ? matchWinner : winner) + "</h2>" + (finale ? '<p class="match-totals" aria-label="\u5BFE\u5C40\u306E\u5408\u8A08\u70B9"><span>\u3042\u306A\u305F <b>' + mine + "\u70B9</b></span> \uFF0F <span>\u76F8\u624B <b>" + opponent + "\u70B9</b></span></p>" : "") + '<div class="round-settlement"><p>' + (finale ? "\u6700\u7D42\u5C40 \xB7 " + resultTitle(winner) + "\u3000" : "") + "\u5F97\u70B9 <strong>" + points + "\u70B9</strong>" + (multiplier > 1 ? ' <span class="result-multiplier">\uFF08' + raw + "\u70B9 \xD7 " + multiplier + "\u500D\uFF09</span>" : "") + "</p>" + (yakus.length ? yakuNames(yakus) : "") + "</div>" + (coins ? '<div class="coin-result"><div><span>\u30B3\u30A4\u30F3\u306E\u5897\u6E1B</span><strong>' + (coins.change > 0 ? "+" : coins.change < 0 ? "\u2212" : "") + n(Math.abs(coins.change)) + " \u30B3\u30A4\u30F3</strong></div><div><span>\u7CBE\u7B97\u5F8C\u306E\u6240\u6301\u30B3\u30A4\u30F3</span><strong>" + n(coins.balance) + " \u30B3\u30A4\u30F3</strong></div></div>" : "") + '<div class="result-action">' + (coins && state.wallet.coins < MIN_COINS ? '<button class="secondary" data-action="coin-refill">\u30B3\u30A4\u30F3\u3092\u3082\u3089\u3046</button>' : "") + action + "</div>" + (won ? celebrationPetals() : "") + "</section>";
+    return '<div class="teacher-dim" aria-hidden="true"></div><section class="result table-panel' + (finale ? " match-finale" : "") + (won ? " result-win" : "") + '" role="dialog" aria-modal="true" aria-labelledby="result-title"><span class="result-label">' + (finale ? "\u5BFE\u5C40\u7D50\u679C" : "\u7B2C" + (g.index + 1) + "\u5C40\u306E\u7D50\u679C") + '</span><h2 id="result-title">' + resultTitle(finale ? matchWinner : winner) + "</h2>" + (finale ? '<p class="match-totals" aria-label="\u5BFE\u5C40\u306E\u5408\u8A08\u70B9"><span>\u3042\u306A\u305F <b>' + mine + "\u70B9</b></span> \uFF0F <span>\u76F8\u624B <b>" + opponent + "\u70B9</b></span></p>" : "") + '<div class="round-score"><p>' + (finale ? "\u6700\u7D42\u5C40 \xB7 " + resultTitle(winner) + "\u3000" : "") + "\u5F97\u70B9 <strong>" + points + "\u70B9</strong>" + (multiplier > 1 ? ' <span class="result-multiplier">\uFF08' + raw + "\u70B9 \xD7 " + multiplier + "\u500D\uFF09</span>" : "") + "</p>" + (yakus.length ? yakuNames(yakus) : "") + '</div><div class="result-action">' + action + "</div>" + (won ? celebrationPetals() : "") + "</section>";
   }
   function gameDialogView(g) {
     if (!gameDialog || ["guide", "match-hint"].includes(gameDialog)) return "";
@@ -11304,7 +11225,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       }
       return;
     }
-    settleBettingMatch(state.wallet, g);
     recordFinishedGame(state, g);
   }
   function showYakuCelebration({ tier, yakus, cards, actor = 0 }) {
@@ -11589,7 +11509,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     selectedHand = null;
     if (before) g.pendingTurnPresentation = true;
-    if (g.betting && g.finished) recordIfDone();
     save();
     const presentationOptions = { matchLesson: g.matchLesson === 6 };
     if (before && !await replayMoves(before, g.round, { ...presentationOptions, teachingStock: g.tutorial || g.matchLesson === 7 })) return;
@@ -11633,12 +11552,11 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       await ads.recordCommittedAction();
     }
   }
-  function startFreeMatch({ length, beginner, difficulty, rate = null }, confirmed = false) {
-    if (!confirmed && requestStartConfirmation(() => startFreeMatch({ length, beginner, difficulty, rate }, true))) return;
+  function startFreeMatch({ length, beginner, difficulty }, confirmed = false) {
+    if (!confirmed && requestStartConfirmation(() => startFreeMatch({ length, beginner, difficulty }, true))) return;
     state.active = createGame({ mode: "free", length, month: 1, beginner, difficulty });
     state.active.difficulty = difficulty;
     delete state.savedMatch;
-    if (rate !== null) state.active.betting = { rate };
     selectedHand = null;
     gameDialog = null;
     gameDialogReturn = null;
@@ -11724,49 +11642,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       }
       return;
     }
-    const refillDialog = button.closest?.(".coin-refill-dialog");
-    if (refillDialog) {
-      if (!refillDialog.open) return;
-      if (action === "coin-close") {
-        refillDialog.close();
-        return;
-      }
-      if (action === "coin-ad-back") {
-        showCoinChoices(refillDialog);
-        refillDialog.querySelector('[data-action="coin-ad"]').focus();
-        return;
-      }
-      if (action === "coin-ad") {
-        if (!ports.native) {
-          showRefillAdPreview(refillDialog);
-          return;
-        }
-        button.disabled = true;
-        try {
-          if (await ads.showRewarded()) {
-            state.wallet.coins += AD_COINS;
-            save();
-            refillDialog.close();
-            render();
-          }
-        } catch (err) {
-          toast("\u5E83\u544A\u3092\u8868\u793A\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002" + err.message);
-        } finally {
-          button.disabled = false;
-        }
-        return;
-      }
-      const today = localDay();
-      if (action === "coin-free-claim") {
-        if (!canRefillForFree(state.wallet, today)) return;
-        state.wallet.lastFreeRefill = today;
-      } else if (ports.native || action !== "coin-ad-claim") return;
-      state.wallet.coins += action === "coin-free-claim" ? FREE_COINS : AD_COINS;
-      save();
-      refillDialog.close();
-      render();
-      return;
-    }
     if (action === "swing-title") {
       swingTitle(button);
       return;
@@ -11777,10 +11652,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     }
     if (action === "ad-removal") {
       showAdRemoval(button);
-      return;
-    }
-    if (action === "coin-refill") {
-      openCoinRefill(button);
       return;
     }
     if (action === "dismiss-toast") {
@@ -11883,7 +11754,6 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       screen = "learn";
     } else if (action === "free") {
       screen = "free";
-      bettingRate = 0;
       matchLength = 3;
     } else if (action === "cards") {
       studyMonth = 1;
@@ -12000,29 +11870,8 @@ Enter "E" to fail with an error.Anything else to cancel.`);
       return;
     } else if (action === "match-length") {
       matchLength = Number(val);
-    } else if (action === "betting-rate") {
-      bettingRate = Number(val);
-      if (bettingRate && !state.wallet) {
-        state.wallet = createWallet();
-        save();
-      }
-      if (bettingRate && state.wallet.coins < MIN_COINS) {
-        render();
-        openCoinRefill($("app").querySelector('[data-action="coin-refill"]'));
-        return;
-      }
     } else if (action === "start-free") {
-      const rate = bettingRate || null;
-      if (rate !== null && state.wallet.coins < MIN_COINS) {
-        openCoinRefill(button);
-        return;
-      }
-      startFreeMatch({
-        length: matchLength,
-        beginner: state.settings.beginner,
-        difficulty: rate === null ? freeDifficulty : BETTING_DIFFICULTY.get(rate),
-        rate
-      });
+      startFreeMatch({ length: matchLength, beginner: state.settings.beginner, difficulty: freeDifficulty });
       return;
     } else if (action === "zoom-yaku-card") {
       openCardZoom(id, button);
