@@ -102,7 +102,8 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-resume {
 }
 html[data-hanafuda-preview="stage5"] .scene-home .home-object:active,
 html[data-hanafuda-preview="stage5"] .scene-home .home-resume:active {
-  animation: none;
+  /* Do not cancel the entrance animation on touch: reapplying it on
+     release restarts its opacity-from-zero keyframes (the reported blink). */
   transform: scale(.97);
   box-shadow: none;
   filter: none;
@@ -179,17 +180,22 @@ html:not([data-hanafuda-preview="stage5"]) .scene-home :is(.engawa-title, .engaw
   position: absolute;
   top: 0;
   left: var(--leaf-x);
-  width: min(1cqw, 2cqh);
-  height: min(.55cqw, 1.2cqh);
+  width: min(1.8cqw, 3.6cqh);
+  height: min(1.15cqw, 2.35cqh);
   border-radius: 75% 25% 65% 35%;
   background: #e6a1ae;
   opacity: 0;
+  filter: drop-shadow(0 1px 2px #180b1255);
   animation: title-leaf var(--leaf-duration) var(--leaf-delay) linear infinite;
 }
-.engawa-atmosphere i:nth-child(1) { --leaf-x: 18%; --leaf-duration: 17s; --leaf-delay: -5s; }
-.engawa-atmosphere i:nth-child(2) { --leaf-x: 83%; --leaf-duration: 20s; --leaf-delay: -13s; }
-.engawa-atmosphere i:nth-child(3) { --leaf-x: 92%; --leaf-duration: 22s; --leaf-delay: -2s; }
-.engawa-atmosphere i:nth-child(4) { --leaf-x: 46%; --leaf-duration: 19s; --leaf-delay: -14s; }
+.engawa-atmosphere i:nth-child(1) { --leaf-x: 18%; --leaf-duration: 11s; --leaf-delay: -4s; }
+.engawa-atmosphere i:nth-child(2) { --leaf-x: 83%; --leaf-duration: 13s; --leaf-delay: -9s; }
+.engawa-atmosphere i:nth-child(3) { --leaf-x: 92%; --leaf-duration: 12s; --leaf-delay: -2s; }
+.engawa-atmosphere i:nth-child(4) { --leaf-x: 46%; --leaf-duration: 14s; --leaf-delay: -11s; }
+.engawa-atmosphere i:nth-child(5) { --leaf-x: 35%; --leaf-duration: 12s; --leaf-delay: -7s; }
+.engawa-atmosphere i:nth-child(6) { --leaf-x: 68%; --leaf-duration: 15s; --leaf-delay: -12s; }
+.engawa-atmosphere i:nth-child(7) { --leaf-x: 77%; --leaf-duration: 13s; --leaf-delay: -5s; }
+.engawa-atmosphere i:nth-child(8) { --leaf-x: 12%; --leaf-duration: 14s; --leaf-delay: -10s; }
 .engawa-atmosphere i:nth-child(odd) {
   background: #b8562e;
   clip-path: polygon(0 45%, 30% 40%, 20% 8%, 48% 25%, 62% 0, 71% 30%, 100% 22%, 82% 64%, 57% 90%, 44% 68%, 22% 100%, 34% 65%);
