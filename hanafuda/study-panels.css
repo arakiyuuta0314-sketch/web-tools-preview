@@ -353,6 +353,8 @@
 }
 .feedback-match .match-companion {
   grid-area:companion;
+  min-width:0;
+  width:100%;
   min-height:0;
   display:flex;
   flex-direction:column;
@@ -364,15 +366,25 @@
 .match-controls .match-start {font-size:17px}
 .feedback-match > .inline-teacher {grid-area:guide}
 .opponent-stage {
-  position:relative;width:100%;flex:1;min-height:0;
-  display:grid;grid-template-columns:minmax(0,1fr) auto;
-  grid-template-rows:minmax(0,1fr);align-items:center;
+  position:relative;
+  width:100%;
+  min-width:0;
+  flex:1;
+  min-height:0;
+  display:grid;
+  /* Reserve actual space for BOTH speech and portrait; avoid an auto-width
+     portrait pushing the speech into a narrow strip and past the controls. */
+  grid-template-columns:minmax(0,1fr) minmax(0,.84fr);
+  grid-template-rows:minmax(0,1fr);
+  align-items:center;
 }
 .tutorial-aligned .feedback-match .match-portrait {
   display:block;
-  width:auto;
+  width:100%;
+  max-width:100%;
   height:100%;
-  aspect-ratio:57/110;
+  aspect-ratio:auto;
+  min-width:0;
   min-height:0;
   padding:0;
   background:none;
@@ -392,10 +404,14 @@
   display:block;
   grid-column:1;
   grid-row:1;
-  justify-self:end;
-  margin-inline-end:-7px;
+  justify-self:stretch;
+  margin-inline-end:0;
+  min-width:0;
+  max-width:100%;
   z-index:1;
-  width:min(100%,190px);
+  width:100%;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
   padding:7px 8px;
   text-align:left;
   pointer-events:auto;

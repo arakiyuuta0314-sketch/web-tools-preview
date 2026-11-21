@@ -10792,7 +10792,7 @@ Enter "E" to fail with an error.Anything else to cancel.`);
   }
   function home() {
     const canResume = canResumeGame(savedMatch()) || canResumeGame(state.active);
-    return shell('<div class="hub home-redesign"><div class="engawa-title"><h1 class="engawa-heading"><button type="button" class="engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"><span class="engawa-title-lettering"><span class="engawa-kicker">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D</span><span class="engawa-name">\u3053\u3044\u3053\u3044</span></span></button></h1></div><button class="home-object engawa-board home-free" type="button" data-action="free"><span class="engawa-label">\u5BFE\u5C40</span></button><button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial"><span class="engawa-label">\u304A\u7A3D\u53E4</span></button><button class="home-object engawa-board home-dictionary" type="button" data-action="learn"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume"><span>\u7D9A\u304D\u304B\u3089\u518D\u958B</span></button>' : "") + '<button class="home-object home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span aria-hidden="true">\u2699</span></button><div class="engawa-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>');
+    return shell('<div class="hub home-redesign"><div class="engawa-title"><h1 class="engawa-heading"><button type="button" class="engawa-title-art" data-action="swing-title" aria-label="\u306F\u3058\u3081\u3066\u306E\u82B1\u672D \u3053\u3044\u3053\u3044"><span class="engawa-title-lettering"><span class="engawa-kicker">\u306F\u3058\u3081\u3066\u306E\u82B1\u672D</span><span class="engawa-name">\u3053\u3044\u3053\u3044</span></span></button></h1></div><button class="home-object engawa-board home-free" type="button" data-action="free"><span class="engawa-label">\u5BFE\u5C40</span></button><button class="home-object engawa-board home-tutorial" type="button" data-action="start-tutorial"><span class="engawa-label">\u304A\u7A3D\u53E4</span></button><button class="home-object engawa-board home-dictionary" type="button" data-action="learn"><span class="engawa-label">\u56F3\u9451\u30FB\u30AF\u30A4\u30BA</span></button>' + (canResume ? '<button class="home-resume" type="button" data-action="resume"><span>\u7D9A\u304D\u304B\u3089\u518D\u958B</span></button>' : "") + '<button class="home-object home-settings" type="button" data-action="settings" aria-label="\u8A2D\u5B9A"><span aria-hidden="true">\u2699</span></button><div class="engawa-atmosphere" aria-hidden="true">' + Array.from({ length: 8 }, () => "<i></i>").join("") + "</div></div>");
   }
   function phrases(parts) {
     return parts.map((part) => '<span class="phrase">' + esc(part) + "</span>").join("");
@@ -12126,20 +12126,17 @@ Enter "E" to fail with an error.Anything else to cancel.`);
     if (!control || control.disabled || enteringHomePlaque) return;
     const button = control.dataset.action ? control : { dataset: { action: control.dataset.teacherTap } };
     const activate = async () => {
-      const animatePlaque = document.documentElement.dataset.hanafudaPreview === "stage5" && control.matches(".scene-home .engawa-board,.scene-home .home-settings") && !matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!animatePlaque) return clickAction(button, event);
+      const pressHome = document.documentElement.dataset.hanafudaPreview === "stage5" && control.matches(".scene-home .engawa-board,.scene-home .home-resume,.scene-home .home-settings") && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!pressHome) return clickAction(button, event);
       enteringHomePlaque = true;
       try {
         await control.animate([
-          { rotate: "0deg" },
-          { rotate: "2deg", offset: 0.33 },
-          { rotate: "-1deg", offset: 0.72 },
-          { rotate: "0deg" }
-        ], { duration: 420, easing: "ease-in-out" }).finished.catch(() => {
+          { transform: "translateY(0) scale(1)", filter: "brightness(1)" },
+          { transform: "translateY(2px) scale(.97)", filter: "brightness(.9)" }
+        ], { duration: 125, easing: "ease-out", fill: "forwards" }).finished.catch(() => {
         });
         if (!control.isConnected) return;
         await clickAction(button, event);
-        $("app").querySelector(".shell:not(.scene-home) .scene-body")?.classList.add("entrance-arrival");
       } finally {
         enteringHomePlaque = false;
       }

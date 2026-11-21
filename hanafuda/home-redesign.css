@@ -22,7 +22,9 @@ html[data-hanafuda-preview="stage5"] .scene-home .home-tutorial{transform-origin
 html[data-hanafuda-preview="stage5"] .scene-home .home-free,
 html[data-hanafuda-preview="stage5"] .scene-home .home-dictionary{transform-origin:50% 8%;}
 html[data-hanafuda-preview="stage5"] .scene-home .home-settings{transform-origin:50% 10%;}
-html[data-hanafuda-preview="stage5"] .scene-home .home-object:active{animation:home-sign-sway .28s ease-in-out;filter:brightness(1.08);}
+/* Keep the entrance keyframes uninterrupted on touch; replacing their animation
+   during :active made opacity restart from zero when the finger was released. */
+html[data-hanafuda-preview="stage5"] .scene-home .home-object:active{filter:brightness(1.08);}
 html[data-hanafuda-preview="stage5"] .scene-home .home-object:focus-visible{outline:3px solid #ffe6a8;outline-offset:-8px;border-radius:12px;}
 html[data-hanafuda-preview="stage5"] .scene-home .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
 @keyframes home-sign-sway{0%,100%{rotate:0deg}25%{rotate:-1.2deg}65%{rotate:.9deg}}
