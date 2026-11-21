@@ -968,7 +968,7 @@
 .panel-yaku b,.result-multiplier,.result-label {color:#f4cf88}
 .result-label {font-size:13px}
 .play-layout .result.table-panel p {margin:0;color:#fff2d4;font-size:15px}
-.round-settlement {display:grid;gap:4px}
+.round-score {display:grid;gap:4px}
 .play-layout .result.match-finale {width:min(530px,calc(100% - 24px));gap:10px;padding-block:16px}
 .play-layout .result.match-finale h2 {font-size:clamp(30px,5vw,46px)}
 .match-finale .match-totals {border-block:1px solid #cba87580;padding:6px 12px}

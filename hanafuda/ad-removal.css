@@ -1,0 +1,16 @@
+.ad-removal-dialog {
+  box-sizing:border-box;
+  width:min(350px,calc(100% - 28px));
+  max-height:calc(100dvh - 24px);
+  padding:16px;
+  border:1px solid #b89157;
+  border-radius:16px;
+  background:#fbefcf;
+  color:#432c20;
+  text-align:center;
+}
+.ad-removal-dialog::backdrop {background:#211810b5}
+.ad-removal-dialog h2,.ad-removal-dialog p {margin:0 0 8px}
+.ad-removal-dialog small {display:block;margin-bottom:6px}
+.ad-removal-dialog button {display:block;width:100%;margin:4px 0}
+.ad-removal-dialog button:disabled {opacity:.55;cursor:default}
