@@ -1164,8 +1164,8 @@
           },
           {
             id: "sword",
-            x: 6,
-            y: 3,
+            x: 10,
+            y: 7,
             kind: "sword",
             name: "\u53E4\u3044\u5263"
           }
@@ -15181,32 +15181,6 @@
     return [...groups[Math.floor(rng() * groups.length)]];
   }
 
-  // src/game/battle-formation-layout.mjs
-  function battleFormationSlots(width, height, { enemies = 1, allies = 1 } = {}) {
-    if (!Number.isFinite(width) || !Number.isFinite(height) || width < 220 || height < 165)
-      throw Error("Invalid formation view dimensions");
-    if (!Number.isInteger(enemies) || enemies < 1 || enemies > 4 || !Number.isInteger(allies) || allies < 1 || allies > 3)
-      throw Error("Formation supports 1\u20134 enemies and 1\u20133 allies");
-    const enemyFeet = Math.round(height * 0.82);
-    const allyFeet = Math.round(height * 0.84);
-    const foeCenter = width * 0.5, friendCenter = width * 0.86;
-    const stride = Math.min(132, Math.floor(width / (enemies + 0.2)));
-    const positions = (count, center, feet) => Array.from({ length: count }, (_, i) => Object.freeze({
-      x: Math.round(center + (i - (count - 1) / 2) * stride),
-      feet: feet - i % 2 * Math.round(Math.min(12, height * 0.04))
-    }));
-    return Object.freeze({
-      enemies: positions(enemies, foeCenter, enemyFeet),
-      allies: positions(allies, friendCenter, allyFeet)
-    });
-  }
-  function enemySlotAt(width, height, count, x, y) {
-    const { enemies } = battleFormationSlots(width, height, { enemies: count });
-    const halfWidth = Math.min(132, Math.floor(width / (count + 0.2))) / 2;
-    const index = enemies.findIndex((point) => Math.abs(point.x - x) < halfWidth && y >= point.feet - 128 && y <= point.feet + 33);
-    return index < 0 ? null : index;
-  }
-
   // src/game/combat-visuals.mjs
   var clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   function combatFeedbackProgress(fx, now) {
@@ -16832,6 +16806,26 @@
     return details;
   }
 
+  // src/game/battle-formation-layout.mjs
+  function battleFormationSlots(width, height, { enemies = 1, allies = 1 } = {}) {
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width < 220 || height < 165)
+      throw Error("Invalid formation view dimensions");
+    if (!Number.isInteger(enemies) || enemies < 1 || enemies > 4 || !Number.isInteger(allies) || allies < 1 || allies > 3)
+      throw Error("Formation supports 1\u20134 enemies and 1\u20133 allies");
+    const enemyFeet = Math.round(height * 0.82);
+    const allyFeet = Math.round(height * 0.84);
+    const foeCenter = width * 0.5, friendCenter = width * 0.86;
+    const stride = Math.min(132, Math.floor(width / (enemies + 0.2)));
+    const positions = (count, center, feet) => Array.from({ length: count }, (_, i) => Object.freeze({
+      x: Math.round(center + (i - (count - 1) / 2) * stride),
+      feet: feet - i % 2 * Math.round(Math.min(12, height * 0.04))
+    }));
+    return Object.freeze({
+      enemies: positions(enemies, foeCenter, enemyFeet),
+      allies: positions(allies, friendCenter, allyFeet)
+    });
+  }
+
   // src/game/sfc-battle-stage.mjs
   var cache2 = /* @__PURE__ */ new Map();
   var paintedCastle = null;
@@ -17203,15 +17197,15 @@
     function floating(n, x, y, color2) {
       c.save();
       c.textAlign = "center";
-      c.font = "bold 21px monospace";
-      c.lineWidth = 4;
+      c.font = "900 28px monospace";
+      c.lineWidth = 6;
       c.strokeStyle = "#1c2430";
       c.strokeText(String(n), x, y - Math.round(27 * t));
       c.fillStyle = color2;
       c.fillText(String(n), x, y - Math.round(27 * t));
       c.restore();
     }
-    if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX, Math.max(61, (layout.enemyFoot ?? foot) - layout.enemySize - 8), fx.type === "spell" ? "#d9caff" : "#fff1d5");
+    if (fx.enemyDamage > 0) floating("-" + fx.enemyDamage, enemyX, Math.max(61, (layout.enemyFoot ?? foot) - layout.enemySize - 8), fx.type === "spell" ? "#ead9ff" : "#ffdc71");
     if (fx.playerDamage > 0) {
       floating("-" + fx.playerDamage, heroX, Math.max(60, heroY - 34), "#ffc2af");
     }
@@ -18356,7 +18350,7 @@
       const family = n.id === "refugee";
       if (family && intro.page === "royalReport" && !intro.entry) continue;
       const { x, y, facing } = family && intro.entry?.family ? intro.entry.family : { ...n, facing: npcFacing[n.kind] || "down" };
-      drawables.push({ x, y, depth: y, draw: (c, screen) => {
+      drawables.push({ x, y, depth: y, castId: n.id, draw: (c, screen) => {
         const [px, py] = screen(x, y);
         paintCast(c, npcCast(n) ?? "mobman", px + 12, py + 24, facing);
         if (family) {
@@ -18365,9 +18359,9 @@
         }
       } });
     }
-    if (m.id === "castle" && intro.page) {
+    if (m.id === "castle") {
       for (const [x, y, id] of [[4, 5, "mobman"], [5, 6, "mobwoman"], [10, 5, "mobold"], [11, 6, "mobman"]]) {
-        drawables.push({ x, y, depth: y, draw: (c, screen) => {
+        drawables.push({ x, y, depth: y, castId: id + "-" + x + "-" + y, draw: (c, screen) => {
           const [px, py] = screen(x, y);
           paintCast(c, id, px + 12, py + 24, x < 7 ? "right" : "left");
         } });
@@ -18393,7 +18387,7 @@
       if (!entityAt(s, m, obj.x, obj.y)) continue;
       const raider = obj.kind === "raider";
       if (raider && intro.page === "royalReport" && !intro.entry?.raider) continue;
-      const { x, y } = raider ? intro.entry?.raider ?? { x: obj.x, y: intro.raiderY ?? (intro.page === "pickup" && s.pos.x !== obj.x ? obj.y - 1 : obj.y) } : obj;
+      const { x, y } = raider ? intro.entry?.raider ?? { x: obj.x, y: obj.y } : obj;
       drawables.push({ x, y, depth: y, draw: (c, screen) => {
         const [px, py] = screen(x, y);
         if (obj.kind === "onyxBoss") paintCast(c, "voldo", px + 12, py + 24, "down");
@@ -18518,6 +18512,7 @@
       shot(c, x + 3, y - 16, 7, 1, "#e0dbb6");
     }
     c.restore();
+    return m.id === "castle" ? drawables.filter((actor) => actor.castId).map(({ castId, x, y }) => ({ id: castId, x, y })) : [];
   }
   var rooms = /* @__PURE__ */ new Map();
   function roomBackground(room) {
@@ -18606,6 +18601,22 @@
       size
     );
   }
+  function frontEnemySize(b, id) {
+    return id === "vold" ? 158 : b.tag === "tutorial" || b.tag === "random" ? 96 : 128;
+  }
+  function frontEnemyAt(width, height, b, x, y) {
+    const { enemies: slots } = battleFormationSlots(width, height, { enemies: b.enemies.length });
+    let slot = null, distance = Infinity;
+    for (const enemy of b.enemies) {
+      if (!enemy.hp) continue;
+      const center = slots[enemy.slot], size = frontEnemySize(b, enemy.id);
+      const dx = Math.abs(x - center.x);
+      if (dx > size / 2 || y < center.feet - size || y > center.feet + 19 || dx >= distance) continue;
+      slot = enemy.slot;
+      distance = dx;
+    }
+    return slot;
+  }
   function drawFight(canvas, b, impact = null, area = monsterById(b.id).area, selectedSlot = null) {
     const W2 = canvas.width, H2 = canvas.height;
     const ctx = canvas.getContext("2d", { alpha: false });
@@ -18613,17 +18624,20 @@
     const now = performance.now();
     paintSfcBattleBackground(ctx, W2, H2, area);
     const progress = impact?.reduced ? 0.25 : combatFeedbackProgress(impact, now);
-    const enemySize = (id) => id === "vold" ? 158 : b.tag === "tutorial" || b.tag === "random" ? 96 : 128;
+    const enemySize = (id) => frontEnemySize(b, id);
     const { enemies: slots } = battleFormationSlots(W2, H2, { enemies: b.enemies.length });
     for (const enemy of b.enemies) {
       const { x, feet } = slots[enemy.slot];
       const active = impact?.enemySlot === enemy.slot;
-      const hit = active && impact.enemyDamage > 0 && progress < 0.65;
+      const hit = active && impact.enemyDamage > 0 && progress < 0.8;
       const size = enemySize(enemy.id);
       if (enemy.hp === 0 && !(active && impact.defeated && progress < 0.85)) continue;
       ctx.save();
-      if (hit && Math.floor(progress * 18) % 2 === 0) ctx.globalAlpha = 0.45;
-      const shake = hit && !impact.reduced ? Math.round(Math.sin(progress * 55) * 5) : 0;
+      if (hit && (impact.reduced || Math.floor(progress * 12) % 2 === 0)) {
+        ctx.filter = "brightness(2.3) saturate(.55)";
+        ctx.globalAlpha = 0.68;
+      }
+      const shake = hit && !impact.reduced ? Math.round(Math.sin(progress * 52) * 11) : 0;
       paintFrontEnemy(ctx, enemy.id, x + shake, feet, size);
       ctx.restore();
       const barW = 52, barX = Math.round(x - barW / 2);
@@ -18897,7 +18911,7 @@
   // src/main.mjs
   validateConfig(app_config_default);
   var $ = (id) => document.getElementById(id);
-  $("build-id").textContent = "20261121-round-playback";
+  $("build-id").textContent = "20261121-castle-battle";
   $("privacy-link").href = app_config_default.privacyPolicyUrl;
   $("support-link").href = app_config_default.supportUrl;
   var auto = createJsonStore({ store: localStorage, key: app_config_default.storageNamespace + ".rpg.auto.v1", createInitial: () => createState(), validate: validateState });
@@ -19063,12 +19077,13 @@
       frame: t < 1 && (from.x !== rest2.x || from.y !== rest2.y) ? 1 + walkMotion.step % 2 : 0
     };
   }
+  var castleCast = [];
   function paintCurrentWorld() {
     const shot2 = introShot;
     const view = shot2 ? { ...state, pos: shot2.pos } : state;
-    const scene = { page: shot2?.page ?? introPage(state), entry: shot2?.entry, raiderY: shot2?.raiderY, swordGlow: shot2?.swordGlow };
+    const scene = { page: shot2?.page ?? introPage(state), entry: shot2?.entry, swordGlow: shot2?.swordGlow };
     const facingView = !shot2 && scene.page === "refugee" ? { ...view, pos: { ...view.pos, facing: "right" } } : view;
-    drawWorld($("game"), facingView, lightSteps, shot2?.motion ?? walkMotion, leafNpcFacing, explorationPixels, followerPosition(), scene);
+    castleCast = drawWorld($("game"), facingView, lightSteps, shot2?.motion ?? walkMotion, leafNpcFacing, explorationPixels, followerPosition(), scene);
   }
   function paintCurrentRoom() {
     drawRoom($("game"), interior, roomMotion, explorationPixels, LUCA_JOIN.includes(queue[0]));
@@ -19148,11 +19163,13 @@
     $("dialogue").classList.toggle("can-advance", canAdvance);
     const status = $("battle-status");
     status.hidden = !battle;
-    $("battle-status-name").closest(".battle-member").classList.toggle(
-      "is-damaged",
-      battleFx?.playerDamage > 0 && battleFx.ally !== "guest"
-    );
-    $("battle-guest").classList.toggle("is-damaged", battleFx?.playerDamage > 0 && battleFx.ally === "guest");
+    for (const side of ["hero", "guest"]) {
+      const number = $("battle-damage-" + side);
+      const damage = battleFx?.ally === side ? battleFx.playerDamage : 0;
+      number.parentElement.classList.toggle("is-damaged", damage > 0);
+      number.hidden = !(damage > 0);
+      if (damage > 0) number.textContent = "\u2212" + damage;
+    }
     if (battle) {
       const player = battleDisplay?.player ?? state.player;
       const guest = battleDisplay?.guest ?? battle.guest;
@@ -19404,7 +19421,7 @@
         phase: "impact",
         type: visual,
         enemySlot: targetSlot,
-        duration: 390,
+        duration: 620,
         enemyDamage: damage,
         healing,
         defeated: enemyHp === 0,
@@ -19431,7 +19448,7 @@
         enemySlot: targetSlot,
         guestActor: true,
         ally,
-        duration: 350,
+        duration: 620,
         enemyDamage: damage,
         healing,
         defeated: enemyHp === 0,
@@ -19491,11 +19508,20 @@
     paint();
   }
   $("game").addEventListener("click", (event) => {
-    if (panelMode !== "\u306D\u3089\u3046\u6575") return;
+    if (!battle || queue.length || battleEnding || battleLogPress || panelMode && panelMode !== "\u306D\u3089\u3046\u6575") return;
     const canvas = $("game"), rect3 = canvas.getBoundingClientRect();
     const x = (event.clientX - rect3.left) * canvas.width / rect3.width;
     const y = (event.clientY - rect3.top) * canvas.height / rect3.height;
-    const slot = enemySlotAt(canvas.width, canvas.height, battle.enemies.length, x, y);
+    const slot = frontEnemyAt(canvas.width, canvas.height, battle, x, y);
+    if (slot === null) return;
+    if (!panelMode) {
+      try {
+        queueHeroAction({ type: "attack", targetSlot: slot });
+      } catch (err) {
+        fatal(err);
+      }
+      return;
+    }
     const index = menuChoices.findIndex((choice) => choice.targetSlot === slot);
     if (index < 0) return;
     menuIndex = index;
@@ -20195,8 +20221,7 @@
         page,
         pos: next,
         motion: { map: "castle", fromX: prev.x, fromY: prev.y, start: start + step * duration, duration, step, facing },
-        entry: entering ? castleEntry(elapsed) : void 0,
-        raiderY: page === "refugee" ? 8 : page === "pickup" && from.x === introShieldFamily.x ? 8 - Math.min(1, Math.max(0, elapsed - duration) / duration) : void 0
+        entry: entering ? castleEntry(elapsed) : void 0
       };
       paintCurrentWorld();
       introFrame = requestAnimationFrame(frame);
@@ -20209,48 +20234,26 @@
     animateIntroWalk(from, path, { page: previousPage }, showIntroPage);
   }
   function playSwordPickup() {
-    const pedestal = introPosition(7, 3, "left");
-    const approach = state.pos.x === pedestal.x && state.pos.y === pedestal.y ? [] : [
-      ...state.pos.x === introShieldFamily.x ? [
-        introDefense,
-        introPosition(7, 7, "left"),
-        introEntrance,
-        introPosition(7, 5, "up")
-      ] : [],
-      introPosition(7, 4, "up"),
-      pedestal
-    ];
-    animateIntroWalk(state.pos, approach, { page: "pickup" }, () => {
-      introShot = { pos: pedestal, swordGlow: true };
+    const reaching = { ...introShieldFamily, facing: "right" };
+    introShot = { pos: reaching, swordGlow: true };
+    try {
+      storeAndSet({ ...takeStardustSword(state), pos: introShieldFamily }, true);
+    } catch (err) {
+      fatal(err);
+      return;
+    }
+    notice(swordPickupText(state.name));
+    introPause = setTimeout(() => {
+      introPause = 0;
+      introShot = null;
+      hint = "";
       try {
-        storeAndSet({ ...takeStardustSword(state), pos: pedestal }, true);
+        storeAndSet({ ...state, flags: { ...state.flags, introPage: "fight" } }, true);
+        showIntroPage();
       } catch (err) {
         fatal(err);
-        return;
       }
-      notice(swordPickupText(state.name));
-      introPause = setTimeout(() => {
-        introPause = 0;
-        hint = "";
-        paint();
-        const defense = [
-          introPosition(7, 4, "down"),
-          introPosition(7, 5, "down"),
-          introEntrance,
-          introPosition(7, 7, "down"),
-          introDefense
-        ];
-        animateIntroWalk(pedestal, defense, { page: "pickup" }, () => {
-          introShot = null;
-          try {
-            storeAndSet({ ...state, pos: introDefense, flags: { ...state.flags, introPage: "fight" } }, true);
-            showIntroPage();
-          } catch (err) {
-            fatal(err);
-          }
-        });
-      }, reducedIntroMotion() ? 850 : 1500);
-    });
+    }, reducedIntroMotion() ? 850 : 1500);
   }
   function advanceIntro() {
     try {
@@ -20266,7 +20269,7 @@
           playSwordPickup();
           return;
         case "witness":
-          playIntroWalk("audience1", [introPosition(7, 7, "left"), introEntrance, introPosition(7, 5, "up"), introPosition(7, 4, "up"), introThrone]);
+          playIntroWalk("audience1", [introDefense, introPosition(7, 7, "left"), introEntrance, introPosition(7, 5, "up"), introPosition(7, 4, "up"), introThrone]);
           return;
         case "departure": {
           const result = interact(state);
@@ -20389,7 +20392,7 @@
       const pos = page === "refugee" ? introEntrance : introDefense;
       storeAndSet({ ...state, pos, flags: { ...state.flags, introPage: page } }, true);
     }
-    if (page === "pickup" && state.pos.x === 7 && state.pos.y === 5) {
+    if (page === "pickup" && (state.pos.x !== introShieldFamily.x || state.pos.y !== introShieldFamily.y)) {
       storeAndSet({ ...state, pos: introShieldFamily }, true);
     }
     if (page) showIntroPage();
@@ -20513,5 +20516,5 @@
     if (!document.hidden) settleStageLayout();
   });
   settleStageLayout();
-  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castArtReady(), heroSprite: heroSprite() }), castleEntry: () => introShot?.entry ?? null, follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
+  window.__hoshikuzuQA = Object.freeze({ state: () => state ? clone(state) : null, battle: () => battle && !battleEnding ? clone(battle) : null, interior: () => interior ? { ...interior } : null, visual: () => ({ system: "atlas-v12", tile: 24, width: $("game").width, height: $("game").height, assetsLoaded: retroAssetsReady(), castleArtLoaded: castArtReady(), heroSprite: heroSprite() }), castleEntry: () => introShot?.entry ?? null, castleCast: () => clone(castleCast), follower: () => state ? followerPosition() : null, npcFacing: () => ({ ...leafNpcFacing }), impact: () => battleFx ? { ...battleFx } : null, audio: () => audio.inspect() });
 })();
