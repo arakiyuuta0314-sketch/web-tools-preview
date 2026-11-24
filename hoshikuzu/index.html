@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:,">
 <title>星屑の勇者 — はじまりの剣と黒曜の魔王城</title>
-<link rel="stylesheet" href="rpg.css?v=20261121-round-playback">
+<link rel="stylesheet" href="rpg.css?v=20261121-castle-battle">
 </head>
 <body>
 <div id="game-stage">
@@ -49,6 +49,7 @@
         <div class="battle-member">
           <img class="battle-portrait" src="assets/cast/face_allen.png" alt="">
           <strong id="battle-status-name">アレン</strong>
+          <span class="battle-damage-number" id="battle-damage-hero" aria-hidden="true" hidden></span>
           <div class="battle-resource">
             <span id="battle-status-hp">HP 0</span>
             <progress id="battle-hp-bar" aria-label="HP残量" value="0"></progress>
@@ -61,6 +62,7 @@
         <div class="battle-member" id="battle-guest" hidden>
           <img class="battle-portrait" id="guest-portrait" alt="">
           <strong id="guest-status-name">ゲスト</strong>
+          <span class="battle-damage-number" id="battle-damage-guest" aria-hidden="true" hidden></span>
           <div class="battle-resource">
             <span id="guest-status-hp">HP 0</span>
             <progress id="guest-hp-bar" aria-label="ゲストのHP残量" value="0"></progress>
@@ -139,6 +141,6 @@
 </section>
 </div>
 <p id="rotate-notice" hidden>端末を横向きにすると、画面が大きくなります。</p>
-<script defer src="app.js?v=20261121-round-playback"></script>
+<script defer src="app.js?v=20261121-castle-battle"></script>
 </body>
 </html>
